@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xmlns:sftp="http://www.mulesoft.org/schema/mule/sftp"
+      xmlns:test="http://www.mulesoft.org/schema/mule/test"
+      xmlns="http://www.mulesoft.org/schema/mule/core"
+      xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+      http://www.mulesoft.org/schema/mule/test http://www.mulesoft.org/schema/mule/test/current/mule-test.xsd
+        http://www.mulesoft.org/schema/mule/sftp http://www.mulesoft.org/schema/mule/sftp/current/mule-sftp.xsd">
+
+    <import file="sftp-connection.xml"/>
+
+    <sftp:matcher name="globalMatcher" directories="REQUIRE" filenamePattern="sub*" />
+
+    <flow name="list">
+        <sftp:list config-ref="config" directoryPath="#[vars.path]" recursive="#[vars.recursive]" />
+    </flow>
+
+    <flow name="listWithEmbeddedPredicate">
+        <sftp:list config-ref="config" directoryPath="#[vars.path]" recursive="#[vars.recursive]">
+            <sftp:matcher filenamePattern="*[1-2]*.html" />
+        </sftp:list>
+    </flow>
+
+    <flow name="listWithGlobalMatcher">
+        <sftp:list config-ref="config" directoryPath="#[vars.path]" recursive="#[vars.recursive]" matcher="globalMatcher"/>
+    </flow>
+
+    <flow name="listCursors">
+        <sftp:list config-ref="config" directoryPath="#[vars.path]" >
+            <sftp:matcher filenamePattern="*2.html" />
+        </sftp:list>
+        <test:processor class="org.mule.extension.sftp.SftpListTestCase$TestProcessor"/>
+        <test:processor class="org.mule.extension.sftp.SftpListTestCase$TestProcessor"/>
+    </flow>
+</mule>

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xmlns:sftp="http://www.mulesoft.org/schema/mule/sftp"
+      xmlns="http://www.mulesoft.org/schema/mule/core"
+      xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+        http://www.mulesoft.org/schema/mule/sftp http://www.mulesoft.org/schema/mule/sftp/current/mule-sftp.xsd">
+
+    <import file="sftp-read-config.xml"/>
+
+    <flow name="write">
+        <sftp:write config-ref="config" path="#[vars.path]" mode="#[vars.mode]" createParentDirectories="#[vars.createParent]" encoding="#[vars.encoding]" />
+    </flow>
+
+    <flow name="writeStaticContent">
+        <sftp:write config-ref="config" path="#[vars.path]" mode="#[vars.mode]" createParentDirectories="#[vars.createParent]">
+            <sftp:content>Hello World!</sftp:content>
+        </sftp:write>
+    </flow>
+
+    <flow name="readAndWrite">
+        <sftp:read config-ref="config" path="#[vars.path]" />
+        <set-payload value="Hello World!" />
+        <sftp:write config-ref="config" path="#[vars.path]" mode="OVERWRITE"/>
+    </flow>
+
+</mule>
