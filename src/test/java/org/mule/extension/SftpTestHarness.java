@@ -7,12 +7,12 @@
 package org.mule.extension;
 
 import org.mule.extension.sftp.api.SftpFileAttributes;
-import org.mule.functional.junit4.rules.ExpectedError;
-
-import java.nio.file.Paths;
+import org.mule.functional.api.exception.ExpectedError;
 
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TestRule;
+
+import java.nio.file.Paths;
 
 /**
  * A {@link TestRule} which provides tools and environment for reusing the same test regardless of the remote server type (FTP,
