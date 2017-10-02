@@ -6,10 +6,9 @@
  */
 package org.mule.extension.sftp;
 
-import static org.mule.extension.sftp.AllureConstants.SftpFeature.SFTP_EXTENSION;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
-import org.mule.extension.SftpTestHarness;
+import static org.mule.extension.sftp.AllureConstants.SftpFeature.SFTP_EXTENSION;
 
 import io.qameta.allure.Feature;
 

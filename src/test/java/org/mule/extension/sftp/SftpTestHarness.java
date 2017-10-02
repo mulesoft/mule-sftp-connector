@@ -23,6 +23,7 @@ import org.mule.extension.sftp.api.SftpFileAttributes;
 import org.mule.extension.sftp.internal.connection.SftpClient;
 import org.mule.extension.sftp.internal.connection.SftpClientFactory;
 import org.mule.tck.junit4.rule.DynamicPort;
+import org.mule.test.extension.file.common.api.FileTestHarness;
 
 import com.jcraft.jsch.JSchException;
 
@@ -38,7 +39,7 @@ import org.junit.rules.TemporaryFolder;
 import org.junit.rules.TestRule;
 
 /**
- * Implementation of {@link org.mule.extension.SftpTestHarness} for classic SFTP connections
+ * Implementation of {@link FileTestHarness} for classic SFTP connections
  *
  * @since 1.0
  */
@@ -160,10 +161,6 @@ public class SftpTestHarness extends AbstractSftpTestHarness {
     return normalizePath(sftpClient.getWorkingDirectory());
   }
 
-  /**
-   * {@inheritDoc}
-   */
-  @Override
   public String getRootDirectory() throws Exception {
     return temporaryFolder.getRoot().getAbsolutePath();
   }
@@ -227,7 +224,8 @@ public class SftpTestHarness extends AbstractSftpTestHarness {
    * {@inheritDoc}
    */
   @Override
-  public void assertAttributes(String path, SftpFileAttributes fileAttributes) throws Exception {
+  public void assertAttributes(String path, Object attributes) throws Exception {
+    SftpFileAttributes fileAttributes = (SftpFileAttributes) attributes;
     SftpFileAttributes file = sftpClient.getAttributes(Paths.get(path));
 
     assertThat(fileAttributes.getName(), equalTo(file.getName()));
@@ -254,14 +252,6 @@ public class SftpTestHarness extends AbstractSftpTestHarness {
     }
 
     assertThat(dirExists(directoryPath.toString()), is(false));
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public Class getAttributesType() {
-    return SftpFileAttributes.class;
   }
 
   public enum AuthType {
