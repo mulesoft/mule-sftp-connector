@@ -8,14 +8,12 @@ package org.mule.extension.sftp;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
-import static org.mule.extension.SftpTestHarness.HELLO_PATH;
-import static org.mule.extension.SftpTestHarness.HELLO_WORLD;
 import static org.mule.extension.sftp.AllureConstants.SftpFeature.SFTP_EXTENSION;
+import static org.mule.test.extension.file.common.api.FileTestHarness.HELLO_PATH;
+import static org.mule.test.extension.file.common.api.FileTestHarness.HELLO_WORLD;
 
-import org.mule.extension.SftpTestHarness;
-
-import org.junit.Test;
 import io.qameta.allure.Feature;
+import org.junit.Test;
 
 @Feature(SFTP_EXTENSION)
 public class SftpDeleteTestCase extends CommonSftpConnectorTestCase {

@@ -6,12 +6,11 @@
  */
 package org.mule.extension.sftp;
 
-import static org.mule.extension.SftpTestHarness.HELLO_PATH;
 import static org.mule.extension.sftp.AllureConstants.SftpFeature.SFTP_EXTENSION;
 import static org.mule.extension.sftp.SftpTestHarness.AuthType.PUBLIC_KEY;
 import static org.mule.extension.sftp.SftpTestHarness.AuthType.USER_PASSWORD;
 import static org.mule.runtime.core.api.util.IOUtils.closeQuietly;
-import org.mule.extension.SftpTestHarness;
+import static org.mule.test.extension.file.common.api.FileTestHarness.HELLO_PATH;
 import org.mule.extension.file.common.api.FileWriteMode;
 import org.mule.extension.file.common.api.stream.AbstractFileInputStream;
 import org.mule.runtime.api.message.Message;

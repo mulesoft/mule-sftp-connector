@@ -17,7 +17,6 @@ import static org.junit.Assert.assertThat;
 import static org.mule.extension.file.common.api.exceptions.FileError.ILLEGAL_PATH;
 import static org.mule.extension.sftp.AllureConstants.SftpFeature.SFTP_EXTENSION;
 import static org.mule.runtime.core.api.util.IOUtils.toByteArray;
-import org.mule.extension.SftpTestHarness;
 import org.mule.extension.file.common.api.FileAttributes;
 import org.mule.extension.file.common.api.exceptions.IllegalPathException;
 import org.mule.runtime.api.exception.MuleException;

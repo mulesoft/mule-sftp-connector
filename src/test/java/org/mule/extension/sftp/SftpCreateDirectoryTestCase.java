@@ -11,7 +11,6 @@ import static org.junit.Assert.assertThat;
 import static org.mule.extension.file.common.api.exceptions.FileError.FILE_ALREADY_EXISTS;
 import static org.mule.extension.sftp.AllureConstants.SftpFeature.SFTP_EXTENSION;
 import static org.mule.extension.sftp.internal.SftpUtils.normalizePath;
-import org.mule.extension.SftpTestHarness;
 import org.mule.extension.file.common.api.exceptions.FileAlreadyExistsException;
 
 import java.nio.file.Paths;
