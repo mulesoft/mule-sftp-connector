@@ -18,12 +18,12 @@ import static org.mule.extension.sftp.SftpServer.USERNAME;
 import static org.mule.extension.sftp.internal.SftpUtils.normalizePath;
 import static org.mule.extension.sftp.internal.SftpUtils.resolvePath;
 import org.mule.extension.AbstractSftpTestHarness;
+import org.mule.extension.FileTestHarness;
 import org.mule.extension.file.common.api.FileAttributes;
 import org.mule.extension.sftp.api.SftpFileAttributes;
 import org.mule.extension.sftp.internal.connection.SftpClient;
 import org.mule.extension.sftp.internal.connection.SftpClientFactory;
 import org.mule.tck.junit4.rule.DynamicPort;
-import org.mule.test.extension.file.common.api.FileTestHarness;
 
 import com.jcraft.jsch.JSchException;
 

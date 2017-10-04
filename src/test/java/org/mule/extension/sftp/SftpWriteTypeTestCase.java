@@ -8,10 +8,10 @@ package org.mule.extension.sftp;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
+import static org.mule.extension.FileTestHarness.HELLO_WORLD;
 import static org.mule.extension.sftp.AllureConstants.SftpFeature.SFTP_EXTENSION;
-import static org.mule.test.extension.file.common.api.FileTestHarness.HELLO_WORLD;
 import org.mule.extension.file.common.api.FileWriteMode;
-import org.mule.runtime.core.api.event.CoreEvent;
+import org.mule.runtime.core.api.InternalEvent;
 import org.mule.runtime.core.api.message.OutputHandler;
 import org.mule.test.runner.RunnerDelegateTo;
 
@@ -82,7 +82,7 @@ public class SftpWriteTypeTestCase extends CommonSftpConnectorTestCase {
   private static class TestOutputHandler implements OutputHandler {
 
     @Override
-    public void write(CoreEvent event, OutputStream out) throws IOException {
+    public void write(InternalEvent event, OutputStream out) throws IOException {
       org.apache.commons.io.IOUtils.write(HELLO_WORLD, out);
     }
   }

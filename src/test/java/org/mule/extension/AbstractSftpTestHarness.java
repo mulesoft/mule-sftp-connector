@@ -6,11 +6,9 @@
  */
 package org.mule.extension;
 
-import static org.mule.functional.api.exception.ExpectedError.none;
-
-import org.mule.functional.api.exception.ExpectedError;
+import static org.mule.functional.junit4.rules.ExpectedError.none;
+import org.mule.functional.junit4.rules.ExpectedError;
 import org.mule.tck.junit4.rule.SystemProperty;
-import org.mule.test.extension.file.common.api.FileTestHarness;
 
 import org.junit.rules.ExternalResource;
 import org.junit.rules.TestRule;
@@ -29,7 +27,7 @@ public abstract class AbstractSftpTestHarness extends ExternalResource implement
 
   /**
    * Creates a new instance
-   *
+   *                       FileTestHarness
    * @param profile the name of a spring profile to activate
    */
   public AbstractSftpTestHarness(String profile) {

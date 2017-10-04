@@ -11,7 +11,7 @@ import static org.junit.Assert.assertThat;
 import org.mule.extension.file.common.api.stream.AbstractFileInputStream;
 import org.mule.runtime.api.exception.MuleException;
 import org.mule.runtime.api.exception.MuleRuntimeException;
-import org.mule.runtime.core.api.event.CoreEvent;
+import org.mule.runtime.core.api.InternalEvent;
 import org.mule.runtime.core.api.processor.Processor;
 
 import java.io.IOException;
@@ -20,7 +20,7 @@ import java.io.InputStream;
 public class StreamCloserTestMessageProcessor implements Processor {
 
   @Override
-  public CoreEvent process(CoreEvent event) throws MuleException {
+  public InternalEvent process(InternalEvent event) throws MuleException {
     try {
       assertThat(((AbstractFileInputStream) event.getMessage().getPayload().getValue()).isLocked(), is(true));
       ((InputStream) event.getMessage().getPayload().getValue()).close();

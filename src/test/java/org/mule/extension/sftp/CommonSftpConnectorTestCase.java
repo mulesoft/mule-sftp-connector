@@ -6,16 +6,16 @@
  */
 package org.mule.extension.sftp;
 
+import static org.mule.extension.FileTestHarness.HELLO_PATH;
 import static org.mule.extension.sftp.AllureConstants.SftpFeature.SFTP_EXTENSION;
 import static org.mule.extension.sftp.SftpTestHarness.AuthType.PUBLIC_KEY;
 import static org.mule.extension.sftp.SftpTestHarness.AuthType.USER_PASSWORD;
 import static org.mule.runtime.core.api.util.IOUtils.closeQuietly;
-import static org.mule.test.extension.file.common.api.FileTestHarness.HELLO_PATH;
 import org.mule.extension.file.common.api.FileWriteMode;
 import org.mule.extension.file.common.api.stream.AbstractFileInputStream;
 import org.mule.runtime.api.message.Message;
 import org.mule.runtime.api.streaming.bytes.CursorStreamProvider;
-import org.mule.runtime.core.api.event.CoreEvent;
+import org.mule.runtime.core.api.InternalEvent;
 import org.mule.runtime.core.api.util.IOUtils;
 import org.mule.tck.junit4.rule.SystemProperty;
 import org.mule.test.runner.RunnerDelegateTo;
@@ -58,7 +58,7 @@ public abstract class CommonSftpConnectorTestCase extends AbstractSftpConnectorT
     this.ftpConfigFile = new SystemProperty("sftp.connection.config", configName);
   }
 
-  protected CoreEvent readHelloWorld() throws Exception {
+  protected InternalEvent readHelloWorld() throws Exception {
     return getPath(HELLO_PATH);
   }
 
@@ -84,11 +84,11 @@ public abstract class CommonSftpConnectorTestCase extends AbstractSftpConnectorT
         .withVariable("encoding", encoding).withPayload(content).run();
   }
 
-  private CoreEvent getPath(String path) throws Exception {
+  private InternalEvent getPath(String path) throws Exception {
     return getPath(path, true);
   }
 
-  private CoreEvent getPath(String path, boolean streaming) throws Exception {
+  private InternalEvent getPath(String path, boolean streaming) throws Exception {
     return flowRunner("read")
         .withVariable("path", path)
         .withVariable("streaming", streaming)

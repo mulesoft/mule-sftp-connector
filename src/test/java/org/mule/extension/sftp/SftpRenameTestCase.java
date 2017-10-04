@@ -8,12 +8,12 @@ package org.mule.extension.sftp;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
+import static org.mule.extension.FileTestHarness.HELLO_FILE_NAME;
+import static org.mule.extension.FileTestHarness.HELLO_PATH;
+import static org.mule.extension.FileTestHarness.HELLO_WORLD;
 import static org.mule.extension.file.common.api.exceptions.FileError.FILE_ALREADY_EXISTS;
 import static org.mule.extension.file.common.api.exceptions.FileError.ILLEGAL_PATH;
 import static org.mule.extension.sftp.AllureConstants.SftpFeature.SFTP_EXTENSION;
-import static org.mule.test.extension.file.common.api.FileTestHarness.HELLO_FILE_NAME;
-import static org.mule.test.extension.file.common.api.FileTestHarness.HELLO_PATH;
-import static org.mule.test.extension.file.common.api.FileTestHarness.HELLO_WORLD;
 import org.mule.extension.file.common.api.exceptions.FileAlreadyExistsException;
 import org.mule.extension.file.common.api.exceptions.IllegalPathException;
 

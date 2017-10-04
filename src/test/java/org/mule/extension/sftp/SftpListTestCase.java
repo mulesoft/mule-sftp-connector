@@ -22,7 +22,7 @@ import org.mule.extension.file.common.api.exceptions.IllegalPathException;
 import org.mule.runtime.api.exception.MuleException;
 import org.mule.runtime.api.message.Message;
 import org.mule.runtime.api.streaming.bytes.CursorStreamProvider;
-import org.mule.runtime.core.api.event.CoreEvent;
+import org.mule.runtime.core.api.InternalEvent;
 import org.mule.runtime.core.api.processor.Processor;
 
 import java.util.ArrayList;
@@ -190,7 +190,7 @@ public class SftpListTestCase extends CommonSftpConnectorTestCase {
     }
 
     @Override
-    public CoreEvent process(CoreEvent event) throws MuleException {
+    public InternalEvent process(InternalEvent event) throws MuleException {
       Collection<Message> messageList = (Collection<Message>) event.getMessage().getPayload().getValue();
 
       for (Message message : messageList) {

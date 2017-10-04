@@ -9,18 +9,18 @@ package org.mule.extension.sftp;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
+import static org.mule.extension.FileTestHarness.BINARY_FILE_NAME;
+import static org.mule.extension.FileTestHarness.HELLO_PATH;
+import static org.mule.extension.FileTestHarness.HELLO_WORLD;
 import static org.mule.extension.file.common.api.exceptions.FileError.ILLEGAL_PATH;
 import static org.mule.extension.sftp.AllureConstants.SftpFeature.SFTP_EXTENSION;
 import static org.mule.runtime.api.metadata.MediaType.JSON;
-import static org.mule.test.extension.file.common.api.FileTestHarness.BINARY_FILE_NAME;
-import static org.mule.test.extension.file.common.api.FileTestHarness.HELLO_PATH;
-import static org.mule.test.extension.file.common.api.FileTestHarness.HELLO_WORLD;
 import org.mule.extension.file.common.api.exceptions.IllegalPathException;
 import org.mule.extension.file.common.api.stream.AbstractFileInputStream;
 import org.mule.extension.sftp.api.SftpFileAttributes;
 import org.mule.runtime.api.message.Message;
 import org.mule.runtime.api.metadata.MediaType;
-import org.mule.runtime.core.api.event.CoreEvent;
+import org.mule.runtime.core.api.InternalEvent;
 
 import java.nio.file.Paths;
 
@@ -74,7 +74,7 @@ public class SftpReadTestCase extends CommonSftpConnectorTestCase {
 
   @Test
   public void readWithForcedMimeType() throws Exception {
-    CoreEvent event = flowRunner("readWithForcedMimeType").withVariable("path", HELLO_PATH).run();
+    InternalEvent event = flowRunner("readWithForcedMimeType").withVariable("path", HELLO_PATH).run();
     assertThat(event.getMessage().getPayload().getDataType().getMediaType().getPrimaryType(), equalTo("test"));
     assertThat(event.getMessage().getPayload().getDataType().getMediaType().getSubType(), equalTo("test"));
   }

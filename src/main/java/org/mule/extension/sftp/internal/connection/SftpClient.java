@@ -12,7 +12,6 @@ import static org.apache.commons.collections.CollectionUtils.isEmpty;
 import static org.mule.extension.sftp.internal.SftpUtils.normalizePath;
 import static org.mule.extension.sftp.internal.SftpUtils.resolvePath;
 import static org.mule.runtime.api.i18n.I18nMessageFactory.createStaticMessage;
-import static org.mule.runtime.api.util.collection.Collectors.toImmutableList;
 import static org.mule.runtime.core.api.util.StringUtils.isEmpty;
 import org.mule.extension.file.common.api.FileWriteMode;
 import org.mule.extension.file.common.api.exceptions.FileError;
@@ -42,6 +41,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Properties;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -301,7 +301,7 @@ public class SftpClient {
     }
 
     return entries.stream().map(entry -> new SftpFileAttributes(Paths.get(path).resolve(entry.getFilename()), entry.getAttrs()))
-        .collect(toImmutableList());
+        .collect(Collectors.toList());
   }
 
   /**

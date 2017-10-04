@@ -8,7 +8,7 @@ package org.mule.extension.sftp;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
-import static org.mule.test.extension.file.common.api.FileTestHarness.HELLO_WORLD;
+import static org.mule.extension.FileTestHarness.HELLO_WORLD;
 import org.mule.runtime.api.message.Message;
 import org.mule.tck.junit4.rule.DynamicPort;
 
