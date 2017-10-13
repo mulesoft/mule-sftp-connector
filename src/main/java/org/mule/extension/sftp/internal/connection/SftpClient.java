@@ -18,6 +18,7 @@ import org.mule.extension.file.common.api.FileWriteMode;
 import org.mule.extension.file.common.api.exceptions.FileError;
 import org.mule.extension.sftp.api.SftpConnectionException;
 import org.mule.extension.sftp.api.SftpFileAttributes;
+import org.mule.extension.sftp.random.alg.PRNGAlgorithm;
 import org.mule.runtime.api.connection.ConnectionException;
 import org.mule.runtime.api.exception.MuleRuntimeException;
 
@@ -72,6 +73,7 @@ public class SftpClient {
   private String preferredAuthenticationMethods;
   private long connectionTimeoutMillis = 0; // No timeout by default
   private SftpProxyConfig proxyConfig;
+  private String prngAlgorithmClassImplementation;
 
   /**
    * Creates a new instance which connects to a server on a given {@code host} and {@code port}
@@ -80,10 +82,10 @@ public class SftpClient {
    * @param port the remote connection port
    * @param jSchSupplier a {@link Supplier} for obtaining a {@link JSch} client
    */
-  public SftpClient(String host, int port, Supplier<JSch> jSchSupplier) {
+  public SftpClient(String host, int port, Supplier<JSch> jSchSupplier, PRNGAlgorithm prngAlgorithm) {
     this.host = host;
     this.port = port;
-
+    this.prngAlgorithmClassImplementation = prngAlgorithm.getImplementationClassName();
     jsch = jSchSupplier.get();
   }
 
@@ -174,6 +176,7 @@ public class SftpClient {
   private void configureSession(String user) throws JSchException {
     Properties hash = new Properties();
     configureHostChecking(hash);
+    setRandomPrng(hash);
     if (!isEmpty(preferredAuthenticationMethods)) {
       hash.put(PREFERRED_AUTHENTICATION_METHODS, preferredAuthenticationMethods);
     }
@@ -183,6 +186,10 @@ public class SftpClient {
     session.setPort(port);
     session.setTimeout(Long.valueOf(connectionTimeoutMillis).intValue());
     configureProxy(session);
+  }
+
+  private void setRandomPrng(Properties hash) {
+    hash.put("random", prngAlgorithmClassImplementation);
   }
 
   private void configureHostChecking(Properties hash) throws JSchException {

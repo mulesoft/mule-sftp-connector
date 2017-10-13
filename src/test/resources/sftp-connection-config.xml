@@ -6,7 +6,7 @@
         http://www.mulesoft.org/schema/mule/sftp http://www.mulesoft.org/schema/mule/sftp/current/mule-sftp.xsd">
 
     <sftp:config name="config">
-        <sftp:connection username="muletest1" password="muletest1" host="localhost" port="${SFTP_PORT}" workingDir="${workingDir}"  />
+        <sftp:connection username="muletest1" password="muletest1" host="localhost" port="${SFTP_PORT}" workingDir="${workingDir}" prngAlgorithm="SHA1PRNG" />
     </sftp:config>
 
 </mule>

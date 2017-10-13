@@ -9,7 +9,7 @@ package org.mule.extension.sftp.internal.connection;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.apache.commons.io.FileUtils.write;
 import static org.hamcrest.CoreMatchers.equalTo;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.ArgumentCaptor.forClass;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -18,15 +18,11 @@ import static org.mule.extension.sftp.SftpServer.USERNAME;
 import static org.mule.extension.sftp.api.SftpAuthenticationMethod.GSSAPI_WITH_MIC;
 import static org.mule.extension.sftp.internal.connection.SftpClient.PREFERRED_AUTHENTICATION_METHODS;
 import static org.mule.extension.sftp.internal.connection.SftpClient.STRICT_HOST_KEY_CHECKING;
-import org.mule.extension.sftp.internal.SftpConnector;
-import org.mule.tck.junit4.AbstractMuleTestCase;
-import org.mule.tck.size.SmallTest;
-
-import com.google.common.collect.ImmutableSet;
-import com.jcraft.jsch.ChannelSftp;
-import com.jcraft.jsch.JSch;
-import com.jcraft.jsch.JSchException;
-import com.jcraft.jsch.Session;
+import static org.mule.extension.sftp.random.alg.PRNGAlgorithm.AUTOSELECT;
+import static org.mule.extension.sftp.random.alg.PRNGAlgorithm.NativePRNG;
+import static org.mule.extension.sftp.random.alg.PRNGAlgorithm.NativePRNGBlocking;
+import static org.mule.extension.sftp.random.alg.PRNGAlgorithm.NativePRNGNonBlocking;
+import static org.mule.extension.sftp.random.alg.PRNGAlgorithm.SHA1PRNG;
 
 import java.io.File;
 import java.util.Properties;
@@ -39,6 +35,16 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.mule.extension.sftp.internal.SftpConnector;
+import org.mule.extension.sftp.random.alg.PRNGAlgorithm;
+import org.mule.tck.junit4.AbstractMuleTestCase;
+import org.mule.tck.size.SmallTest;
+
+import com.google.common.collect.ImmutableSet;
+import com.jcraft.jsch.ChannelSftp;
+import com.jcraft.jsch.JSch;
+import com.jcraft.jsch.JSchException;
+import com.jcraft.jsch.Session;
 
 @SmallTest
 @RunWith(MockitoJUnitRunner.class)
@@ -76,19 +82,19 @@ public class SftpConnectionProviderTestCase extends AbstractMuleTestCase {
 
     write(hostFile, "hostFile");
     write(identityFile, "jason bourne");
-
     provider.setHost(HOST);
     provider.setUsername(USERNAME);
     provider.setConnectionTimeout(10);
     provider.setConnectionTimeoutUnit(SECONDS);
+    provider.setPrngAlgorithm(SHA1PRNG);
     provider.setPreferredAuthenticationMethods(ImmutableSet.of(GSSAPI_WITH_MIC));
     provider.setKnownHostsFile(hostFile.getAbsolutePath());
 
     provider.setClientFactory(new SftpClientFactory() {
 
       @Override
-      public SftpClient createInstance(String host, int port) {
-        return new SftpClient(host, port, () -> jsch);
+      public SftpClient createInstance(String host, int port, PRNGAlgorithm prngAlgorithm) {
+        return new SftpClient(host, port, () -> jsch, prngAlgorithm);
       }
     });
 
@@ -107,12 +113,44 @@ public class SftpConnectionProviderTestCase extends AbstractMuleTestCase {
   }
 
   @Test
+  public void whenSHA1PRNGlgorithmIsSetSetThenLogginPropertiesAreSet() throws Exception {
+    assertPropertyCorrectWith(SHA1PRNG);
+  }
+
+  @Test
+  public void whenAUTOSELECTlgorithmIsSetSetThenLogginPropertiesAreSet() throws Exception {
+    assertPropertyCorrectWith(AUTOSELECT);
+  }
+
+  @Test
+  public void whenNativePRNGBlockinglgorithmIsSetSetThenLogginPropertiesAreSet() throws Exception {
+    assertPropertyCorrectWith(NativePRNGBlocking);
+  }
+
+  @Test
+  public void whenNativePRNGlgorithmIsSetSetThenLogginPropertiesAreSet() throws Exception {
+    assertPropertyCorrectWith(NativePRNG);
+  }
+
+  @Test
+  public void whenNativePRNGNonBlockinglgorithmIsSetSetThenLogginPropertiesAreSet() throws Exception {
+    assertPropertyCorrectWith(NativePRNGNonBlocking);
+  }
+
+  @Test
   public void identityFileWithoutPassPhrase() throws Exception {
     provider.setIdentityFile(identityFile.getAbsolutePath());
 
     login();
 
     assertSimpleIdentity();
+  }
+
+  private void assertPropertyCorrectWith(PRNGAlgorithm algorithm) throws Exception {
+    provider.setPrngAlgorithm(algorithm);
+    provider.connect();
+    Properties properties = captureLoginProperties();
+    assertThat(properties.get("random"), equalTo(algorithm.getImplementationClassName()));
   }
 
   private void assertSimpleIdentity() throws JSchException {

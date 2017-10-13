@@ -7,8 +7,11 @@
 package org.mule.extension.sftp.internal.connection;
 
 import static org.mule.runtime.api.meta.model.display.PathModel.Type.FILE;
+
+import org.mule.extension.sftp.random.alg.PRNGAlgorithm;
 import org.mule.runtime.extension.api.annotation.param.Optional;
 import org.mule.runtime.extension.api.annotation.param.Parameter;
+import org.mule.runtime.extension.api.annotation.param.display.DisplayName;
 import org.mule.runtime.extension.api.annotation.param.display.Password;
 import org.mule.runtime.extension.api.annotation.param.display.Path;
 import org.mule.runtime.extension.api.annotation.param.display.Placement;
@@ -73,6 +76,14 @@ public final class SftpConnectionSettings {
   @Path(type = FILE)
   private String identityFile;
 
+
+  @Parameter
+  @Optional(defaultValue = "AUTOSELECT")
+  @Summary("The Pseudo Random Generator Algorithm to use")
+  @Placement(order = 7)
+  @DisplayName("PRNG Algorithm")
+  private PRNGAlgorithm prngAlgorithm;
+
   public int getPort() {
     return port;
   }
@@ -119,6 +130,14 @@ public final class SftpConnectionSettings {
 
   public void setHost(String host) {
     this.host = host;
+  }
+
+  public PRNGAlgorithm getPrngAlgorithm() {
+    return prngAlgorithm;
+  }
+
+  public void setPrngAlgorithm(PRNGAlgorithm prngAlgorithm) {
+    this.prngAlgorithm = prngAlgorithm;
   }
 
 }
