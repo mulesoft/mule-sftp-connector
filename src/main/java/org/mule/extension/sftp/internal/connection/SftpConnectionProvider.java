@@ -20,6 +20,7 @@ import org.mule.extension.sftp.api.SftpAuthenticationMethod;
 import org.mule.extension.sftp.api.SftpConnectionException;
 import org.mule.extension.sftp.internal.SftpConnector;
 import org.mule.extension.sftp.internal.TimeoutSettings;
+import org.mule.extension.sftp.random.alg.PRNGAlgorithm;
 import org.mule.runtime.api.connection.ConnectionException;
 import org.mule.runtime.api.connection.ConnectionValidationResult;
 import org.mule.runtime.api.connection.PoolingConnectionProvider;
@@ -163,7 +164,8 @@ public class SftpConnectionProvider extends FileSystemProvider<SftpFileSystem>
     if (LOGGER.isDebugEnabled()) {
       LOGGER.debug(format("Connecting to host: '%s' at port: '%d'", connectionSettings.getHost(), connectionSettings.getPort()));
     }
-    SftpClient client = clientFactory.createInstance(connectionSettings.getHost(), connectionSettings.getPort());
+    SftpClient client = clientFactory.createInstance(connectionSettings.getHost(), connectionSettings.getPort(),
+                                                     connectionSettings.getPrngAlgorithm());
     client.setConnectionTimeoutMillis(getConnectionTimeoutUnit().toMillis(getConnectionTimeout()));
     client.setPassword(connectionSettings.getPassword());
     client.setIdentity(connectionSettings.getIdentityFile(), connectionSettings.getPassphrase());
@@ -193,6 +195,10 @@ public class SftpConnectionProvider extends FileSystemProvider<SftpFileSystem>
 
   void setUsername(String username) {
     connectionSettings.setUsername(username);
+  }
+
+  void setPrngAlgorithm(PRNGAlgorithm algorithm) {
+    connectionSettings.setPrngAlgorithm(algorithm);
   }
 
   void setPassword(String password) {

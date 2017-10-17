@@ -15,6 +15,7 @@ import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.when;
+import static org.mule.extension.sftp.random.alg.PRNGAlgorithm.NativePRNGNonBlocking;
 
 import org.mule.extension.sftp.internal.connection.SftpClient;
 import org.mule.runtime.api.exception.MuleRuntimeException;
@@ -54,7 +55,7 @@ public class SftpClientTestCase {
   private ChannelSftp channel;
 
   @InjectMocks
-  private SftpClient client = new SftpClient(EMPTY, 0, () -> jsch);;
+  private SftpClient client = new SftpClient(EMPTY, 0, () -> jsch, NativePRNGNonBlocking);
 
   @Before
   public void setUp() {

@@ -6,6 +6,8 @@
  */
 package org.mule.extension.sftp.internal.connection;
 
+import org.mule.extension.sftp.random.alg.PRNGAlgorithm;
+
 import com.jcraft.jsch.JSch;
 
 /**
@@ -20,9 +22,10 @@ public class SftpClientFactory {
    *
    * @param host the host address
    * @param port the remote connection port
+   * @param prngAlgorithm the pseudorandom algorithm generator algorithm
    * @return a {@link SftpClient}
    */
-  public SftpClient createInstance(String host, int port) {
-    return new SftpClient(host, port, JSch::new);
+  public SftpClient createInstance(String host, int port, PRNGAlgorithm prngAlgorithm) {
+    return new SftpClient(host, port, JSch::new, prngAlgorithm);
   }
 }

@@ -17,6 +17,8 @@ import static org.mule.extension.sftp.SftpServer.PASSWORD;
 import static org.mule.extension.sftp.SftpServer.USERNAME;
 import static org.mule.extension.sftp.internal.SftpUtils.normalizePath;
 import static org.mule.extension.sftp.internal.SftpUtils.resolvePath;
+import static org.mule.extension.sftp.random.alg.PRNGAlgorithm.SHA1PRNG;
+
 import org.mule.extension.AbstractSftpTestHarness;
 import org.mule.extension.file.common.api.FileAttributes;
 import org.mule.extension.sftp.api.SftpFileAttributes;
@@ -106,7 +108,7 @@ public class SftpTestHarness extends AbstractSftpTestHarness {
   }
 
   private SftpClient createDefaultSftpClient() throws IOException, JSchException {
-    SftpClient sftpClient = new SftpClientFactory().createInstance("localhost", sftpPort.getNumber());
+    SftpClient sftpClient = new SftpClientFactory().createInstance("localhost", sftpPort.getNumber(), SHA1PRNG);
     clientAuthConfigurator.configure(sftpClient);
     sftpClient.login(USERNAME);
     sftpClient.changeWorkingDirectory(temporaryFolder.getRoot().getPath());
