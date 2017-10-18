@@ -26,6 +26,7 @@ public abstract class MulePRNGAlgorithm implements Random {
       String algorithmName = getAlgorithmName();
       if (algorithmName == null) {
         fallBackToSecureRandom();
+        return;
       }
       random = SecureRandom.getInstance(algorithmName);
     } catch (NoSuchAlgorithmException e) {
