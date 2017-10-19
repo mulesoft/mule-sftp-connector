@@ -14,6 +14,7 @@ import static org.mule.extension.file.common.api.exceptions.FileError.INVALID_CR
 import static org.mule.extension.file.common.api.exceptions.FileError.UNKNOWN_HOST;
 import static org.mule.runtime.api.meta.model.display.PathModel.Type.FILE;
 import static org.mule.runtime.extension.api.annotation.param.ParameterGroup.CONNECTION;
+
 import org.mule.extension.file.common.api.FileSystemProvider;
 import org.mule.extension.file.common.api.exceptions.FileError;
 import org.mule.extension.sftp.api.SftpAuthenticationMethod;
@@ -33,6 +34,9 @@ import org.mule.runtime.extension.api.annotation.param.display.DisplayName;
 import org.mule.runtime.extension.api.annotation.param.display.Path;
 import org.mule.runtime.extension.api.annotation.param.display.Summary;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.common.base.Joiner;
 import com.jcraft.jsch.JSchException;
 
@@ -42,8 +46,6 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
-
-import org.apache.log4j.Logger;
 
 /**
  * An {@link FileSystemProvider} which provides instances of {@link SftpFileSystem} from instances of
@@ -55,7 +57,7 @@ import org.apache.log4j.Logger;
 public class SftpConnectionProvider extends FileSystemProvider<SftpFileSystem>
     implements PoolingConnectionProvider<SftpFileSystem> {
 
-  private static final Logger LOGGER = Logger.getLogger(SftpConnectionProvider.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(SftpConnectionProvider.class);
 
   private static final String TIMEOUT_CONFIGURATION = "Timeout Configuration";
   private static final String SFTP_ERROR_MESSAGE_MASK =
@@ -93,6 +95,7 @@ public class SftpConnectionProvider extends FileSystemProvider<SftpFileSystem>
   /**
    * {@inheritDoc}
    */
+  @Override
   public String getWorkingDir() {
     return workingDir;
   }
@@ -232,7 +235,7 @@ public class SftpConnectionProvider extends FileSystemProvider<SftpFileSystem>
   /**
    * Handles a {@link JSchException}, introspects their cause or message to return a {@link ConnectionException} indicating with a
    * {@link FileError} the kind of failure.
-   * 
+   *
    * @param e The exception to handle
    * @throws ConnectionException Indicating the kind of failure
    */
