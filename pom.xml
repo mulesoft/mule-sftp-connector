@@ -23,7 +23,7 @@
         <commonsLangVersion>3.6</commonsLangVersion>
         <commonsCollectionsVersion>3.2.2</commonsCollectionsVersion>
         <guavaVersion>18.0</guavaVersion>
-        <jschVersion>0.1.54</jschVersion>
+        <jschVersion>1.0.0</jschVersion>
 
         <muleFileCommonsVersion>1.0.0-SNAPSHOT</muleFileCommonsVersion>
         <muleTestsComponentPlugin>4.0.0-SNAPSHOT</muleTestsComponentPlugin>
@@ -64,7 +64,7 @@
         </dependency>
 
         <dependency>
-            <groupId>com.jcraft</groupId>
+            <groupId>org.mule.jsch</groupId>
             <artifactId>jsch</artifactId>
             <version>${jschVersion}</version>
         </dependency>
