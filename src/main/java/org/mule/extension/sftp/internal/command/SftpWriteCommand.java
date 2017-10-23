@@ -12,6 +12,8 @@ import org.mule.extension.file.common.api.FileAttributes;
 import org.mule.extension.file.common.api.FileWriteMode;
 import org.mule.extension.file.common.api.command.WriteCommand;
 import org.mule.extension.file.common.api.exceptions.FileAlreadyExistsException;
+import org.mule.extension.file.common.api.lock.NullPathLock;
+import org.mule.extension.file.common.api.lock.PathLock;
 import org.mule.extension.sftp.internal.connection.SftpClient;
 import org.mule.extension.sftp.internal.connection.SftpFileSystem;
 
@@ -58,10 +60,13 @@ public final class SftpWriteCommand extends SftpCommand implements WriteCommand 
       }
     }
 
+    PathLock pathLock = lock ? fileSystem.lock(path) : new NullPathLock(path);
+
     try (OutputStream outputStream = getOutputStream(path, mode)) {
       IOUtils.copy(content, outputStream);
       LOGGER.debug("Successfully wrote to path {}", path.toString());
     } catch (Exception e) {
+      pathLock.release();
       throw exception(format("Exception was found writing to file '%s'", path), e);
     }
   }

@@ -27,7 +27,6 @@ import org.mule.extension.file.common.api.exceptions.IllegalPathException;
 import org.mule.extension.file.common.api.lock.PathLock;
 import org.mule.extension.file.common.api.lock.URLPathLock;
 import org.mule.extension.sftp.api.SftpConnectionException;
-import org.mule.extension.sftp.api.SftpFileAttributes;
 import org.mule.extension.sftp.internal.command.SftpCopyCommand;
 import org.mule.extension.sftp.internal.command.SftpCreateDirectoryCommand;
 import org.mule.extension.sftp.internal.command.SftpDeleteCommand;
@@ -127,7 +126,7 @@ public class SftpFileSystem extends AbstractFileSystem {
    * @return a {@link URLPathLock} based on the {@link #client}'s connection information
    */
   @Override
-  protected PathLock createLock(Path path, Object... params) {
+  protected PathLock createLock(Path path) {
     return new URLPathLock(toURL(path), lockFactory);
   }
 
@@ -201,14 +200,6 @@ public class SftpFileSystem extends AbstractFileSystem {
   @Override
   public WriteCommand getWriteCommand() {
     return writeCommand;
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public Class<? extends FileAttributes> getAttributesType() {
-    return SftpFileAttributes.class;
   }
 
   /**
