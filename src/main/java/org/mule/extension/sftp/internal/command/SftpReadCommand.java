@@ -16,8 +16,8 @@ import org.mule.extension.sftp.internal.SftpConnector;
 import org.mule.extension.sftp.internal.SftpInputStream;
 import org.mule.extension.sftp.internal.connection.SftpClient;
 import org.mule.extension.sftp.internal.connection.SftpFileSystem;
-import org.mule.runtime.api.connection.ConnectionException;
 import org.mule.runtime.api.metadata.MediaType;
+import org.mule.runtime.core.api.util.IOUtils;
 import org.mule.runtime.extension.api.runtime.operation.Result;
 
 import java.io.InputStream;
@@ -50,21 +50,17 @@ public final class SftpReadCommand extends SftpCommand implements ReadCommand {
 
     Path path = Paths.get(attributes.getPath());
 
-    PathLock pathLock;
-    if (lock) {
-      pathLock = fileSystem.lock(path);
-    } else {
-      fileSystem.verifyNotLocked(path);
-      pathLock = new NullPathLock();
-    }
-
+    PathLock pathLock = lock ? fileSystem.lock(path) : new NullPathLock(path);
+    InputStream payload = null;
     try {
-      InputStream payload = SftpInputStream.newInstance((SftpConnector) config, attributes, pathLock);
+      payload = SftpInputStream.newInstance((SftpConnector) config, attributes, pathLock);
       MediaType resolvedMediaType = fileSystem.getFileMessageMediaType(attributes);
       return Result.<InputStream, FileAttributes>builder().output(payload).mediaType(resolvedMediaType).attributes(attributes)
           .build();
-    } catch (ConnectionException e) {
-      throw exception("Could not obtain connection to fetch file " + path, e);
+    } catch (Exception e) {
+      pathLock.release();
+      IOUtils.closeQuietly(payload);
+      throw exception("Could not fetch file " + path, e);
     }
   }
 }
