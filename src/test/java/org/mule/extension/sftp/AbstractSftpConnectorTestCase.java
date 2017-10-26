@@ -12,10 +12,7 @@ import org.mule.extension.sftp.internal.connection.SftpClientFactory;
 import org.mule.functional.junit4.MuleArtifactFunctionalTestCase;
 import org.mule.test.runner.ArtifactClassLoaderRunnerConfig;
 
-@ArtifactClassLoaderRunnerConfig(exportPluginClasses = {SftpClientFactory.class, SftpClient.class, SftpUtils.class},
-    sharedRuntimeLibs = {
-        "org.mule.tests:mule-tests-unit"
-    })
+@ArtifactClassLoaderRunnerConfig(exportPluginClasses = {SftpClientFactory.class, SftpClient.class, SftpUtils.class})
 public abstract class AbstractSftpConnectorTestCase extends MuleArtifactFunctionalTestCase {
 
 }
