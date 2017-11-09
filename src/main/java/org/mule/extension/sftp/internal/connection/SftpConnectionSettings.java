@@ -6,8 +6,8 @@
  */
 package org.mule.extension.sftp.internal.connection;
 
+import static org.mule.runtime.api.meta.model.display.PathModel.Location.EMBEDDED;
 import static org.mule.runtime.api.meta.model.display.PathModel.Type.FILE;
-
 import org.mule.extension.sftp.random.alg.PRNGAlgorithm;
 import org.mule.runtime.extension.api.annotation.param.Optional;
 import org.mule.runtime.extension.api.annotation.param.Parameter;
@@ -73,7 +73,7 @@ public final class SftpConnectionSettings {
   @Parameter
   @Optional
   @Placement(order = 5)
-  @Path(type = FILE)
+  @Path(type = FILE, location = EMBEDDED)
   private String identityFile;
 
 
