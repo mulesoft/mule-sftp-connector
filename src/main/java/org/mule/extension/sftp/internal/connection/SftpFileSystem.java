@@ -27,6 +27,7 @@ import org.mule.extension.file.common.api.exceptions.IllegalPathException;
 import org.mule.extension.file.common.api.lock.PathLock;
 import org.mule.extension.file.common.api.lock.URLPathLock;
 import org.mule.extension.sftp.api.SftpConnectionException;
+import org.mule.extension.sftp.api.SftpFileAttributes;
 import org.mule.extension.sftp.internal.command.SftpCopyCommand;
 import org.mule.extension.sftp.internal.command.SftpCreateDirectoryCommand;
 import org.mule.extension.sftp.internal.command.SftpDeleteCommand;
@@ -55,9 +56,9 @@ public class SftpFileSystem extends AbstractFileSystem {
   protected final CopyCommand copyCommand;
   protected final CreateDirectoryCommand createDirectoryCommand;
   protected final DeleteCommand deleteCommand;
-  protected final ListCommand listCommand;
+  protected final ListCommand<SftpFileAttributes> listCommand;
   protected final MoveCommand moveCommand;
-  protected final ReadCommand readCommand;
+  protected final ReadCommand<SftpFileAttributes> readCommand;
   protected final RenameCommand renameCommand;
   protected final WriteCommand writeCommand;
   private final LockFactory lockFactory;
@@ -220,4 +221,7 @@ public class SftpFileSystem extends AbstractFileSystem {
     return success();
   }
 
+  public SftpClient getClient() {
+    return client;
+  }
 }

@@ -6,7 +6,6 @@
  */
 package org.mule.extension.sftp.internal.command;
 
-import org.mule.extension.file.common.api.FileAttributes;
 import org.mule.extension.file.common.api.FileConnectorConfig;
 import org.mule.extension.file.common.api.command.ReadCommand;
 import org.mule.extension.file.common.api.lock.NullPathLock;
@@ -29,7 +28,7 @@ import java.nio.file.Paths;
  *
  * @since 1.0
  */
-public final class SftpReadCommand extends SftpCommand implements ReadCommand {
+public final class SftpReadCommand extends SftpCommand implements ReadCommand<SftpFileAttributes> {
 
   /**
    * {@inheritDoc}
@@ -42,7 +41,7 @@ public final class SftpReadCommand extends SftpCommand implements ReadCommand {
    * {@inheritDoc}
    */
   @Override
-  public Result<InputStream, FileAttributes> read(FileConnectorConfig config, String filePath, boolean lock) {
+  public Result<InputStream, SftpFileAttributes> read(FileConnectorConfig config, String filePath, boolean lock) {
     SftpFileAttributes attributes = getExistingFile(filePath);
     if (attributes.isDirectory()) {
       throw cannotReadDirectoryException(Paths.get(attributes.getPath()));
@@ -55,7 +54,7 @@ public final class SftpReadCommand extends SftpCommand implements ReadCommand {
     try {
       payload = SftpInputStream.newInstance((SftpConnector) config, attributes, pathLock);
       MediaType resolvedMediaType = fileSystem.getFileMessageMediaType(attributes);
-      return Result.<InputStream, FileAttributes>builder().output(payload).mediaType(resolvedMediaType).attributes(attributes)
+      return Result.<InputStream, SftpFileAttributes>builder().output(payload).mediaType(resolvedMediaType).attributes(attributes)
           .build();
     } catch (Exception e) {
       pathLock.release();
