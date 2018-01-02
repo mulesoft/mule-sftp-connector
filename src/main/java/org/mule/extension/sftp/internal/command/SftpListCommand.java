@@ -29,7 +29,7 @@ import org.slf4j.Logger;
  *
  * @since 1.0
  */
-public final class SftpListCommand extends SftpCommand implements ListCommand {
+public final class SftpListCommand extends SftpCommand implements ListCommand<SftpFileAttributes> {
 
   private static final Logger LOGGER = getLogger(SftpListCommand.class);
 
@@ -44,10 +44,10 @@ public final class SftpListCommand extends SftpCommand implements ListCommand {
    * {@inheritDoc}
    */
   @Override
-  public List<Result<InputStream, FileAttributes>> list(FileConnectorConfig config,
-                                                        String directoryPath,
-                                                        boolean recursive,
-                                                        Predicate<FileAttributes> matcher) {
+  public List<Result<InputStream, SftpFileAttributes>> list(FileConnectorConfig config,
+                                                            String directoryPath,
+                                                            boolean recursive,
+                                                            Predicate<SftpFileAttributes> matcher) {
 
     FileAttributes directoryAttributes = getExistingFile(directoryPath);
     Path path = Paths.get(directoryAttributes.getPath());
@@ -56,7 +56,7 @@ public final class SftpListCommand extends SftpCommand implements ListCommand {
       throw cannotListFileException(path);
     }
 
-    List<Result<InputStream, FileAttributes>> accumulator = new LinkedList<>();
+    List<Result<InputStream, SftpFileAttributes>> accumulator = new LinkedList<>();
     doList(config, directoryAttributes.getPath(), accumulator, recursive, matcher);
 
     return accumulator;
@@ -64,9 +64,9 @@ public final class SftpListCommand extends SftpCommand implements ListCommand {
 
   private void doList(FileConnectorConfig config,
                       String path,
-                      List<Result<InputStream, FileAttributes>> accumulator,
+                      List<Result<InputStream, SftpFileAttributes>> accumulator,
                       boolean recursive,
-                      Predicate<FileAttributes> matcher) {
+                      Predicate<SftpFileAttributes> matcher) {
 
     LOGGER.debug("Listing directory {}", path);
     for (SftpFileAttributes file : client.list(path)) {
@@ -75,7 +75,7 @@ public final class SftpListCommand extends SftpCommand implements ListCommand {
       }
 
       if (file.isDirectory()) {
-        accumulator.add(Result.<InputStream, FileAttributes>builder().output(null).attributes(file).build());
+        accumulator.add(Result.<InputStream, SftpFileAttributes>builder().output(null).attributes(file).build());
 
         if (recursive) {
           doList(config, file.getPath(), accumulator, recursive, matcher);

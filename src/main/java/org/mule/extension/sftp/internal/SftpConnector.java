@@ -9,9 +9,11 @@ package org.mule.extension.sftp.internal;
 import org.mule.extension.file.common.api.FileConnectorConfig;
 import org.mule.extension.file.common.api.exceptions.FileError;
 import org.mule.extension.sftp.internal.connection.SftpConnectionProvider;
+import org.mule.extension.sftp.internal.source.SftpDirectoryListener;
 import org.mule.runtime.core.api.connector.ConnectionManager;
 import org.mule.runtime.extension.api.annotation.Extension;
 import org.mule.runtime.extension.api.annotation.Operations;
+import org.mule.runtime.extension.api.annotation.Sources;
 import org.mule.runtime.extension.api.annotation.connectivity.ConnectionProviders;
 import org.mule.runtime.extension.api.annotation.dsl.xml.Xml;
 import org.mule.runtime.extension.api.annotation.error.ErrorTypes;
@@ -27,6 +29,7 @@ import javax.inject.Inject;
 @Operations({SftpOperations.class})
 @ConnectionProviders({SftpConnectionProvider.class})
 @ErrorTypes(FileError.class)
+@Sources(SftpDirectoryListener.class)
 @Xml(prefix = "sftp")
 public class SftpConnector extends FileConnectorConfig {
 
