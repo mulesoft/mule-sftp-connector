@@ -21,6 +21,7 @@ import org.mule.extension.sftp.api.SftpFileMatcher;
 import org.mule.extension.sftp.internal.SftpConnector;
 import org.mule.extension.sftp.internal.connection.SftpFileSystem;
 import org.mule.runtime.api.component.location.ComponentLocation;
+import org.mule.runtime.api.connection.ConnectionException;
 import org.mule.runtime.api.connection.ConnectionProvider;
 import org.mule.runtime.api.exception.MuleException;
 import org.mule.runtime.api.exception.MuleRuntimeException;
@@ -229,6 +230,9 @@ public class SftpDirectoryListener extends Source<InputStream, SftpFileAttribute
     try {
       fileSystem = openConnection();
     } catch (Exception e) {
+      if (e instanceof ConnectionException) {
+        sourceCallback.onConnectionException((ConnectionException) e);
+      }
       LOGGER.error(format("Could not obtain connection while trying to poll directory '%s'. %s", directoryPath.toString(),
                           e.getMessage()));
       return;
@@ -301,7 +305,12 @@ public class SftpDirectoryListener extends Source<InputStream, SftpFileAttribute
   private SftpFileSystem openConnection() throws Exception {
 
     SftpFileSystem fileSystem = fileSystemProvider.connect();
-    fileSystem.changeToBaseDir();
+    try {
+      fileSystem.changeToBaseDir();
+    } catch (Exception e) {
+      fileSystemProvider.disconnect(fileSystem);
+      throw e;
+    }
     return fileSystem;
   }
 
