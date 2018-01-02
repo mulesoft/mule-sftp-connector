@@ -41,6 +41,7 @@ public abstract class SftpCommand extends FileCommand<SftpFileSystem> {
   public SftpCommand(SftpFileSystem fileSystem) {
     this(fileSystem, fileSystem.getClient());
   }
+
   /**
    * Creates a new instance
    *

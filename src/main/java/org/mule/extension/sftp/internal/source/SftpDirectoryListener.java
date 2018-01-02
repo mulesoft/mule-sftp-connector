@@ -170,9 +170,9 @@ public class SftpDirectoryListener extends Source<InputStream, SftpFileAttribute
     matcher = predicateBuilder != null ? predicateBuilder.build() : new NullFilePayloadPredicate<>();
 
     listenerExecutor = schedulerService.customScheduler(SchedulerConfig.config()
-                                                            .withMaxConcurrentTasks(1)
-                                                            .withName(
-                                                                format("%s.sftp.listener", location.getRootContainerName())));
+        .withMaxConcurrentTasks(1)
+        .withName(
+                  format("%s.sftp.listener", location.getRootContainerName())));
 
     directoryPath = resolveRootPath();
     filesBeingProcessingObjectStore = objectStoreManager.getOrCreateObjectStore("sftp-listener:" + directory,
@@ -356,9 +356,9 @@ public class SftpDirectoryListener extends Source<InputStream, SftpFileAttribute
       filesBeingProcessingObjectStore.store(path, path);
     } catch (ObjectStoreException e) {
       throw new MuleRuntimeException(
-          createStaticMessage(format("Could not track file '%s' as being processed. %s", path,
-                                     e.getMessage())),
-          e);
+                                     createStaticMessage(format("Could not track file '%s' as being processed. %s", path,
+                                                                e.getMessage())),
+                                     e);
     }
   }
 
@@ -417,7 +417,7 @@ public class SftpDirectoryListener extends Source<InputStream, SftpFileAttribute
       watermarkObjectStore.store(WATERMARK_OS_KEY, value);
     } catch (ObjectStoreException e) {
       throw new MuleRuntimeException(createStaticMessage("Failed to update watermark value for directory "
-                                                             + directoryPath.toString()), e);
+          + directoryPath.toString()), e);
     }
   }
 
@@ -449,7 +449,9 @@ public class SftpDirectoryListener extends Source<InputStream, SftpFileAttribute
       return new OnNewFileCommand(fileSystem).resolveRootPath(directory);
     } catch (Exception e) {
       throw new MuleRuntimeException(I18nMessageFactory.createStaticMessage(
-          format("Could not resolve path to directory '%s'. %s", directory, e.getMessage())), e);
+                                                                            format("Could not resolve path to directory '%s'. %s",
+                                                                                   directory, e.getMessage())),
+                                     e);
     } finally {
       if (fileSystem != null) {
         fileSystemProvider.disconnect(fileSystem);
