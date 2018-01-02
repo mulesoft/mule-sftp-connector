@@ -88,6 +88,7 @@ import org.slf4j.LoggerFactory;
 @Summary("Triggers when a new file is created in a directory")
 @Alias("listener")
 @BackPressure(defaultMode = WAIT, supportedModes = WAIT)
+// TODO: MULE-13940 - add mimeType here too
 public class SftpDirectoryListener extends Source<InputStream, SftpFileAttributes> {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(SftpDirectoryListener.class);
