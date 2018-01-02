@@ -14,7 +14,6 @@ import static org.mule.extension.file.common.api.exceptions.FileError.INVALID_CR
 import static org.mule.extension.file.common.api.exceptions.FileError.UNKNOWN_HOST;
 import static org.mule.runtime.api.meta.model.display.PathModel.Type.FILE;
 import static org.mule.runtime.extension.api.annotation.param.ParameterGroup.CONNECTION;
-
 import org.mule.extension.file.common.api.FileSystemProvider;
 import org.mule.extension.file.common.api.exceptions.FileError;
 import org.mule.extension.sftp.api.SftpAuthenticationMethod;
@@ -34,9 +33,6 @@ import org.mule.runtime.extension.api.annotation.param.display.DisplayName;
 import org.mule.runtime.extension.api.annotation.param.display.Path;
 import org.mule.runtime.extension.api.annotation.param.display.Summary;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.google.common.base.Joiner;
 import com.jcraft.jsch.JSchException;
 
@@ -46,6 +42,9 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * An {@link FileSystemProvider} which provides instances of {@link SftpFileSystem} from instances of
@@ -81,56 +80,6 @@ public class SftpConnectionProvider extends FileSystemProvider<SftpFileSystem>
 
   @ParameterGroup(name = TIMEOUT_CONFIGURATION)
   private TimeoutSettings timeoutSettings = new TimeoutSettings();
-
-  @Override
-  public void disconnect(SftpFileSystem ftpFileSystem) {
-    ftpFileSystem.disconnect();
-  }
-
-  @Override
-  public ConnectionValidationResult validate(SftpFileSystem ftpFileSystem) {
-    return ftpFileSystem.validateConnection();
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public String getWorkingDir() {
-    return workingDir;
-  }
-
-  protected Integer getConnectionTimeout() {
-    return timeoutSettings.getConnectionTimeout();
-  }
-
-  protected TimeUnit getConnectionTimeoutUnit() {
-    return timeoutSettings.getConnectionTimeoutUnit();
-  }
-
-  protected Integer getResponseTimeout() {
-    return timeoutSettings.getResponseTimeout();
-  }
-
-  protected TimeUnit getResponseTimeoutUnit() {
-    return timeoutSettings.getResponseTimeoutUnit();
-  }
-
-  public void setConnectionTimeout(Integer connectionTimeout) {
-    timeoutSettings.setConnectionTimeout(connectionTimeout);
-  }
-
-  public void setConnectionTimeoutUnit(TimeUnit connectionTimeoutUnit) {
-    timeoutSettings.setConnectionTimeoutUnit(connectionTimeoutUnit);
-  }
-
-  public void setResponseTimeout(Integer responseTimeout) {
-    timeoutSettings.setResponseTimeout(responseTimeout);
-  }
-
-  public void setResponseTimeoutUnit(TimeUnit responseTimeoutUnit) {
-    timeoutSettings.setResponseTimeoutUnit(responseTimeoutUnit);
-  }
 
   @ParameterGroup(name = CONNECTION)
   private SftpConnectionSettings connectionSettings = new SftpConnectionSettings();
@@ -188,6 +137,17 @@ public class SftpConnectionProvider extends FileSystemProvider<SftpFileSystem>
     return new SftpFileSystem(client, getWorkingDir(), lockFactory);
   }
 
+  @Override
+  public void disconnect(SftpFileSystem ftpFileSystem) {
+    ftpFileSystem.disconnect();
+  }
+
+  @Override
+  public ConnectionValidationResult validate(SftpFileSystem ftpFileSystem) {
+    return ftpFileSystem.validateConnection();
+  }
+
+
   void setPort(int port) {
     connectionSettings.setPort(port);
   }
@@ -230,6 +190,46 @@ public class SftpConnectionProvider extends FileSystemProvider<SftpFileSystem>
 
   void setClientFactory(SftpClientFactory clientFactory) {
     this.clientFactory = clientFactory;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public String getWorkingDir() {
+    return workingDir;
+  }
+
+  protected Integer getConnectionTimeout() {
+    return timeoutSettings.getConnectionTimeout();
+  }
+
+  protected TimeUnit getConnectionTimeoutUnit() {
+    return timeoutSettings.getConnectionTimeoutUnit();
+  }
+
+  protected Integer getResponseTimeout() {
+    return timeoutSettings.getResponseTimeout();
+  }
+
+  protected TimeUnit getResponseTimeoutUnit() {
+    return timeoutSettings.getResponseTimeoutUnit();
+  }
+
+  public void setConnectionTimeout(Integer connectionTimeout) {
+    timeoutSettings.setConnectionTimeout(connectionTimeout);
+  }
+
+  public void setConnectionTimeoutUnit(TimeUnit connectionTimeoutUnit) {
+    timeoutSettings.setConnectionTimeoutUnit(connectionTimeoutUnit);
+  }
+
+  public void setResponseTimeout(Integer responseTimeout) {
+    timeoutSettings.setResponseTimeout(responseTimeout);
+  }
+
+  public void setResponseTimeoutUnit(TimeUnit responseTimeoutUnit) {
+    timeoutSettings.setResponseTimeoutUnit(responseTimeoutUnit);
   }
 
   /**
