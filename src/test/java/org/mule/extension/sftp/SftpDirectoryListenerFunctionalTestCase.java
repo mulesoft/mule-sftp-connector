@@ -28,7 +28,6 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 import io.qameta.allure.Description;
 import io.qameta.allure.Feature;
-import org.junit.Ignore;
 import org.junit.Test;
 
 @Feature(SFTP_EXTENSION)
@@ -41,7 +40,7 @@ public class SftpDirectoryListenerFunctionalTestCase extends CommonSftpConnector
   private static final String WATCH_CONTENT = "who watches the watchmen?";
   private static final String DR_MANHATTAN = "Dr. Manhattan";
   private static final String MATCH_FILE = "matchme.txt";
-  private static final int PROBER_TIMEOUT = 100000;
+  private static final int PROBER_TIMEOUT = 10000;
   private static final int PROBER_DELAY = 1000;
 
   private static List<Message> RECEIVED_MESSAGES;
@@ -81,7 +80,6 @@ public class SftpDirectoryListenerFunctionalTestCase extends CommonSftpConnector
 
   @Test
   @Description("Verifies that a created file is picked")
-  @Ignore
   public void onFileCreated() throws Exception {
     File file = new File(MATCHERLESS_LISTENER_FOLDER_NAME, WATCH_FILE);
     testHarness.write(file.getPath(), WATCH_CONTENT);
@@ -90,7 +88,6 @@ public class SftpDirectoryListenerFunctionalTestCase extends CommonSftpConnector
 
   @Test
   @Description("Verifies that files created in subdirs are picked")
-  @Ignore
   public void recursive() throws Exception {
     File subdir = new File(MATCHERLESS_LISTENER_FOLDER_NAME, "subdir");
     testHarness.makeDir(subdir.getPath());
@@ -102,7 +99,6 @@ public class SftpDirectoryListenerFunctionalTestCase extends CommonSftpConnector
 
   @Test
   @Description("Verifies that only files compliant with the matcher are picked")
-  @Ignore
   public void matcher() throws Exception {
     final File file = new File(WITH_MATCHER_FOLDER_NAME, MATCH_FILE);
     final File rejectedFile = new File(WITH_MATCHER_FOLDER_NAME, WATCH_FILE);
@@ -115,7 +111,6 @@ public class SftpDirectoryListenerFunctionalTestCase extends CommonSftpConnector
 
   @Test
   @Description("Verifies that files are moved after processing")
-  @Ignore
   public void moveTo() throws Exception {
     stopFlow("listenWithoutMatcher");
     startFlow("moveTo");
@@ -128,7 +123,6 @@ public class SftpDirectoryListenerFunctionalTestCase extends CommonSftpConnector
 
   @Test
   @Description("Verifies that files are moved and renamed after processing")
-  @Ignore
   public void moveToWithRename() throws Exception {
     stopFlow("listenWithoutMatcher");
     startFlow("moveToWithRename");

@@ -253,7 +253,6 @@ public class SftpDirectoryListener extends PollingSource<InputStream, SftpFileAt
   @Override
   public void releaseRejectedResource(Result<InputStream, SftpFileAttributes> result, SourceCallbackContext callbackContext) {
     closeQuietly(result.getOutput());
-    fileSystemProvider.disconnect(callbackContext.getConnection());
   }
 
   private void postAction(PostActionGroup postAction, SourceCallbackContext ctx) {
