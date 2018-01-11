@@ -178,7 +178,7 @@ public class SftpDirectoryListener extends PollingSource<InputStream, SftpFileAt
         if (attributes.isDirectory()) {
           continue;
         }
-        
+
         if (!matcher.test(attributes)) {
           if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("Skipping file '{}' because the matcher rejected it", attributes.getPath());
@@ -232,7 +232,8 @@ public class SftpDirectoryListener extends PollingSource<InputStream, SftpFileAt
         }
       } catch (Throwable t) {
         LOGGER.error(format("Found file '%s' but found exception trying to dispatch it for processing. %s",
-                            fullPath, t.getMessage()), t);
+                            fullPath, t.getMessage()),
+                     t);
 
         if (fileSystem != null) {
           fileSystemProvider.disconnect(fileSystem);
@@ -287,8 +288,8 @@ public class SftpDirectoryListener extends PollingSource<InputStream, SftpFileAt
       return new OnNewFileCommand(fileSystem).resolveRootPath(directory);
     } catch (Exception e) {
       throw new MuleRuntimeException(I18nMessageFactory.createStaticMessage(
-          format("Could not resolve path to directory '%s'. %s",
-                 directory, e.getMessage())),
+                                                                            format("Could not resolve path to directory '%s'. %s",
+                                                                                   directory, e.getMessage())),
                                      e);
     } finally {
       if (fileSystem != null) {
