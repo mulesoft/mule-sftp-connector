@@ -7,32 +7,19 @@
 package org.mule.extension.sftp.internal.source;
 
 import static java.lang.String.format;
-import static java.util.Optional.empty;
-import static java.util.Optional.of;
-import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.mule.extension.file.common.api.FileDisplayConstants.MATCHER;
-import static org.mule.runtime.api.i18n.I18nMessageFactory.createStaticMessage;
-import static org.mule.runtime.api.store.ObjectStoreSettings.unmanagedPersistent;
+import static org.mule.runtime.core.api.util.IOUtils.closeQuietly;
 import static org.mule.runtime.extension.api.annotation.param.MediaType.ANY;
+import static org.mule.runtime.extension.api.runtime.source.PollContext.PollItemStatus.SOURCE_STOPPING;
 import org.mule.extension.file.common.api.matcher.NullFilePayloadPredicate;
 import org.mule.extension.sftp.api.SftpFileAttributes;
 import org.mule.extension.sftp.api.SftpFileMatcher;
 import org.mule.extension.sftp.internal.SftpConnector;
 import org.mule.extension.sftp.internal.connection.SftpFileSystem;
-import org.mule.runtime.api.component.location.ComponentLocation;
 import org.mule.runtime.api.connection.ConnectionException;
 import org.mule.runtime.api.connection.ConnectionProvider;
-import org.mule.runtime.api.exception.MuleException;
 import org.mule.runtime.api.exception.MuleRuntimeException;
 import org.mule.runtime.api.i18n.I18nMessageFactory;
-import org.mule.runtime.api.lock.LockFactory;
-import org.mule.runtime.api.scheduler.Scheduler;
-import org.mule.runtime.api.scheduler.SchedulerConfig;
-import org.mule.runtime.api.scheduler.SchedulerService;
-import org.mule.runtime.api.store.ObjectStore;
-import org.mule.runtime.api.store.ObjectStoreException;
-import org.mule.runtime.api.store.ObjectStoreManager;
-import org.mule.runtime.api.store.ObjectStoreSettings;
 import org.mule.runtime.extension.api.annotation.Alias;
 import org.mule.runtime.extension.api.annotation.execution.OnError;
 import org.mule.runtime.extension.api.annotation.execution.OnSuccess;
@@ -46,20 +33,15 @@ import org.mule.runtime.extension.api.annotation.param.ParameterGroup;
 import org.mule.runtime.extension.api.annotation.param.display.DisplayName;
 import org.mule.runtime.extension.api.annotation.param.display.Summary;
 import org.mule.runtime.extension.api.runtime.operation.Result;
-import org.mule.runtime.extension.api.runtime.source.Source;
-import org.mule.runtime.extension.api.runtime.source.SourceCallback;
+import org.mule.runtime.extension.api.runtime.source.PollContext;
+import org.mule.runtime.extension.api.runtime.source.PollContext.PollItemStatus;
+import org.mule.runtime.extension.api.runtime.source.PollingSource;
 import org.mule.runtime.extension.api.runtime.source.SourceCallbackContext;
 
 import java.io.InputStream;
 import java.nio.file.Path;
-import java.time.LocalDateTime;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.locks.Lock;
 import java.util.function.Predicate;
-
-import javax.inject.Inject;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -87,12 +69,10 @@ import org.slf4j.LoggerFactory;
 @Summary("Triggers when a new file is created in a directory")
 @Alias("listener")
 // TODO: MULE-13940 - add mimeType here too
-public class SftpDirectoryListener extends Source<InputStream, SftpFileAttributes> {
+public class SftpDirectoryListener extends PollingSource<InputStream, SftpFileAttributes> {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(SftpDirectoryListener.class);
-  private static final String WATERMARK_OS_KEY = "watermark";
   private static final String ATTRIBUTES_CONTEXT_VAR = "attributes";
-  private static final String FILE_RELEASER_VAR = "fileReleaser";
   private static final String POST_PROCESSING_GROUP_NAME = "Post processing action";
 
   @Config
@@ -100,15 +80,6 @@ public class SftpDirectoryListener extends Source<InputStream, SftpFileAttribute
 
   @Connection
   private ConnectionProvider<SftpFileSystem> fileSystemProvider;
-
-  @Inject
-  private SchedulerService schedulerService;
-
-  @Inject
-  private LockFactory lockFactory;
-
-  @Inject
-  private ObjectStoreManager objectStoreManager;
 
   /**
    * The directory on which polled files are contained
@@ -135,19 +106,6 @@ public class SftpDirectoryListener extends Source<InputStream, SftpFileAttribute
   private SftpFileMatcher predicateBuilder;
 
   /**
-   * How ofter to poll for files.
-   */
-  @Parameter
-  private long pollingFrequency;
-
-  /**
-   * A time unit which qualifies the {@code pollingFrequency}
-   */
-  @Parameter
-  @Optional(defaultValue = "SECONDS")
-  private TimeUnit poolingFrequencyTimeUnit;
-
-  /**
    * Controls whether or not to do watermarking, and if so, if the watermark should consider the file's modification or creation
    * timestamps
    */
@@ -156,40 +114,12 @@ public class SftpDirectoryListener extends Source<InputStream, SftpFileAttribute
   private boolean watermarkEnabled = false;
 
   private Path directoryPath;
-  private ComponentLocation location;
   private Predicate<SftpFileAttributes> matcher;
-  private Scheduler listenerExecutor;
-  private ObjectStore<LocalDateTime> watermarkObjectStore;
-  private ObjectStore<String> filesBeingProcessingObjectStore;
-
-  private final AtomicBoolean stopRequested = new AtomicBoolean(false);
 
   @Override
-  public void onStart(SourceCallback<InputStream, SftpFileAttributes> sourceCallback) throws MuleException {
+  protected void doStart() {
     matcher = predicateBuilder != null ? predicateBuilder.build() : new NullFilePayloadPredicate<>();
-
-    listenerExecutor = schedulerService.customScheduler(SchedulerConfig.config()
-        .withMaxConcurrentTasks(1)
-        .withName(
-                  format("%s.sftp.listener", location.getRootContainerName())));
-
     directoryPath = resolveRootPath();
-    filesBeingProcessingObjectStore = objectStoreManager.getOrCreateObjectStore("sftp-listener:" + directory,
-                                                                                ObjectStoreSettings.builder()
-                                                                                    .persistent(false)
-                                                                                    .maxEntries(1000)
-                                                                                    .entryTtl(60000L)
-                                                                                    .expirationInterval(20000L)
-                                                                                    .build());
-
-    if (watermarkEnabled) {
-      watermarkObjectStore = objectStoreManager.getOrCreateObjectStore("sftp-listener-watermark:" + directory,
-                                                                       unmanagedPersistent());
-    }
-
-    long freq = poolingFrequencyTimeUnit.toMillis(pollingFrequency);
-    stopRequested.set(false);
-    listenerExecutor.scheduleAtFixedRate(() -> poll(sourceCallback), freq, freq, MILLISECONDS);
   }
 
   @OnSuccess
@@ -208,18 +138,15 @@ public class SftpDirectoryListener extends Source<InputStream, SftpFileAttribute
 
   @OnTerminate
   public void onTerminate(SourceCallbackContext ctx) {
-    try {
-      ctx.<Runnable>getVariable(FILE_RELEASER_VAR).ifPresent(Runnable::run);
-    } finally {
-      SftpFileSystem fileSystem = ctx.getConnection();
-      if (fileSystem != null) {
-        fileSystemProvider.disconnect(fileSystem);
-      }
+    SftpFileSystem fileSystem = ctx.getConnection();
+    if (fileSystem != null) {
+      fileSystemProvider.disconnect(fileSystem);
     }
   }
 
-  private void poll(SourceCallback<InputStream, SftpFileAttributes> sourceCallback) {
-    if (isRequestedToStop()) {
+  @Override
+  public void poll(PollContext<InputStream, SftpFileAttributes> pollContext) {
+    if (pollContext.isSourceStopping()) {
       return;
     }
 
@@ -228,7 +155,7 @@ public class SftpDirectoryListener extends Source<InputStream, SftpFileAttribute
       fileSystem = openConnection();
     } catch (Exception e) {
       if (e instanceof ConnectionException) {
-        sourceCallback.onConnectionException((ConnectionException) e);
+        pollContext.onConnectionException((ConnectionException) e);
       }
       LOGGER.error(format("Could not obtain connection while trying to poll directory '%s'. %s", directoryPath.toString(),
                           e.getMessage()));
@@ -241,21 +168,14 @@ public class SftpDirectoryListener extends Source<InputStream, SftpFileAttribute
         return;
       }
 
-      java.util.Optional<LocalDateTime> watermark = getWatermark();
-      LocalDateTime updatedWatermark = null;
-
       for (Result<InputStream, SftpFileAttributes> file : files) {
-        if (isRequestedToStop()) {
+        if (pollContext.isSourceStopping()) {
           return;
         }
 
         SftpFileAttributes attributes = file.getAttributes().get();
-        Lock lock = getFileProcessingLock(attributes.getPath());
-        if (!lock.tryLock()) {
-          if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("Skipping processing of file '{}' because another thread or node already has a mule lock on it",
-                         attributes.getPath());
-          }
+
+        if (attributes.isDirectory()) {
           continue;
         }
 
@@ -266,29 +186,9 @@ public class SftpDirectoryListener extends Source<InputStream, SftpFileAttribute
           continue;
         }
 
-        if (watermark.isPresent()) {
-          final LocalDateTime timestamp = attributes.getTimestamp();
-          if (watermark.get().compareTo(timestamp) >= 0) {
-            if (LOGGER.isDebugEnabled()) {
-              LOGGER.debug("Skipping file '{}' because it was rejected by the watermark", attributes.getPath());
-            }
-            continue;
-          } else {
-            if (updatedWatermark == null) {
-              updatedWatermark = timestamp;
-            } else if (timestamp.compareTo(updatedWatermark) > 0) {
-              updatedWatermark = timestamp;
-            }
-          }
-        }
-
-        if (!processFile(attributes, lock, sourceCallback)) {
+        if (!processFile(attributes, pollContext)) {
           break;
         }
-      }
-
-      if (updatedWatermark != null) {
-        updateWatermark(updatedWatermark);
       }
     } catch (Exception e) {
       LOGGER.error(format("Found exception trying to poll directory '%s'. Will try again on the next poll. ",
@@ -311,72 +211,49 @@ public class SftpDirectoryListener extends Source<InputStream, SftpFileAttribute
     return fileSystem;
   }
 
-  private boolean processFile(SftpFileAttributes attributes, Lock lock,
-                              SourceCallback<InputStream, SftpFileAttributes> callback) {
-
+  private boolean processFile(SftpFileAttributes attributes, PollContext<InputStream, SftpFileAttributes> pollContext) {
     String fullPath = attributes.getPath();
-    try {
-      if (filesBeingProcessingObjectStore.contains(fullPath)) {
-        if (LOGGER.isDebugEnabled()) {
-          LOGGER.debug("Polled file '{}', but skipping it since it is already being processed in another thread or node",
-                       fullPath);
+    PollItemStatus status = pollContext.accept(item -> {
+      final SourceCallbackContext ctx = item.getSourceCallbackContext();
+      Result result = null;
+      SftpFileSystem fileSystem = null;
+
+      try {
+        fileSystem = fileSystemProvider.connect();
+        ctx.bindConnection(fileSystem);
+
+        ctx.addVariable(ATTRIBUTES_CONTEXT_VAR, attributes);
+        result = fileSystem.read(config, attributes.getPath(), false);
+        item.setResult(result)
+            .setId(attributes.getPath());
+
+        if (watermarkEnabled) {
+          item.setWatermark(attributes.getTimestamp());
         }
-        return true;
-      } else {
-        markAsProcessing(fullPath);
+      } catch (Throwable t) {
+        LOGGER.error(format("Found file '%s' but found exception trying to dispatch it for processing. %s",
+                            fullPath, t.getMessage()),
+                     t);
+
+        if (fileSystem != null) {
+          fileSystemProvider.disconnect(fileSystem);
+        }
+
+        if (result != null) {
+          onRejectedItem(result, ctx);
+        }
+
+        throw new MuleRuntimeException(t);
       }
+    });
 
-      SourceCallbackContext ctx = callback.createContext();
 
-      SftpFileSystem fileSystem = fileSystemProvider.connect();
-      ctx.bindConnection(fileSystem);
-
-      ctx.addVariable(ATTRIBUTES_CONTEXT_VAR, attributes);
-      ctx.addVariable(FILE_RELEASER_VAR, (Runnable) () -> releaseFile(attributes, lock));
-
-      if (isRequestedToStop()) {
-        releaseFile(attributes, lock);
-        return false;
-      } else {
-        callback.handle(fileSystem.read(config, attributes.getPath(), false), ctx);
-      }
-    } catch (Throwable t) {
-      LOGGER.error(format("Found file '%s' but found exception trying to dispatch it for processing. %s",
-                          fullPath, t.getMessage()),
-                   t);
-      releaseFile(attributes, lock);
-    }
-
-    return true;
+    return status != SOURCE_STOPPING;
   }
 
-  private void releaseFile(SftpFileAttributes attributes, Lock lock) {
-    try {
-      unmarkAsProcessing(attributes.getPath());
-    } finally {
-      lock.unlock();
-    }
-  }
-
-  private void markAsProcessing(String path) {
-    try {
-      filesBeingProcessingObjectStore.store(path, path);
-    } catch (ObjectStoreException e) {
-      throw new MuleRuntimeException(
-                                     createStaticMessage(format("Could not track file '%s' as being processed. %s", path,
-                                                                e.getMessage())),
-                                     e);
-    }
-  }
-
-  private void unmarkAsProcessing(String path) {
-    try {
-      if (filesBeingProcessingObjectStore.contains(path)) {
-        filesBeingProcessingObjectStore.remove(path);
-      }
-    } catch (ObjectStoreException e) {
-      LOGGER.error(format("Could not untrack file '%s' as being processed", path), e);
-    }
+  @Override
+  public void onRejectedItem(Result<InputStream, SftpFileAttributes> result, SourceCallbackContext callbackContext) {
+    closeQuietly(result.getOutput());
   }
 
   private void postAction(PostActionGroup postAction, SourceCallbackContext ctx) {
@@ -398,54 +275,9 @@ public class SftpDirectoryListener extends Source<InputStream, SftpFileAttribute
     });
   }
 
-  private java.util.Optional<LocalDateTime> getWatermark() {
-    if (watermarkObjectStore == null) {
-      return empty();
-    }
-
-    try {
-      if (watermarkObjectStore.contains(WATERMARK_OS_KEY)) {
-        return of(watermarkObjectStore.retrieve(WATERMARK_OS_KEY));
-      } else {
-        return of(LocalDateTime.of(0, 12, 25, 0, 0, 0));
-      }
-    } catch (ObjectStoreException e) {
-      throw new MuleRuntimeException(createStaticMessage("Failed to fetch watermark for directory " + directoryPath.toString()),
-                                     e);
-    }
-  }
-
-  private void updateWatermark(LocalDateTime value) {
-    try {
-      if (watermarkObjectStore.contains(WATERMARK_OS_KEY)) {
-        watermarkObjectStore.remove(WATERMARK_OS_KEY);
-      }
-
-      watermarkObjectStore.store(WATERMARK_OS_KEY, value);
-    } catch (ObjectStoreException e) {
-      throw new MuleRuntimeException(createStaticMessage("Failed to update watermark value for directory "
-          + directoryPath.toString()), e);
-    }
-  }
-
-  private Lock getFileProcessingLock(String path) {
-    return lockFactory.createLock("ftp:listener-" + path);
-  }
-
-  private boolean isRequestedToStop() {
-    return stopRequested.get() || Thread.currentThread().isInterrupted();
-  }
-
   @Override
-  public void onStop() {
-    stopRequested.set(true);
-    shutdownScheduler();
-  }
+  protected void doStop() {
 
-  private void shutdownScheduler() {
-    if (listenerExecutor != null) {
-      listenerExecutor.stop();
-    }
   }
 
   private Path resolveRootPath() {
