@@ -240,7 +240,7 @@ public class SftpDirectoryListener extends PollingSource<InputStream, SftpFileAt
         }
 
         if (result != null) {
-          releaseRejectedResource(result, ctx);
+          onRejectedItem(result, ctx);
         }
 
         throw new MuleRuntimeException(t);
@@ -252,7 +252,7 @@ public class SftpDirectoryListener extends PollingSource<InputStream, SftpFileAt
   }
 
   @Override
-  public void releaseRejectedResource(Result<InputStream, SftpFileAttributes> result, SourceCallbackContext callbackContext) {
+  public void onRejectedItem(Result<InputStream, SftpFileAttributes> result, SourceCallbackContext callbackContext) {
     closeQuietly(result.getOutput());
   }
 
