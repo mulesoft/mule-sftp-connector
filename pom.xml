@@ -13,7 +13,7 @@
     <groupId>org.mule.connectors</groupId>
     <artifactId>mule-sftp-connector</artifactId>
     <packaging>mule-extension</packaging>
-    <version>1.1.0-SNAPSHOT</version>
+    <version>1.2.0-SNAPSHOT</version>
 
     <name>SFTP Connector</name>
     <description>A Mule extension that provides functionality to manage files in an SFTP server</description>
@@ -26,7 +26,7 @@
         <jschVersion>1.0.0</jschVersion>
 
         <muleFileCommonsVersion>1.1.0-SNAPSHOT</muleFileCommonsVersion>
-        <muleTestsComponentPlugin>4.1.0-SNAPSHOT</muleTestsComponentPlugin>
+        <muleTestsComponentPlugin>4.2.0-SNAPSHOT</muleTestsComponentPlugin>
 
         <formatterConfigPath>formatter.xml</formatterConfigPath>
     </properties>
