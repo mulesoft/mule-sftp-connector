@@ -18,6 +18,7 @@ import org.mule.extension.file.common.api.FileWriteMode;
 import org.mule.extension.file.common.api.exceptions.FileError;
 import org.mule.extension.sftp.api.SftpConnectionException;
 import org.mule.extension.sftp.api.SftpFileAttributes;
+import org.mule.extension.sftp.api.SftpProxyConfig;
 import org.mule.extension.sftp.random.alg.PRNGAlgorithm;
 import org.mule.runtime.api.connection.ConnectionException;
 import org.mule.runtime.api.exception.MuleRuntimeException;
