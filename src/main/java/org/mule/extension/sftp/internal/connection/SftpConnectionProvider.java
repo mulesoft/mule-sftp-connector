@@ -18,6 +18,7 @@ import org.mule.extension.file.common.api.FileSystemProvider;
 import org.mule.extension.file.common.api.exceptions.FileError;
 import org.mule.extension.sftp.api.SftpAuthenticationMethod;
 import org.mule.extension.sftp.api.SftpConnectionException;
+import org.mule.extension.sftp.api.SftpProxyConfig;
 import org.mule.extension.sftp.internal.SftpConnector;
 import org.mule.extension.sftp.internal.TimeoutSettings;
 import org.mule.extension.sftp.random.alg.PRNGAlgorithm;
