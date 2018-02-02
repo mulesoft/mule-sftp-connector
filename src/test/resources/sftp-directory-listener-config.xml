@@ -20,6 +20,15 @@
         <flow-ref name="onEvent"/>
     </flow>
 
+    <flow name="listenNonRecursive" initialState="stopped">
+        <sftp:listener config-ref="config" directory="matcherless" recursive="false">
+            <scheduling-strategy>
+                <fixed-frequency />
+            </scheduling-strategy>
+        </sftp:listener>
+        <flow-ref name="onEvent"/>
+    </flow>
+
     <flow name="redundantListener1">
         <sftp:listener config-ref="config" directory="shared" autoDelete="true">
             <scheduling-strategy>
