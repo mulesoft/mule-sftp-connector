@@ -8,6 +8,7 @@ package org.mule.extension.sftp.api;
 
 import static org.mule.extension.sftp.internal.SftpUtils.normalizePath;
 import org.mule.extension.file.common.api.AbstractFileAttributes;
+import org.mule.runtime.extension.api.annotation.param.Parameter;
 
 import com.jcraft.jsch.SftpATTRS;
 
@@ -22,10 +23,19 @@ import java.util.Date;
  */
 public class SftpFileAttributes extends AbstractFileAttributes {
 
+  @Parameter
   private LocalDateTime timestamp;
+
+  @Parameter
   private long size;
+
+  @Parameter
   private boolean regularSize;
+
+  @Parameter
   private boolean directory;
+
+  @Parameter
   private boolean symbolicLink;
 
   /**
