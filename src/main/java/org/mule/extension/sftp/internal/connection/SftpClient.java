@@ -57,10 +57,15 @@ public class SftpClient {
 
   private static Logger LOGGER = LoggerFactory.getLogger(SftpClient.class);
 
+  private static SftpLogger JSCH_LOGGER = new SftpLogger();
+
   public static final String CHANNEL_SFTP = "sftp";
   public static final String STRICT_HOST_KEY_CHECKING = "StrictHostKeyChecking";
   public static final String PREFERRED_AUTHENTICATION_METHODS = "PreferredAuthentications";
 
+  static {
+    JSch.setLogger(JSCH_LOGGER);
+  }
 
   private ChannelSftp sftp;
   private JSch jsch;
