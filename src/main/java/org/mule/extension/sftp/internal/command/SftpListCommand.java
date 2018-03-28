@@ -6,6 +6,7 @@
  */
 package org.mule.extension.sftp.internal.command;
 
+import static java.lang.Thread.sleep;
 import static org.slf4j.LoggerFactory.getLogger;
 import org.mule.extension.file.common.api.FileAttributes;
 import org.mule.extension.file.common.api.FileConnectorConfig;
@@ -18,8 +19,10 @@ import org.mule.runtime.extension.api.runtime.operation.Result;
 import java.io.InputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Predicate;
 
 import org.slf4j.Logger;
@@ -33,11 +36,14 @@ public final class SftpListCommand extends SftpCommand implements ListCommand<Sf
 
   private static final Logger LOGGER = getLogger(SftpListCommand.class);
 
+  private final long sizeCheckWaitTime;
+
   /**
    * {@inheritDoc}
    */
-  public SftpListCommand(SftpFileSystem fileSystem, SftpClient client) {
+  public SftpListCommand(SftpFileSystem fileSystem, SftpClient client, long sizeCheckWaitTime) {
     super(fileSystem, client);
+    this.sizeCheckWaitTime = sizeCheckWaitTime;
   }
 
   /**
@@ -55,11 +61,57 @@ public final class SftpListCommand extends SftpCommand implements ListCommand<Sf
     if (!directoryAttributes.isDirectory()) {
       throw cannotListFileException(path);
     }
-
     List<Result<InputStream, SftpFileAttributes>> accumulator = new LinkedList<>();
-    doList(config, directoryAttributes.getPath(), accumulator, recursive, matcher);
-
+    if (sizeCheckWaitTime > 0) {
+      doListStable(config, directoryAttributes.getPath(), accumulator, recursive, matcher);
+    } else {
+      doList(config, directoryAttributes.getPath(), accumulator, recursive, matcher);
+    }
     return accumulator;
+  }
+
+  private void doListStable(FileConnectorConfig config, String path, List<Result<InputStream, SftpFileAttributes>> accumulator,
+                            boolean recursive, Predicate<SftpFileAttributes> matcher) {
+    Map<String, SftpFileAttributes> filesBeforeDelayAccumulator = new HashMap<>();
+    doListFileAttributes(config, path, filesBeforeDelayAccumulator, recursive, matcher);
+    try {
+      sleep(sizeCheckWaitTime);
+    } catch (InterruptedException e) {
+      throw exception("Execution was interrupted while waiting to recheck file sizes ", e);
+    }
+    Map<String, SftpFileAttributes> filesAfterDelayAccumulator = new HashMap<>();
+    doListFileAttributes(config, path, filesAfterDelayAccumulator, recursive, matcher);
+
+      for (SftpFileAttributes file : filesBeforeDelayAccumulator)
+      {
+          Long sizeBeforeDelay = file.getSize();
+          Long sizeAfterDelay = filesAfterDelayAccumulator.();
+          if (sizeBeforeDelay.equals(sizeAfterDelay))
+          {
+              if (file.isDirectory()) {
+                  accumulator.add(Result.<InputStream, SftpFileAttributes>builder().output(null).attributes(file).build());
+              } else {
+                  accumulator.add(fileSystem.read(config, file.getPath(), false));
+              }
+          }
+      }
+  }
+
+  private void doListFileAttributes(FileConnectorConfig config,
+                                    String path,
+                                    Map<String, SftpFileAttributes> accumulator,
+                                    boolean recursive,
+                                    Predicate<SftpFileAttributes> matcher) {
+    LOGGER.debug("Listing directory {}", path);
+    for (SftpFileAttributes file : client.list(path)) {
+      if (isVirtualDirectory(file.getName()) || !matcher.test(file)) {
+        continue;
+      }
+      if (file.isDirectory() && recursive) {
+        doListFileAttributes(config, file.getPath(), accumulator, recursive, matcher);
+      }
+      accumulator.put(file.getPath()+"-"+file.getName(), file);
+    }
   }
 
   private void doList(FileConnectorConfig config,

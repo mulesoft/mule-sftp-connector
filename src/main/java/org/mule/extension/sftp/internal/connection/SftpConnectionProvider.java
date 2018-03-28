@@ -110,6 +110,17 @@ public class SftpConnectionProvider extends FileSystemProvider<SftpFileSystem>
   @Alias("sftp-proxy-config")
   private SftpProxyConfig proxyConfig;
 
+  /**
+   * Wait time in milliseconds between size checks to determine if a file is ready to be processed. This allows a file write to
+   * complete before processing. You can disable this feature by setting to a negative number or omitting a value. When enabled,
+   * Mule performs two size checks waiting the specified time between calls. If both checks return the same value, the file is
+   * ready to process.
+   */
+  @Parameter
+  @Optional(defaultValue = "-1")
+  private long sizeCheckWaitTime;
+  
+  
   private SftpClientFactory clientFactory = new SftpClientFactory();
 
   @Override
@@ -135,7 +146,7 @@ public class SftpConnectionProvider extends FileSystemProvider<SftpFileSystem>
       throw new ConnectionException(getErrorMessage(connectionSettings, e.getMessage()), e);
     }
 
-    return new SftpFileSystem(client, getWorkingDir(), lockFactory);
+    return new SftpFileSystem(client, getWorkingDir(), lockFactory, sizeCheckWaitTime);
   }
 
   @Override
