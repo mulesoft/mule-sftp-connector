@@ -32,4 +32,19 @@
         <test:processor class="org.mule.extension.sftp.SftpListTestCase$TestProcessor"/>
         <test:processor class="org.mule.extension.sftp.SftpListTestCase$TestProcessor"/>
     </flow>
+
+    <flow name="listFilesRecursivelyWithNameFilter">
+        <sftp:list config-ref="config" directoryPath="#[vars.path]" recursive="#[vars.recursive]">
+            <sftp:matcher directories="EXCLUDE" filenamePattern="*"/>
+        </sftp:list>
+        <test:processor class="org.mule.extension.sftp.SftpListTestCase$TestProcessor"/>
+    </flow>
+
+    <flow name="listFilesRecursivelyWithSpecificNameFilter">
+        <sftp:list config-ref="config" directoryPath="#[vars.path]" recursive="#[vars.recursive]">
+            <sftp:matcher directories="EXCLUDE" filenamePattern="test-file-6.html"/>
+        </sftp:list>
+        <test:processor class="org.mule.extension.sftp.SftpListTestCase$TestProcessor"/>
+    </flow>
+
 </mule>

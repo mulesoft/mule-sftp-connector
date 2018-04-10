@@ -128,6 +128,18 @@ public class SftpListTestCase extends CommonSftpConnectorTestCase {
     assertThat(contents.get(1), is(CONTENT));
   }
 
+  @Test
+  public void listFilesRecursivelyWithNameFilter() throws Exception {
+    List<Message> messages = doList("listFilesRecursivelyWithNameFilter", ".", true);
+    assertThat(messages, hasSize(7));
+  }
+
+  @Test
+  public void listFilesRecursivelyWithSpecificNameFilter() throws Exception {
+    List<Message> messages = doList("listFilesRecursivelyWithSpecificNameFilter", ".", true);
+    assertThat(messages, hasSize(1));
+  }
+
   private boolean assertListedFiles(List<Message> messages) throws Exception {
     boolean directoryWasFound = false;
 

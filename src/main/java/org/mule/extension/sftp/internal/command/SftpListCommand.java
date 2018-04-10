@@ -70,18 +70,21 @@ public final class SftpListCommand extends SftpCommand implements ListCommand<Sf
 
     LOGGER.debug("Listing directory {}", path);
     for (SftpFileAttributes file : client.list(path)) {
-      if (isVirtualDirectory(file.getName()) || !matcher.test(file)) {
+
+      if (isVirtualDirectory(file.getName())) {
         continue;
       }
-
       if (file.isDirectory()) {
-        accumulator.add(Result.<InputStream, SftpFileAttributes>builder().output(null).attributes(file).build());
-
+        if (matcher.test(file)) {
+          accumulator.add(Result.<InputStream, SftpFileAttributes>builder().output(null).attributes(file).build());
+        }
         if (recursive) {
           doList(config, file.getPath(), accumulator, recursive, matcher);
         }
       } else {
-        accumulator.add(fileSystem.read(config, file.getPath(), false));
+        if (matcher.test(file)) {
+          accumulator.add(fileSystem.read(config, file.getPath(), false));
+        }
       }
     }
   }
