@@ -82,10 +82,10 @@ public final class SftpListCommand extends SftpCommand implements ListCommand<Sf
     Map<String, SftpFileAttributes> filesAfterDelayAccumulator = new HashMap<>();
     doListFileAttributes(config, path, filesAfterDelayAccumulator, recursive, matcher);
 
-      for (SftpFileAttributes file : filesBeforeDelayAccumulator)
+      for (Map.Entry<String, SftpFileAttributes> file : filesBeforeDelayAccumulator.entrySet())
       {
-          Long sizeBeforeDelay = file.getSize();
-          Long sizeAfterDelay = filesAfterDelayAccumulator.();
+          Long sizeBeforeDelay = file.getValue().getSize();
+          Long sizeAfterDelay = filesAfterDelayAccumulator.get(file.getKey()).getSize();
           if (sizeBeforeDelay.equals(sizeAfterDelay))
           {
               if (file.isDirectory()) {
