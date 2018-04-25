@@ -36,7 +36,6 @@ public final class SftpListCommand extends SftpCommand implements ListCommand<Sf
 
   private static final Logger LOGGER = getLogger(SftpListCommand.class);
 
-
   /**
    * {@inheritDoc}
    */
@@ -99,7 +98,11 @@ public final class SftpListCommand extends SftpCommand implements ListCommand<Sf
       SftpFileAttributes fileAttributes = file.getValue();
 
       Long sizeBeforeDelay = fileAttributes.getSize();
-      Long sizeAfterDelay = filesAfterDelayAccumulator.get(file.getKey()).getSize();
+      SftpFileAttributes afterDelayAttributes = filesAfterDelayAccumulator.get(file.getKey());
+      if (afterDelayAttributes == null) {
+        continue;
+      }
+      Long sizeAfterDelay = afterDelayAttributes.getSize();
       if (sizeBeforeDelay.equals(sizeAfterDelay)) {
         if (isVirtualDirectory(fileAttributes.getName())) {
           continue;
