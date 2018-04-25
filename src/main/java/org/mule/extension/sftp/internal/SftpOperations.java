@@ -30,6 +30,7 @@ import org.mule.extension.sftp.internal.connection.SftpFileSystem;
 import org.mule.runtime.api.message.Message;
 import org.mule.runtime.extension.api.annotation.error.Throws;
 import org.mule.runtime.extension.api.annotation.param.Config;
+import org.mule.runtime.extension.api.annotation.param.ConfigOverride;
 import org.mule.runtime.extension.api.annotation.param.Connection;
 import org.mule.runtime.extension.api.annotation.param.Content;
 import org.mule.runtime.extension.api.annotation.param.MediaType;
@@ -77,7 +78,7 @@ public final class SftpOperations extends BaseFileSystemOperations {
                                                             @Path(type = DIRECTORY, location = EXTERNAL) String directoryPath,
                                                             @Optional(defaultValue = "false") boolean recursive,
                                                             @Optional @DisplayName("File Matching Rules") @Summary("Matcher to filter the listed files") SftpFileMatcher matcher,
-                                                            @Optional(defaultValue = "-1") long sizeCheckWaitTime) {
+                                                            @ConfigOverride long sizeCheckWaitTime) {
     fileSystem.changeToBaseDir();
     List result = fileSystem.getListCommand().list(config, directoryPath, recursive, getPredicate(matcher), sizeCheckWaitTime);
     return (List<Result<InputStream, SftpFileAttributes>>) result;

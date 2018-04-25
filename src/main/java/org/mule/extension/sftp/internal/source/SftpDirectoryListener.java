@@ -25,6 +25,7 @@ import org.mule.runtime.extension.api.annotation.execution.OnError;
 import org.mule.runtime.extension.api.annotation.execution.OnSuccess;
 import org.mule.runtime.extension.api.annotation.execution.OnTerminate;
 import org.mule.runtime.extension.api.annotation.param.Config;
+import org.mule.runtime.extension.api.annotation.param.ConfigOverride;
 import org.mule.runtime.extension.api.annotation.param.Connection;
 import org.mule.runtime.extension.api.annotation.param.MediaType;
 import org.mule.runtime.extension.api.annotation.param.Optional;
@@ -112,7 +113,7 @@ public class SftpDirectoryListener extends PollingSource<InputStream, SftpFileAt
    * ready to process.
    */
   @Parameter
-  @Optional(defaultValue = "-1")
+  @ConfigOverride
   private long sizeCheckWaitTime;
 
   /**
