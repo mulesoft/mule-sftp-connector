@@ -15,6 +15,10 @@
         <sftp:list config-ref="config" directoryPath="#[vars.path]" recursive="#[vars.recursive]" />
     </flow>
 
+    <flow name="listWithSizeCheckWaitTime">
+        <sftp:list config-ref="config" directoryPath="#[vars.path]" recursive="#[vars.recursive]" sizeCheckWaitTime="200"/>
+    </flow>
+
     <flow name="listWithEmbeddedPredicate">
         <sftp:list config-ref="config" directoryPath="#[vars.path]" recursive="#[vars.recursive]">
             <sftp:matcher filenamePattern="*[1-2]*.html" />

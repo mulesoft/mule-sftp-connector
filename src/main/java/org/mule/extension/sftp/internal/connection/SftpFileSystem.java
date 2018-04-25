@@ -56,7 +56,7 @@ public class SftpFileSystem extends AbstractFileSystem {
   protected final CopyCommand copyCommand;
   protected final CreateDirectoryCommand createDirectoryCommand;
   protected final DeleteCommand deleteCommand;
-  protected final ListCommand<SftpFileAttributes> listCommand;
+  protected final SftpListCommand listCommand;
   protected final MoveCommand moveCommand;
   protected final ReadCommand<SftpFileAttributes> readCommand;
   protected final RenameCommand renameCommand;
@@ -76,7 +76,7 @@ public class SftpFileSystem extends AbstractFileSystem {
     return basePath;
   }
 
-  public SftpFileSystem(SftpClient client, String basePath, LockFactory lockFactory, long sizeCheckWaitTime) {
+  public SftpFileSystem(SftpClient client, String basePath, LockFactory lockFactory) {
     super(resolveBasePath(basePath, client));
     this.client = client;
     this.lockFactory = lockFactory;
@@ -84,7 +84,7 @@ public class SftpFileSystem extends AbstractFileSystem {
     copyCommand = new SftpCopyCommand(this, client);
     createDirectoryCommand = new SftpCreateDirectoryCommand(this, client);
     deleteCommand = new SftpDeleteCommand(this, client);
-    listCommand = new SftpListCommand(this, client, sizeCheckWaitTime);
+    listCommand = new SftpListCommand(this, client);
     moveCommand = new SftpMoveCommand(this, client);
     readCommand = new SftpReadCommand(this, client);
     renameCommand = new SftpRenameCommand(this, client);
@@ -167,7 +167,7 @@ public class SftpFileSystem extends AbstractFileSystem {
    * {@inheritDoc}
    */
   @Override
-  public ListCommand getListCommand() {
+  public SftpListCommand getListCommand() {
     return listCommand;
   }
 

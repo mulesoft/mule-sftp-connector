@@ -36,14 +36,12 @@ public final class SftpListCommand extends SftpCommand implements ListCommand<Sf
 
   private static final Logger LOGGER = getLogger(SftpListCommand.class);
 
-  private final long sizeCheckWaitTime;
 
   /**
    * {@inheritDoc}
    */
-  public SftpListCommand(SftpFileSystem fileSystem, SftpClient client, long sizeCheckWaitTime) {
+  public SftpListCommand(SftpFileSystem fileSystem, SftpClient client) {
     super(fileSystem, client);
-    this.sizeCheckWaitTime = sizeCheckWaitTime;
   }
 
   /**
@@ -62,16 +60,31 @@ public final class SftpListCommand extends SftpCommand implements ListCommand<Sf
       throw cannotListFileException(path);
     }
     List<Result<InputStream, SftpFileAttributes>> accumulator = new LinkedList<>();
-    if (sizeCheckWaitTime > 0) {
-      doListStable(config, directoryAttributes.getPath(), accumulator, recursive, matcher);
-    } else {
-      doList(config, directoryAttributes.getPath(), accumulator, recursive, matcher);
+    doList(config, directoryAttributes.getPath(), accumulator, recursive, matcher);
+    return accumulator;
+  }
+
+  public List<Result<InputStream, SftpFileAttributes>> list(FileConnectorConfig config,
+                                                            String directoryPath,
+                                                            boolean recursive,
+                                                            Predicate<SftpFileAttributes> matcher,
+                                                            long sizeCheckWaitTime) {
+    if (sizeCheckWaitTime <= 0) {
+      return list(config, directoryPath, recursive, matcher);
     }
+    FileAttributes directoryAttributes = getExistingFile(directoryPath);
+    Path path = Paths.get(directoryAttributes.getPath());
+
+    if (!directoryAttributes.isDirectory()) {
+      throw cannotListFileException(path);
+    }
+    List<Result<InputStream, SftpFileAttributes>> accumulator = new LinkedList<>();
+    doListStable(config, directoryAttributes.getPath(), accumulator, recursive, matcher, sizeCheckWaitTime);
     return accumulator;
   }
 
   private void doListStable(FileConnectorConfig config, String path, List<Result<InputStream, SftpFileAttributes>> accumulator,
-                            boolean recursive, Predicate<SftpFileAttributes> matcher) {
+                            boolean recursive, Predicate<SftpFileAttributes> matcher, long sizeCheckWaitTime) {
     Map<String, SftpFileAttributes> filesBeforeDelayAccumulator = new HashMap<>();
     doListFileAttributes(config, path, filesBeforeDelayAccumulator, recursive, matcher);
     try {
@@ -82,19 +95,26 @@ public final class SftpListCommand extends SftpCommand implements ListCommand<Sf
     Map<String, SftpFileAttributes> filesAfterDelayAccumulator = new HashMap<>();
     doListFileAttributes(config, path, filesAfterDelayAccumulator, recursive, matcher);
 
-      for (Map.Entry<String, SftpFileAttributes> file : filesBeforeDelayAccumulator.entrySet())
-      {
-          Long sizeBeforeDelay = file.getValue().getSize();
-          Long sizeAfterDelay = filesAfterDelayAccumulator.get(file.getKey()).getSize();
-          if (sizeBeforeDelay.equals(sizeAfterDelay))
-          {
-              if (file.isDirectory()) {
-                  accumulator.add(Result.<InputStream, SftpFileAttributes>builder().output(null).attributes(file).build());
-              } else {
-                  accumulator.add(fileSystem.read(config, file.getPath(), false));
-              }
+    for (Map.Entry<String, SftpFileAttributes> file : filesBeforeDelayAccumulator.entrySet()) {
+      SftpFileAttributes fileAttributes = file.getValue();
+
+      Long sizeBeforeDelay = fileAttributes.getSize();
+      Long sizeAfterDelay = filesAfterDelayAccumulator.get(file.getKey()).getSize();
+      if (sizeBeforeDelay.equals(sizeAfterDelay)) {
+        if (isVirtualDirectory(fileAttributes.getName())) {
+          continue;
+        }
+        if (fileAttributes.isDirectory()) {
+          if (matcher.test(fileAttributes)) {
+            accumulator.add(Result.<InputStream, SftpFileAttributes>builder().output(null).attributes(fileAttributes).build());
           }
+        } else {
+          if (matcher.test(fileAttributes)) {
+            accumulator.add(fileSystem.read(config, fileAttributes.getPath(), false));
+          }
+        }
       }
+    }
   }
 
   private void doListFileAttributes(FileConnectorConfig config,
@@ -104,13 +124,15 @@ public final class SftpListCommand extends SftpCommand implements ListCommand<Sf
                                     Predicate<SftpFileAttributes> matcher) {
     LOGGER.debug("Listing directory {}", path);
     for (SftpFileAttributes file : client.list(path)) {
-      if (isVirtualDirectory(file.getName()) || !matcher.test(file)) {
+      if (isVirtualDirectory(file.getName())) {
         continue;
       }
       if (file.isDirectory() && recursive) {
         doListFileAttributes(config, file.getPath(), accumulator, recursive, matcher);
       }
-      accumulator.put(file.getPath()+"-"+file.getName(), file);
+      if (matcher.test(file)) {
+        accumulator.put(file.getPath(), file);
+      }
     }
   }
 

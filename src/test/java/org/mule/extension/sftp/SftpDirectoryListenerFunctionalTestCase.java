@@ -6,6 +6,7 @@
  */
 package org.mule.extension.sftp;
 
+import static java.lang.Thread.sleep;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
@@ -110,6 +111,7 @@ public class SftpDirectoryListenerFunctionalTestCase extends CommonSftpConnector
     stopFlow("listenWithoutMatcher");
 
     startFlow("listenNonRecursive");
+
     File subdir = new File(MATCHERLESS_LISTENER_FOLDER_NAME, "subdir");
     testHarness.makeDir(subdir.getPath());
     File file = new File(subdir, WATCH_FILE);
@@ -229,10 +231,8 @@ public class SftpDirectoryListenerFunctionalTestCase extends CommonSftpConnector
       return false;
     });
 
-    assertThat(RECEIVED_MESSAGES.get(0).getPayload().getValue(), is("aaaaaaaaaa"));
+    assertThat(RECEIVED_MESSAGES.get(0).getPayload().getValue(), is("aaaaaaaaaaa"));
   }
-
-
 
   private boolean containsPath(Message message, String path) {
     SftpFileAttributes attrs = (SftpFileAttributes) message.getAttributes().getValue();

@@ -22,6 +22,8 @@ import org.mule.extension.file.common.api.exceptions.FileListErrorTypeProvider;
 import org.mule.extension.file.common.api.exceptions.FileReadErrorTypeProvider;
 import org.mule.extension.file.common.api.exceptions.FileRenameErrorTypeProvider;
 import org.mule.extension.file.common.api.exceptions.FileWriteErrorTypeProvider;
+import org.mule.extension.file.common.api.matcher.FileMatcher;
+import org.mule.extension.file.common.api.matcher.NullFilePayloadPredicate;
 import org.mule.extension.sftp.api.SftpFileAttributes;
 import org.mule.extension.sftp.api.SftpFileMatcher;
 import org.mule.extension.sftp.internal.connection.SftpFileSystem;
@@ -32,6 +34,7 @@ import org.mule.runtime.extension.api.annotation.param.Connection;
 import org.mule.runtime.extension.api.annotation.param.Content;
 import org.mule.runtime.extension.api.annotation.param.MediaType;
 import org.mule.runtime.extension.api.annotation.param.Optional;
+import org.mule.runtime.extension.api.annotation.param.Parameter;
 import org.mule.runtime.extension.api.annotation.param.display.DisplayName;
 import org.mule.runtime.extension.api.annotation.param.display.Path;
 import org.mule.runtime.extension.api.annotation.param.display.Placement;
@@ -40,6 +43,7 @@ import org.mule.runtime.extension.api.runtime.operation.Result;
 
 import java.io.InputStream;
 import java.util.List;
+import java.util.function.Predicate;
 
 /**
  * Ftp connector operations
@@ -61,6 +65,7 @@ public final class SftpOperations extends BaseFileSystemOperations {
    * @param directoryPath the path to the directory to be listed
    * @param recursive whether to include the contents of sub-directories. Defaults to false.
    * @param matcher a matcher used to filter the output list
+   * @param sizeCheckWaitTime  wait time in milliseconds between size checks to determine if a file is ready to be processed.
    * @return a {@link List} of {@link Message messages} each one containing each file's content in the payload and metadata in the
    *         attributes
    * @throws IllegalArgumentException if {@code directoryPath} points to a file which doesn't exist or is not a directory
@@ -71,8 +76,10 @@ public final class SftpOperations extends BaseFileSystemOperations {
                                                             @Connection SftpFileSystem fileSystem,
                                                             @Path(type = DIRECTORY, location = EXTERNAL) String directoryPath,
                                                             @Optional(defaultValue = "false") boolean recursive,
-                                                            @Optional @DisplayName("File Matching Rules") @Summary("Matcher to filter the listed files") SftpFileMatcher matcher) {
-    List result = doList(config, fileSystem, directoryPath, recursive, matcher);
+                                                            @Optional @DisplayName("File Matching Rules") @Summary("Matcher to filter the listed files") SftpFileMatcher matcher,
+                                                            @Optional(defaultValue = "-1") long sizeCheckWaitTime) {
+    fileSystem.changeToBaseDir();
+    List result = fileSystem.getListCommand().list(config, directoryPath, recursive, getPredicate(matcher), sizeCheckWaitTime);
     return (List<Result<InputStream, SftpFileAttributes>>) result;
   }
 
@@ -251,4 +258,9 @@ public final class SftpOperations extends BaseFileSystemOperations {
   public void createDirectory(@Connection FileSystem fileSystem, @Path(location = EXTERNAL) String directoryPath) {
     super.doCreateDirectory(fileSystem, directoryPath);
   }
+
+  private Predicate<SftpFileAttributes> getPredicate(FileMatcher builder) {
+    return builder != null ? builder.build() : new NullFilePayloadPredicate();
+  }
+
 }

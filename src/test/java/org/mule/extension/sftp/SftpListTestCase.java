@@ -98,6 +98,42 @@ public class SftpListTestCase extends CommonSftpConnectorTestCase {
   }
 
   @Test
+  public void listNotRecursiveWithSizeCheck() throws Exception {
+    List<Message> messages = doListWithSizeCheck(".", false);
+
+    assertThat(messages, hasSize(6));
+    assertThat(assertListedFiles(messages), is(true));
+  }
+
+  @Test
+  public void listRecursiveWithSizeCheck() throws Exception {
+    List<Message> messages = doListWithSizeCheck(".", true);
+
+    assertThat(messages, hasSize(8));
+    assertThat(assertListedFiles(messages), is(true));
+
+    List<Message> subDirectories = messages.stream()
+        .filter(message -> ((FileAttributes) message.getAttributes().getValue()).isDirectory())
+        .collect(toList());
+
+    assertThat(subDirectories, hasSize(1));
+    assertThat(assertListedFiles(subDirectories), is(true));
+  }
+
+  @Test
+  public void notDirectoryWithSizeCheck() throws Exception {
+    testHarness.expectedError().expectError(NAMESPACE, ILLEGAL_PATH.getType(), IllegalPathException.class,
+                                            "Only directories can be listed");
+    doList("listWithSizeCheckWaitTime", format(TEST_FILE_PATTERN, 0), false);
+  }
+
+  @Test
+  public void notExistingPathWithSizeCheck() throws Exception {
+    testHarness.expectedError().expectError(NAMESPACE, ILLEGAL_PATH.getType(), IllegalPathException.class, "doesn't exist");
+    doList("listWithSizeCheckWaitTime", "whatever", false);
+  }
+
+  @Test
   public void listWithEmbeddedMatcher() throws Exception {
     List<Message> messages = doList("listWithEmbeddedPredicate", ".", false);
 
@@ -161,6 +197,10 @@ public class SftpListTestCase extends CommonSftpConnectorTestCase {
 
   private List<Message> doList(String path, boolean recursive) throws Exception {
     return doList("list", path, recursive);
+  }
+
+  private List<Message> doListWithSizeCheck(String path, boolean recursive) throws Exception {
+    return doList("listWithSizeCheckWaitTime", path, recursive);
   }
 
   private List<Message> doList(String flowName, String path, boolean recursive) throws Exception {
