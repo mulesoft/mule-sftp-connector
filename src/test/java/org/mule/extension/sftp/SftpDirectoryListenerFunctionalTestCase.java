@@ -6,7 +6,6 @@
  */
 package org.mule.extension.sftp;
 
-import static java.lang.Thread.sleep;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
