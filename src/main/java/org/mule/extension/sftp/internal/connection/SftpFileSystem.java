@@ -56,7 +56,7 @@ public class SftpFileSystem extends AbstractFileSystem {
   protected final CopyCommand copyCommand;
   protected final CreateDirectoryCommand createDirectoryCommand;
   protected final DeleteCommand deleteCommand;
-  protected final ListCommand<SftpFileAttributes> listCommand;
+  protected final SftpListCommand listCommand;
   protected final MoveCommand moveCommand;
   protected final ReadCommand<SftpFileAttributes> readCommand;
   protected final RenameCommand renameCommand;
@@ -167,7 +167,7 @@ public class SftpFileSystem extends AbstractFileSystem {
    * {@inheritDoc}
    */
   @Override
-  public ListCommand getListCommand() {
+  public SftpListCommand getListCommand() {
     return listCommand;
   }
 

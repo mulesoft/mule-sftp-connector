@@ -14,7 +14,7 @@
     <flow name="listenWithoutMatcher">
         <sftp:listener config-ref="config" directory="matcherless">
             <scheduling-strategy>
-                <fixed-frequency/>
+                <fixed-frequency frequency="3000"/>
             </scheduling-strategy>
         </sftp:listener>
         <flow-ref name="onEvent"/>
@@ -23,7 +23,7 @@
     <flow name="listenNonRecursive" initialState="stopped">
         <sftp:listener config-ref="config" directory="matcherless" recursive="false">
             <scheduling-strategy>
-                <fixed-frequency />
+                <fixed-frequency frequency="3000"/>
             </scheduling-strategy>
         </sftp:listener>
         <flow-ref name="onEvent"/>
@@ -80,6 +80,15 @@
 
     <flow name="modifiedWatermark" initialState="stopped">
         <sftp:listener config-ref="config" directory="matcherless" autoDelete="false" watermarkEnabled="true">
+            <scheduling-strategy>
+                <fixed-frequency frequency="3000" />
+            </scheduling-strategy>
+        </sftp:listener>
+        <flow-ref name="onEvent"/>
+    </flow>
+
+    <flow name="fileBeingWritten" initialState="stopped">
+        <sftp:listener config-ref="config" directory="matcherless" autoDelete="false" watermarkEnabled="false" sizeCheckWaitTime="2000">
             <scheduling-strategy>
                 <fixed-frequency frequency="3000" />
             </scheduling-strategy>

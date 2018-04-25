@@ -256,6 +256,10 @@ public class SftpTestHarness extends AbstractSftpTestHarness {
     assertThat(dirExists(directoryPath.toString()), is(false));
   }
 
+  public SftpClient getSftpClient() {
+    return sftpClient;
+  }
+
   public enum AuthType {
     USER_PASSWORD, PUBLIC_KEY
   }

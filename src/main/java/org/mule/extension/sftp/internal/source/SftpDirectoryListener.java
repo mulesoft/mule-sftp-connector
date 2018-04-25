@@ -25,6 +25,7 @@ import org.mule.runtime.extension.api.annotation.execution.OnError;
 import org.mule.runtime.extension.api.annotation.execution.OnSuccess;
 import org.mule.runtime.extension.api.annotation.execution.OnTerminate;
 import org.mule.runtime.extension.api.annotation.param.Config;
+import org.mule.runtime.extension.api.annotation.param.ConfigOverride;
 import org.mule.runtime.extension.api.annotation.param.Connection;
 import org.mule.runtime.extension.api.annotation.param.MediaType;
 import org.mule.runtime.extension.api.annotation.param.Optional;
@@ -106,6 +107,16 @@ public class SftpDirectoryListener extends PollingSource<InputStream, SftpFileAt
   private SftpFileMatcher predicateBuilder;
 
   /**
+   * Wait time in milliseconds between size checks to determine if a file is ready to be processed. This allows a file write to
+   * complete before processing. You can disable this feature by setting to a negative number or omitting a value. When enabled,
+   * Mule performs two size checks waiting the specified time between calls. If both checks return the same value, the file is
+   * ready to process.
+   */
+  @Parameter
+  @ConfigOverride
+  private long sizeCheckWaitTime;
+
+  /**
    * Controls whether or not to do watermarking, and if so, if the watermark should consider the file's modification or creation
    * timestamps
    */
@@ -161,9 +172,9 @@ public class SftpDirectoryListener extends PollingSource<InputStream, SftpFileAt
                           e.getMessage()));
       return;
     }
-
     try {
-      List<Result<InputStream, SftpFileAttributes>> files = fileSystem.list(config, directoryPath.toString(), recursive, matcher);
+      List<Result<InputStream, SftpFileAttributes>> files =
+          fileSystem.getListCommand().list(config, directoryPath.toString(), recursive, matcher, sizeCheckWaitTime);
       if (files.isEmpty()) {
         return;
       }
