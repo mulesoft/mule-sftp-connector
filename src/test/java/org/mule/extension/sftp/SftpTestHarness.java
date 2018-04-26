@@ -265,4 +265,9 @@ public class SftpTestHarness extends AbstractSftpTestHarness {
 
     void configure(T sftpClient);
   }
+
+  public SftpClient getSftpClient() {
+    return sftpClient;
+  }
+
 }

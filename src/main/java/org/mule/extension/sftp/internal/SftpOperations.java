@@ -22,12 +22,17 @@ import org.mule.extension.file.common.api.exceptions.FileListErrorTypeProvider;
 import org.mule.extension.file.common.api.exceptions.FileReadErrorTypeProvider;
 import org.mule.extension.file.common.api.exceptions.FileRenameErrorTypeProvider;
 import org.mule.extension.file.common.api.exceptions.FileWriteErrorTypeProvider;
+import org.mule.extension.file.common.api.matcher.FileMatcher;
+import org.mule.extension.file.common.api.matcher.NullFilePayloadPredicate;
 import org.mule.extension.sftp.api.SftpFileAttributes;
 import org.mule.extension.sftp.api.SftpFileMatcher;
 import org.mule.extension.sftp.internal.connection.SftpFileSystem;
+import org.mule.runtime.api.exception.MuleException;
 import org.mule.runtime.api.message.Message;
+import org.mule.runtime.api.streaming.CursorProvider;
 import org.mule.runtime.extension.api.annotation.error.Throws;
 import org.mule.runtime.extension.api.annotation.param.Config;
+import org.mule.runtime.extension.api.annotation.param.ConfigOverride;
 import org.mule.runtime.extension.api.annotation.param.Connection;
 import org.mule.runtime.extension.api.annotation.param.Content;
 import org.mule.runtime.extension.api.annotation.param.MediaType;
@@ -37,9 +42,16 @@ import org.mule.runtime.extension.api.annotation.param.display.Path;
 import org.mule.runtime.extension.api.annotation.param.display.Placement;
 import org.mule.runtime.extension.api.annotation.param.display.Summary;
 import org.mule.runtime.extension.api.runtime.operation.Result;
+import org.mule.runtime.extension.api.runtime.streaming.PagingProvider;
+import org.mule.runtime.extension.api.runtime.streaming.StreamingHelper;
 
+import javax.inject.Inject;
 import java.io.InputStream;
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Predicate;
 
 /**
  * Ftp connector operations
@@ -47,6 +59,8 @@ import java.util.List;
  * @since 1.0
  */
 public final class SftpOperations extends BaseFileSystemOperations {
+
+  private static final Integer LIST_PAGE_SIZE = 10;
 
   /**
    * Lists all the files in the {@code directoryPath} which match the given {@code matcher}.
@@ -61,19 +75,61 @@ public final class SftpOperations extends BaseFileSystemOperations {
    * @param directoryPath the path to the directory to be listed
    * @param recursive whether to include the contents of sub-directories. Defaults to false.
    * @param matcher a matcher used to filter the output list
+   * @param timeBetweenSizeCheck wait time in milliseconds between size checks to determine if a file is ready to be read.
    * @return a {@link List} of {@link Message messages} each one containing each file's content in the payload and metadata in the
    *         attributes
    * @throws IllegalArgumentException if {@code directoryPath} points to a file which doesn't exist or is not a directory
    */
   @Summary("List all the files from given directory")
   @Throws(FileListErrorTypeProvider.class)
-  public List<Result<InputStream, SftpFileAttributes>> list(@Config FileConnectorConfig config,
-                                                            @Connection SftpFileSystem fileSystem,
-                                                            @Path(type = DIRECTORY, location = EXTERNAL) String directoryPath,
-                                                            @Optional(defaultValue = "false") boolean recursive,
-                                                            @Optional @DisplayName("File Matching Rules") @Summary("Matcher to filter the listed files") SftpFileMatcher matcher) {
-    List result = doList(config, fileSystem, directoryPath, recursive, matcher);
-    return (List<Result<InputStream, SftpFileAttributes>>) result;
+  public PagingProvider<SftpFileSystem, Result<CursorProvider, SftpFileAttributes>> list(@Config FileConnectorConfig config,
+                                                                                         @Path(type = DIRECTORY,
+                                                                                             location = EXTERNAL) String directoryPath,
+                                                                                         @Optional(
+                                                                                             defaultValue = "false") boolean recursive,
+                                                                                         @Optional @DisplayName("File Matching Rules") @Summary("Matcher to filter the listed files") SftpFileMatcher matcher,
+                                                                                         @ConfigOverride @Placement(
+                                                                                             tab = ADVANCED_TAB) Long timeBetweenSizeCheck,
+                                                                                         StreamingHelper streamingHelper) {
+    return new PagingProvider<SftpFileSystem, Result<CursorProvider, SftpFileAttributes>>() {
+
+      private List<Result<InputStream, SftpFileAttributes>> files;
+      private Iterator<Result<InputStream, SftpFileAttributes>> filesIterator;
+      private final AtomicBoolean initialised = new AtomicBoolean(false);
+
+      @Override
+      public List<Result<CursorProvider, SftpFileAttributes>> getPage(SftpFileSystem connection) {
+        if (initialised.compareAndSet(false, true)) {
+          initializePagingProvider(connection);
+        }
+        List<Result<CursorProvider, SftpFileAttributes>> page = new LinkedList<>();
+        for (int i = 0; i < LIST_PAGE_SIZE && filesIterator.hasNext(); i++) {
+          Result<InputStream, SftpFileAttributes> result = filesIterator.next();
+          page.add((Result.<CursorProvider, SftpFileAttributes>builder().attributes(result.getAttributes().get())
+              .output((CursorProvider) streamingHelper.resolveCursorProvider(result.getOutput()))
+              .build()));
+        }
+        return page;
+      }
+
+      private void initializePagingProvider(SftpFileSystem connection) {
+        connection.changeToBaseDir();
+        files = connection.getListCommand().list(config, directoryPath, recursive,
+                                                 getPredicate(matcher), timeBetweenSizeCheck);
+        filesIterator = files.iterator();
+      }
+
+      @Override
+      public java.util.Optional<Integer> getTotalResults(SftpFileSystem connection) {
+        return java.util.Optional.of(files.size());
+      }
+
+      @Override
+      public void close(SftpFileSystem connection) throws MuleException {
+        connection.disconnect();
+      }
+
+    };
   }
 
   /**
@@ -94,6 +150,7 @@ public final class SftpOperations extends BaseFileSystemOperations {
    * @param fileSystem a reference to the host {@link FileSystem}
    * @param path the path to the file to be read
    * @param lock whether or not to lock the file. Defaults to false.
+   * @param timeBetweenSizeCheck wait time in milliseconds between size checks to determine if a file is ready to be read.
    * @return the file's content and metadata on a {@link FileAttributes} instance
    * @throws IllegalArgumentException if the file at the given path doesn't exist
    */
@@ -105,9 +162,10 @@ public final class SftpOperations extends BaseFileSystemOperations {
                                                       @DisplayName("File Path") @Path(type = FILE,
                                                           location = EXTERNAL) String path,
                                                       @Optional(defaultValue = "false") @Placement(
-                                                          tab = ADVANCED_TAB) boolean lock) {
-    Result result = doRead(config, fileSystem, path, lock);
-    return (Result<InputStream, SftpFileAttributes>) result;
+                                                          tab = ADVANCED_TAB) boolean lock,
+                                                      @ConfigOverride @Placement(tab = ADVANCED_TAB) Long timeBetweenSizeCheck) {
+    fileSystem.changeToBaseDir();
+    return fileSystem.getReadCommand().read(config, path, lock, timeBetweenSizeCheck);
   }
 
   /**
@@ -250,5 +308,9 @@ public final class SftpOperations extends BaseFileSystemOperations {
   @Throws(FileRenameErrorTypeProvider.class)
   public void createDirectory(@Connection FileSystem fileSystem, @Path(location = EXTERNAL) String directoryPath) {
     super.doCreateDirectory(fileSystem, directoryPath);
+  }
+
+  private Predicate<SftpFileAttributes> getPredicate(FileMatcher builder) {
+    return builder != null ? builder.build() : new NullFilePayloadPredicate();
   }
 }

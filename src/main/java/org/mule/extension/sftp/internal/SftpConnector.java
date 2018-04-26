@@ -17,6 +17,9 @@ import org.mule.runtime.extension.api.annotation.Sources;
 import org.mule.runtime.extension.api.annotation.connectivity.ConnectionProviders;
 import org.mule.runtime.extension.api.annotation.dsl.xml.Xml;
 import org.mule.runtime.extension.api.annotation.error.ErrorTypes;
+import org.mule.runtime.extension.api.annotation.param.Optional;
+import org.mule.runtime.extension.api.annotation.param.Parameter;
+import org.mule.runtime.extension.api.annotation.param.display.Summary;
 
 import javax.inject.Inject;
 
@@ -36,6 +39,15 @@ public class SftpConnector extends FileConnectorConfig {
   @Inject
   private ConnectionManager connectionManager;
 
+  /**
+   * Wait time in milliseconds between size checks to determine if a file is ready to be read. This allows a file write to
+   * complete before processing. You can disable this feature by omitting a value. When enabled, Mule performs two size checks waiting the specified time between calls.
+   * If both checks return the same value, the file is ready to be read.
+   */
+  @Parameter
+  @Summary("Wait time in milliseconds between size checks to determine if a file is ready to be read.")
+  @Optional
+  private Long timeBetweenSizeCheck;
 
   public ConnectionManager getConnectionManager() {
     return connectionManager;

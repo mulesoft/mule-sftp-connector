@@ -21,12 +21,15 @@ import org.mule.extension.file.common.api.FileAttributes;
 import org.mule.extension.file.common.api.exceptions.IllegalPathException;
 import org.mule.runtime.api.exception.MuleException;
 import org.mule.runtime.api.message.Message;
-import org.mule.runtime.api.streaming.bytes.CursorStreamProvider;
+import org.mule.runtime.api.streaming.CursorProvider;
+import org.mule.runtime.api.streaming.object.CursorIteratorProvider;
 import org.mule.runtime.core.api.event.CoreEvent;
 import org.mule.runtime.core.api.processor.Processor;
 
+import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 
 import io.qameta.allure.Feature;
@@ -98,6 +101,42 @@ public class SftpListTestCase extends CommonSftpConnectorTestCase {
   }
 
   @Test
+  public void listNotRecursiveWithSizeCheck() throws Exception {
+    List<Message> messages = doListWithStableSizeCheck(".", false);
+
+    assertThat(messages, hasSize(6));
+    assertThat(assertListedFiles(messages), is(true));
+  }
+
+  @Test
+  public void listRecursiveWithSizeCheck() throws Exception {
+    List<Message> messages = doListWithStableSizeCheck(".", true);
+
+    assertThat(messages, hasSize(8));
+    assertThat(assertListedFiles(messages), is(true));
+
+    List<Message> subDirectories = messages.stream()
+        .filter(message -> ((FileAttributes) message.getAttributes().getValue()).isDirectory())
+        .collect(toList());
+
+    assertThat(subDirectories, hasSize(1));
+    assertThat(assertListedFiles(subDirectories), is(true));
+  }
+
+  @Test
+  public void notDirectoryWithSizeCheck() throws Exception {
+    testHarness.expectedError().expectError(NAMESPACE, ILLEGAL_PATH.getType(), IllegalPathException.class,
+                                            "Only directories can be listed");
+    doList("listWithStableSizeTime", format(TEST_FILE_PATTERN, 0), false);
+  }
+
+  @Test
+  public void notExistingPathWithSizeCheck() throws Exception {
+    testHarness.expectedError().expectError(NAMESPACE, ILLEGAL_PATH.getType(), IllegalPathException.class, "doesn't exist");
+    doList("listWithStableSizeTime", "whatever", false);
+  }
+
+  @Test
   public void listWithEmbeddedMatcher() throws Exception {
     List<Message> messages = doList("listWithEmbeddedPredicate", ".", false);
 
@@ -163,13 +202,30 @@ public class SftpListTestCase extends CommonSftpConnectorTestCase {
     return doList("list", path, recursive);
   }
 
-  private List<Message> doList(String flowName, String path, boolean recursive) throws Exception {
-    List<Message> messages =
-        (List<Message>) flowRunner(flowName).withVariable("path", path).withVariable("recursive", recursive).run()
-            .getMessage().getPayload().getValue();
+  private List<Message> doListWithStableSizeCheck(String path, boolean recursive)
+      throws Exception {
+    return doList("listWithStableSizeTime", path, recursive);
+  }
 
-    assertThat(messages, is(notNullValue()));
-    return messages;
+  private List<Message> doList(String flowName, String path, boolean recursive) throws Exception {
+
+    CursorIteratorProvider iteratorProvider = (CursorIteratorProvider) (flowRunner(flowName)
+        .withVariable("path", path).withVariable("recursive", recursive).keepStreamsOpen()
+        .run()
+        .getMessage().getPayload().getValue());
+
+    assertThat(iteratorProvider, is(notNullValue()));
+
+    Iterator<Message> iterator = iteratorProvider.openCursor();
+
+    List<Message> results = new LinkedList<>();
+
+    while (iterator.hasNext()) {
+      results.add(iterator.next());
+    }
+
+
+    return results;
   }
 
   private void createTestFiles() throws Exception {
@@ -203,10 +259,18 @@ public class SftpListTestCase extends CommonSftpConnectorTestCase {
 
     @Override
     public CoreEvent process(CoreEvent event) throws MuleException {
-      Collection<Message> messageList = (Collection<Message>) event.getMessage().getPayload().getValue();
+
+      CursorIteratorProvider iteratorProvider = (CursorIteratorProvider) event.getMessage().getPayload().getValue();
+      Iterator<Message> iterator = iteratorProvider.openCursor();
+      List<Message> messageList = new LinkedList<>();
+
+      while (iterator.hasNext()) {
+        messageList.add(iterator.next());
+      }
 
       for (Message message : messageList) {
-        fileContents.add(new String(toByteArray(((CursorStreamProvider) message.getPayload().getValue()).openCursor())));
+        InputStream inputStream = (InputStream) ((CursorProvider) message.getPayload().getValue()).openCursor();
+        fileContents.add(new String(toByteArray(inputStream)));
       }
 
       return event;

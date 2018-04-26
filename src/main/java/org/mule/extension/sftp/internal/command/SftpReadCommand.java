@@ -42,6 +42,11 @@ public final class SftpReadCommand extends SftpCommand implements ReadCommand<Sf
    */
   @Override
   public Result<InputStream, SftpFileAttributes> read(FileConnectorConfig config, String filePath, boolean lock) {
+    return read(config, filePath, lock, null);
+  }
+
+  public Result<InputStream, SftpFileAttributes> read(FileConnectorConfig config, String filePath, boolean lock,
+                                                      Long timeBetweenSizeCheck) {
     SftpFileAttributes attributes = getExistingFile(filePath);
     if (attributes.isDirectory()) {
       throw cannotReadDirectoryException(Paths.get(attributes.getPath()));
@@ -52,7 +57,7 @@ public final class SftpReadCommand extends SftpCommand implements ReadCommand<Sf
     PathLock pathLock = lock ? fileSystem.lock(path) : new NullPathLock(path);
     InputStream payload = null;
     try {
-      payload = SftpInputStream.newInstance((SftpConnector) config, attributes, pathLock);
+      payload = SftpInputStream.newInstance((SftpConnector) config, attributes, pathLock, timeBetweenSizeCheck);
       MediaType resolvedMediaType = fileSystem.getFileMessageMediaType(attributes);
       return Result.<InputStream, SftpFileAttributes>builder().output(payload).mediaType(resolvedMediaType).attributes(attributes)
           .build();
@@ -61,5 +66,9 @@ public final class SftpReadCommand extends SftpCommand implements ReadCommand<Sf
       IOUtils.closeQuietly(payload);
       throw exception("Could not fetch file " + path, e);
     }
+  }
+
+  public SftpFileAttributes readAttributes(String filePath) {
+    return getFile(filePath);
   }
 }

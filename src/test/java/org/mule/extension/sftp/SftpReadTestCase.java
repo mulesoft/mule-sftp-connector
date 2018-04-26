@@ -18,6 +18,7 @@ import static org.mule.test.extension.file.common.api.FileTestHarness.HELLO_WORL
 import org.mule.extension.file.common.api.exceptions.IllegalPathException;
 import org.mule.extension.file.common.api.stream.AbstractFileInputStream;
 import org.mule.extension.sftp.api.SftpFileAttributes;
+import org.mule.runtime.api.exception.MuleException;
 import org.mule.runtime.api.message.Message;
 import org.mule.runtime.api.metadata.MediaType;
 import org.mule.runtime.core.api.event.CoreEvent;
@@ -26,9 +27,14 @@ import java.nio.file.Paths;
 
 import io.qameta.allure.Feature;
 import org.junit.Test;
+import org.mule.runtime.core.api.processor.Processor;
 
 @Feature(SFTP_EXTENSION)
 public class SftpReadTestCase extends CommonSftpConnectorTestCase {
+
+  private static int SLEEP_TIME_MILLIS = 5000;
+  private static String DELETED_FILE_NAME = "deleted.txt";
+  private static String DELETED_FILE_CONTENT = "non existant content";
 
   public SftpReadTestCase(String name, SftpTestHarness testHarness, String ftpConfigFile) {
     super(name, testHarness, ftpConfigFile);
@@ -113,9 +119,31 @@ public class SftpReadTestCase extends CommonSftpConnectorTestCase {
     testHarness.assertAttributes(HELLO_PATH, fileAttributes);
   }
 
+  @Test
+  public void readFileThatIsDeleted() throws Exception {
+    testHarness.write(DELETED_FILE_NAME, DELETED_FILE_CONTENT);
+    String result = (String) flowRunner("readFileThatIsDeleted").withVariable("path", DELETED_FILE_NAME).run().getMessage()
+        .getPayload().getValue();
+    assertThat(result, is(""));
+  }
+
   private Message readWithLock() throws Exception {
     Message message =
         flowRunner("readWithLock").withVariable("readPath", Paths.get("files/hello.json").toString()).run().getMessage();
     return message;
   }
+
+  public static class SleepTestProcessor implements Processor {
+
+    @Override
+    public CoreEvent process(CoreEvent event) throws MuleException {
+      try {
+        Thread.sleep(SLEEP_TIME_MILLIS);
+      } catch (InterruptedException e) {
+        e.printStackTrace();
+      }
+      return event;
+    }
+  }
+
 }
