@@ -107,6 +107,8 @@ public final class SftpOperations extends BaseFileSystemOperations {
           Result<InputStream, SftpFileAttributes> result = filesIterator.next();
           page.add((Result.<CursorProvider, SftpFileAttributes>builder().attributes(result.getAttributes().get())
               .output((CursorProvider) streamingHelper.resolveCursorProvider(result.getOutput()))
+              .mediaType(result.getMediaType().orElse(null))
+              .attributesMediaType(result.getAttributesMediaType().orElse(null))
               .build()));
         }
         return page;
