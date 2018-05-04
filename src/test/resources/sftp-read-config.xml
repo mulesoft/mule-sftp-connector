@@ -41,4 +41,9 @@
         <object-to-string-transformer />
     </flow>
 
+    <flow name="readFileWithSizeCheck">
+        <sftp:read config-ref="config" path="#[vars.path]" timeBetweenSizeCheck="2000"/>
+        <object-to-string-transformer />
+    </flow>
+
 </mule>

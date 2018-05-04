@@ -51,4 +51,22 @@
         </sftp:list>
     </flow>
 
+    <flow name="listFilesWithFilesStillBeingWritten">
+        <sftp:list config-ref="config" directoryPath="#[vars.path]" recursive="#[vars.recursive]"
+                   timeBetweenSizeCheck="2000">
+            <sftp:matcher directories="EXCLUDE" filenamePattern="*"/>
+        </sftp:list>
+        <foreach>
+            <try>
+                <test:processor class="org.mule.extension.sftp.SftpListTestCase$FilesWrittenProcessor"/>
+                <object-to-string-transformer/>
+                <error-handler>
+                    <on-error-continue enableNotifications="true" logException="true" type="ANY" >
+                        <test:processor class="org.mule.extension.sftp.SftpListTestCase$FilesBeingWrittenProcessor"/>
+                    </on-error-continue>
+                </error-handler>
+            </try>
+        </foreach>
+    </flow>
+
 </mule>

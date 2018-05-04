@@ -11,6 +11,7 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import static org.mule.extension.file.common.api.FileWriteMode.APPEND;
 import static org.mule.extension.file.common.api.FileWriteMode.OVERWRITE;
 import static org.mule.extension.sftp.SftpServer.PASSWORD;
@@ -19,8 +20,10 @@ import static org.mule.extension.sftp.internal.SftpUtils.normalizePath;
 import static org.mule.extension.sftp.internal.SftpUtils.resolvePath;
 import static org.mule.extension.sftp.random.alg.PRNGAlgorithm.SHA1PRNG;
 
+import org.apache.commons.io.IOUtils;
 import org.mule.extension.AbstractSftpTestHarness;
 import org.mule.extension.file.common.api.FileAttributes;
+import org.mule.extension.file.common.api.FileWriteMode;
 import org.mule.extension.sftp.api.SftpFileAttributes;
 import org.mule.extension.sftp.internal.connection.SftpClient;
 import org.mule.extension.sftp.internal.connection.SftpClientFactory;
@@ -32,6 +35,7 @@ import com.jcraft.jsch.JSchException;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
@@ -266,8 +270,22 @@ public class SftpTestHarness extends AbstractSftpTestHarness {
     void configure(T sftpClient);
   }
 
-  public SftpClient getSftpClient() {
-    return sftpClient;
+  protected void writeByteByByteAsync(String path, String content, long delayBetweenCharacters) throws Exception {
+    OutputStream os = sftpClient.getOutputStream(path, FileWriteMode.CREATE_NEW);
+
+    new Thread(() -> {
+
+      try {
+        byte[] bytes = content.getBytes();
+        for (int i = 0; i < bytes.length; i++) {
+          IOUtils.copy(new ByteArrayInputStream(new byte[] {bytes[i]}), os);
+          Thread.sleep(delayBetweenCharacters);
+        }
+      } catch (Exception e) {
+        fail("Error trying to write in file");
+      }
+    }).start();
+
   }
 
 }

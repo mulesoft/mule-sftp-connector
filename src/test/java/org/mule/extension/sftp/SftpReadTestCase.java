@@ -6,23 +6,32 @@
  */
 package org.mule.extension.sftp;
 
+import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 import static org.mule.extension.file.common.api.exceptions.FileError.ILLEGAL_PATH;
 import static org.mule.extension.sftp.AllureConstants.SftpFeature.SFTP_EXTENSION;
 import static org.mule.runtime.api.metadata.MediaType.JSON;
 import static org.mule.test.extension.file.common.api.FileTestHarness.BINARY_FILE_NAME;
 import static org.mule.test.extension.file.common.api.FileTestHarness.HELLO_PATH;
 import static org.mule.test.extension.file.common.api.FileTestHarness.HELLO_WORLD;
+
+import io.qameta.allure.Description;
+import org.apache.commons.io.IOUtils;
+import org.mule.extension.file.common.api.FileWriteMode;
 import org.mule.extension.file.common.api.exceptions.IllegalPathException;
 import org.mule.extension.file.common.api.stream.AbstractFileInputStream;
 import org.mule.extension.sftp.api.SftpFileAttributes;
+import org.mule.extension.sftp.internal.connection.SftpClient;
 import org.mule.runtime.api.exception.MuleException;
 import org.mule.runtime.api.message.Message;
 import org.mule.runtime.api.metadata.MediaType;
 import org.mule.runtime.core.api.event.CoreEvent;
 
+import java.io.ByteArrayInputStream;
+import java.io.OutputStream;
 import java.nio.file.Paths;
 
 import io.qameta.allure.Feature;
@@ -35,6 +44,7 @@ public class SftpReadTestCase extends CommonSftpConnectorTestCase {
   private static int SLEEP_TIME_MILLIS = 5000;
   private static String DELETED_FILE_NAME = "deleted.txt";
   private static String DELETED_FILE_CONTENT = "non existant content";
+  private static String WATCH_FILE = "watch.txt";
 
   public SftpReadTestCase(String name, SftpTestHarness testHarness, String ftpConfigFile) {
     super(name, testHarness, ftpConfigFile);
@@ -122,28 +132,41 @@ public class SftpReadTestCase extends CommonSftpConnectorTestCase {
   @Test
   public void readFileThatIsDeleted() throws Exception {
     testHarness.write(DELETED_FILE_NAME, DELETED_FILE_CONTENT);
-    String result = (String) flowRunner("readFileThatIsDeleted").withVariable("path", DELETED_FILE_NAME).run().getMessage()
+    try {
+      String result = (String) flowRunner("readFileThatIsDeleted").withVariable("path", DELETED_FILE_NAME).run().getMessage()
+          .getPayload().getValue();
+      fail();
+    } catch (Exception e) {
+      assertThat(e.getMessage(), containsString("does not exist anymore"));
+    }
+  }
+
+  @Test
+  @Description("Tests the case of polling files that are still being written")
+  public void readWhileStillWriting() throws Exception {
+    testHarness.writeByteByByteAsync(WATCH_FILE, "aaaaaaaaaa", 1000);
+    try {
+      String result = (String) flowRunner("readFileWithSizeCheck").withVariable("path", WATCH_FILE).run().getMessage()
+          .getPayload().getValue();
+      fail();
+    } catch (Exception e) {
+      assertThat(e.getMessage(), containsString("being written"));
+    }
+  }
+
+  @Test
+  @Description("Tests the case of polling files that are finishing being written")
+  public void readWhileFinishWriting() throws Exception {
+    testHarness.writeByteByByteAsync(WATCH_FILE, "aaa", 500);
+    String result = (String) flowRunner("readFileWithSizeCheck").withVariable("path", WATCH_FILE).run().getMessage()
         .getPayload().getValue();
-    assertThat(result, is(""));
+    assertThat(result, is("aaa"));
   }
 
   private Message readWithLock() throws Exception {
     Message message =
         flowRunner("readWithLock").withVariable("readPath", Paths.get("files/hello.json").toString()).run().getMessage();
     return message;
-  }
-
-  public static class SleepTestProcessor implements Processor {
-
-    @Override
-    public CoreEvent process(CoreEvent event) throws MuleException {
-      try {
-        Thread.sleep(SLEEP_TIME_MILLIS);
-      } catch (InterruptedException e) {
-        e.printStackTrace();
-      }
-      return event;
-    }
   }
 
 }

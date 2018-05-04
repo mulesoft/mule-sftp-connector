@@ -19,6 +19,7 @@ import static org.mule.extension.sftp.AllureConstants.SftpFeature.SFTP_EXTENSION
 import static org.mule.runtime.core.api.util.IOUtils.toByteArray;
 import org.mule.extension.file.common.api.FileAttributes;
 import org.mule.extension.file.common.api.exceptions.IllegalPathException;
+import org.mule.extension.sftp.api.SftpFileAttributes;
 import org.mule.runtime.api.exception.MuleException;
 import org.mule.runtime.api.message.Message;
 import org.mule.runtime.api.streaming.CursorProvider;
@@ -41,6 +42,9 @@ public class SftpListTestCase extends CommonSftpConnectorTestCase {
   private static final String TEST_FILE_PATTERN = "test-file-%d.html";
   private static final String SUB_DIRECTORY_NAME = "subDirectory";
   private static final String CONTENT = "foo";
+  private static final String LONG_CONTENT = "longcontentlongcontentlongcontentlongcontent";
+  private static final String LONG_CONTENT_FILE_NAME = "longContent.txt";
+  private static int WRITE_DELAY = 1000;
 
   public SftpListTestCase(String name, SftpTestHarness testHarness, String ftpConfigFile) {
     super(name, testHarness, ftpConfigFile);
@@ -56,12 +60,16 @@ public class SftpListTestCase extends CommonSftpConnectorTestCase {
     super.doSetUp();
     TestProcessor.clear();
     createTestFiles();
+    FilesWrittenProcessor.clear();
+    FilesBeingWrittenProcessor.clear();
   }
 
   @Override
   protected void doTearDown() throws Exception {
     super.doTearDown();
     TestProcessor.clear();
+    FilesWrittenProcessor.clear();
+    FilesBeingWrittenProcessor.clear();
   }
 
   @Test
@@ -179,6 +187,15 @@ public class SftpListTestCase extends CommonSftpConnectorTestCase {
     assertThat(messages, hasSize(1));
   }
 
+  @Test
+  public void listFilesWithFilesStillBeingWritten() throws Exception {
+    testHarness.writeByteByByteAsync(LONG_CONTENT_FILE_NAME, LONG_CONTENT, WRITE_DELAY);
+    List<Message> messages = doList("listFilesWithFilesStillBeingWritten", ".", true);
+    assertThat(FilesBeingWrittenProcessor.getFilePaths(), hasSize(1));
+    assertThat(FilesWrittenProcessor.getFilePaths(), hasSize(8));
+    assertThat(messages, hasSize(8));
+  }
+
   private boolean assertListedFiles(List<Message> messages) throws Exception {
     boolean directoryWasFound = false;
 
@@ -277,4 +294,43 @@ public class SftpListTestCase extends CommonSftpConnectorTestCase {
     }
 
   }
+
+  public static class FilesWrittenProcessor implements Processor {
+
+    private static ArrayList<String> filePaths = new ArrayList<>();
+
+    static ArrayList<String> getFilePaths() {
+      return filePaths;
+    }
+
+    static void clear() {
+      filePaths.clear();
+    }
+
+    @Override
+    public CoreEvent process(CoreEvent event) throws MuleException {
+      filePaths.add(((SftpFileAttributes) event.getMessage().getAttributes().getValue()).getPath());
+      return event;
+    }
+  }
+
+  public static class FilesBeingWrittenProcessor implements Processor {
+
+    private static ArrayList<String> filePaths = new ArrayList<>();
+
+    static ArrayList<String> getFilePaths() {
+      return filePaths;
+    }
+
+    static void clear() {
+      filePaths.clear();
+    }
+
+    @Override
+    public CoreEvent process(CoreEvent event) throws MuleException {
+      filePaths.add(((SftpFileAttributes) event.getMessage().getAttributes().getValue()).getPath());
+      return event;
+    }
+  }
+
 }

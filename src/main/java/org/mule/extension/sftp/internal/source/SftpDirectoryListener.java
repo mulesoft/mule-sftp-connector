@@ -42,6 +42,7 @@ import org.mule.runtime.extension.api.runtime.source.SourceCallbackContext;
 import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
 
 import org.slf4j.Logger;
@@ -123,6 +124,14 @@ public class SftpDirectoryListener extends PollingSource<InputStream, SftpFileAt
   @ConfigOverride
   @Summary("Wait time in milliseconds between size checks to determine if a file is ready to be read.")
   private Long timeBetweenSizeCheck;
+
+  /**
+   * A {@link TimeUnit} which qualifies the {@link #timeBetweenSizeCheck} attribute.
+   */
+  @Parameter
+  @ConfigOverride
+  @Summary("Time unit to be used in the wait time between size checks")
+  private TimeUnit timeBetweenSizeCheckUnit;
 
   private Path directoryPath;
   private Predicate<SftpFileAttributes> matcher;
@@ -234,7 +243,8 @@ public class SftpDirectoryListener extends PollingSource<InputStream, SftpFileAt
         ctx.bindConnection(fileSystem);
 
         ctx.addVariable(ATTRIBUTES_CONTEXT_VAR, attributes);
-        result = fileSystem.getReadCommand().read(config, attributes.getPath(), false, timeBetweenSizeCheck);
+        result =
+            fileSystem.getReadCommand().read(config, attributes.getPath(), false, timeBetweenSizeCheck, timeBetweenSizeCheckUnit);
         item.setResult(result)
             .setId(attributes.getPath());
 

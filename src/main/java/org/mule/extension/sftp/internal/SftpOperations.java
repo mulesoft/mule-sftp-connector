@@ -37,6 +37,7 @@ import org.mule.runtime.extension.api.annotation.param.Connection;
 import org.mule.runtime.extension.api.annotation.param.Content;
 import org.mule.runtime.extension.api.annotation.param.MediaType;
 import org.mule.runtime.extension.api.annotation.param.Optional;
+import org.mule.runtime.extension.api.annotation.param.Parameter;
 import org.mule.runtime.extension.api.annotation.param.display.DisplayName;
 import org.mule.runtime.extension.api.annotation.param.display.Path;
 import org.mule.runtime.extension.api.annotation.param.display.Placement;
@@ -50,6 +51,7 @@ import java.io.InputStream;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Predicate;
 
@@ -75,7 +77,8 @@ public final class SftpOperations extends BaseFileSystemOperations {
    * @param directoryPath the path to the directory to be listed
    * @param recursive whether to include the contents of sub-directories. Defaults to false.
    * @param matcher a matcher used to filter the output list
-   * @param timeBetweenSizeCheck wait time in milliseconds between size checks to determine if a file is ready to be read.
+   * @param timeBetweenSizeCheck wait time between size checks to determine if a file is ready to be read.
+   * @param timeBetweenSizeCheckUnit time unit to be used in the wait time between size checks.
    * @return a {@link List} of {@link Message messages} each one containing each file's content in the payload and metadata in the
    *         attributes
    * @throws IllegalArgumentException if {@code directoryPath} points to a file which doesn't exist or is not a directory
@@ -90,6 +93,8 @@ public final class SftpOperations extends BaseFileSystemOperations {
                                                                                          @Optional @DisplayName("File Matching Rules") @Summary("Matcher to filter the listed files") SftpFileMatcher matcher,
                                                                                          @ConfigOverride @Placement(
                                                                                              tab = ADVANCED_TAB) Long timeBetweenSizeCheck,
+                                                                                         @ConfigOverride @Placement(
+                                                                                             tab = ADVANCED_TAB) TimeUnit timeBetweenSizeCheckUnit,
                                                                                          StreamingHelper streamingHelper) {
     return new PagingProvider<SftpFileSystem, Result<CursorProvider, SftpFileAttributes>>() {
 
@@ -117,7 +122,7 @@ public final class SftpOperations extends BaseFileSystemOperations {
       private void initializePagingProvider(SftpFileSystem connection) {
         connection.changeToBaseDir();
         files = connection.getListCommand().list(config, directoryPath, recursive,
-                                                 getPredicate(matcher), timeBetweenSizeCheck);
+                                                 getPredicate(matcher), timeBetweenSizeCheck, timeBetweenSizeCheckUnit);
         filesIterator = files.iterator();
       }
 
@@ -152,7 +157,8 @@ public final class SftpOperations extends BaseFileSystemOperations {
    * @param fileSystem a reference to the host {@link FileSystem}
    * @param path the path to the file to be read
    * @param lock whether or not to lock the file. Defaults to false.
-   * @param timeBetweenSizeCheck wait time in milliseconds between size checks to determine if a file is ready to be read.
+   * @param timeBetweenSizeCheck wait time between size checks to determine if a file is ready to be read.
+   * @param timeBetweenSizeCheckUnit time unit to be used in the wait time between size checks.
    * @return the file's content and metadata on a {@link FileAttributes} instance
    * @throws IllegalArgumentException if the file at the given path doesn't exist
    */
@@ -165,9 +171,11 @@ public final class SftpOperations extends BaseFileSystemOperations {
                                                           location = EXTERNAL) String path,
                                                       @Optional(defaultValue = "false") @Placement(
                                                           tab = ADVANCED_TAB) boolean lock,
-                                                      @ConfigOverride @Placement(tab = ADVANCED_TAB) Long timeBetweenSizeCheck) {
+                                                      @ConfigOverride @Placement(tab = ADVANCED_TAB) Long timeBetweenSizeCheck,
+                                                      @ConfigOverride @Placement(
+                                                          tab = ADVANCED_TAB) TimeUnit timeBetweenSizeCheckUnit) {
     fileSystem.changeToBaseDir();
-    return fileSystem.getReadCommand().read(config, path, lock, timeBetweenSizeCheck);
+    return fileSystem.getReadCommand().read(config, path, lock, timeBetweenSizeCheck, timeBetweenSizeCheckUnit);
   }
 
   /**

@@ -13,11 +13,8 @@ import static org.mule.extension.sftp.AllureConstants.SftpFeature.SFTP_EXTENSION
 import static org.mule.tck.probe.PollingProber.check;
 import static org.mule.tck.probe.PollingProber.checkNot;
 
-import org.apache.commons.io.IOUtils;
 import org.mule.extension.file.common.api.FileAttributes;
-import org.mule.extension.file.common.api.FileWriteMode;
 import org.mule.extension.sftp.api.SftpFileAttributes;
-import org.mule.extension.sftp.internal.connection.SftpClient;
 import org.mule.runtime.api.exception.MuleException;
 import org.mule.runtime.api.lifecycle.Startable;
 import org.mule.runtime.api.lifecycle.Stoppable;
@@ -26,9 +23,7 @@ import org.mule.runtime.api.util.Reference;
 import org.mule.runtime.core.api.event.CoreEvent;
 import org.mule.runtime.core.api.processor.Processor;
 
-import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.OutputStream;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -198,38 +193,6 @@ public class SftpDirectoryListenerFunctionalTestCase extends CommonSftpConnector
 
       return false;
     });
-  }
-
-  @Test
-  @Description("Tests the case of polling files that are still being written")
-  public void listWhileStillWriting() throws Exception {
-    stopFlow("listenWithoutMatcher");
-    stopFlow("redundantListener1");
-    stopFlow("redundantListener2");
-    stopFlow("listenTxtOnly");
-
-    startFlow("fileBeingWritten");
-
-    SftpClient client = testHarness.getSftpClient();
-
-    OutputStream os = client.getOutputStream(MATCHERLESS_LISTENER_FOLDER_NAME + "/" + WATCH_FILE, FileWriteMode.CREATE_NEW);
-
-    checkNot(PROBER_TIMEOUT, PROBER_DELAY, () -> {
-      IOUtils.copy(new ByteArrayInputStream("a".getBytes()), os);
-      if (RECEIVED_MESSAGES.size() == 0) {
-        return false;
-      }
-      return true;
-    });
-
-    check(PROBER_TIMEOUT, PROBER_DELAY, () -> {
-      if (RECEIVED_MESSAGES.size() == 1) {
-        return true;
-      }
-      return false;
-    });
-
-    assertThat(RECEIVED_MESSAGES.get(0).getPayload().getValue(), is("aaaaaaaaaaa"));
   }
 
   private boolean containsPath(Message message, String path) {
