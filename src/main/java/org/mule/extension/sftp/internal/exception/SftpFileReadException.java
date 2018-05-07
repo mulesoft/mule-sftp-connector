@@ -9,6 +9,9 @@ package org.mule.extension.sftp.internal.exception;
 import org.mule.runtime.api.exception.MuleRuntimeException;
 import org.mule.runtime.api.i18n.I18nMessage;
 
+/**
+ * @since 1.2.0
+ */
 public class SftpFileReadException extends MuleRuntimeException {
 
   public SftpFileReadException(I18nMessage message) {

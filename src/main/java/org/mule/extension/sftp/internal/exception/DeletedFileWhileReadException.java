@@ -8,6 +8,9 @@ package org.mule.extension.sftp.internal.exception;
 
 import org.mule.runtime.api.i18n.I18nMessage;
 
+/**
+ * @since 1.2.0
+ */
 public class DeletedFileWhileReadException extends SftpFileReadException {
 
   public DeletedFileWhileReadException(I18nMessage message) {

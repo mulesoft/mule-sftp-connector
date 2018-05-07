@@ -9,10 +9,13 @@ package org.mule.extension.sftp;
 import org.mule.extension.sftp.internal.SftpUtils;
 import org.mule.extension.sftp.internal.connection.SftpClient;
 import org.mule.extension.sftp.internal.connection.SftpClientFactory;
+import org.mule.extension.sftp.internal.exception.DeletedFileWhileReadException;
+import org.mule.extension.sftp.internal.exception.FileBeingModifiedException;
 import org.mule.functional.junit4.MuleArtifactFunctionalTestCase;
 import org.mule.test.runner.ArtifactClassLoaderRunnerConfig;
 
-@ArtifactClassLoaderRunnerConfig(exportPluginClasses = {SftpClientFactory.class, SftpClient.class, SftpUtils.class})
+@ArtifactClassLoaderRunnerConfig(exportPluginClasses = {DeletedFileWhileReadException.class, FileBeingModifiedException.class,
+    SftpClientFactory.class, SftpClient.class, SftpUtils.class})
 public abstract class AbstractSftpConnectorTestCase extends MuleArtifactFunctionalTestCase {
 
 }

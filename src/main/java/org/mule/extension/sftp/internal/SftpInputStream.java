@@ -63,8 +63,11 @@ public class SftpInputStream extends AbstractFileInputStream {
   }
 
   private static Long calculateTimeBetweenSizeCheckInMillis(Long timeBetweenSizeCheck, TimeUnit timeBetweenSizeCheckUnit) {
-    if (timeBetweenSizeCheck == null || timeBetweenSizeCheck < 1) {
+    if (timeBetweenSizeCheck == null) {
       return null;
+    }
+    if (timeBetweenSizeCheck < 1) {
+      throw new IllegalArgumentException("timeBetweenSizeCheck must be greater than 1.");
     }
     return timeBetweenSizeCheckUnit.convert(timeBetweenSizeCheck, MILLISECONDS);
   }
@@ -135,10 +138,6 @@ public class SftpInputStream extends AbstractFileInputStream {
       SftpFileAttributes oldAttributes;
       int retries = 0;
       do {
-        retries++;
-        if (retries > MAX_SIZE_CHECK_RETRIES) {
-          break;
-        }
         oldAttributes = updatedAttributes;
         try {
           if (LOGGER.isDebugEnabled()) {
@@ -150,7 +149,8 @@ public class SftpInputStream extends AbstractFileInputStream {
                                          e);
         }
         updatedAttributes = getUpdatedAttributes(config, connectionManager, attributes.getPath());
-      } while (updatedAttributes != null && updatedAttributes.getSize() != oldAttributes.getSize());
+      } while (updatedAttributes != null && updatedAttributes.getSize() != oldAttributes.getSize()
+          && retries++ < MAX_SIZE_CHECK_RETRIES);
       if (retries > MAX_SIZE_CHECK_RETRIES) {
         throw new FileBeingModifiedException(createStaticMessage("File on path " + attributes.getPath()
             + " is still being written."));
