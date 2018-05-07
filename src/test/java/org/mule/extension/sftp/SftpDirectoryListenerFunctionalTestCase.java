@@ -12,6 +12,7 @@ import static org.junit.Assert.assertThat;
 import static org.mule.extension.sftp.AllureConstants.SftpFeature.SFTP_EXTENSION;
 import static org.mule.tck.probe.PollingProber.check;
 import static org.mule.tck.probe.PollingProber.checkNot;
+
 import org.mule.extension.file.common.api.FileAttributes;
 import org.mule.extension.sftp.api.SftpFileAttributes;
 import org.mule.runtime.api.exception.MuleException;

@@ -7,17 +7,26 @@
 package org.mule.extension.sftp;
 
 import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
+import static org.junit.internal.matchers.ThrowableCauseMatcher.hasCause;
+import static org.junit.rules.ExpectedException.none;
 import static org.mule.extension.file.common.api.exceptions.FileError.ILLEGAL_PATH;
 import static org.mule.extension.sftp.AllureConstants.SftpFeature.SFTP_EXTENSION;
 import static org.mule.runtime.api.metadata.MediaType.JSON;
 import static org.mule.test.extension.file.common.api.FileTestHarness.BINARY_FILE_NAME;
 import static org.mule.test.extension.file.common.api.FileTestHarness.HELLO_PATH;
 import static org.mule.test.extension.file.common.api.FileTestHarness.HELLO_WORLD;
+
+import io.qameta.allure.Description;
+import org.junit.Rule;
+import org.junit.rules.ExpectedException;
 import org.mule.extension.file.common.api.exceptions.IllegalPathException;
 import org.mule.extension.file.common.api.stream.AbstractFileInputStream;
 import org.mule.extension.sftp.api.SftpFileAttributes;
+import org.mule.extension.sftp.internal.exception.DeletedFileWhileReadException;
+import org.mule.extension.sftp.internal.exception.FileBeingModifiedException;
 import org.mule.runtime.api.message.Message;
 import org.mule.runtime.api.metadata.MediaType;
 import org.mule.runtime.core.api.event.CoreEvent;
@@ -30,9 +39,16 @@ import org.junit.Test;
 @Feature(SFTP_EXTENSION)
 public class SftpReadTestCase extends CommonSftpConnectorTestCase {
 
+  private static String DELETED_FILE_NAME = "deleted.txt";
+  private static String DELETED_FILE_CONTENT = "non existant content";
+  private static String WATCH_FILE = "watch.txt";
+
   public SftpReadTestCase(String name, SftpTestHarness testHarness, String ftpConfigFile) {
     super(name, testHarness, ftpConfigFile);
   }
+
+  @Rule
+  public ExpectedException expectedException = none();
 
   @Override
   protected String getConfigFile() {
@@ -113,9 +129,36 @@ public class SftpReadTestCase extends CommonSftpConnectorTestCase {
     testHarness.assertAttributes(HELLO_PATH, fileAttributes);
   }
 
+  @Test
+  public void readFileThatIsDeleted() throws Exception {
+    expectedException.expectCause(hasCause(instanceOf(DeletedFileWhileReadException.class)));
+    expectedException.expectMessage("was read but does not exist anymore.");
+    testHarness.write(DELETED_FILE_NAME, DELETED_FILE_CONTENT);
+    flowRunner("readFileThatIsDeleted").withVariable("path", DELETED_FILE_NAME).run().getMessage().getPayload().getValue();
+  }
+
+  @Test
+  @Description("Tests the case of polling files that are still being written")
+  public void readWhileStillWriting() throws Exception {
+    expectedException.expectCause(hasCause(instanceOf(FileBeingModifiedException.class)));
+    expectedException.expectMessage("is still being written");
+    testHarness.writeByteByByteAsync(WATCH_FILE, "aaaaaaaaaa", 1000);
+    flowRunner("readFileWithSizeCheck").withVariable("path", WATCH_FILE).run().getMessage().getPayload().getValue();
+  }
+
+  @Test
+  @Description("Tests the case of polling files that are finishing being written")
+  public void readWhileFinishWriting() throws Exception {
+    testHarness.writeByteByByteAsync(WATCH_FILE, "aaa", 500);
+    String result = (String) flowRunner("readFileWithSizeCheck").withVariable("path", WATCH_FILE).run().getMessage()
+        .getPayload().getValue();
+    assertThat(result, is("aaa"));
+  }
+
   private Message readWithLock() throws Exception {
     Message message =
         flowRunner("readWithLock").withVariable("readPath", Paths.get("files/hello.json").toString()).run().getMessage();
     return message;
   }
+
 }

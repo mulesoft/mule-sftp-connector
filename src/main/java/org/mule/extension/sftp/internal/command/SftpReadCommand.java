@@ -22,6 +22,7 @@ import org.mule.runtime.extension.api.runtime.operation.Result;
 import java.io.InputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.concurrent.TimeUnit;
 
 /**
  * A {@link SftpCommand} which implements the {@link ReadCommand} contract
@@ -42,6 +43,11 @@ public final class SftpReadCommand extends SftpCommand implements ReadCommand<Sf
    */
   @Override
   public Result<InputStream, SftpFileAttributes> read(FileConnectorConfig config, String filePath, boolean lock) {
+    return read(config, filePath, lock, null, null);
+  }
+
+  public Result<InputStream, SftpFileAttributes> read(FileConnectorConfig config, String filePath, boolean lock,
+                                                      Long timeBetweenSizeCheck, TimeUnit timeBetweenSizeCheckUnit) {
     SftpFileAttributes attributes = getExistingFile(filePath);
     if (attributes.isDirectory()) {
       throw cannotReadDirectoryException(Paths.get(attributes.getPath()));
@@ -52,7 +58,8 @@ public final class SftpReadCommand extends SftpCommand implements ReadCommand<Sf
     PathLock pathLock = lock ? fileSystem.lock(path) : new NullPathLock(path);
     InputStream payload = null;
     try {
-      payload = SftpInputStream.newInstance((SftpConnector) config, attributes, pathLock);
+      payload = SftpInputStream.newInstance((SftpConnector) config, attributes, pathLock, timeBetweenSizeCheck,
+                                            timeBetweenSizeCheckUnit);
       MediaType resolvedMediaType = fileSystem.getFileMessageMediaType(attributes);
       return Result.<InputStream, SftpFileAttributes>builder().output(payload).mediaType(resolvedMediaType).attributes(attributes)
           .build();
@@ -61,5 +68,9 @@ public final class SftpReadCommand extends SftpCommand implements ReadCommand<Sf
       IOUtils.closeQuietly(payload);
       throw exception("Could not fetch file " + path, e);
     }
+  }
+
+  public SftpFileAttributes readAttributes(String filePath) {
+    return getFile(filePath);
   }
 }

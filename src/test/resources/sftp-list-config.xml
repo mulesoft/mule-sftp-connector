@@ -9,25 +9,31 @@
 
     <import file="sftp-connection.xml"/>
 
-    <sftp:matcher name="globalMatcher" directories="REQUIRE" filenamePattern="sub*" />
+    <sftp:matcher name="globalMatcher" directories="REQUIRE" filenamePattern="sub*"/>
 
     <flow name="list">
-        <sftp:list config-ref="config" directoryPath="#[vars.path]" recursive="#[vars.recursive]" />
+        <sftp:list config-ref="config" directoryPath="#[vars.path]" recursive="#[vars.recursive]"/>
+    </flow>
+
+    <flow name="listWithStableSizeTime">
+        <sftp:list config-ref="config" directoryPath="#[vars.path]" recursive="#[vars.recursive]"
+                   timeBetweenSizeCheck="200"/>
     </flow>
 
     <flow name="listWithEmbeddedPredicate">
         <sftp:list config-ref="config" directoryPath="#[vars.path]" recursive="#[vars.recursive]">
-            <sftp:matcher filenamePattern="*[1-2]*.html" />
+            <sftp:matcher filenamePattern="*[1-2]*.html"/>
         </sftp:list>
     </flow>
 
     <flow name="listWithGlobalMatcher">
-        <sftp:list config-ref="config" directoryPath="#[vars.path]" recursive="#[vars.recursive]" matcher="globalMatcher"/>
+        <sftp:list config-ref="config" directoryPath="#[vars.path]" recursive="#[vars.recursive]"
+                   matcher="globalMatcher"/>
     </flow>
 
     <flow name="listCursors">
-        <sftp:list config-ref="config" directoryPath="#[vars.path]" >
-            <sftp:matcher filenamePattern="*2.html" />
+        <sftp:list config-ref="config" directoryPath="#[vars.path]">
+            <sftp:matcher filenamePattern="*2.html"/>
         </sftp:list>
         <test:processor class="org.mule.extension.sftp.SftpListTestCase$TestProcessor"/>
         <test:processor class="org.mule.extension.sftp.SftpListTestCase$TestProcessor"/>
@@ -37,14 +43,30 @@
         <sftp:list config-ref="config" directoryPath="#[vars.path]" recursive="#[vars.recursive]">
             <sftp:matcher directories="EXCLUDE" filenamePattern="*"/>
         </sftp:list>
-        <test:processor class="org.mule.extension.sftp.SftpListTestCase$TestProcessor"/>
     </flow>
 
     <flow name="listFilesRecursivelyWithSpecificNameFilter">
         <sftp:list config-ref="config" directoryPath="#[vars.path]" recursive="#[vars.recursive]">
             <sftp:matcher directories="EXCLUDE" filenamePattern="test-file-6.html"/>
         </sftp:list>
-        <test:processor class="org.mule.extension.sftp.SftpListTestCase$TestProcessor"/>
+    </flow>
+
+    <flow name="listFilesWithFilesStillBeingWritten">
+        <sftp:list config-ref="config" directoryPath="#[vars.path]" recursive="#[vars.recursive]"
+                   timeBetweenSizeCheck="2000">
+            <sftp:matcher directories="EXCLUDE" filenamePattern="*"/>
+        </sftp:list>
+        <foreach>
+            <try>
+                <test:processor class="org.mule.extension.sftp.SftpListTestCase$FilesWrittenProcessor"/>
+                <object-to-string-transformer/>
+                <error-handler>
+                    <on-error-continue enableNotifications="true" logException="true" type="ANY" >
+                        <test:processor class="org.mule.extension.sftp.SftpListTestCase$FilesBeingWrittenProcessor"/>
+                    </on-error-continue>
+                </error-handler>
+            </try>
+        </foreach>
     </flow>
 
 </mule>

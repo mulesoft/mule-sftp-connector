@@ -20,6 +20,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
 
 import org.slf4j.Logger;
@@ -49,6 +50,16 @@ public final class SftpListCommand extends SftpCommand implements ListCommand<Sf
                                                             boolean recursive,
                                                             Predicate<SftpFileAttributes> matcher) {
 
+    return list(config, directoryPath, recursive, matcher, null, null);
+  }
+
+  public List<Result<InputStream, SftpFileAttributes>> list(FileConnectorConfig config,
+                                                            String directoryPath,
+                                                            boolean recursive,
+                                                            Predicate<SftpFileAttributes> matcher,
+                                                            Long timeBetweenSizeCheck,
+                                                            TimeUnit timeBetweenSizeCheckUnit) {
+
     FileAttributes directoryAttributes = getExistingFile(directoryPath);
     Path path = Paths.get(directoryAttributes.getPath());
 
@@ -57,7 +68,8 @@ public final class SftpListCommand extends SftpCommand implements ListCommand<Sf
     }
 
     List<Result<InputStream, SftpFileAttributes>> accumulator = new LinkedList<>();
-    doList(config, directoryAttributes.getPath(), accumulator, recursive, matcher);
+    doList(config, directoryAttributes.getPath(), accumulator, recursive, matcher, timeBetweenSizeCheck,
+           timeBetweenSizeCheckUnit);
 
     return accumulator;
   }
@@ -66,7 +78,9 @@ public final class SftpListCommand extends SftpCommand implements ListCommand<Sf
                       String path,
                       List<Result<InputStream, SftpFileAttributes>> accumulator,
                       boolean recursive,
-                      Predicate<SftpFileAttributes> matcher) {
+                      Predicate<SftpFileAttributes> matcher,
+                      Long timeBetweenSizeCheck,
+                      TimeUnit timeBetweenSizeCheckUnit) {
 
     LOGGER.debug("Listing directory {}", path);
     for (SftpFileAttributes file : client.list(path)) {
@@ -79,11 +93,12 @@ public final class SftpListCommand extends SftpCommand implements ListCommand<Sf
           accumulator.add(Result.<InputStream, SftpFileAttributes>builder().output(null).attributes(file).build());
         }
         if (recursive) {
-          doList(config, file.getPath(), accumulator, recursive, matcher);
+          doList(config, file.getPath(), accumulator, recursive, matcher, timeBetweenSizeCheck, timeBetweenSizeCheckUnit);
         }
       } else {
         if (matcher.test(file)) {
-          accumulator.add(fileSystem.read(config, file.getPath(), false));
+          accumulator.add(fileSystem.getReadCommand().read(config, file.getPath(), false, timeBetweenSizeCheck,
+                                                           timeBetweenSizeCheckUnit));
         }
       }
     }

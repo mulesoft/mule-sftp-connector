@@ -25,6 +25,7 @@ import org.mule.runtime.extension.api.annotation.execution.OnError;
 import org.mule.runtime.extension.api.annotation.execution.OnSuccess;
 import org.mule.runtime.extension.api.annotation.execution.OnTerminate;
 import org.mule.runtime.extension.api.annotation.param.Config;
+import org.mule.runtime.extension.api.annotation.param.ConfigOverride;
 import org.mule.runtime.extension.api.annotation.param.Connection;
 import org.mule.runtime.extension.api.annotation.param.MediaType;
 import org.mule.runtime.extension.api.annotation.param.Optional;
@@ -41,6 +42,7 @@ import org.mule.runtime.extension.api.runtime.source.SourceCallbackContext;
 import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
 
 import org.slf4j.Logger;
@@ -112,6 +114,24 @@ public class SftpDirectoryListener extends PollingSource<InputStream, SftpFileAt
   @Parameter
   @Optional(defaultValue = "false")
   private boolean watermarkEnabled = false;
+
+  /**
+   * Wait time in milliseconds between size checks to determine if a file is ready to be read. This allows a file write to
+   * complete before processing. You can disable this feature by omitting a value. When enabled, Mule performs two size checks
+   * waiting the specified time between calls. If both checks return the same value, the file is ready to be read.
+   */
+  @Parameter
+  @ConfigOverride
+  @Summary("Wait time in milliseconds between size checks to determine if a file is ready to be read.")
+  private Long timeBetweenSizeCheck;
+
+  /**
+   * A {@link TimeUnit} which qualifies the {@link #timeBetweenSizeCheck} attribute.
+   */
+  @Parameter
+  @ConfigOverride
+  @Summary("Time unit to be used in the wait time between size checks")
+  private TimeUnit timeBetweenSizeCheckUnit;
 
   private Path directoryPath;
   private Predicate<SftpFileAttributes> matcher;
@@ -223,7 +243,8 @@ public class SftpDirectoryListener extends PollingSource<InputStream, SftpFileAt
         ctx.bindConnection(fileSystem);
 
         ctx.addVariable(ATTRIBUTES_CONTEXT_VAR, attributes);
-        result = fileSystem.read(config, attributes.getPath(), false);
+        result =
+            fileSystem.getReadCommand().read(config, attributes.getPath(), false, timeBetweenSizeCheck, timeBetweenSizeCheckUnit);
         item.setResult(result)
             .setId(attributes.getPath());
 

@@ -56,9 +56,9 @@ public class SftpFileSystem extends AbstractFileSystem {
   protected final CopyCommand copyCommand;
   protected final CreateDirectoryCommand createDirectoryCommand;
   protected final DeleteCommand deleteCommand;
-  protected final ListCommand<SftpFileAttributes> listCommand;
+  protected final SftpListCommand listCommand;
   protected final MoveCommand moveCommand;
-  protected final ReadCommand<SftpFileAttributes> readCommand;
+  protected final SftpReadCommand readCommand;
   protected final RenameCommand renameCommand;
   protected final WriteCommand writeCommand;
   private final LockFactory lockFactory;
@@ -117,6 +117,10 @@ public class SftpFileSystem extends AbstractFileSystem {
     return client.getFileContent(filePayload.getPath());
   }
 
+  public SftpFileAttributes readFileAttributes(String filePath) {
+    return getReadCommand().readAttributes(filePath);
+  }
+
   protected boolean isConnected() {
     return client.isConnected();
   }
@@ -167,7 +171,7 @@ public class SftpFileSystem extends AbstractFileSystem {
    * {@inheritDoc}
    */
   @Override
-  public ListCommand getListCommand() {
+  public SftpListCommand getListCommand() {
     return listCommand;
   }
 
@@ -183,7 +187,7 @@ public class SftpFileSystem extends AbstractFileSystem {
    * {@inheritDoc}
    */
   @Override
-  public ReadCommand getReadCommand() {
+  public SftpReadCommand getReadCommand() {
     return readCommand;
   }
 

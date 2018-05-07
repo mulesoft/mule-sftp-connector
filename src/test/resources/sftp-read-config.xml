@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <mule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
       xmlns:sftp="http://www.mulesoft.org/schema/mule/sftp"
+      xmlns:test="http://www.mulesoft.org/schema/mule/test"
       xmlns="http://www.mulesoft.org/schema/mule/core"
       xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
-        http://www.mulesoft.org/schema/mule/sftp http://www.mulesoft.org/schema/mule/sftp/current/mule-sftp.xsd">
+        http://www.mulesoft.org/schema/mule/sftp http://www.mulesoft.org/schema/mule/sftp/current/mule-sftp.xsd
+        http://www.mulesoft.org/schema/mule/test http://www.mulesoft.org/schema/mule/test/current/mule-test.xsd">
 
     <import file="sftp-connection.xml"/>
 
@@ -30,6 +32,17 @@
 
     <flow name="readWithForcedMimeType">
         <sftp:read config-ref="config" path="#[vars.path]" outputMimeType="test/test"/>
+        <object-to-string-transformer />
+    </flow>
+
+    <flow name="readFileThatIsDeleted">
+        <sftp:read config-ref="config" path="#[vars.path]"/>
+        <sftp:delete config-ref="config" path="#[vars.path]"/>
+        <object-to-string-transformer />
+    </flow>
+
+    <flow name="readFileWithSizeCheck">
+        <sftp:read config-ref="config" path="#[vars.path]" timeBetweenSizeCheck="2000"/>
         <object-to-string-transformer />
     </flow>
 
