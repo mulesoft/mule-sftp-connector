@@ -46,6 +46,14 @@ public class SftpWriteTestCase extends CommonSftpConnectorTestCase {
   }
 
   @Test
+  public void writeOnAPathWithColon() throws Exception {
+    final String filePath = "X:/file.txt";
+
+    doWrite(filePath, HELLO_WORLD, OVERWRITE, true);
+    toString(readPath(filePath).getPayload().getValue());
+  }
+
+  @Test
   public void appendOnNotExistingFile() throws Exception {
     doWriteOnNotExistingFile(APPEND);
   }
