@@ -86,8 +86,8 @@ public class SftpConnectionProvider extends FileSystemProvider<SftpFileSystem>
   private SftpConnectionSettings connectionSettings = new SftpConnectionSettings();
 
   /**
-   * Set of authentication methods used by the SFTP client. Valid values are: gssapi-with-mic, publickey, keyboard-interactive and
-   * password.
+   * Set of authentication methods used by the SFTP client. Valid values are: GSSAPI_WITH_MIC, PUBLIC_KEY, KEYBOARD_INTERACTIVE
+   * and PASSWORD.
    */
   @Parameter
   @Optional
