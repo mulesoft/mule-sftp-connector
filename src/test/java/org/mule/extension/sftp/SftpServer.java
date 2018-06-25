@@ -68,6 +68,10 @@ public class SftpServer {
 
   public void start() {
     try {
+      if (sshdServer == null) {
+        sshdServer = SshServer.setUpDefaultServer();
+        configureSshdServer(createFtpSubsystemFactory());
+      }
       sshdServer.start();
     } catch (IOException e) {
       throw new MuleRuntimeException(e);

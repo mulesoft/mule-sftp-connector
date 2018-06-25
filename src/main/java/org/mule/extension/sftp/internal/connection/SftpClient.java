@@ -117,6 +117,9 @@ public class SftpClient {
     try {
       sftp.cd(normalizePath(path));
     } catch (SftpException e) {
+      if (e.getCause() instanceof IOException) {
+        throw exception("Exception occurred while trying to change working directory to " + path, new ConnectionException(e));
+      }
       throw exception("Exception occurred while trying to change working directory to " + path, e);
     }
   }

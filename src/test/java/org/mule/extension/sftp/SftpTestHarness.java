@@ -119,7 +119,7 @@ public class SftpTestHarness extends AbstractSftpTestHarness {
     return sftpClient;
   }
 
-  private void setUpServer() {
+  public void setUpServer() {
     sftpServer = new SftpServer(sftpPort.getNumber());
     serverAuthConfigurator.configure(sftpServer);
     sftpServer.start();
@@ -286,6 +286,10 @@ public class SftpTestHarness extends AbstractSftpTestHarness {
       }
     }).start();
 
+  }
+
+  public SftpServer getSftpServer() {
+    return sftpServer;
   }
 
 }
