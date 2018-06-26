@@ -177,8 +177,8 @@ public class SftpDirectoryListener extends PollingSource<InputStream, SftpFileAt
     try {
       fileSystem = openConnection();
     } catch (Exception e) {
-      if (e instanceof ConnectionException) {
-        pollContext.onConnectionException((ConnectionException) e);
+      if (e.getCause() instanceof ConnectionException) {
+        pollContext.onConnectionException((ConnectionException) e.getCause());
       }
       LOGGER.error(format("Could not obtain connection while trying to poll directory '%s'. %s", directoryPath.toString(),
                           e.getMessage()));
