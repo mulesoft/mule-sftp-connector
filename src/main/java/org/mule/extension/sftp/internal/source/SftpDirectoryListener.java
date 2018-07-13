@@ -186,7 +186,8 @@ public class SftpDirectoryListener extends PollingSource<InputStream, SftpFileAt
     }
 
     try {
-      List<Result<InputStream, SftpFileAttributes>> files = fileSystem.list(config, directoryPath.toString(), recursive, matcher);
+      List<Result<InputStream, SftpFileAttributes>> files =
+          fileSystem.list(config, directoryPath.toString(), recursive, matcher, null);
       if (files.isEmpty()) {
         return;
       }
@@ -247,7 +248,9 @@ public class SftpDirectoryListener extends PollingSource<InputStream, SftpFileAt
 
         ctx.addVariable(ATTRIBUTES_CONTEXT_VAR, attributes);
         result =
-            fileSystem.getReadCommand().read(config, attributes.getPath(), false, timeBetweenSizeCheck, timeBetweenSizeCheckUnit);
+            fileSystem.getReadCommand()
+                .read(config, attributes.getPath(), false,
+                      config.getTimeBetweenSizeCheckInMillis(timeBetweenSizeCheck, timeBetweenSizeCheckUnit).orElse(null));
         item.setResult(result)
             .setId(attributes.getPath());
 

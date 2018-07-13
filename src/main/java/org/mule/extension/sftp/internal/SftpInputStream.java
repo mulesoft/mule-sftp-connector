@@ -6,19 +6,18 @@
  */
 package org.mule.extension.sftp.internal;
 
-import static java.lang.Thread.sleep;
-import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import static java.util.Optional.ofNullable;
 import static org.mule.runtime.api.i18n.I18nMessageFactory.createStaticMessage;
 import static org.slf4j.LoggerFactory.getLogger;
 
+import com.jcraft.jsch.SftpException;
+import org.mule.extension.file.common.api.AbstractFileInputStreamSupplier;
 import org.mule.extension.file.common.api.FileAttributes;
 import org.mule.extension.file.common.api.lock.PathLock;
 import org.mule.extension.file.common.api.stream.AbstractFileInputStream;
 import org.mule.extension.file.common.api.stream.LazyStreamSupplier;
 import org.mule.extension.sftp.api.SftpFileAttributes;
 import org.mule.extension.sftp.internal.connection.SftpFileSystem;
-import org.mule.extension.sftp.internal.exception.DeletedFileWhileReadException;
-import org.mule.extension.sftp.internal.exception.FileBeingModifiedException;
 import org.mule.runtime.api.connection.ConnectionException;
 import org.mule.runtime.api.connection.ConnectionHandler;
 import org.mule.runtime.api.exception.MuleRuntimeException;
@@ -27,8 +26,7 @@ import org.slf4j.Logger;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.concurrent.TimeUnit;
-import java.util.function.Supplier;
+import java.util.Optional;
 
 /**
  * Implementation of {@link AbstractFileInputStream} for SFTP connections
@@ -46,37 +44,26 @@ public class SftpInputStream extends AbstractFileInputStream {
    * <p>
    * Instances returned by this method <b>MUST</b> be closed or fully consumed.
    *
-   * @param config     the config which is parameterizing this operation
+   * @param config the config which is parameterizing this operation
    * @param attributes a {@link FileAttributes} referencing the file which contents are to be fetched
-   * @param lock       the {@link PathLock} to be used
+   * @param lock the {@link PathLock} to be used
+   * @param timeBetweenSizeCheck time in milliseconds to wait between size checks to decide if a file is ready to be read
    * @return a new {@link SftpFileAttributes}
    * @throws ConnectionException if a connection could not be established
    */
   public static SftpInputStream newInstance(SftpConnector config, SftpFileAttributes attributes, PathLock lock,
-                                            Long timeBetweenSizeCheck, TimeUnit timeBetweenSizeCheckUnit)
+                                            Long timeBetweenSizeCheck)
       throws ConnectionException {
-    ConnectionAwareSupplier connectionAwareSupplier =
-        new ConnectionAwareSupplier(attributes, getConnectionManager(config),
-                                    calculateTimeBetweenSizeCheckInMillis(timeBetweenSizeCheck, timeBetweenSizeCheckUnit),
-                                    config);
-    return new SftpInputStream(connectionAwareSupplier, lock);
+    SftpFileInputStreamSupplier sftpFileInputStreamSupplier =
+        new SftpFileInputStreamSupplier(attributes, getConnectionManager(config), timeBetweenSizeCheck, config);
+    return new SftpInputStream(sftpFileInputStreamSupplier, lock);
   }
 
-  private static Long calculateTimeBetweenSizeCheckInMillis(Long timeBetweenSizeCheck, TimeUnit timeBetweenSizeCheckUnit) {
-    if (timeBetweenSizeCheck == null) {
-      return null;
-    }
-    if (timeBetweenSizeCheck < 1) {
-      throw new IllegalArgumentException("timeBetweenSizeCheck must be greater than 1.");
-    }
-    return timeBetweenSizeCheckUnit.convert(timeBetweenSizeCheck, MILLISECONDS);
-  }
+  private SftpFileInputStreamSupplier sftpFileInputStreamSupplier;
 
-  private ConnectionAwareSupplier connectionAwareSupplier;
-
-  private SftpInputStream(ConnectionAwareSupplier connectionAwareSupplier, PathLock lock) {
-    super(new LazyStreamSupplier(connectionAwareSupplier), lock);
-    this.connectionAwareSupplier = connectionAwareSupplier;
+  private SftpInputStream(SftpFileInputStreamSupplier sftpFileInputStreamSupplier, PathLock lock) {
+    super(new LazyStreamSupplier(sftpFileInputStreamSupplier), lock);
+    this.sftpFileInputStreamSupplier = sftpFileInputStreamSupplier;
   }
 
   @Override
@@ -84,94 +71,62 @@ public class SftpInputStream extends AbstractFileInputStream {
     try {
       super.doClose();
     } finally {
-      ConnectionHandler connectionHandler = connectionAwareSupplier.getConnectionHandler();
-      if (connectionHandler != null) {
-        connectionHandler.release();
-      }
+      sftpFileInputStreamSupplier.getConnectionHandler().ifPresent(ConnectionHandler::release);
     }
   }
 
-  private static final class ConnectionAwareSupplier implements Supplier<InputStream> {
+  protected static class SftpFileInputStreamSupplier extends AbstractFileInputStreamSupplier {
 
-    private static final Logger LOGGER = getLogger(ConnectionAwareSupplier.class);
-    private static final String FILE_NO_LONGER_EXISTS_MESSAGE =
-        "Error reading file from path %s. It no longer exists at the time of reading.";
-    private static final String STARTING_WAIT_MESSAGE = "Starting wait to check if the file size of the file %s is stable.";
-    private static final int MAX_SIZE_CHECK_RETRIES = 2;
+    private static final Logger LOGGER = getLogger(SftpFileInputStreamSupplier.class);
 
     private ConnectionHandler<SftpFileSystem> connectionHandler;
-    private SftpFileAttributes attributes;
     private ConnectionManager connectionManager;
-    private Long timeBetweenSizeCheck;
+    private SftpFileSystem sftpFileSystem;
     private SftpConnector config;
 
-    ConnectionAwareSupplier(SftpFileAttributes attributes, ConnectionManager connectionManager,
-                            Long timeBetweenSizeCheck, SftpConnector config) {
-      this.attributes = attributes;
+    SftpFileInputStreamSupplier(SftpFileAttributes attributes, ConnectionManager connectionManager,
+                                Long timeBetweenSizeCheck, SftpConnector config) {
+      super(attributes, timeBetweenSizeCheck);
       this.connectionManager = connectionManager;
-      this.timeBetweenSizeCheck = timeBetweenSizeCheck;
       this.config = config;
     }
 
     @Override
-    public InputStream get() {
+    protected FileAttributes getUpdatedAttributes() {
       try {
-        SftpFileAttributes updatedAttributes = getUpdatedAttributes(config, connectionManager, attributes.getPath());
-        if (updatedAttributes != null && timeBetweenSizeCheck != null && timeBetweenSizeCheck > 0) {
-          updatedAttributes = getUpdatedStableAttributes(config, connectionManager, updatedAttributes);
+        ConnectionHandler<SftpFileSystem> connectionHandler = connectionManager.getConnection(config);
+        SftpFileSystem sftpFileSystem = connectionHandler.getConnection();
+        SftpFileAttributes updatedSftpFileAttributes = sftpFileSystem.readFileAttributes(attributes.getPath());
+        connectionHandler.release();
+        if (updatedSftpFileAttributes == null) {
+          LOGGER.error(String.format(FILE_NO_LONGER_EXISTS_MESSAGE, attributes.getPath()));
         }
-        if (updatedAttributes == null) {
-          throw new DeletedFileWhileReadException(createStaticMessage("File on path " + attributes.getPath()
-              + " was read but does not exist anymore."));
-        }
-        connectionHandler = connectionManager.getConnection(config);
-        return connectionHandler.getConnection().retrieveFileContent(updatedAttributes);
+        return updatedSftpFileAttributes;
       } catch (ConnectionException e) {
         throw new MuleRuntimeException(createStaticMessage("Could not obtain connection to fetch file " + attributes.getPath()),
                                        e);
       }
     }
 
-    private SftpFileAttributes getUpdatedStableAttributes(SftpConnector config, ConnectionManager connectionManager,
-                                                          SftpFileAttributes updatedAttributes)
-        throws ConnectionException {
-      SftpFileAttributes oldAttributes;
-      int retries = 0;
-      do {
-        oldAttributes = updatedAttributes;
-        try {
-          if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug(String.format(STARTING_WAIT_MESSAGE, attributes.getPath()));
-          }
-          sleep(timeBetweenSizeCheck);
-        } catch (InterruptedException e) {
-          throw new MuleRuntimeException(createStaticMessage("Execution was interrupted while waiting to recheck file sizes"),
-                                         e);
+    @Override
+    protected InputStream getContentInputStream() {
+      try {
+        connectionHandler = connectionManager.getConnection(config);
+        sftpFileSystem = connectionHandler.getConnection();
+        return sftpFileSystem.retrieveFileContent(attributes);
+      } catch (MuleRuntimeException e) {
+        if (e.getCause() instanceof SftpException && e.getCause().getMessage().contains("FileNotFoundException:")) {
+          onFileDeleted(e);
         }
-        updatedAttributes = getUpdatedAttributes(config, connectionManager, attributes.getPath());
-      } while (updatedAttributes != null && updatedAttributes.getSize() != oldAttributes.getSize()
-          && retries++ < MAX_SIZE_CHECK_RETRIES);
-      if (retries > MAX_SIZE_CHECK_RETRIES) {
-        throw new FileBeingModifiedException(createStaticMessage("File on path " + attributes.getPath()
-            + " is still being written."));
+        throw e;
+      } catch (ConnectionException e) {
+        throw new MuleRuntimeException(createStaticMessage("Could not obtain connection to fetch file " + attributes.getPath()),
+                                       e);
       }
-      return updatedAttributes;
     }
 
-    private SftpFileAttributes getUpdatedAttributes(SftpConnector config, ConnectionManager connectionManager, String filePath)
-        throws ConnectionException {
-      ConnectionHandler<SftpFileSystem> connectionHandler = connectionManager.getConnection(config);
-      SftpFileSystem sftpFileSystem = connectionHandler.getConnection();
-      SftpFileAttributes updatedSftpFileAttributes = sftpFileSystem.readFileAttributes(filePath);
-      connectionHandler.release();
-      if (updatedSftpFileAttributes == null) {
-        LOGGER.error(String.format(FILE_NO_LONGER_EXISTS_MESSAGE, filePath));
-      }
-      return updatedSftpFileAttributes;
-    }
-
-    public ConnectionHandler getConnectionHandler() {
-      return connectionHandler;
+    public Optional<ConnectionHandler> getConnectionHandler() {
+      return ofNullable(connectionHandler);
     }
 
   }

@@ -96,47 +96,11 @@ public final class SftpOperations extends BaseFileSystemOperations {
                                                                                          @ConfigOverride @Placement(
                                                                                              tab = ADVANCED_TAB) TimeUnit timeBetweenSizeCheckUnit,
                                                                                          StreamingHelper streamingHelper) {
-    return new PagingProvider<SftpFileSystem, Result<CursorProvider, SftpFileAttributes>>() {
-
-      private List<Result<InputStream, SftpFileAttributes>> files;
-      private Iterator<Result<InputStream, SftpFileAttributes>> filesIterator;
-      private final AtomicBoolean initialised = new AtomicBoolean(false);
-
-      @Override
-      public List<Result<CursorProvider, SftpFileAttributes>> getPage(SftpFileSystem connection) {
-        if (initialised.compareAndSet(false, true)) {
-          initializePagingProvider(connection);
-        }
-        List<Result<CursorProvider, SftpFileAttributes>> page = new LinkedList<>();
-        for (int i = 0; i < LIST_PAGE_SIZE && filesIterator.hasNext(); i++) {
-          Result<InputStream, SftpFileAttributes> result = filesIterator.next();
-          page.add((Result.<CursorProvider, SftpFileAttributes>builder().attributes(result.getAttributes().get())
-              .output((CursorProvider) streamingHelper.resolveCursorProvider(result.getOutput()))
-              .mediaType(result.getMediaType().orElse(null))
-              .attributesMediaType(result.getAttributesMediaType().orElse(null))
-              .build()));
-        }
-        return page;
-      }
-
-      private void initializePagingProvider(SftpFileSystem connection) {
-        connection.changeToBaseDir();
-        files = connection.getListCommand().list(config, directoryPath, recursive,
-                                                 getPredicate(matcher), timeBetweenSizeCheck, timeBetweenSizeCheckUnit);
-        filesIterator = files.iterator();
-      }
-
-      @Override
-      public java.util.Optional<Integer> getTotalResults(SftpFileSystem connection) {
-        return java.util.Optional.of(files.size());
-      }
-
-      @Override
-      public void close(SftpFileSystem connection) throws MuleException {
-        connection.disconnect();
-      }
-
-    };
+    PagingProvider result =
+        doPagedList(config, directoryPath, recursive, matcher,
+                    config.getTimeBetweenSizeCheckInMillis(timeBetweenSizeCheck, timeBetweenSizeCheckUnit).orElse(null),
+                    streamingHelper);
+    return (PagingProvider<SftpFileSystem, Result<CursorProvider, SftpFileAttributes>>) result;
   }
 
   /**
@@ -174,8 +138,10 @@ public final class SftpOperations extends BaseFileSystemOperations {
                                                       @ConfigOverride @Placement(tab = ADVANCED_TAB) Long timeBetweenSizeCheck,
                                                       @ConfigOverride @Placement(
                                                           tab = ADVANCED_TAB) TimeUnit timeBetweenSizeCheckUnit) {
-    fileSystem.changeToBaseDir();
-    return fileSystem.getReadCommand().read(config, path, lock, timeBetweenSizeCheck, timeBetweenSizeCheckUnit);
+    Result result =
+        doRead(config, fileSystem, path, lock,
+               config.getTimeBetweenSizeCheckInMillis(timeBetweenSizeCheck, timeBetweenSizeCheckUnit).orElse(null));
+    return (Result<InputStream, SftpFileAttributes>) result;
   }
 
   /**

@@ -22,11 +22,11 @@ import static org.mule.test.extension.file.common.api.FileTestHarness.HELLO_WORL
 import io.qameta.allure.Description;
 import org.junit.Rule;
 import org.junit.rules.ExpectedException;
+import org.mule.extension.file.common.api.exceptions.DeletedFileWhileReadException;
+import org.mule.extension.file.common.api.exceptions.FileBeingModifiedException;
 import org.mule.extension.file.common.api.exceptions.IllegalPathException;
 import org.mule.extension.file.common.api.stream.AbstractFileInputStream;
 import org.mule.extension.sftp.api.SftpFileAttributes;
-import org.mule.extension.sftp.internal.exception.DeletedFileWhileReadException;
-import org.mule.extension.sftp.internal.exception.FileBeingModifiedException;
 import org.mule.runtime.api.message.Message;
 import org.mule.runtime.api.metadata.MediaType;
 import org.mule.runtime.core.api.event.CoreEvent;

@@ -42,12 +42,14 @@ public final class SftpReadCommand extends SftpCommand implements ReadCommand<Sf
    * {@inheritDoc}
    */
   @Override
+  @Deprecated
   public Result<InputStream, SftpFileAttributes> read(FileConnectorConfig config, String filePath, boolean lock) {
-    return read(config, filePath, lock, null, null);
+    return read(config, filePath, lock, null);
   }
 
+  @Override
   public Result<InputStream, SftpFileAttributes> read(FileConnectorConfig config, String filePath, boolean lock,
-                                                      Long timeBetweenSizeCheck, TimeUnit timeBetweenSizeCheckUnit) {
+                                                      Long timeBetweenSizeCheck) {
     SftpFileAttributes attributes = getExistingFile(filePath);
     if (attributes.isDirectory()) {
       throw cannotReadDirectoryException(Paths.get(attributes.getPath()));
@@ -58,8 +60,7 @@ public final class SftpReadCommand extends SftpCommand implements ReadCommand<Sf
     PathLock pathLock = lock ? fileSystem.lock(path) : new NullPathLock(path);
     InputStream payload = null;
     try {
-      payload = SftpInputStream.newInstance((SftpConnector) config, attributes, pathLock, timeBetweenSizeCheck,
-                                            timeBetweenSizeCheckUnit);
+      payload = SftpInputStream.newInstance((SftpConnector) config, attributes, pathLock, timeBetweenSizeCheck);
       MediaType resolvedMediaType = fileSystem.getFileMessageMediaType(attributes);
       return Result.<InputStream, SftpFileAttributes>builder().output(payload).mediaType(resolvedMediaType).attributes(attributes)
           .build();
@@ -68,6 +69,13 @@ public final class SftpReadCommand extends SftpCommand implements ReadCommand<Sf
       IOUtils.closeQuietly(payload);
       throw exception("Could not fetch file " + path, e);
     }
+  }
+
+  @Deprecated
+  public Result<InputStream, SftpFileAttributes> read(FileConnectorConfig config, String filePath, boolean lock,
+                                                      Long timeBetweenSizeCheck, TimeUnit timeBetweenSizeCheckUnit) {
+    return read(config, filePath, lock,
+                config.getTimeBetweenSizeCheckInMillis(timeBetweenSizeCheck, timeBetweenSizeCheckUnit).orElse(null));
   }
 
   public SftpFileAttributes readAttributes(String filePath) {
