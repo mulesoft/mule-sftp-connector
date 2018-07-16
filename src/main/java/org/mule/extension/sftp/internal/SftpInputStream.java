@@ -78,6 +78,7 @@ public class SftpInputStream extends AbstractFileInputStream {
   protected static class SftpFileInputStreamSupplier extends AbstractFileInputStreamSupplier {
 
     private static final Logger LOGGER = getLogger(SftpFileInputStreamSupplier.class);
+    private static final String FILE_NOT_FOUND_EXCEPTION = "FileNotFoundException";
 
     private ConnectionHandler<SftpFileSystem> connectionHandler;
     private ConnectionManager connectionManager;
@@ -115,7 +116,7 @@ public class SftpInputStream extends AbstractFileInputStream {
         sftpFileSystem = connectionHandler.getConnection();
         return sftpFileSystem.retrieveFileContent(attributes);
       } catch (MuleRuntimeException e) {
-        if (e.getCause() instanceof SftpException && e.getCause().getMessage().contains("FileNotFoundException:")) {
+        if (fileWasDeleted(e)) {
           onFileDeleted(e);
         }
         throw e;
@@ -123,6 +124,10 @@ public class SftpInputStream extends AbstractFileInputStream {
         throw new MuleRuntimeException(createStaticMessage("Could not obtain connection to fetch file " + attributes.getPath()),
                                        e);
       }
+    }
+
+    private boolean fileWasDeleted(Exception e) {
+      return e.getCause() instanceof SftpException && e.getCause().getMessage().contains(FILE_NOT_FOUND_EXCEPTION);
     }
 
     public Optional<ConnectionHandler> getConnectionHandler() {
