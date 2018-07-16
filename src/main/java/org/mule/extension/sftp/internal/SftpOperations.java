@@ -132,9 +132,7 @@ public final class SftpOperations extends BaseFileSystemOperations {
       }
 
       @Override
-      public void close(SftpFileSystem connection) throws MuleException {
-        connection.disconnect();
-      }
+      public void close(SftpFileSystem connection) {}
 
     };
   }
