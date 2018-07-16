@@ -51,7 +51,7 @@ public final class SftpListCommand extends SftpCommand implements ListCommand<Sf
                                                             boolean recursive,
                                                             Predicate<SftpFileAttributes> matcher) {
 
-    return list(config, directoryPath, recursive, matcher, null, null);
+    return list(config, directoryPath, recursive, matcher, null);
   }
 
   @Deprecated
@@ -66,7 +66,6 @@ public final class SftpListCommand extends SftpCommand implements ListCommand<Sf
                 config.getTimeBetweenSizeCheckInMillis(timeBetweenSizeCheck, timeBetweenSizeCheckUnit).orElse(null));
   }
 
-  @Deprecated
   public List<Result<InputStream, SftpFileAttributes>> list(FileConnectorConfig config,
                                                             String directoryPath,
                                                             boolean recursive,
