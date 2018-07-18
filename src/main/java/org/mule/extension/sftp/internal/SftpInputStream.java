@@ -10,7 +10,6 @@ import static java.lang.Thread.sleep;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.mule.runtime.api.i18n.I18nMessageFactory.createStaticMessage;
 import static org.slf4j.LoggerFactory.getLogger;
-
 import org.mule.extension.file.common.api.FileAttributes;
 import org.mule.extension.file.common.api.lock.PathLock;
 import org.mule.extension.file.common.api.stream.AbstractFileInputStream;
@@ -23,12 +22,13 @@ import org.mule.runtime.api.connection.ConnectionException;
 import org.mule.runtime.api.connection.ConnectionHandler;
 import org.mule.runtime.api.exception.MuleRuntimeException;
 import org.mule.runtime.core.api.connector.ConnectionManager;
-import org.slf4j.Logger;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
+
+import org.slf4j.Logger;
 
 /**
  * Implementation of {@link AbstractFileInputStream} for SFTP connections
@@ -74,7 +74,7 @@ public class SftpInputStream extends AbstractFileInputStream {
 
   private ConnectionAwareSupplier connectionAwareSupplier;
 
-  private SftpInputStream(ConnectionAwareSupplier connectionAwareSupplier, PathLock lock) {
+  protected SftpInputStream(ConnectionAwareSupplier connectionAwareSupplier, PathLock lock) {
     super(new LazyStreamSupplier(connectionAwareSupplier), lock);
     this.connectionAwareSupplier = connectionAwareSupplier;
   }
@@ -91,7 +91,7 @@ public class SftpInputStream extends AbstractFileInputStream {
     }
   }
 
-  private static final class ConnectionAwareSupplier implements Supplier<InputStream> {
+  protected static class ConnectionAwareSupplier implements Supplier<InputStream> {
 
     private static final Logger LOGGER = getLogger(ConnectionAwareSupplier.class);
     private static final String FILE_NO_LONGER_EXISTS_MESSAGE =
