@@ -9,8 +9,6 @@ package org.mule.extension.sftp.internal;
 import static java.util.Optional.ofNullable;
 import static org.mule.runtime.api.i18n.I18nMessageFactory.createStaticMessage;
 import static org.slf4j.LoggerFactory.getLogger;
-
-import com.jcraft.jsch.SftpException;
 import org.mule.extension.file.common.api.AbstractFileInputStreamSupplier;
 import org.mule.extension.file.common.api.FileAttributes;
 import org.mule.extension.file.common.api.lock.PathLock;
@@ -22,11 +20,14 @@ import org.mule.runtime.api.connection.ConnectionException;
 import org.mule.runtime.api.connection.ConnectionHandler;
 import org.mule.runtime.api.exception.MuleRuntimeException;
 import org.mule.runtime.core.api.connector.ConnectionManager;
-import org.slf4j.Logger;
+
+import com.jcraft.jsch.SftpException;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Optional;
+
+import org.slf4j.Logger;
 
 /**
  * Implementation of {@link AbstractFileInputStream} for SFTP connections
@@ -61,7 +62,7 @@ public class SftpInputStream extends AbstractFileInputStream {
 
   private SftpFileInputStreamSupplier sftpFileInputStreamSupplier;
 
-  private SftpInputStream(SftpFileInputStreamSupplier sftpFileInputStreamSupplier, PathLock lock) {
+  protected SftpInputStream(SftpFileInputStreamSupplier sftpFileInputStreamSupplier, PathLock lock) {
     super(new LazyStreamSupplier(sftpFileInputStreamSupplier), lock);
     this.sftpFileInputStreamSupplier = sftpFileInputStreamSupplier;
   }
