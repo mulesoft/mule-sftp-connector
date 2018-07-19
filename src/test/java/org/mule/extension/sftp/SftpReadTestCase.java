@@ -23,7 +23,6 @@ import io.qameta.allure.Description;
 import org.junit.Rule;
 import org.junit.rules.ExpectedException;
 import org.mule.extension.file.common.api.exceptions.IllegalPathException;
-import org.mule.extension.file.common.api.stream.AbstractFileInputStream;
 import org.mule.extension.sftp.api.SftpFileAttributes;
 import org.mule.extension.sftp.internal.exception.DeletedFileWhileReadException;
 import org.mule.extension.sftp.internal.exception.FileBeingModifiedException;
@@ -31,6 +30,7 @@ import org.mule.runtime.api.message.Message;
 import org.mule.runtime.api.metadata.MediaType;
 import org.mule.runtime.core.api.event.CoreEvent;
 
+import java.io.InputStream;
 import java.nio.file.Paths;
 
 import io.qameta.allure.Feature;
@@ -80,8 +80,7 @@ public class SftpReadTestCase extends CommonSftpConnectorTestCase {
     assertThat(response.getPayload().getDataType().getMediaType().getPrimaryType(), is(MediaType.BINARY.getPrimaryType()));
     assertThat(response.getPayload().getDataType().getMediaType().getSubType(), is(MediaType.BINARY.getSubType()));
 
-    AbstractFileInputStream payload = (AbstractFileInputStream) response.getPayload().getValue();
-    assertThat(payload.isLocked(), is(false));
+    InputStream payload = (InputStream) response.getPayload().getValue();
 
     byte[] readContent = new byte[new Long(HELLO_WORLD.length()).intValue()];
     org.apache.commons.io.IOUtils.read(payload, readContent);
@@ -107,21 +106,6 @@ public class SftpReadTestCase extends CommonSftpConnectorTestCase {
                                             "since it's a directory");
     readPath("files");
   }
-
-  @Test
-  public void readLockReleasedOnContentConsumed() throws Exception {
-    Message message = readWithLock();
-    getPayloadAsString(message);
-
-    assertThat(isLocked(message), is(false));
-  }
-
-  @Test
-  public void readLockReleasedOnEarlyClose() throws Exception {
-    Message message = readWithLock();
-    assertThat(isLocked(message), is(false));
-  }
-
 
   @Test
   public void getProperties() throws Exception {

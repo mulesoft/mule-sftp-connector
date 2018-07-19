@@ -7,17 +7,11 @@
 package org.mule.extension.sftp;
 
 import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mule.extension.sftp.AllureConstants.SftpFeature.SFTP_EXTENSION;
 import static org.mule.tck.probe.PollingProber.check;
-import static org.mule.tck.probe.PollingProber.checkNot;
-
 import org.mule.extension.file.common.api.FileAttributes;
-import org.mule.extension.sftp.api.SftpFileAttributes;
 import org.mule.runtime.api.exception.MuleException;
-import org.mule.runtime.api.lifecycle.Startable;
-import org.mule.runtime.api.lifecycle.Stoppable;
 import org.mule.runtime.api.message.Message;
 import org.mule.runtime.api.util.Reference;
 import org.mule.runtime.core.api.event.CoreEvent;
@@ -28,7 +22,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import io.qameta.allure.Description;
 import io.qameta.allure.Feature;
 import org.junit.Test;
 
@@ -77,7 +70,7 @@ public class SftpDirectoryListenerReconnectionFunctionalTestCase extends CommonS
 
     testHarness.getSftpServer().stop();
 
-    Thread.sleep(PROBER_TIMEOUT);
+    Thread.sleep(50);
     RECEIVED_MESSAGES.clear();
     testHarness.setUpServer();
 
