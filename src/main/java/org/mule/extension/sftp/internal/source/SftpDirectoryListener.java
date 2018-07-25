@@ -284,29 +284,27 @@ public class SftpDirectoryListener extends PollingSource<InputStream, SftpFileAt
   }
 
   private void postAction(PostActionGroup postAction, SourceCallbackContext ctx) {
-    try {
-      postAction.validateSelf();
-    } catch (IllegalArgumentException e) {
-      LOGGER.error(e.getMessage());
-    }
-
     SftpFileSystem fileSystem = ctx.getConnection();
     fileSystem.changeToBaseDir();
     ctx.<SftpFileAttributes>getVariable(ATTRIBUTES_CONTEXT_VAR).ifPresent(attrs -> {
-      try {
-        if (postAction.isAutoDelete()) {
-          fileSystem.delete(attrs.getPath());
-        } else if (postAction.getMoveToDirectory() != null) {
+      if (postAction.getMoveToDirectory() != null) {
+        try {
           fileSystem.move(config, attrs.getPath(), postAction.getMoveToDirectory(), false, true,
                           postAction.getRenameTo());
+        } catch (FileAlreadyExistsException e) {
+          if (postAction.isAutoDelete()) {
+            fileSystem.delete(attrs.getPath());
+          } else {
+            String moveToFileName = postAction.getRenameTo() == null ? attrs.getName() : postAction.getRenameTo();
+            String moveToPath = Paths.get(postAction.getMoveToDirectory()).resolve(moveToFileName).toString();
+            LOGGER.warn(String.format("A file with the same name was found when trying to move '%s' to '%s'" +
+                ". The file '%s' was not sent to the moveTo directory and it remains on the poll directory.",
+                                      attrs.getPath(), moveToPath, attrs.getPath()));
+            throw e;
+          }
         }
-      } catch (FileAlreadyExistsException e) {
-        String moveToFileName = postAction.getRenameTo() == null ? attrs.getName() : postAction.getRenameTo();
-        String moveToPath = Paths.get(postAction.getMoveToDirectory()).resolve(moveToFileName).toString();
-        LOGGER.warn(String.format("A file with the same name was found when trying to move '%s' to '%s'" +
-            ". The file '%s' was not sent to the moveTo directory and it remains on the poll directory.",
-                                  attrs.getPath(), moveToPath, attrs.getPath()));
-        throw e;
+      } else if (postAction.isAutoDelete()) {
+        fileSystem.delete(attrs.getPath());
       }
     });
   }
