@@ -6,6 +6,7 @@
  */
 package org.mule.extension.sftp.internal.source;
 
+import static java.lang.String.format;
 import static org.mule.runtime.api.meta.model.display.PathModel.Location.EXTERNAL;
 import static org.mule.runtime.api.meta.model.display.PathModel.Type.DIRECTORY;
 import org.mule.runtime.extension.api.annotation.param.Optional;
@@ -78,13 +79,17 @@ public class PostActionGroup {
 
   public void validateSelf() throws IllegalArgumentException {
     if (autoDelete) {
-      if (moveToDirectory != null || renameTo != null) {
-        throw new IllegalArgumentException();
-      }
+      if (moveToDirectory != null) {
+        throw new IllegalArgumentException(format("The autoDelete parameter was set to true, but the value '%s' was given to the "
+            + "moveToDirectory parameter. These two are contradictory.", moveToDirectory));
+      } else if (renameTo != null)
+        throw new IllegalArgumentException(format("The autoDelete parameter was set to true, but the value '%s' was given to the "
+            + "renameTo parameter. These two are contradictory.", renameTo));
     }
-
     if (moveToDirectory == null && renameTo != null) {
-      throw new IllegalArgumentException();
+      throw new IllegalArgumentException(format("The value '%s' was given to the renameTo parameter, but the moveToDirectory parameter"
+          + " was not set. renameTo is only used to change the name to the file when it is moved to " +
+          "the moveToDirectory.", renameTo));
     }
   }
 }

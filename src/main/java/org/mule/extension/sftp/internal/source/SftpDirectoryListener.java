@@ -284,6 +284,14 @@ public class SftpDirectoryListener extends PollingSource<InputStream, SftpFileAt
   }
 
   private void postAction(PostActionGroup postAction, SourceCallbackContext ctx) {
+    if (LOGGER.isTraceEnabled()) {
+      try {
+        postAction.validateSelf();
+      } catch (IllegalArgumentException e) {
+        LOGGER.trace(e.getMessage());
+      }
+    }
+
     SftpFileSystem fileSystem = ctx.getConnection();
     fileSystem.changeToBaseDir();
     ctx.<SftpFileAttributes>getVariable(ATTRIBUTES_CONTEXT_VAR).ifPresent(attrs -> {
