@@ -14,6 +14,7 @@ import static org.mule.runtime.extension.api.runtime.source.PollContext.PollItem
 
 import org.mule.extension.file.common.api.exceptions.FileAlreadyExistsException;
 import org.mule.extension.file.common.api.matcher.NullFilePayloadPredicate;
+import org.mule.extension.file.common.api.source.PostActionGroup;
 import org.mule.extension.sftp.api.SftpFileAttributes;
 import org.mule.extension.sftp.api.SftpFileMatcher;
 import org.mule.extension.sftp.internal.SftpConnector;
@@ -284,36 +285,11 @@ public class SftpDirectoryListener extends PollingSource<InputStream, SftpFileAt
   }
 
   private void postAction(PostActionGroup postAction, SourceCallbackContext ctx) {
-    if (LOGGER.isTraceEnabled()) {
-      try {
-        postAction.validateSelf();
-      } catch (IllegalArgumentException e) {
-        LOGGER.trace(e.getMessage());
-      }
-    }
 
     SftpFileSystem fileSystem = ctx.getConnection();
     fileSystem.changeToBaseDir();
     ctx.<SftpFileAttributes>getVariable(ATTRIBUTES_CONTEXT_VAR).ifPresent(attrs -> {
-      if (postAction.getMoveToDirectory() != null) {
-        try {
-          fileSystem.move(config, attrs.getPath(), postAction.getMoveToDirectory(), false, true,
-                          postAction.getRenameTo());
-        } catch (FileAlreadyExistsException e) {
-          if (postAction.isAutoDelete()) {
-            fileSystem.delete(attrs.getPath());
-          } else {
-            String moveToFileName = postAction.getRenameTo() == null ? attrs.getName() : postAction.getRenameTo();
-            String moveToPath = Paths.get(postAction.getMoveToDirectory()).resolve(moveToFileName).toString();
-            LOGGER.warn(String.format("A file with the same name was found when trying to move '%s' to '%s'" +
-                ". The file '%s' was not sent to the moveTo directory and it remains on the poll directory.",
-                                      attrs.getPath(), moveToPath, attrs.getPath()));
-            throw e;
-          }
-        }
-      } else if (postAction.isAutoDelete()) {
-        fileSystem.delete(attrs.getPath());
-      }
+      postAction.apply(fileSystem, attrs, config);
     });
   }
 
