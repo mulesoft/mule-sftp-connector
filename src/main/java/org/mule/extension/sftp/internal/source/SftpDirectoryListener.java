@@ -12,7 +12,6 @@ import static org.mule.runtime.core.api.util.IOUtils.closeQuietly;
 import static org.mule.runtime.extension.api.annotation.param.MediaType.ANY;
 import static org.mule.runtime.extension.api.runtime.source.PollContext.PollItemStatus.SOURCE_STOPPING;
 
-import org.mule.extension.file.common.api.exceptions.FileAlreadyExistsException;
 import org.mule.extension.file.common.api.matcher.NullFilePayloadPredicate;
 import org.mule.extension.sftp.api.SftpFileAttributes;
 import org.mule.extension.sftp.api.SftpFileMatcher;
@@ -284,30 +283,11 @@ public class SftpDirectoryListener extends PollingSource<InputStream, SftpFileAt
   }
 
   private void postAction(PostActionGroup postAction, SourceCallbackContext ctx) {
-    try {
-      postAction.validateSelf();
-    } catch (IllegalArgumentException e) {
-      LOGGER.error(e.getMessage());
-    }
 
     SftpFileSystem fileSystem = ctx.getConnection();
     fileSystem.changeToBaseDir();
     ctx.<SftpFileAttributes>getVariable(ATTRIBUTES_CONTEXT_VAR).ifPresent(attrs -> {
-      try {
-        if (postAction.isAutoDelete()) {
-          fileSystem.delete(attrs.getPath());
-        } else if (postAction.getMoveToDirectory() != null) {
-          fileSystem.move(config, attrs.getPath(), postAction.getMoveToDirectory(), false, true,
-                          postAction.getRenameTo());
-        }
-      } catch (FileAlreadyExistsException e) {
-        String moveToFileName = postAction.getRenameTo() == null ? attrs.getName() : postAction.getRenameTo();
-        String moveToPath = Paths.get(postAction.getMoveToDirectory()).resolve(moveToFileName).toString();
-        LOGGER.warn(String.format("A file with the same name was found when trying to move '%s' to '%s'" +
-            ". The file '%s' was not sent to the moveTo directory and it remains on the poll directory.",
-                                  attrs.getPath(), moveToPath, attrs.getPath()));
-        throw e;
-      }
+      postAction.apply(fileSystem, attrs, config);
     });
   }
 

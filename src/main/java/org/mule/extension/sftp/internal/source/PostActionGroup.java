@@ -8,6 +8,8 @@ package org.mule.extension.sftp.internal.source;
 
 import static org.mule.runtime.api.meta.model.display.PathModel.Location.EXTERNAL;
 import static org.mule.runtime.api.meta.model.display.PathModel.Type.DIRECTORY;
+
+import org.mule.extension.file.common.api.source.AbstractPostActionGroup;
 import org.mule.runtime.extension.api.annotation.param.Optional;
 import org.mule.runtime.extension.api.annotation.param.Parameter;
 import org.mule.runtime.extension.api.annotation.param.display.Path;
@@ -17,7 +19,7 @@ import org.mule.runtime.extension.api.annotation.param.display.Path;
  *
  * @since 1.1
  */
-public class PostActionGroup {
+public class PostActionGroup extends AbstractPostActionGroup {
 
   /**
    * Whether each file should be deleted after processing or not
@@ -43,8 +45,8 @@ public class PostActionGroup {
   private String renameTo;
 
   /**
-   * Whether any of the post actions ({@code autoDelete} and {@code moveToDirectory}) should also be applied in case the
-   * file failed to be processed. If set to {@code false}, no failed files will be moved nor deleted.
+   * Whether any of the post actions ({@code autoDelete} and {@code moveToDirectory}) should also be applied in case the file
+   * failed to be processed. If set to {@code false}, no failed files will be moved nor deleted.
    */
   @Parameter
   @Optional(defaultValue = "true")
@@ -76,15 +78,4 @@ public class PostActionGroup {
     return applyPostActionWhenFailed;
   }
 
-  public void validateSelf() throws IllegalArgumentException {
-    if (autoDelete) {
-      if (moveToDirectory != null || renameTo != null) {
-        throw new IllegalArgumentException();
-      }
-    }
-
-    if (moveToDirectory == null && renameTo != null) {
-      throw new IllegalArgumentException();
-    }
-  }
 }
