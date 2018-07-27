@@ -12,9 +12,7 @@ import static org.mule.runtime.core.api.util.IOUtils.closeQuietly;
 import static org.mule.runtime.extension.api.annotation.param.MediaType.ANY;
 import static org.mule.runtime.extension.api.runtime.source.PollContext.PollItemStatus.SOURCE_STOPPING;
 
-import org.mule.extension.file.common.api.exceptions.FileAlreadyExistsException;
 import org.mule.extension.file.common.api.matcher.NullFilePayloadPredicate;
-import org.mule.extension.file.common.api.source.PostActionGroup;
 import org.mule.extension.sftp.api.SftpFileAttributes;
 import org.mule.extension.sftp.api.SftpFileMatcher;
 import org.mule.extension.sftp.internal.SftpConnector;
