@@ -165,8 +165,7 @@ public final class SftpOperations extends BaseFileSystemOperations {
    * @param fileSystem a reference to the host {@link FileSystem}
    * @param path the path of the file to be written
    * @param content the content to be written into the file. Defaults to the current {@link Message} payload
-   * @param encoding when {@code content} is a {@link String}, this attribute specifies the encoding to be used when writing. If
-   *        not set, then it defaults to {@link FileConnectorConfig#getDefaultWriteEncoding()}
+   * @param encoding this parameter is deprecated and will do nothing if configured
    * @param createParentDirectories whether or not to attempt creating any parent directories which don't exists.
    * @param lock whether or not to lock the file. Defaults to false
    * @param mode a {@link FileWriteMode}. Defaults to {@code OVERWRITE}
