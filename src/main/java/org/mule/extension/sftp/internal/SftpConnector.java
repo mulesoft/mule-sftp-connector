@@ -6,6 +6,8 @@
  */
 package org.mule.extension.sftp.internal;
 
+import static org.mule.runtime.extension.api.annotation.param.display.Placement.ADVANCED_TAB;
+
 import org.mule.extension.file.common.api.FileConnectorConfig;
 import org.mule.extension.file.common.api.exceptions.FileError;
 import org.mule.extension.sftp.internal.connection.SftpConnectionProvider;
@@ -19,6 +21,7 @@ import org.mule.runtime.extension.api.annotation.dsl.xml.Xml;
 import org.mule.runtime.extension.api.annotation.error.ErrorTypes;
 import org.mule.runtime.extension.api.annotation.param.Optional;
 import org.mule.runtime.extension.api.annotation.param.Parameter;
+import org.mule.runtime.extension.api.annotation.param.display.Placement;
 import org.mule.runtime.extension.api.annotation.param.display.Summary;
 
 import javax.inject.Inject;
@@ -47,6 +50,7 @@ public class SftpConnector extends FileConnectorConfig {
    * tandem with {@link #timeBetweenSizeCheckUnit}.
    */
   @Parameter
+  @Placement(tab = ADVANCED_TAB)
   @Summary("Wait time between size checks to determine if a file is ready to be read.")
   @Optional
   private Long timeBetweenSizeCheck;
@@ -57,6 +61,7 @@ public class SftpConnector extends FileConnectorConfig {
    * Defaults to {@code MILLISECONDS}
    */
   @Parameter
+  @Placement(tab = ADVANCED_TAB)
   @Optional(defaultValue = "MILLISECONDS")
   @Summary("Time unit to be used in the wait time between size checks")
   private TimeUnit timeBetweenSizeCheckUnit;
