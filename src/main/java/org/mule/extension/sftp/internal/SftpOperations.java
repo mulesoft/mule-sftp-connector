@@ -176,7 +176,8 @@ public final class SftpOperations extends BaseFileSystemOperations {
   public void write(@Config FileConnectorConfig config, @Connection FileSystem fileSystem,
                     @Path(type = DIRECTORY, location = EXTERNAL) String path,
                     @Content @Summary("Content to be written into the file") InputStream content,
-                    @Optional @Summary("Deprecated: This parameter will not be taken into account for the operation execution") @DisplayName("Encoding (DEPRECATED)") String encoding,
+                    @Optional @Summary("Deprecated: This parameter will not be taken into account for the operation execution") @Placement(
+                        tab = ADVANCED_TAB) @DisplayName("Encoding (DEPRECATED)") String encoding,
                     @Optional(defaultValue = "true") boolean createParentDirectories,
                     @Optional(defaultValue = "false") boolean lock, @Optional(
                         defaultValue = "OVERWRITE") @Summary("How the file is going to be written") @DisplayName("Write Mode") FileWriteMode mode) {
