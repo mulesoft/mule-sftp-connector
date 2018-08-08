@@ -43,9 +43,19 @@ public final class SftpWriteCommand extends SftpCommand implements WriteCommand 
   /**
    * {@inheritDoc}
    */
+  @Deprecated
   @Override
   public void write(String filePath, InputStream content, FileWriteMode mode,
                     boolean lock, boolean createParentDirectory, String encoding) {
+    write(filePath, content, mode, lock, createParentDirectory);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public void write(String filePath, InputStream content, FileWriteMode mode,
+                    boolean lock, boolean createParentDirectory) {
     Path path = resolvePath(filePath);
     FileAttributes file = getFile(filePath);
 

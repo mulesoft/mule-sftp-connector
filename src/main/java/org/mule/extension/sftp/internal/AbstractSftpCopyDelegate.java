@@ -124,7 +124,7 @@ public abstract class AbstractSftpCopyDelegate implements SftpCopyDelegate {
                          SftpFileSystem writerConnection)
       throws IOException {
     final FileWriteMode mode = overwrite ? FileWriteMode.OVERWRITE : FileWriteMode.CREATE_NEW;
-    writerConnection.write(targetPath, inputStream, mode, false, true, config.getDefaultWriteEncoding());
+    writerConnection.write(targetPath, inputStream, mode, false, true);
   }
 
   private ConnectionHandler<SftpFileSystem> getWriterConnection(FileConnectorConfig config) throws ConnectionException {

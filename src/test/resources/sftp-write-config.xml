@@ -8,7 +8,7 @@
     <import file="sftp-read-config.xml"/>
 
     <flow name="write">
-        <sftp:write config-ref="config" path="#[vars.path]" mode="#[vars.mode]" createParentDirectories="#[vars.createParent]" encoding="#[vars.encoding]" />
+        <sftp:write config-ref="config" path="#[vars.path]" mode="#[vars.mode]" createParentDirectories="#[vars.createParent]" />
     </flow>
 
     <flow name="writeStaticContent">
