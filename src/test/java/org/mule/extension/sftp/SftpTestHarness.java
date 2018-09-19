@@ -166,7 +166,7 @@ public class SftpTestHarness extends AbstractSftpTestHarness {
   }
 
   public String getRootDirectory() throws Exception {
-    return temporaryFolder.getRoot().getAbsolutePath();
+    return "/";
   }
 
   /**
