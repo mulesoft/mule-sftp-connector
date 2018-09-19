@@ -20,7 +20,6 @@ import static org.mule.extension.sftp.internal.SftpUtils.normalizePath;
 import static org.mule.extension.sftp.internal.SftpUtils.resolvePath;
 import static org.mule.extension.sftp.random.alg.PRNGAlgorithm.SHA1PRNG;
 
-import org.apache.commons.io.IOUtils;
 import org.mule.extension.AbstractSftpTestHarness;
 import org.mule.extension.file.common.api.FileAttributes;
 import org.mule.extension.file.common.api.FileWriteMode;
@@ -30,8 +29,6 @@ import org.mule.extension.sftp.internal.connection.SftpClientFactory;
 import org.mule.tck.junit4.rule.DynamicPort;
 import org.mule.test.extension.file.common.api.FileTestHarness;
 
-import com.jcraft.jsch.JSchException;
-
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
@@ -40,6 +37,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 
+import com.jcraft.jsch.JSchException;
+import org.apache.commons.io.IOUtils;
 import org.apache.sshd.server.config.keys.AuthorizedKeysAuthenticator;
 import org.junit.rules.TemporaryFolder;
 import org.junit.rules.TestRule;
@@ -87,9 +86,9 @@ public class SftpTestHarness extends AbstractSftpTestHarness {
   @Override
   protected void doBefore() throws Exception {
     temporaryFolder.create();
-    System.setProperty(WORKING_DIR_SYSTEM_PROPERTY, temporaryFolder.getRoot().getAbsolutePath());
     setUpServer();
     sftpClient = createDefaultSftpClient();
+    System.setProperty(WORKING_DIR_SYSTEM_PROPERTY, sftpClient.getWorkingDirectory());
   }
 
   /**
@@ -115,12 +114,11 @@ public class SftpTestHarness extends AbstractSftpTestHarness {
     SftpClient sftpClient = new SftpClientFactory().createInstance("localhost", sftpPort.getNumber(), SHA1PRNG);
     clientAuthConfigurator.configure(sftpClient);
     sftpClient.login(USERNAME);
-    sftpClient.changeWorkingDirectory(temporaryFolder.getRoot().getPath());
     return sftpClient;
   }
 
   public void setUpServer() {
-    sftpServer = new SftpServer(sftpPort.getNumber());
+    sftpServer = new SftpServer(sftpPort.getNumber(), temporaryFolder.getRoot().toPath());
     serverAuthConfigurator.configure(sftpServer);
     sftpServer.start();
   }
