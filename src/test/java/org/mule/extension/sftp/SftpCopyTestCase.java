@@ -14,10 +14,9 @@ import static org.mule.extension.file.common.api.exceptions.FileError.ILLEGAL_PA
 import static org.mule.extension.sftp.AllureConstants.SftpFeature.SFTP_EXTENSION;
 import static org.mule.extension.sftp.internal.SftpUtils.normalizePath;
 import static org.mule.test.extension.file.common.api.FileTestHarness.HELLO_WORLD;
+
 import org.mule.extension.file.common.api.exceptions.FileAlreadyExistsException;
 import org.mule.extension.file.common.api.exceptions.IllegalPathException;
-
-import java.nio.file.Paths;
 
 import io.qameta.allure.Feature;
 import org.junit.Test;
@@ -43,7 +42,7 @@ public class SftpCopyTestCase extends CommonSftpConnectorTestCase {
   }
 
   private String getPath(String... path) throws Exception {
-    return normalizePath(Paths.get(testHarness.getWorkingDirectory(), path).toString());
+    return normalizePath(testHarness.getWorkingDirectory() + "/" + String.join("/", path));
   }
 
   @Override
@@ -64,7 +63,7 @@ public class SftpCopyTestCase extends CommonSftpConnectorTestCase {
 
   @Test
   public void absoluteSourcePath() throws Exception {
-    final String absoluteSourcePath = String.format("%s/%s", testHarness.getWorkingDirectory(), SOURCE_FILE_NAME);
+    final String absoluteSourcePath = getPath(SOURCE_FILE_NAME);
     testHarness.makeDir(TARGET_DIRECTORY);
     final String path = getPath(TARGET_DIRECTORY);
     doExecute(getFlowName(), absoluteSourcePath, path, false, false, null);
