@@ -8,8 +8,14 @@ package org.mule.extension.sftp;
 
 import static java.util.Arrays.asList;
 
-import org.apache.sshd.common.file.virtualfs.VirtualFileSystemFactory;
 import org.mule.runtime.api.exception.MuleRuntimeException;
+
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Path;
+import java.security.Security;
+
+import org.apache.sshd.common.file.virtualfs.VirtualFileSystemFactory;
 import org.apache.sshd.server.SshServer;
 import org.apache.sshd.server.auth.password.PasswordAuthenticator;
 import org.apache.sshd.server.auth.pubkey.PublickeyAuthenticator;
@@ -17,11 +23,6 @@ import org.apache.sshd.server.keyprovider.SimpleGeneratorHostKeyProvider;
 import org.apache.sshd.server.scp.ScpCommandFactory;
 import org.apache.sshd.server.subsystem.sftp.SftpSubsystemFactory;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
-
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Path;
-import java.security.Security;
 
 public class SftpServer {
 

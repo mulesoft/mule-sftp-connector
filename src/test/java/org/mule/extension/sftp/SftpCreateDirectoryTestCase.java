@@ -51,9 +51,10 @@ public class SftpCreateDirectoryTestCase extends CommonSftpConnectorTestCase {
 
   @Test
   public void createDirectoryWithComplexPath() throws Exception {
-    doCreateDirectory(new URI(testHarness.getWorkingDirectory()).resolve(DIRECTORY).toString());
+    String complexPathDir = new URI(testHarness.getWorkingDirectory()).resolve(DIRECTORY).toString();
+    doCreateDirectory(complexPathDir);
 
-    assertThat(testHarness.dirExists(DIRECTORY), is(true));
+    assertThat(testHarness.dirExists(complexPathDir), is(true));
   }
 
   @Test

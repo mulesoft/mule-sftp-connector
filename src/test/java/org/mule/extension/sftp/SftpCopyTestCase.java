@@ -42,7 +42,7 @@ public class SftpCopyTestCase extends CommonSftpConnectorTestCase {
   }
 
   private String getPath(String... path) throws Exception {
-    return normalizePath(testHarness.getWorkingDirectory() + String.join("/", path));
+    return normalizePath(testHarness.getWorkingDirectory() + "/" + String.join("/", path));
   }
 
   @Override

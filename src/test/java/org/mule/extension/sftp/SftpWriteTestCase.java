@@ -7,10 +7,12 @@
 package org.mule.extension.sftp;
 
 import static java.nio.charset.Charset.availableCharsets;
+import static org.apache.commons.lang3.SystemUtils.IS_OS_WINDOWS;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assume.assumeTrue;
 import static org.mule.extension.file.common.api.FileWriteMode.APPEND;
 import static org.mule.extension.file.common.api.FileWriteMode.CREATE_NEW;
 import static org.mule.extension.file.common.api.FileWriteMode.OVERWRITE;
@@ -19,6 +21,7 @@ import static org.mule.extension.file.common.api.exceptions.FileError.ILLEGAL_PA
 import static org.mule.extension.sftp.AllureConstants.SftpFeature.SFTP_EXTENSION;
 import static org.mule.runtime.core.api.util.IOUtils.toByteArray;
 import static org.mule.test.extension.file.common.api.FileTestHarness.HELLO_WORLD;
+
 import org.mule.extension.file.common.api.FileWriteMode;
 import org.mule.extension.file.common.api.exceptions.FileAlreadyExistsException;
 import org.mule.extension.file.common.api.exceptions.IllegalPathException;
@@ -47,6 +50,8 @@ public class SftpWriteTestCase extends CommonSftpConnectorTestCase {
 
   @Test
   public void writeOnAPathWithColon() throws Exception {
+    //TODO: Remove assumption once MULE-15733 get fixed.
+    assumeTrue(!IS_OS_WINDOWS);
     final String filePath = "X:/file.txt";
 
     doWrite(filePath, HELLO_WORLD, OVERWRITE, true);
