@@ -7,7 +7,15 @@
 package org.mule.extension.sftp;
 
 import static java.util.Arrays.asList;
+
 import org.mule.runtime.api.exception.MuleRuntimeException;
+
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Path;
+import java.security.Security;
+
+import org.apache.sshd.common.file.virtualfs.VirtualFileSystemFactory;
 import org.apache.sshd.server.SshServer;
 import org.apache.sshd.server.auth.password.PasswordAuthenticator;
 import org.apache.sshd.server.auth.pubkey.PublickeyAuthenticator;
@@ -16,19 +24,17 @@ import org.apache.sshd.server.scp.ScpCommandFactory;
 import org.apache.sshd.server.subsystem.sftp.SftpSubsystemFactory;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
-import java.io.File;
-import java.io.IOException;
-import java.security.Security;
-
 public class SftpServer {
 
   public static final String USERNAME = "muletest1";
   public static final String PASSWORD = "muletest1";
   private SshServer sshdServer;
   private Integer port;
+  private Path path;
 
-  public SftpServer(int port) {
+  public SftpServer(int port, Path path) {
     this.port = port;
+    this.path = path;
     configureSecurityProvider();
     SftpSubsystemFactory factory = createFtpSubsystemFactory();
     sshdServer = SshServer.setUpDefaultServer();
@@ -52,6 +58,7 @@ public class SftpServer {
     sshdServer.setKeyPairProvider(new SimpleGeneratorHostKeyProvider(new File("hostkey.ser")));
     sshdServer.setSubsystemFactories(asList(factory));
     sshdServer.setCommandFactory(new ScpCommandFactory());
+    sshdServer.setFileSystemFactory(new VirtualFileSystemFactory(path));
   }
 
   private SftpSubsystemFactory createFtpSubsystemFactory() {

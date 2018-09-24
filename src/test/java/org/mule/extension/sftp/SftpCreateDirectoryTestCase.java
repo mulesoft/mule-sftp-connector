@@ -11,9 +11,10 @@ import static org.junit.Assert.assertThat;
 import static org.mule.extension.file.common.api.exceptions.FileError.FILE_ALREADY_EXISTS;
 import static org.mule.extension.sftp.AllureConstants.SftpFeature.SFTP_EXTENSION;
 import static org.mule.extension.sftp.internal.SftpUtils.normalizePath;
+
 import org.mule.extension.file.common.api.exceptions.FileAlreadyExistsException;
 
-import java.nio.file.Paths;
+import java.net.URI;
 
 import io.qameta.allure.Feature;
 import org.junit.Test;
@@ -50,16 +51,16 @@ public class SftpCreateDirectoryTestCase extends CommonSftpConnectorTestCase {
 
   @Test
   public void createDirectoryWithComplexPath() throws Exception {
-    final String base = testHarness.getWorkingDirectory();
-    doCreateDirectory(Paths.get(base).resolve(DIRECTORY).toAbsolutePath().toString());
+    String complexPathDir = new URI(testHarness.getWorkingDirectory()).resolve(DIRECTORY).toString();
+    doCreateDirectory(complexPathDir);
 
-    assertThat(testHarness.dirExists(DIRECTORY), is(true));
+    assertThat(testHarness.dirExists(complexPathDir), is(true));
   }
 
   @Test
   public void createDirectoryFromRoot() throws Exception {
     String rootChildDirectoryPath =
-        normalizePath(Paths.get(testHarness.getRootDirectory()).resolve(ROOT_CHILD_DIRECTORY).toAbsolutePath().toString());
+        normalizePath(new URI(testHarness.getRootDirectory()).resolve(ROOT_CHILD_DIRECTORY).toString());
     doCreateDirectory(rootChildDirectoryPath);
     assertThat(testHarness.dirExists(rootChildDirectoryPath), is(true));
   }
