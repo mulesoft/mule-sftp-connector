@@ -185,8 +185,10 @@ public class SftpDirectoryListener extends PollingSource<InputStream, SftpFileAt
     }
 
     try {
+      Long timeBetweenSizeCheckInMillis =
+          config.getTimeBetweenSizeCheckInMillis(timeBetweenSizeCheck, timeBetweenSizeCheckUnit).orElse(null);
       List<Result<InputStream, SftpFileAttributes>> files =
-          fileSystem.list(config, directoryPath.toString(), recursive, matcher, null);
+          fileSystem.list(config, directoryPath.toString(), recursive, matcher, timeBetweenSizeCheckInMillis);
       if (files.isEmpty()) {
         return;
       }
@@ -209,7 +211,7 @@ public class SftpDirectoryListener extends PollingSource<InputStream, SftpFileAt
           continue;
         }
 
-        if (!processFile(attributes, pollContext)) {
+        if (!processFile(file, pollContext)) {
           break;
         }
       }
@@ -234,7 +236,9 @@ public class SftpDirectoryListener extends PollingSource<InputStream, SftpFileAt
     return fileSystem;
   }
 
-  private boolean processFile(SftpFileAttributes attributes, PollContext<InputStream, SftpFileAttributes> pollContext) {
+  private boolean processFile(Result<InputStream, SftpFileAttributes> file,
+                              PollContext<InputStream, SftpFileAttributes> pollContext) {
+    SftpFileAttributes attributes = file.getAttributes().get();
     String fullPath = attributes.getPath();
     PollItemStatus status = pollContext.accept(item -> {
       final SourceCallbackContext ctx = item.getSourceCallbackContext();
@@ -242,16 +246,8 @@ public class SftpDirectoryListener extends PollingSource<InputStream, SftpFileAt
       SftpFileSystem fileSystem = null;
 
       try {
-        fileSystem = fileSystemProvider.connect();
-        ctx.bindConnection(fileSystem);
-
         ctx.addVariable(ATTRIBUTES_CONTEXT_VAR, attributes);
-        result =
-            fileSystem.getReadCommand()
-                .read(config, attributes.getPath(), false,
-                      config.getTimeBetweenSizeCheckInMillis(timeBetweenSizeCheck, timeBetweenSizeCheckUnit).orElse(null));
-        item.setResult(result)
-            .setId(attributes.getPath());
+        item.setResult(file).setId(attributes.getPath());
 
         if (watermarkEnabled) {
           item.setWatermark(attributes.getTimestamp());
@@ -283,11 +279,16 @@ public class SftpDirectoryListener extends PollingSource<InputStream, SftpFileAt
   }
 
   private void postAction(PostActionGroup postAction, SourceCallbackContext ctx) {
-
-    SftpFileSystem fileSystem = ctx.getConnection();
-    fileSystem.changeToBaseDir();
     ctx.<SftpFileAttributes>getVariable(ATTRIBUTES_CONTEXT_VAR).ifPresent(attrs -> {
-      postAction.apply(fileSystem, attrs, config);
+      try {
+        SftpFileSystem fileSystem = fileSystemProvider.connect();
+        fileSystem.changeToBaseDir();
+        postAction.apply(fileSystem, attrs, config);
+      } catch (ConnectionException e) {
+        LOGGER
+            .error("An error occurred while retrieving a connection to apply the post processing action to the file %s , it was neither moved nor deleted.",
+                   attrs.getPath());
+      }
     });
   }
 
