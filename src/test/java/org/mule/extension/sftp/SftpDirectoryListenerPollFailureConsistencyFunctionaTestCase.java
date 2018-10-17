@@ -22,6 +22,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import io.qameta.allure.Description;
 import io.qameta.allure.Feature;
@@ -74,7 +75,7 @@ public class SftpDirectoryListenerPollFailureConsistencyFunctionaTestCase extend
     super.doSetUpBeforeMuleContextCreation();
     testHarness.makeDir(INPUT_FOLDER);
 
-    FILES_PROCESSED = new HashSet<>();
+    FILES_PROCESSED = ConcurrentHashMap.newKeySet();
   }
 
   @Override
