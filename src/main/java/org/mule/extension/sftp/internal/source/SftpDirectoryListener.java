@@ -280,14 +280,19 @@ public class SftpDirectoryListener extends PollingSource<InputStream, SftpFileAt
 
   private void postAction(PostActionGroup postAction, SourceCallbackContext ctx) {
     ctx.<SftpFileAttributes>getVariable(ATTRIBUTES_CONTEXT_VAR).ifPresent(attrs -> {
+      SftpFileSystem fileSystem = null;
       try {
-        SftpFileSystem fileSystem = fileSystemProvider.connect();
+        fileSystem = fileSystemProvider.connect();
         fileSystem.changeToBaseDir();
         postAction.apply(fileSystem, attrs, config);
       } catch (ConnectionException e) {
         LOGGER
             .error("An error occurred while retrieving a connection to apply the post processing action to the file %s , it was neither moved nor deleted.",
                    attrs.getPath());
+      } finally {
+        if (fileSystem != null) {
+          fileSystemProvider.disconnect(fileSystem);
+        }
       }
     });
   }
