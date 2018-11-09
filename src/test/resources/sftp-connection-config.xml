@@ -6,7 +6,9 @@
         http://www.mulesoft.org/schema/mule/sftp http://www.mulesoft.org/schema/mule/sftp/current/mule-sftp.xsd">
 
     <sftp:config name="config">
-        <sftp:connection username="muletest1" password="muletest1" host="localhost" port="${SFTP_PORT}" workingDir="${workingDir}" prngAlgorithm="SHA1PRNG" />
+        <sftp:connection username="muletest1" password="muletest1" host="localhost" port="${SFTP_PORT}" workingDir="${workingDir}" prngAlgorithm="SHA1PRNG" >
+            <pooling-profile exhaustedAction="WHEN_EXHAUSTED_WAIT" maxActive="2" maxIdle="2" maxWait="1000"/>
+        </sftp:connection>
     </sftp:config>
 
 </mule>
