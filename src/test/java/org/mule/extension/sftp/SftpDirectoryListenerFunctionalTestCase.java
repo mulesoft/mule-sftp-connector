@@ -6,8 +6,10 @@
  */
 package org.mule.extension.sftp;
 
+import static java.lang.String.format;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.Matchers.hasSize;
 import static org.junit.Assert.assertThat;
 import static org.mule.extension.sftp.AllureConstants.SftpFeature.SFTP_EXTENSION;
 import static org.mule.tck.probe.PollingProber.check;
@@ -45,6 +47,7 @@ public class SftpDirectoryListenerFunctionalTestCase extends CommonSftpConnector
   private static final String MATCH_FILE = "matchme.txt";
   private static final int PROBER_TIMEOUT = 10000;
   private static final int PROBER_DELAY = 1000;
+  private static final int NUMBER_OF_FILES = 10;
 
   private static List<Message> RECEIVED_MESSAGES;
 
@@ -91,6 +94,24 @@ public class SftpDirectoryListenerFunctionalTestCase extends CommonSftpConnector
     URI file = buildPath(MATCHERLESS_LISTENER_FOLDER_NAME, WATCH_FILE);
     testHarness.write(file.getPath(), WATCH_CONTENT);
     assertPoll(file, WATCH_CONTENT);
+  }
+
+  @Test
+  @Description("Verifies that 10 files created are picked with a limited connection pool size with a post action active")
+  public void onFilesCreatedWithLimitedPoolAndAutoDelete() throws Exception {
+    stopFlow("listenWithoutMatcher");
+    stopFlow("redundantListener1");
+    stopFlow("redundantListener2");
+    stopFlow("listenTxtOnly");
+    startFlow("modifiedWatermark");
+    for (int i = 0; i < NUMBER_OF_FILES; i++) {
+      URI file = buildPath(MATCHERLESS_LISTENER_FOLDER_NAME, format("file_%d.txt", i));
+      testHarness.write(file.getPath(), WATCH_CONTENT);
+    }
+    check(PROBER_TIMEOUT, PROBER_DELAY, () -> {
+      assertThat(RECEIVED_MESSAGES, hasSize(NUMBER_OF_FILES));
+      return true;
+    });
   }
 
   @Test
