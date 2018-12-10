@@ -7,7 +7,7 @@
 
     <sftp:config name="config">
         <sftp:connection username="muletest1" password="muletest1" host="localhost" port="${SFTP_PORT}" workingDir="${workingDir}" identityFile="sftp-test-key" prngAlgorithm="SHA1PRNG">
-            <pooling-profile exhaustedAction="WHEN_EXHAUSTED_WAIT" maxActive="2" maxIdle="2" maxWait="1000"/>
+            <pooling-profile exhaustedAction="WHEN_EXHAUSTED_WAIT" maxActive="3" maxIdle="3" maxWait="1000"/>
         </sftp:connection>
     </sftp:config>
 
