@@ -13,14 +13,13 @@ import static org.mule.extension.sftp.internal.SftpUtils.normalizePath;
 import static org.mule.runtime.api.connection.ConnectionValidationResult.failure;
 import static org.mule.runtime.api.connection.ConnectionValidationResult.success;
 import static org.mule.runtime.api.i18n.I18nMessageFactory.createStaticMessage;
+
 import org.mule.extension.file.common.api.AbstractFileSystem;
 import org.mule.extension.file.common.api.FileAttributes;
 import org.mule.extension.file.common.api.command.CopyCommand;
 import org.mule.extension.file.common.api.command.CreateDirectoryCommand;
 import org.mule.extension.file.common.api.command.DeleteCommand;
-import org.mule.extension.file.common.api.command.ListCommand;
 import org.mule.extension.file.common.api.command.MoveCommand;
-import org.mule.extension.file.common.api.command.ReadCommand;
 import org.mule.extension.file.common.api.command.RenameCommand;
 import org.mule.extension.file.common.api.command.WriteCommand;
 import org.mule.extension.file.common.api.exceptions.IllegalPathException;
@@ -84,9 +83,9 @@ public class SftpFileSystem extends AbstractFileSystem {
     copyCommand = new SftpCopyCommand(this, client);
     createDirectoryCommand = new SftpCreateDirectoryCommand(this, client);
     deleteCommand = new SftpDeleteCommand(this, client);
-    listCommand = new SftpListCommand(this, client);
     moveCommand = new SftpMoveCommand(this, client);
     readCommand = new SftpReadCommand(this, client);
+    listCommand = new SftpListCommand(this, client, (SftpReadCommand) readCommand);
     renameCommand = new SftpRenameCommand(this, client);
     writeCommand = new SftpWriteCommand(this, client);
   }
