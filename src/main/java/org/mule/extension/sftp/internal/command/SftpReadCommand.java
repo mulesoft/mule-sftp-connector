@@ -53,6 +53,11 @@ public final class SftpReadCommand extends SftpCommand implements ReadCommand<Sf
       throw cannotReadDirectoryException(Paths.get(attributes.getPath()));
     }
 
+    return read(config, attributes, lock, timeBetweenSizeCheck, timeBetweenSizeCheckUnit);
+  }
+
+  public Result<InputStream, SftpFileAttributes> read(FileConnectorConfig config, SftpFileAttributes attributes, boolean lock,
+                                                      Long timeBetweenSizeCheck, TimeUnit timeBetweenSizeCheckUnit) {
     Path path = Paths.get(attributes.getPath());
 
     PathLock pathLock = lock ? fileSystem.lock(path) : new NullPathLock(path);

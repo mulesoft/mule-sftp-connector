@@ -33,12 +33,14 @@ import org.slf4j.Logger;
 public final class SftpListCommand extends SftpCommand implements ListCommand<SftpFileAttributes> {
 
   private static final Logger LOGGER = getLogger(SftpListCommand.class);
+  private final SftpReadCommand sftpReadCommand;
 
   /**
    * {@inheritDoc}
    */
-  public SftpListCommand(SftpFileSystem fileSystem, SftpClient client) {
+  public SftpListCommand(SftpFileSystem fileSystem, SftpClient client, SftpReadCommand sftpReadCommand) {
     super(fileSystem, client);
+    this.sftpReadCommand = sftpReadCommand;
   }
 
   /**
@@ -97,8 +99,7 @@ public final class SftpListCommand extends SftpCommand implements ListCommand<Sf
         }
       } else {
         if (matcher.test(file)) {
-          accumulator.add(fileSystem.getReadCommand().read(config, file.getPath(), false, timeBetweenSizeCheck,
-                                                           timeBetweenSizeCheckUnit));
+          accumulator.add(sftpReadCommand.read(config, file, false, timeBetweenSizeCheck, timeBetweenSizeCheckUnit));
         }
       }
     }
