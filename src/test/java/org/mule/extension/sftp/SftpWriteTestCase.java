@@ -116,6 +116,7 @@ public class SftpWriteTestCase extends CommonSftpConnectorTestCase {
     doWriteOnNotExistingParentWithoutCreateFolder(CREATE_NEW);
   }
 
+  //TODO: MULE-16515 ignore this test until issue is fixed.
   @Test
   @Ignore
   public void writeOnLockedFile() throws Exception {
