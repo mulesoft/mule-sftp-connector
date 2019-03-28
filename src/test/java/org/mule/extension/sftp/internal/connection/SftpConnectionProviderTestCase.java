@@ -6,6 +6,8 @@
  */
 package org.mule.extension.sftp.internal.connection;
 
+import static java.util.Collections.singletonList;
+import static java.util.Collections.unmodifiableSet;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.apache.commons.io.FileUtils.write;
 import static org.hamcrest.CoreMatchers.equalTo;
@@ -25,7 +27,6 @@ import static org.mule.extension.sftp.random.alg.PRNGAlgorithm.NativePRNGNonBloc
 import static org.mule.extension.sftp.random.alg.PRNGAlgorithm.SHA1PRNG;
 
 import java.io.File;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Properties;
 
@@ -88,8 +89,7 @@ public class SftpConnectionProviderTestCase extends AbstractMuleTestCase {
     provider.setConnectionTimeout(10);
     provider.setConnectionTimeoutUnit(SECONDS);
     provider.setPrngAlgorithm(SHA1PRNG);
-    provider.setPreferredAuthenticationMethods(Collections
-        .unmodifiableSet(new HashSet<>(Collections.singletonList(GSSAPI_WITH_MIC))));
+    provider.setPreferredAuthenticationMethods(unmodifiableSet(new HashSet<>(singletonList(GSSAPI_WITH_MIC))));
     provider.setKnownHostsFile(hostFile.getAbsolutePath());
 
     provider.setClientFactory(new SftpClientFactory() {
