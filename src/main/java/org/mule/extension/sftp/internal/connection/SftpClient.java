@@ -23,8 +23,6 @@ import org.mule.extension.sftp.random.alg.PRNGAlgorithm;
 import org.mule.runtime.api.connection.ConnectionException;
 import org.mule.runtime.api.exception.MuleRuntimeException;
 
-import com.google.common.base.Supplier;
-import com.google.common.collect.ImmutableList;
 import com.jcraft.jsch.Channel;
 import com.jcraft.jsch.ChannelSftp;
 import com.jcraft.jsch.JSch;
@@ -42,8 +40,11 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
+import java.util.function.Supplier;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -313,7 +314,7 @@ public class SftpClient {
     }
 
     if (isEmpty(entries)) {
-      return ImmutableList.of();
+      return Collections.unmodifiableList(new ArrayList<>());
     }
 
     return entries.stream().map(entry -> new SftpFileAttributes(Paths.get(path).resolve(entry.getFilename()), entry.getAttrs()))

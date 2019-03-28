@@ -14,6 +14,8 @@ import static org.mule.extension.file.common.api.exceptions.FileError.INVALID_CR
 import static org.mule.extension.file.common.api.exceptions.FileError.UNKNOWN_HOST;
 import static org.mule.runtime.api.meta.model.display.PathModel.Type.FILE;
 import static org.mule.runtime.extension.api.annotation.param.ParameterGroup.CONNECTION;
+
+import org.apache.commons.lang3.StringUtils;
 import org.mule.extension.file.common.api.FileSystemProvider;
 import org.mule.extension.file.common.api.exceptions.FileError;
 import org.mule.extension.sftp.api.SftpAuthenticationMethod;
@@ -34,7 +36,6 @@ import org.mule.runtime.extension.api.annotation.param.display.DisplayName;
 import org.mule.runtime.extension.api.annotation.param.display.Path;
 import org.mule.runtime.extension.api.annotation.param.display.Summary;
 
-import com.google.common.base.Joiner;
 import com.jcraft.jsch.JSchException;
 
 import java.net.ConnectException;
@@ -123,7 +124,7 @@ public class SftpConnectionProvider extends FileSystemProvider<SftpFileSystem>
     client.setPassword(connectionSettings.getPassword());
     client.setIdentity(connectionSettings.getIdentityFile(), connectionSettings.getPassphrase());
     if (preferredAuthenticationMethods != null && !preferredAuthenticationMethods.isEmpty()) {
-      client.setPreferredAuthenticationMethods(Joiner.on(",").join(preferredAuthenticationMethods));
+      client.setPreferredAuthenticationMethods(StringUtils.join(preferredAuthenticationMethods, ","));
     }
     client.setKnownHostsFile(knownHostsFile);
     client.setProxyConfig(proxyConfig);
