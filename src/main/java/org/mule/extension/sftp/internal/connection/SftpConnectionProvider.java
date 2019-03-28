@@ -7,6 +7,7 @@
 package org.mule.extension.sftp.internal.connection;
 
 import static java.lang.String.format;
+import static org.apache.commons.lang3.StringUtils.join;
 import static org.mule.extension.file.common.api.exceptions.FileError.CANNOT_REACH;
 import static org.mule.extension.file.common.api.exceptions.FileError.CONNECTION_TIMEOUT;
 import static org.mule.extension.file.common.api.exceptions.FileError.DISCONNECTED;
@@ -15,7 +16,6 @@ import static org.mule.extension.file.common.api.exceptions.FileError.UNKNOWN_HO
 import static org.mule.runtime.api.meta.model.display.PathModel.Type.FILE;
 import static org.mule.runtime.extension.api.annotation.param.ParameterGroup.CONNECTION;
 
-import org.apache.commons.lang3.StringUtils;
 import org.mule.extension.file.common.api.FileSystemProvider;
 import org.mule.extension.file.common.api.exceptions.FileError;
 import org.mule.extension.sftp.api.SftpAuthenticationMethod;
@@ -124,7 +124,7 @@ public class SftpConnectionProvider extends FileSystemProvider<SftpFileSystem>
     client.setPassword(connectionSettings.getPassword());
     client.setIdentity(connectionSettings.getIdentityFile(), connectionSettings.getPassphrase());
     if (preferredAuthenticationMethods != null && !preferredAuthenticationMethods.isEmpty()) {
-      client.setPreferredAuthenticationMethods(StringUtils.join(preferredAuthenticationMethods, ","));
+      client.setPreferredAuthenticationMethods(join(preferredAuthenticationMethods, ","));
     }
     client.setKnownHostsFile(knownHostsFile);
     client.setProxyConfig(proxyConfig);
