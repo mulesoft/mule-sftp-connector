@@ -17,6 +17,8 @@ import org.mule.runtime.extension.api.annotation.param.display.Path;
 import org.mule.runtime.extension.api.annotation.param.display.Placement;
 import org.mule.runtime.extension.api.annotation.param.display.Summary;
 
+import java.util.Objects;
+
 /**
  * Groups SFTP connection settings
  *
@@ -140,4 +142,28 @@ public final class SftpConnectionSettings {
     this.prngAlgorithm = prngAlgorithm;
   }
 
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+
+    SftpConnectionSettings that = (SftpConnectionSettings) o;
+    return port == that.port &&
+        Objects.equals(host, that.host) &&
+        Objects.equals(username, that.username) &&
+        Objects.equals(password, that.password) &&
+        Objects.equals(passphrase, that.passphrase) &&
+        Objects.equals(identityFile, that.identityFile) &&
+        prngAlgorithm == that.prngAlgorithm;
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(host, port, username, password, passphrase, identityFile, prngAlgorithm);
+  }
 }

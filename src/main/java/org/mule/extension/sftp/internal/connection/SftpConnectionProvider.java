@@ -40,6 +40,7 @@ import com.jcraft.jsch.JSchException;
 
 import java.net.ConnectException;
 import java.net.UnknownHostException;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
@@ -274,6 +275,35 @@ public class SftpConnectionProvider extends FileSystemProvider<SftpFileSystem>
 
   private String getErrorMessage(SftpConnectionSettings connectionSettings, String message) {
     return format(SFTP_ERROR_MESSAGE_MASK, connectionSettings.getHost(), connectionSettings.getPort(), message);
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+
+    if (!super.equals(o)) {
+      return false;
+    }
+
+    SftpConnectionProvider that = (SftpConnectionProvider) o;
+    return Objects.equals(workingDir, that.workingDir) &&
+        Objects.equals(timeoutSettings, that.timeoutSettings) &&
+        Objects.equals(connectionSettings, that.connectionSettings) &&
+        Objects.equals(preferredAuthenticationMethods, that.preferredAuthenticationMethods) &&
+        Objects.equals(knownHostsFile, that.knownHostsFile) &&
+        Objects.equals(proxyConfig, that.proxyConfig);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(super.hashCode(), workingDir, timeoutSettings, connectionSettings, preferredAuthenticationMethods,
+                        knownHostsFile, proxyConfig);
   }
 
 }

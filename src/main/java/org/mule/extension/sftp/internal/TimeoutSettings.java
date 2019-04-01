@@ -12,6 +12,7 @@ import org.mule.runtime.extension.api.annotation.param.Parameter;
 import org.mule.runtime.extension.api.annotation.param.display.Placement;
 import org.mule.runtime.extension.api.annotation.param.display.Summary;
 
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -97,5 +98,27 @@ public final class TimeoutSettings {
 
   public void setResponseTimeoutUnit(TimeUnit responseTimeoutUnit) {
     this.responseTimeoutUnit = responseTimeoutUnit;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+
+    TimeoutSettings that = (TimeoutSettings) o;
+    return Objects.equals(connectionTimeout, that.connectionTimeout) &&
+        connectionTimeoutUnit == that.connectionTimeoutUnit &&
+        Objects.equals(responseTimeout, that.responseTimeout) &&
+        responseTimeoutUnit == that.responseTimeoutUnit;
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(connectionTimeout, connectionTimeoutUnit, responseTimeout, responseTimeoutUnit);
   }
 }
