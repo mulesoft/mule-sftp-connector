@@ -10,6 +10,8 @@ import org.mule.runtime.extension.api.annotation.param.Optional;
 import org.mule.runtime.extension.api.annotation.param.Parameter;
 import org.mule.runtime.extension.api.annotation.param.display.Password;
 
+import java.util.Objects;
+
 /**
  * A Proxy configuration for the SFTP connector.
  *
@@ -57,6 +59,29 @@ public class SftpProxyConfig {
 
   public Protocol getProtocol() {
     return protocol;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+
+    SftpProxyConfig that = (SftpProxyConfig) o;
+    return Objects.equals(host, that.host) &&
+        Objects.equals(port, that.port) &&
+        Objects.equals(username, that.username) &&
+        Objects.equals(password, that.password) &&
+        protocol == that.protocol;
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(host, port, username, password, protocol);
   }
 
 }
