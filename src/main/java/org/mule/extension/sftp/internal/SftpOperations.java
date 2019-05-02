@@ -101,7 +101,7 @@ public final class SftpOperations extends BaseFileSystemOperations {
         doPagedList(config, directoryPath, recursive, matcher,
                     config.getTimeBetweenSizeCheckInMillis(timeBetweenSizeCheck, timeBetweenSizeCheckUnit).orElse(null),
                     streamingHelper);
-    return (PagingProvider<SftpFileSystem, Result<Object, SftpFileAttributes>>) result;
+    return result;
   }
 
   /**
