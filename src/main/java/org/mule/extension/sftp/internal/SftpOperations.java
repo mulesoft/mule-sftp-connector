@@ -85,33 +85,33 @@ public final class SftpOperations extends BaseFileSystemOperations {
    */
   @Summary("List all the files from given directory")
   @Throws(FileListErrorTypeProvider.class)
-  public PagingProvider<SftpFileSystem, Result<CursorProvider, SftpFileAttributes>> list(@Config FileConnectorConfig config,
-                                                                                         @Path(type = DIRECTORY,
-                                                                                             location = EXTERNAL) String directoryPath,
-                                                                                         @Optional(
-                                                                                             defaultValue = "false") boolean recursive,
-                                                                                         @Optional @DisplayName("File Matching Rules") @Summary("Matcher to filter the listed files") SftpFileMatcher matcher,
-                                                                                         @ConfigOverride @Placement(
-                                                                                             tab = ADVANCED_TAB) Long timeBetweenSizeCheck,
-                                                                                         @ConfigOverride @Placement(
-                                                                                             tab = ADVANCED_TAB) TimeUnit timeBetweenSizeCheckUnit,
-                                                                                         StreamingHelper streamingHelper) {
-    return new PagingProvider<SftpFileSystem, Result<CursorProvider, SftpFileAttributes>>() {
+  public PagingProvider<SftpFileSystem, Result<Object, SftpFileAttributes>> list(@Config FileConnectorConfig config,
+                                                                                 @Path(type = DIRECTORY,
+                                                                                     location = EXTERNAL) String directoryPath,
+                                                                                 @Optional(
+                                                                                     defaultValue = "false") boolean recursive,
+                                                                                 @Optional @DisplayName("File Matching Rules") @Summary("Matcher to filter the listed files") SftpFileMatcher matcher,
+                                                                                 @ConfigOverride @Placement(
+                                                                                     tab = ADVANCED_TAB) Long timeBetweenSizeCheck,
+                                                                                 @ConfigOverride @Placement(
+                                                                                     tab = ADVANCED_TAB) TimeUnit timeBetweenSizeCheckUnit,
+                                                                                 StreamingHelper streamingHelper) {
+    return new PagingProvider<SftpFileSystem, Result<Object, SftpFileAttributes>>() {
 
       private List<Result<InputStream, SftpFileAttributes>> files;
       private Iterator<Result<InputStream, SftpFileAttributes>> filesIterator;
       private final AtomicBoolean initialised = new AtomicBoolean(false);
 
       @Override
-      public List<Result<CursorProvider, SftpFileAttributes>> getPage(SftpFileSystem connection) {
+      public List<Result<Object, SftpFileAttributes>> getPage(SftpFileSystem connection) {
         if (initialised.compareAndSet(false, true)) {
           initializePagingProvider(connection);
         }
-        List<Result<CursorProvider, SftpFileAttributes>> page = new LinkedList<>();
+        List<Result<Object, SftpFileAttributes>> page = new LinkedList<>();
         for (int i = 0; i < LIST_PAGE_SIZE && filesIterator.hasNext(); i++) {
           Result<InputStream, SftpFileAttributes> result = filesIterator.next();
-          page.add((Result.<CursorProvider, SftpFileAttributes>builder().attributes(result.getAttributes().get())
-              .output((CursorProvider) streamingHelper.resolveCursorProvider(result.getOutput()))
+          page.add((Result.<Object, SftpFileAttributes>builder().attributes(result.getAttributes().get())
+              .output(streamingHelper.resolveCursorProvider(result.getOutput()))
               .mediaType(result.getMediaType().orElse(null))
               .attributesMediaType(result.getAttributesMediaType().orElse(null))
               .build()));
