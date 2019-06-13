@@ -7,7 +7,6 @@
 package org.mule.extension.sftp.internal;
 
 import static java.lang.Thread.sleep;
-import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.mule.runtime.api.i18n.I18nMessageFactory.createStaticMessage;
 import static org.slf4j.LoggerFactory.getLogger;
 import org.mule.extension.file.common.api.FileAttributes;
@@ -69,7 +68,7 @@ public class SftpInputStream extends AbstractFileInputStream {
     if (timeBetweenSizeCheck < 1) {
       throw new IllegalArgumentException("timeBetweenSizeCheck must be greater than 1.");
     }
-    return timeBetweenSizeCheckUnit.convert(timeBetweenSizeCheck, MILLISECONDS);
+    return timeBetweenSizeCheckUnit.toMillis(timeBetweenSizeCheck);
   }
 
   private ConnectionAwareSupplier connectionAwareSupplier;

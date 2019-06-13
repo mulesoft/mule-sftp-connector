@@ -42,7 +42,7 @@
     </flow>
 
     <flow name="readFileWithSizeCheck">
-        <sftp:read config-ref="config" path="#[vars.path]" timeBetweenSizeCheck="2000"/>
+        <sftp:read config-ref="config" path="#[vars.path]" timeBetweenSizeCheck="2" timeBetweenSizeCheckUnit="SECONDS"/>
         <object-to-string-transformer />
     </flow>
 
