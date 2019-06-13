@@ -69,7 +69,7 @@ public class SftpInputStream extends AbstractFileInputStream {
     if (timeBetweenSizeCheck < 1) {
       throw new IllegalArgumentException("timeBetweenSizeCheck must be greater than 1.");
     }
-    return timeBetweenSizeCheckUnit.convert(timeBetweenSizeCheck, MILLISECONDS);
+    return timeBetweenSizeCheckUnit.toMillis(timeBetweenSizeCheck);
   }
 
   private ConnectionAwareSupplier connectionAwareSupplier;
