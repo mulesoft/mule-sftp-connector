@@ -18,7 +18,6 @@ import org.mule.extension.file.common.api.exceptions.FileAlreadyExistsException;
 import java.net.URI;
 
 import io.qameta.allure.Feature;
-import org.junit.Ignore;
 import org.junit.Test;
 
 @Feature(SFTP_EXTENSION)
@@ -120,7 +119,6 @@ public class SftpCreateDirectoryTestCase extends CommonSftpConnectorTestCase {
   public void createCurrentDirectoryWithNonExistingParent() throws Exception {
     doCreateDirectory("zarasa/.");
     assertThat(testHarness.dirExists("zarasa"), is(true));
-    assertThat(testHarness.dirExists("zarasa/."), is(false));
   }
 
   @Test

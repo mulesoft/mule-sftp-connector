@@ -10,6 +10,7 @@ import static java.lang.String.format;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.mule.extension.file.common.api.util.UriUtils.createUri;
 import static org.mule.extension.file.common.api.util.UriUtils.isAbsolute;
+import static org.mule.extension.file.common.api.util.UriUtils.normalizeUri;
 import static org.mule.extension.sftp.internal.SftpUtils.normalizePath;
 
 import org.mule.extension.file.common.api.FileAttributes;
@@ -21,8 +22,11 @@ import org.mule.extension.sftp.api.SftpFileAttributes;
 import org.mule.extension.sftp.internal.SftpCopyDelegate;
 import org.mule.extension.sftp.internal.connection.SftpClient;
 import org.mule.extension.sftp.internal.connection.SftpFileSystem;
+import org.mule.runtime.api.exception.MuleRuntimeException;
+import org.mule.runtime.extension.api.exception.ModuleException;
 
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Stack;
@@ -246,7 +250,11 @@ public abstract class SftpCommand extends UriBasedFileCommand<SftpFileSystem> {
       throw new FileAlreadyExistsException(format("Directory '%s' already exists", uri.getPath()));
     }
 
-    mkdirs(uri);
+    try {
+      mkdirs(normalizeUri(uri));
+    } catch (URISyntaxException e) {
+      throw new MuleRuntimeException(e);
+    }
   }
 
   /**
@@ -274,11 +282,11 @@ public abstract class SftpCommand extends UriBasedFileCommand<SftpFileSystem> {
         if (sourceFile.isDirectory() && sourceFile.getName().equals(targetFile.getName()) && !overwrite) {
           throw alreadyExistsException(targetUri);
         } else {
-          Path sourcePath = resolvePath(targetFileName);
-          URI sourceUri = resolvePathIntoUri(targetFileName);
-          if (sourcePath.isAbsolute() && isAbsolute(sourceUri)) {
-            targetPath = targetPath.resolve(sourcePath.getName(sourcePath.getNameCount() - 1));
-            targetUri = createUri(targetUri.getPath(), FilenameUtils.getName(source));
+          Path targetFullPath = resolvePath(targetFileName);
+          URI targetFullUri = resolvePathIntoUri(targetFileName);
+          if (targetFullPath.isAbsolute() && isAbsolute(targetFullUri)) {
+            targetPath = targetPath.resolve(targetFullPath.getName(targetFullPath.getNameCount() - 1));
+            targetUri = createUri(targetFullUri.getPath(), FilenameUtils.getName(source));
           } else {
             targetPath = targetPath.resolve(targetFileName);
             targetUri = createUri(targetUri.getPath(), targetFileName);
@@ -335,7 +343,8 @@ public abstract class SftpCommand extends UriBasedFileCommand<SftpFileSystem> {
         break;
       }
       fragments.push(subUri);
-      subUri = directoryUri.resolve("..");
+      Integer index = subUri.getPath().lastIndexOf("/");
+      subUri = createUri(directoryUri.getPath().substring(0, index), "");
     }
 
     while (!fragments.isEmpty()) {
