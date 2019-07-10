@@ -12,7 +12,6 @@ import static org.mule.extension.file.common.api.util.UriUtils.createUri;
 import static org.mule.extension.file.common.api.util.UriUtils.isAbsolute;
 import static org.mule.extension.sftp.internal.SftpUtils.normalizePath;
 
-import org.mule.extension.file.common.api.ExternalFileSystem;
 import org.mule.extension.file.common.api.FileAttributes;
 import org.mule.extension.file.common.api.FileConnectorConfig;
 import org.mule.extension.file.common.api.FileSystem;
