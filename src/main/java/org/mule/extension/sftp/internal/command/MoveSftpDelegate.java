@@ -13,6 +13,7 @@ import org.mule.extension.sftp.internal.SftpCopyDelegate;
 import org.mule.extension.sftp.internal.connection.SftpFileSystem;
 import org.mule.runtime.extension.api.exception.ModuleException;
 
+import java.net.URI;
 import java.nio.file.Path;
 
 public class MoveSftpDelegate implements SftpCopyDelegate {
@@ -41,6 +42,25 @@ public class MoveSftpDelegate implements SftpCopyDelegate {
       throw e;
     } catch (Exception e) {
       throw command.exception(format("Found exception copying file '%s' to '%s'", source, targetPath), e);
+    }
+  }
+
+  @Override
+  public void doCopy(FileConnectorConfig config, FileAttributes source, URI targetUri, boolean overwrite) {
+    try {
+      if (command.exists(targetUri)) {
+        if (overwrite) {
+          fileSystem.delete(targetUri.getPath());
+        } else {
+          command.alreadyExistsException(targetUri);
+        }
+      }
+
+      command.rename(source.getPath(), targetUri.getPath(), overwrite);
+    } catch (ModuleException e) {
+      throw e;
+    } catch (Exception e) {
+      throw command.exception(format("Found exception copying file '%s' to '%s'", source, targetUri), e);
     }
   }
 }

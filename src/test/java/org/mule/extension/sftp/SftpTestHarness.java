@@ -16,7 +16,7 @@ import static org.mule.extension.file.common.api.FileWriteMode.OVERWRITE;
 import static org.mule.extension.sftp.SftpServer.PASSWORD;
 import static org.mule.extension.sftp.SftpServer.USERNAME;
 import static org.mule.extension.sftp.internal.SftpUtils.normalizePath;
-import static org.mule.extension.sftp.internal.SftpUtils.resolvePath;
+import static org.mule.extension.sftp.internal.SftpUtils.resolvePathOrResource;
 import static org.mule.extension.sftp.random.alg.PRNGAlgorithm.SHA1PRNG;
 
 import org.mule.extension.AbstractSftpTestHarness;
@@ -73,9 +73,9 @@ public class SftpTestHarness extends AbstractSftpTestHarness {
         serverAuthConfigurator = (SftpServer::setPasswordAuthenticator);
         break;
       case PUBLIC_KEY:
-        clientAuthConfigurator = (sftpClient -> sftpClient.setIdentity(resolvePath("sftp-test-key"), null));
+        clientAuthConfigurator = (sftpClient -> sftpClient.setIdentity(resolvePathOrResource("sftp-test-key"), null));
         serverAuthConfigurator = (sftpServer -> sftpServer
-            .setPublicKeyAuthenticator(new AuthorizedKeysAuthenticator(new File(resolvePath("sftp-test-key.pub")))));
+            .setPublicKeyAuthenticator(new AuthorizedKeysAuthenticator(new File(resolvePathOrResource("sftp-test-key.pub")))));
     }
   }
 

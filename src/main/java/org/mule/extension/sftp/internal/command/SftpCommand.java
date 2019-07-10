@@ -8,30 +8,36 @@ package org.mule.extension.sftp.internal.command;
 
 import static java.lang.String.format;
 import static org.apache.commons.lang3.StringUtils.isBlank;
+import static org.mule.extension.file.common.api.util.UriUtils.createUri;
+import static org.mule.extension.file.common.api.util.UriUtils.isAbsolute;
 import static org.mule.extension.sftp.internal.SftpUtils.normalizePath;
+
+import org.mule.extension.file.common.api.ExternalFileSystem;
 import org.mule.extension.file.common.api.FileAttributes;
 import org.mule.extension.file.common.api.FileConnectorConfig;
 import org.mule.extension.file.common.api.FileSystem;
-import org.mule.extension.file.common.api.command.FileCommand;
+import org.mule.extension.file.common.api.command.UriBasedFileCommand;
 import org.mule.extension.file.common.api.exceptions.FileAlreadyExistsException;
 import org.mule.extension.sftp.api.SftpFileAttributes;
 import org.mule.extension.sftp.internal.SftpCopyDelegate;
 import org.mule.extension.sftp.internal.connection.SftpClient;
 import org.mule.extension.sftp.internal.connection.SftpFileSystem;
 
+import java.net.URI;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Stack;
 
+import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Base class for {@link FileCommand} implementations that target a SFTP server
+ * Base class for {@link UriBasedFileCommand} implementations that target a SFTP server
  *
  * @since 1.0
  */
-public abstract class SftpCommand extends FileCommand<SftpFileSystem> {
+public abstract class SftpCommand extends UriBasedFileCommand<SftpFileSystem> {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(SftpCommand.class);
   protected static final String ROOT = "/";
@@ -77,9 +83,12 @@ public abstract class SftpCommand extends FileCommand<SftpFileSystem> {
 
   protected SftpFileAttributes getFile(String filePath, boolean requireExistence) {
     Path path = resolvePath(normalizePath(filePath));
+    URI uri = resolvePathIntoUri(normalizePath(filePath));
     SftpFileAttributes attributes;
+    SftpFileAttributes attributes2;
     try {
-      attributes = client.getAttributes(path);
+      attributes2 = client.getAttributes(path);
+      attributes = client.getAttributes(uri);
     } catch (Exception e) {
       throw exception("Found exception trying to obtain path " + path, e);
     }
@@ -103,12 +112,22 @@ public abstract class SftpCommand extends FileCommand<SftpFileSystem> {
     return getBasePath(fileSystem).equals(path) || ROOT.equals(path.toString()) || getFile(normalizePath(path)) != null;
   }
 
+  @Override
+  protected boolean exists(URI uri) {
+    return getBaseUri(fileSystem).equals(uri) || ROOT.equals(uri.getPath()) || getFile(normalizePath(uri.getPath())) != null;
+  }
+
   /**
    * {@inheritDoc}
    */
   @Override
   protected Path getBasePath(FileSystem fileSystem) {
     return Paths.get(getCurrentWorkingDirectory());
+  }
+
+  @Override
+  protected URI getBaseUri(FileSystem fileSystem) {
+    return URI.create(getCurrentWorkingDirectory());
   }
 
   /**
@@ -147,7 +166,6 @@ public abstract class SftpCommand extends FileCommand<SftpFileSystem> {
     if (filePath != null) {
       path = path.resolve(filePath);
     }
-
     return path;
   }
 
@@ -181,23 +199,27 @@ public abstract class SftpCommand extends FileCommand<SftpFileSystem> {
     Path source = resolveExistingPath(filePath);
     Path target = source.getParent().resolve(newName);
 
-    if (exists(target)) {
+    URI sourceUri = resolveExistingPathIntoUri(filePath);
+    URI targetUri = createUri(sourceUri.resolve("..").getPath(), newName);
+
+    if (exists(targetUri)) {
       if (!overwrite) {
-        throw new FileAlreadyExistsException(format("'%s' cannot be renamed because '%s' already exists", source, target));
+        throw new FileAlreadyExistsException(format("'%s' cannot be renamed because '%s' already exists", sourceUri, targetUri));
       }
 
       try {
-        fileSystem.delete(target.toString());
+        //fileSystem.delete(target.toString());
+        fileSystem.delete(targetUri.getPath());
       } catch (Exception e) {
-        throw exception(format("Exception was found deleting '%s' as part of renaming '%s'", target, source), e);
+        throw exception(format("Exception was found deleting '%s' as part of renaming '%s'", targetUri, sourceUri), e);
       }
     }
 
     try {
-      doRename(source.toString(), target.toString());
+      doRename(sourceUri.getPath(), targetUri.getPath());
       LOGGER.debug("{} renamed to {}", filePath, newName);
     } catch (Exception e) {
-      throw exception(format("Exception was found renaming '%s' to '%s'", source, newName), e);
+      throw exception(format("Exception was found renaming '%s' to '%s'", sourceUri, newName), e);
     }
   }
 
@@ -217,13 +239,15 @@ public abstract class SftpCommand extends FileCommand<SftpFileSystem> {
 
   protected void createDirectory(String directoryPath) {
     final Path path = Paths.get(fileSystem.getBasePath()).resolve(directoryPath);
+    final URI uri = createUri(fileSystem.getBasePath(), directoryPath);
+    FileAttributes targetFile2 = getFile(directoryPath);
     FileAttributes targetFile = getFile(directoryPath);
 
     if (targetFile != null) {
-      throw new FileAlreadyExistsException(format("Directory '%s' already exists", path.toAbsolutePath()));
+      throw new FileAlreadyExistsException(format("Directory '%s' already exists", uri.getPath()));
     }
 
-    mkdirs(path);
+    mkdirs(uri);
   }
 
   /**
@@ -240,36 +264,43 @@ public abstract class SftpCommand extends FileCommand<SftpFileSystem> {
                             boolean createParentDirectory, String renameTo, SftpCopyDelegate delegate) {
     FileAttributes sourceFile = getExistingFile(source);
     Path targetPath = resolvePath(target);
-    FileAttributes targetFile = getFile(targetPath.toString());
-    String targetFileName = isBlank(renameTo) ? Paths.get(source).getFileName().toString() : renameTo;
+    URI targetUri = resolvePathIntoUri(target);
+    FileAttributes targetFile2 = getFile(targetPath.toString());
+    FileAttributes targetFile = getFile(targetUri.getPath());
+    String targetFileName2 = isBlank(renameTo) ? Paths.get(source).getFileName().toString() : renameTo;
+    String targetFileName = isBlank(renameTo) ? FilenameUtils.getName(source) : renameTo;
 
     if (targetFile != null) {
       if (targetFile.isDirectory()) {
         if (sourceFile.isDirectory() && sourceFile.getName().equals(targetFile.getName()) && !overwrite) {
-          throw alreadyExistsException(targetPath);
+          throw alreadyExistsException(targetUri);
         } else {
           Path sourcePath = resolvePath(targetFileName);
-          if (sourcePath.isAbsolute()) {
+          URI sourceUri = resolvePathIntoUri(targetFileName);
+          if (sourcePath.isAbsolute() && isAbsolute(sourceUri)) {
             targetPath = targetPath.resolve(sourcePath.getName(sourcePath.getNameCount() - 1));
+            targetUri = createUri(targetUri.getPath(), FilenameUtils.getName(source));
           } else {
             targetPath = targetPath.resolve(targetFileName);
+            targetUri = createUri(targetUri.getPath(), targetFileName);
           }
         }
       } else if (!overwrite) {
-        throw alreadyExistsException(targetPath);
+        throw alreadyExistsException(targetUri);
       }
     } else {
       if (createParentDirectory) {
-        mkdirs(targetPath);
+        mkdirs(targetUri);
         targetPath = targetPath.resolve(targetFileName);
+        targetUri = createUri(targetUri.getPath(), targetFileName);
       } else {
         throw pathNotFoundException(targetPath.toAbsolutePath());
       }
     }
 
     final String cwd = getCurrentWorkingDirectory();
-    delegate.doCopy(config, sourceFile, targetPath, overwrite);
-    LOGGER.debug("Copied '{}' to '{}'", sourceFile, targetPath);
+    delegate.doCopy(config, sourceFile, targetUri, overwrite);
+    LOGGER.debug("Copied '{}' to '{}'", sourceFile, targetUri);
     changeWorkingDirectory(cwd);
   }
 
@@ -292,6 +323,25 @@ public abstract class SftpCommand extends FileCommand<SftpFileSystem> {
     while (!fragments.isEmpty()) {
       Path fragment = fragments.pop();
       client.mkdir(fragment.toString());
+    }
+  }
+
+  @Override
+  protected void doMkDirs(URI directoryUri) {
+    Stack<URI> fragments = new Stack<>();
+    String[] subPaths = directoryUri.getPath().split("/");
+    URI subUri = directoryUri;
+    for (int i = subPaths.length - 1; i > 0; i--) {
+      if (exists(subUri)) {
+        break;
+      }
+      fragments.push(subUri);
+      subUri = directoryUri.resolve("..");
+    }
+
+    while (!fragments.isEmpty()) {
+      URI fragment = fragments.pop();
+      client.mkdir(fragment.getPath());
     }
   }
 

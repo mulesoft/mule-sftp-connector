@@ -9,6 +9,7 @@ package org.mule.extension.sftp.internal;
 import org.mule.extension.file.common.api.FileAttributes;
 import org.mule.extension.file.common.api.FileConnectorConfig;
 
+import java.net.URI;
 import java.nio.file.Path;
 
 /**
@@ -16,7 +17,7 @@ import java.nio.file.Path;
  *
  * @since 1.0
  */
-@FunctionalInterface
+//@FunctionalInterface
 public interface SftpCopyDelegate {
 
   /**
@@ -27,4 +28,6 @@ public interface SftpCopyDelegate {
    * @param overwrite whether to overwrite the target file if it already exists
    */
   void doCopy(FileConnectorConfig config, FileAttributes source, Path targetPath, boolean overwrite);
+
+  void doCopy(FileConnectorConfig config, FileAttributes source, URI targetUri, boolean overwrite);
 }

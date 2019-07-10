@@ -18,6 +18,7 @@ import org.mule.runtime.extension.api.exception.ModuleException;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -77,6 +78,33 @@ public abstract class AbstractSftpCopyDelegate implements SftpCopyDelegate {
     }
   }
 
+  @Override
+  public void doCopy(FileConnectorConfig config, FileAttributes source, URI targetUri, boolean overwrite) {
+    ConnectionHandler<SftpFileSystem> writerConnectionHandler;
+    final SftpFileSystem writerConnection;
+    try {
+      writerConnectionHandler = getWriterConnection(config);
+      writerConnection = writerConnectionHandler.getConnection();
+    } catch (ConnectionException e) {
+      throw command
+          .exception(format("FTP Copy operations require the use of two FTP connections. An exception was found trying to obtain second connection to"
+              + "copy the path '%s' to '%s'", source.getPath(), targetUri), e);
+    }
+    try {
+      if (source.isDirectory()) {
+        copyDirectory(config, URI.create(source.getPath()), targetUri, overwrite, writerConnection);
+      } else {
+        copyFile(config, source, targetUri, overwrite, writerConnection);
+      }
+    } catch (ModuleException e) {
+      throw e;
+    } catch (Exception e) {
+      throw command.exception(format("Found exception copying file '%s' to '%s'", source, targetUri), e);
+    } finally {
+      writerConnectionHandler.release();
+    }
+  }
+
   /**
    * Performs a recursive copy of a directory
    *  @param config the config which is parameterizing this operation
@@ -86,6 +114,9 @@ public abstract class AbstractSftpCopyDelegate implements SftpCopyDelegate {
    * @param writerConnection the {@link SftpFileSystem} which connects to the target endpoint
    */
   protected abstract void copyDirectory(FileConnectorConfig config, Path sourcePath, Path target, boolean overwrite,
+                                        SftpFileSystem writerConnection);
+
+  protected abstract void copyDirectory(FileConnectorConfig config, URI sourceUri, URI target, boolean overwrite,
                                         SftpFileSystem writerConnection);
 
   /**
@@ -99,6 +130,30 @@ public abstract class AbstractSftpCopyDelegate implements SftpCopyDelegate {
   protected void copyFile(FileConnectorConfig config, FileAttributes source, Path target, boolean overwrite,
                           SftpFileSystem writerConnection) {
     FileAttributes targetFile = command.getFile(target.toString());
+    if (targetFile != null) {
+      if (overwrite) {
+        fileSystem.delete(targetFile.getPath());
+      } else {
+        throw command.alreadyExistsException(target);
+      }
+    }
+
+    try (InputStream inputStream = fileSystem.retrieveFileContent(source)) {
+      if (inputStream == null) {
+        throw command
+            .exception(format("Could not read file '%s' while trying to copy it to remote path '%s'", source.getPath(), target));
+      }
+
+      writeCopy(config, target.toString(), inputStream, overwrite, writerConnection);
+    } catch (Exception e) {
+      throw command
+          .exception(format("Found exception while trying to copy file '%s' to remote path '%s'", source.getPath(), target), e);
+    }
+  }
+
+  protected void copyFile(FileConnectorConfig config, FileAttributes source, URI target, boolean overwrite,
+                          SftpFileSystem writerConnection) {
+    FileAttributes targetFile = command.getFile(target.getPath());
     if (targetFile != null) {
       if (overwrite) {
         fileSystem.delete(targetFile.getPath());

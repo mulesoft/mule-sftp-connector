@@ -20,6 +20,7 @@ import org.mule.runtime.core.api.util.IOUtils;
 import org.mule.runtime.extension.api.runtime.operation.Result;
 
 import java.io.InputStream;
+import java.net.URI;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.concurrent.TimeUnit;
@@ -65,6 +66,7 @@ public final class SftpReadCommand extends SftpCommand implements ReadCommand<Sf
   public Result<InputStream, SftpFileAttributes> read(FileConnectorConfig config, SftpFileAttributes attributes, boolean lock,
                                                       Long timeBetweenSizeCheck) {
     Path path = Paths.get(attributes.getPath());
+    URI uri = URI.create(attributes.getPath());
 
     PathLock pathLock = lock ? fileSystem.lock(path) : new NullPathLock(path);
     InputStream payload = null;

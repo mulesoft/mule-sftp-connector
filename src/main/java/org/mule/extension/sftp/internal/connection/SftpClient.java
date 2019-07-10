@@ -8,8 +8,9 @@ package org.mule.extension.sftp.internal.connection;
 
 import static java.util.Collections.emptyList;
 import static org.apache.commons.collections.CollectionUtils.isEmpty;
+import static org.mule.extension.file.common.api.util.UriUtils.createUri;
 import static org.mule.extension.sftp.internal.SftpUtils.normalizePath;
-import static org.mule.extension.sftp.internal.SftpUtils.resolvePath;
+import static org.mule.extension.sftp.internal.SftpUtils.resolvePathOrResource;
 import static org.mule.runtime.api.i18n.I18nMessageFactory.createStaticMessage;
 import static org.mule.runtime.api.util.collection.Collectors.toImmutableList;
 import static org.mule.runtime.core.api.util.StringUtils.isEmpty;
@@ -40,6 +41,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.URI;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
@@ -139,6 +141,17 @@ public class SftpClient {
         return null;
       }
       throw exception("Could not obtain attributes for path " + path, e);
+    }
+  }
+
+  public SftpFileAttributes getAttributes(URI uri) {
+    try {
+      return new SftpFileAttributes(uri, sftp.stat(normalizePath(uri.getPath())));
+    } catch (SftpException e) {
+      if (e.id == SSH_FX_NO_SUCH_FILE) {
+        return null;
+      }
+      throw exception("Could not obtain attributes for path " + uri, e);
     }
   }
 
@@ -317,8 +330,14 @@ public class SftpClient {
       return emptyList();
     }
 
-    return entries.stream().map(entry -> new SftpFileAttributes(Paths.get(path).resolve(entry.getFilename()), entry.getAttrs()))
+    List list =
+        entries.stream().map(entry -> new SftpFileAttributes(Paths.get(path).resolve(entry.getFilename()), entry.getAttrs()))
+            .collect(toImmutableList());
+
+    List list3 = entries.stream().map(entry -> new SftpFileAttributes(createUri(path, entry.getFilename()), entry.getAttrs()))
         .collect(toImmutableList());
+
+    return list3;
   }
 
   /**
@@ -411,7 +430,8 @@ public class SftpClient {
   }
 
   public void setKnownHostsFile(String knownHostsFile) {
-    this.knownHostsFile = !isEmpty(knownHostsFile) ? new File(resolvePath(knownHostsFile)).getAbsolutePath() : knownHostsFile;
+    this.knownHostsFile =
+        !isEmpty(knownHostsFile) ? new File(resolvePathOrResource(knownHostsFile)).getAbsolutePath() : knownHostsFile;
   }
 
   public void setPassword(String password) {
@@ -420,7 +440,7 @@ public class SftpClient {
 
   public void setIdentity(String identityFilePath, String passphrase) {
     if (!isEmpty(identityFilePath)) {
-      String resolvedPath = resolvePath(identityFilePath);
+      String resolvedPath = resolvePathOrResource(identityFilePath);
       this.identityFile = new File(resolvedPath).getAbsolutePath();
       checkExists(resolvedPath);
     }

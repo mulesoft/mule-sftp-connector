@@ -34,7 +34,7 @@ public class SftpUtils {
     return normalizePath(path.toString());
   }
 
-  public static String resolvePath(String pathOrResourceName) {
+  public static String resolvePathOrResource(String pathOrResourceName) {
     URL resource = currentThread().getContextClassLoader().getResource(pathOrResourceName);
     return resource != null ? resource.getPath() : pathOrResourceName;
   }

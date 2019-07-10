@@ -15,6 +15,7 @@ import static org.mule.runtime.api.connection.ConnectionValidationResult.success
 import static org.mule.runtime.api.i18n.I18nMessageFactory.createStaticMessage;
 
 import org.mule.extension.file.common.api.AbstractFileSystem;
+import org.mule.extension.file.common.api.ExternalFileSystem;
 import org.mule.extension.file.common.api.FileAttributes;
 import org.mule.extension.file.common.api.command.CopyCommand;
 import org.mule.extension.file.common.api.command.CreateDirectoryCommand;
@@ -41,6 +42,7 @@ import org.mule.runtime.api.lock.LockFactory;
 
 import java.io.InputStream;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
 import java.nio.file.Path;
 
@@ -49,7 +51,7 @@ import java.nio.file.Path;
  *
  * @since 1.0
  */
-public class SftpFileSystem extends AbstractFileSystem {
+public class SftpFileSystem extends ExternalFileSystem {
 
   protected final SftpClient client;
   protected final CopyCommand copyCommand;
@@ -134,9 +136,21 @@ public class SftpFileSystem extends AbstractFileSystem {
     return new URLPathLock(toURL(path), lockFactory);
   }
 
+  protected PathLock createLock(URI uri) {
+    return new URLPathLock(toURL(uri), lockFactory);
+  }
+
   private URL toURL(Path path) {
     try {
       return new URL("ftp", client.getHost(), client.getPort(), path != null ? path.toString() : EMPTY);
+    } catch (MalformedURLException e) {
+      throw new MuleRuntimeException(createStaticMessage("Could not get URL for SFTP server"), e);
+    }
+  }
+
+  private URL toURL(URI uri) {
+    try {
+      return new URL("ftp", client.getHost(), client.getPort(), uri != null ? uri.getPath() : EMPTY);
     } catch (MalformedURLException e) {
       throw new MuleRuntimeException(createStaticMessage("Could not get URL for SFTP server"), e);
     }
