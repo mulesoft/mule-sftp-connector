@@ -9,7 +9,7 @@ package org.mule.extension.sftp.internal.source;
 import org.mule.extension.sftp.internal.command.SftpCommand;
 import org.mule.extension.sftp.internal.connection.SftpFileSystem;
 
-import java.nio.file.Path;
+import java.net.URI;
 
 /**
  * A {@link SftpCommand} which implements support functionality for {@link SftpDirectoryListener}
@@ -26,9 +26,9 @@ public class OnNewFileCommand extends SftpCommand {
    * Resolves the root path on which the listener needs to be created
    *
    * @param directory the path that the user configured on the listener
-   * @return the resolved {@link Path} to listen on
+   * @return the resolved {@link URI} to listen on
    */
-  public Path resolveRootPath(String directory) {
-    return resolveExistingPath(directory);
+  public URI resolveRootPath(String directory) {
+    return resolveExistingPathIntoUri(directory);
   }
 }

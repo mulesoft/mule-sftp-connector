@@ -25,7 +25,6 @@ import org.mule.extension.sftp.internal.connection.SftpFileSystem;
 
 import java.net.URI;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Stack;
 
 import org.apache.commons.io.FilenameUtils;
@@ -82,34 +81,23 @@ public abstract class SftpCommand extends UriBasedFileCommand<SftpFileSystem> {
   }
 
   protected SftpFileAttributes getFile(String filePath, boolean requireExistence) {
-    Path path = resolvePath(normalizePath(filePath));
     URI uri = resolvePathIntoUri(normalizePath(filePath));
     SftpFileAttributes attributes;
-    SftpFileAttributes attributes2;
     try {
-      attributes2 = client.getAttributes(path);
       attributes = client.getAttributes(uri);
     } catch (Exception e) {
-      throw exception("Found exception trying to obtain path " + path, e);
+      throw exception("Found exception trying to obtain path " + uri.getPath(), e);
     }
 
     if (attributes != null) {
       return attributes;
     } else {
       if (requireExistence) {
-        throw pathNotFoundException(path);
+        throw pathNotFoundException(uri);
       } else {
         return null;
       }
     }
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  protected boolean exists(Path path) {
-    return getBasePath(fileSystem).equals(path) || ROOT.equals(path.toString()) || getFile(normalizePath(path)) != null;
   }
 
   @Override
@@ -121,23 +109,8 @@ public abstract class SftpCommand extends UriBasedFileCommand<SftpFileSystem> {
    * {@inheritDoc}
    */
   @Override
-  protected Path getBasePath(FileSystem fileSystem) {
-    return Paths.get(getCurrentWorkingDirectory());
-  }
-
-  @Override
   protected URI getBaseUri(FileSystem fileSystem) {
     return URI.create(getCurrentWorkingDirectory());
-  }
-
-  /**
-   * Changes the current working directory to the given {@code path}
-   *
-   * @param path the {@link Path} to which you wish to move
-   * @throws IllegalArgumentException if the CWD could not be changed
-   */
-  protected void changeWorkingDirectory(Path path) {
-    changeWorkingDirectory(normalizePath(path.toString()));
   }
 
   /**
@@ -152,21 +125,6 @@ public abstract class SftpCommand extends UriBasedFileCommand<SftpFileSystem> {
                                                 path.toString()));
     }
     LOGGER.debug("working directory changed to {}", path);
-  }
-
-  /**
-   * Returns a {@link Path} relative to the {@code basePath} and the given {@code filePath}
-   *
-   * @param filePath the path to a file or directory
-   * @return a relative {@link Path}
-   */
-  @Override
-  protected Path resolvePath(String filePath) {
-    Path path = getBasePath(fileSystem);
-    if (filePath != null) {
-      path = path.resolve(filePath);
-    }
-    return path;
   }
 
   /**
@@ -196,9 +154,6 @@ public abstract class SftpCommand extends UriBasedFileCommand<SftpFileSystem> {
    * @param overwrite whether to overwrite the target file if it already exists
    */
   protected void rename(String filePath, String newName, boolean overwrite) {
-    Path source = resolveExistingPath(filePath);
-    Path target = source.getParent().resolve(newName);
-
     URI sourceUri = resolveExistingPathIntoUri(filePath);
     URI targetUri = createUri(trimLastFragment(sourceUri).getPath(), newName);
 
@@ -208,7 +163,6 @@ public abstract class SftpCommand extends UriBasedFileCommand<SftpFileSystem> {
       }
 
       try {
-        //fileSystem.delete(target.toString());
         fileSystem.delete(targetUri.getPath());
       } catch (Exception e) {
         throw exception(format("Exception was found deleting '%s' as part of renaming '%s'", targetUri, sourceUri), e);
@@ -238,9 +192,7 @@ public abstract class SftpCommand extends UriBasedFileCommand<SftpFileSystem> {
 
 
   protected void createDirectory(String directoryPath) {
-    final Path path = Paths.get(fileSystem.getBasePath()).resolve(directoryPath);
     final URI uri = createUri(fileSystem.getBasePath(), directoryPath);
-    FileAttributes targetFile2 = getFile(directoryPath);
     FileAttributes targetFile = getFile(directoryPath);
 
     if (targetFile != null) {
@@ -252,7 +204,7 @@ public abstract class SftpCommand extends UriBasedFileCommand<SftpFileSystem> {
 
   /**
    * Performs the base logic and delegates into
-   * {@link SftpCopyDelegate#doCopy(FileConnectorConfig, FileAttributes, Path, boolean)} to perform the actual
+   * {@link SftpCopyDelegate#doCopy(FileConnectorConfig, FileAttributes, URI, boolean)} to perform the actual
    * copying logic
    *  @param config the config that is parameterizing this operation
    * @param source the path to be copied
@@ -263,11 +215,8 @@ public abstract class SftpCommand extends UriBasedFileCommand<SftpFileSystem> {
   protected final void copy(FileConnectorConfig config, String source, String target, boolean overwrite,
                             boolean createParentDirectory, String renameTo, SftpCopyDelegate delegate) {
     FileAttributes sourceFile = getExistingFile(source);
-    Path targetPath = resolvePath(target);
     URI targetUri = resolvePathIntoUri(target);
-    FileAttributes targetFile2 = getFile(targetPath.toString());
     FileAttributes targetFile = getFile(targetUri.getPath());
-    String targetFileName2 = isBlank(renameTo) ? Paths.get(source).getFileName().toString() : renameTo;
     String targetFileName = isBlank(renameTo) ? FilenameUtils.getName(source) : renameTo;
 
     if (targetFile != null) {
@@ -275,7 +224,6 @@ public abstract class SftpCommand extends UriBasedFileCommand<SftpFileSystem> {
         if (sourceFile.isDirectory() && sourceFile.getName().equals(targetFile.getName()) && !overwrite) {
           throw alreadyExistsException(targetUri);
         } else {
-          targetPath = targetPath.resolve(targetFileName);
           targetUri = createUri(targetUri.getPath(), targetFileName);
         }
       } else if (!overwrite) {
@@ -284,7 +232,6 @@ public abstract class SftpCommand extends UriBasedFileCommand<SftpFileSystem> {
     } else {
       if (createParentDirectory) {
         mkdirs(targetUri);
-        targetPath = targetPath.resolve(targetFileName);
         targetUri = createUri(targetUri.getPath(), targetFileName);
       } else {
         throw pathNotFoundException(targetUri);
@@ -298,27 +245,10 @@ public abstract class SftpCommand extends UriBasedFileCommand<SftpFileSystem> {
   }
 
   /**
-   * Creates the directory pointed by {@code directoryPath} also creating any missing parent directories
+   * Creates the directory pointed by {@code directoryUri} also creating any missing parent directories
    *
-   * @param directoryPath the {@link Path} to the directory you want to create
+   * @param directoryUri the {@link URI} to the directory you want to create
    */
-  @Override
-  protected void doMkDirs(Path directoryPath) {
-    Stack<Path> fragments = new Stack<>();
-    for (int i = directoryPath.getNameCount(); i > 0; i--) {
-      Path subPath = Paths.get("/").resolve(directoryPath.subpath(0, i));
-      if (exists(subPath)) {
-        break;
-      }
-      fragments.push(subPath);
-    }
-
-    while (!fragments.isEmpty()) {
-      Path fragment = fragments.pop();
-      client.mkdir(fragment.toString());
-    }
-  }
-
   @Override
   protected void doMkDirs(URI directoryUri) {
     Stack<URI> fragments = new Stack<>();
@@ -338,9 +268,27 @@ public abstract class SftpCommand extends UriBasedFileCommand<SftpFileSystem> {
     }
   }
 
+  @Override
+  @Deprecated
+  protected boolean exists(Path path) {
+    throw new IllegalStateException("This method is no longer supported in the SFTP Connector, use exists(URI uri) instead.");
+  }
+
+  @Override
+  @Deprecated
+  protected void doMkDirs(Path path) {
+    throw new IllegalStateException("This method is no longer supported in the SFTP Connector, use doMkDirs(URI directoryUri) instead.");
+  }
+
+  @Override
+  @Deprecated
+  protected Path getBasePath(FileSystem fileSystem) {
+    throw new IllegalStateException("This method is no longer supported in the SFTP Connector, use getBaseUri(FileSystem fileSystem) instead.");
+  }
+
   /**
-   * @return the path of the current working directory
-   */
+     * @return the path of the current working directory
+     */
   protected String getCurrentWorkingDirectory() {
     try {
       return normalizePath(client.getWorkingDirectory());

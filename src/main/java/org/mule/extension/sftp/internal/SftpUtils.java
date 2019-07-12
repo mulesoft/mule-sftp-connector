@@ -30,10 +30,6 @@ public class SftpUtils {
     return FilenameUtils.normalize(path, true);
   }
 
-  public static String normalizePath(Path path) {
-    return normalizePath(path.toString());
-  }
-
   public static String resolvePathOrResource(String pathOrResourceName) {
     URL resource = currentThread().getContextClassLoader().getResource(pathOrResourceName);
     return resource != null ? resource.getPath() : pathOrResourceName;

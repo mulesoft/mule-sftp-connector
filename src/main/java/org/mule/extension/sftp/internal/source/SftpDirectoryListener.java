@@ -41,6 +41,7 @@ import org.mule.runtime.extension.api.runtime.source.PollingSource;
 import org.mule.runtime.extension.api.runtime.source.SourceCallbackContext;
 
 import java.io.InputStream;
+import java.net.URI;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -134,13 +135,13 @@ public class SftpDirectoryListener extends PollingSource<InputStream, SftpFileAt
   @Summary("Time unit to be used in the wait time between size checks")
   private TimeUnit timeBetweenSizeCheckUnit;
 
-  private Path directoryPath;
+  private URI directoryUri;
   private Predicate<SftpFileAttributes> matcher;
 
   @Override
   protected void doStart() {
     matcher = predicateBuilder != null ? predicateBuilder.build() : new NullFilePayloadPredicate<>();
-    directoryPath = resolveRootPath();
+    directoryUri = resolveRootPath();
   }
 
   @OnSuccess
@@ -178,7 +179,7 @@ public class SftpDirectoryListener extends PollingSource<InputStream, SftpFileAt
       if (e.getCause() instanceof ConnectionException) {
         pollContext.onConnectionException((ConnectionException) e.getCause());
       }
-      LOGGER.error(format("Could not obtain connection while trying to poll directory '%s'. %s", directoryPath.toString(),
+      LOGGER.error(format("Could not obtain connection while trying to poll directory '%s'. %s", directoryUri.getPath(),
                           e.getMessage()));
       return;
     }
@@ -187,7 +188,7 @@ public class SftpDirectoryListener extends PollingSource<InputStream, SftpFileAt
       Long timeBetweenSizeCheckInMillis =
           config.getTimeBetweenSizeCheckInMillis(timeBetweenSizeCheck, timeBetweenSizeCheckUnit).orElse(null);
       List<Result<InputStream, SftpFileAttributes>> files =
-          fileSystem.list(config, directoryPath.toString(), recursive, matcher, timeBetweenSizeCheckInMillis);
+          fileSystem.list(config, directoryUri.getPath(), recursive, matcher, timeBetweenSizeCheckInMillis);
       if (files.isEmpty()) {
         return;
       }
@@ -216,7 +217,7 @@ public class SftpDirectoryListener extends PollingSource<InputStream, SftpFileAt
       }
     } catch (Exception e) {
       LOGGER.error(format("Found exception trying to poll directory '%s'. Will try again on the next poll. ",
-                          directoryPath.toString(), e.getMessage()),
+                          directoryUri.getPath(), e.getMessage()),
                    e);
     } finally {
       fileSystemProvider.disconnect(fileSystem);
@@ -301,7 +302,7 @@ public class SftpDirectoryListener extends PollingSource<InputStream, SftpFileAt
 
   }
 
-  private Path resolveRootPath() {
+  private URI resolveRootPath() {
     SftpFileSystem fileSystem = null;
     try {
       fileSystem = fileSystemProvider.connect();

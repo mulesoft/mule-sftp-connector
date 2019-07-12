@@ -27,25 +27,6 @@ public class MoveSftpDelegate implements SftpCopyDelegate {
   }
 
   @Override
-  public void doCopy(FileConnectorConfig config, FileAttributes source, Path targetPath, boolean overwrite) {
-    try {
-      if (command.exists(targetPath)) {
-        if (overwrite) {
-          fileSystem.delete(targetPath.toString());
-        } else {
-          command.alreadyExistsException(targetPath);
-        }
-      }
-
-      command.rename(source.getPath(), targetPath.toString(), overwrite);
-    } catch (ModuleException e) {
-      throw e;
-    } catch (Exception e) {
-      throw command.exception(format("Found exception copying file '%s' to '%s'", source, targetPath), e);
-    }
-  }
-
-  @Override
   public void doCopy(FileConnectorConfig config, FileAttributes source, URI targetUri, boolean overwrite) {
     try {
       if (command.exists(targetUri)) {

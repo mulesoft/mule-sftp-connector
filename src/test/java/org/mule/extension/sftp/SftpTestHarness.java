@@ -13,6 +13,7 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 import static org.mule.extension.file.common.api.FileWriteMode.APPEND;
 import static org.mule.extension.file.common.api.FileWriteMode.OVERWRITE;
+import static org.mule.extension.file.common.api.util.UriUtils.createUri;
 import static org.mule.extension.sftp.SftpServer.PASSWORD;
 import static org.mule.extension.sftp.SftpServer.USERNAME;
 import static org.mule.extension.sftp.internal.SftpUtils.normalizePath;
@@ -191,7 +192,7 @@ public class SftpTestHarness extends AbstractSftpTestHarness {
    */
   @Override
   public boolean dirExists(String path) throws Exception {
-    FileAttributes attributes = sftpClient.getAttributes(Paths.get(path));
+    FileAttributes attributes = sftpClient.getAttributes(createUri(path));
     return attributes != null && attributes.isDirectory();
   }
 
@@ -200,7 +201,7 @@ public class SftpTestHarness extends AbstractSftpTestHarness {
    */
   @Override
   public boolean fileExists(String path) throws Exception {
-    return sftpClient.getAttributes(Paths.get(path)) != null;
+    return sftpClient.getAttributes(createUri(path)) != null;
   }
 
   /**
@@ -239,7 +240,7 @@ public class SftpTestHarness extends AbstractSftpTestHarness {
   @Override
   public void assertAttributes(String path, Object attributes) throws Exception {
     SftpFileAttributes fileAttributes = (SftpFileAttributes) attributes;
-    SftpFileAttributes file = sftpClient.getAttributes(Paths.get(path));
+    SftpFileAttributes file = sftpClient.getAttributes(createUri(path));
 
     assertThat(fileAttributes.getName(), equalTo(file.getName()));
     assertThat(fileAttributes.getPath(), is(normalizePath(getWorkingDirectory() + "/" + HELLO_PATH)));

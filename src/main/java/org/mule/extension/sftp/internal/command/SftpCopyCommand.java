@@ -51,7 +51,6 @@ public class SftpCopyCommand extends SftpCommand implements CopyCommand {
       super(command, fileSystem);
     }
 
-    @Override
     protected void copyDirectory(FileConnectorConfig config, Path sourcePath, Path target, boolean overwrite,
                                  SftpFileSystem writerConnection) {
       for (FileAttributes fileAttributes : client.list(sourcePath.toString())) {
@@ -61,9 +60,9 @@ public class SftpCopyCommand extends SftpCommand implements CopyCommand {
 
         if (fileAttributes.isDirectory()) {
           Path targetPath = target.resolve(fileAttributes.getName());
-          copyDirectory(config, Paths.get(fileAttributes.getPath()), targetPath, overwrite, writerConnection);
+          sourcePath = Paths.get(fileAttributes.getPath());
         } else {
-          copyFile(config, fileAttributes, target.resolve(fileAttributes.getName()), overwrite, writerConnection);
+          target = target.resolve(fileAttributes.getName());
         }
       }
     }
@@ -71,6 +70,7 @@ public class SftpCopyCommand extends SftpCommand implements CopyCommand {
     @Override
     protected void copyDirectory(FileConnectorConfig config, URI sourceUri, URI target, boolean overwrite,
                                  SftpFileSystem writerConnection) {
+      copyDirectory(config, Paths.get(sourceUri.getPath()), Paths.get(target.getPath()), overwrite, writerConnection);
       for (FileAttributes fileAttributes : client.list(sourceUri.getPath())) {
         if (isVirtualDirectory(fileAttributes.getName())) {
           continue;

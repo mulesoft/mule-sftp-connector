@@ -20,7 +20,6 @@ import org.mule.extension.sftp.internal.connection.SftpFileSystem;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URI;
-import java.nio.file.Path;
 
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
@@ -57,39 +56,28 @@ public final class SftpWriteCommand extends SftpCommand implements WriteCommand 
   @Override
   public void write(String filePath, InputStream content, FileWriteMode mode,
                     boolean lock, boolean createParentDirectory) {
-    Path path = resolvePath(filePath);
     URI uri = resolvePathIntoUri(filePath);
     FileAttributes file = getFile(filePath);
 
     if (file == null) {
-      assureParentFolderExists(path, createParentDirectory);
       assureParentFolderExists(uri, createParentDirectory);
     } else {
       if (mode == FileWriteMode.CREATE_NEW) {
         throw new FileAlreadyExistsException(format(
                                                     "Cannot write to path '%s' because it already exists and write mode '%s' was selected. "
                                                         + "Use a different write mode or point to a path which doesn't exist",
-                                                    path, mode));
+                                                    uri.getPath(), mode));
       }
     }
 
-    PathLock pathLock2 = lock ? fileSystem.lock(path) : new NullPathLock(path);
     PathLock pathLock = lock ? externalFileSystem.lock(uri) : new NullPathLock(uri);
 
     try (OutputStream outputStream = getOutputStream(uri, mode)) {
       IOUtils.copy(content, outputStream);
-      LOGGER.debug("Successfully wrote to path {}", path.toString());
+      LOGGER.debug("Successfully wrote to path {}", uri.getPath());
     } catch (Exception e) {
       pathLock.release();
-      throw exception(format("Exception was found writing to file '%s'", path), e);
-    }
-  }
-
-  private OutputStream getOutputStream(Path path, FileWriteMode mode) {
-    try {
-      return client.getOutputStream(path.toString(), mode);
-    } catch (Exception e) {
-      throw exception(format("Could not open stream to write to path '%s' using mode '%s'", path, mode), e);
+      throw exception(format("Exception was found writing to file '%s'", uri.getPath()), e);
     }
   }
 

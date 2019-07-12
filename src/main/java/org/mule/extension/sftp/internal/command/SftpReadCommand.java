@@ -65,10 +65,9 @@ public final class SftpReadCommand extends SftpCommand implements ReadCommand<Sf
   @Override
   public Result<InputStream, SftpFileAttributes> read(FileConnectorConfig config, SftpFileAttributes attributes, boolean lock,
                                                       Long timeBetweenSizeCheck) {
-    Path path = Paths.get(attributes.getPath());
     URI uri = URI.create(attributes.getPath());
 
-    PathLock pathLock = lock ? fileSystem.lock(path) : new NullPathLock(path);
+    PathLock pathLock = lock ? fileSystem.lock(uri) : new NullPathLock(uri);
     InputStream payload = null;
     try {
       payload = SftpInputStream.newInstance((SftpConnector) config, attributes, pathLock, timeBetweenSizeCheck);
@@ -78,7 +77,7 @@ public final class SftpReadCommand extends SftpCommand implements ReadCommand<Sf
     } catch (Exception e) {
       pathLock.release();
       IOUtils.closeQuietly(payload);
-      throw exception("Could not fetch file " + path, e);
+      throw exception("Could not fetch file " + uri.getPath(), e);
     }
   }
 

@@ -13,7 +13,6 @@ import org.mule.runtime.extension.api.annotation.param.Parameter;
 import com.jcraft.jsch.SftpATTRS;
 
 import java.net.URI;
-import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.util.Date;
 
@@ -42,20 +41,9 @@ public class SftpFileAttributes extends AbstractFileAttributes {
   /**
    * Creates a new instance
    *
-   * @param path the file's {@link Path}
+   * @param path the file's {@link URI}
    * @param attrs the {@link SftpATTRS} which represents the file on the SFTP server
    */
-  public SftpFileAttributes(Path path, SftpATTRS attrs) {
-    super(path);
-
-    Date timestamp = new Date(((long) attrs.getMTime()) * 1000L);
-    this.timestamp = asDateTime(timestamp.toInstant());
-    this.size = attrs.getSize();
-    this.regularSize = attrs.isReg();
-    this.directory = attrs.isDir();
-    this.symbolicLink = attrs.isLink();
-  }
-
   public SftpFileAttributes(URI path, SftpATTRS attrs) {
     super(path);
 

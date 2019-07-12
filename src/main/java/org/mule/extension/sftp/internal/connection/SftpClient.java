@@ -130,20 +130,9 @@ public class SftpClient {
   /**
    * Gets the attributes for the file in the given {code path}
    *
-   * @param path the file's path
+   * @param uri the file's uri
    * @return a {@link SftpFileAttributes} or {@code null} if the file doesn't exist.
    */
-  public SftpFileAttributes getAttributes(Path path) {
-    try {
-      return new SftpFileAttributes(path, sftp.stat(normalizePath(path.toString())));
-    } catch (SftpException e) {
-      if (e.id == SSH_FX_NO_SUCH_FILE) {
-        return null;
-      }
-      throw exception("Could not obtain attributes for path " + path, e);
-    }
-  }
-
   public SftpFileAttributes getAttributes(URI uri) {
     try {
       return new SftpFileAttributes(uri, sftp.stat(normalizePath(uri.getPath())));
@@ -329,10 +318,6 @@ public class SftpClient {
     if (isEmpty(entries)) {
       return emptyList();
     }
-
-    List list =
-        entries.stream().map(entry -> new SftpFileAttributes(Paths.get(path).resolve(entry.getFilename()), entry.getAttrs()))
-            .collect(toImmutableList());
 
     List list3 = entries.stream().map(entry -> new SftpFileAttributes(createUri(path, entry.getFilename()), entry.getAttrs()))
         .collect(toImmutableList());
