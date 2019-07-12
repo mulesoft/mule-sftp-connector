@@ -10,6 +10,7 @@ import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mule.extension.file.common.api.exceptions.FileError.FILE_ALREADY_EXISTS;
+import static org.mule.extension.file.common.api.util.UriUtils.createUri;
 import static org.mule.extension.sftp.AllureConstants.SftpFeature.SFTP_EXTENSION;
 import static org.mule.extension.sftp.internal.SftpUtils.normalizePath;
 
@@ -60,6 +61,7 @@ public class SftpCreateDirectoryTestCase extends CommonSftpConnectorTestCase {
 
   @Test
   public void createDirectoryFromRoot() throws Exception {
+    String rootChildDirectoryPath2 = normalizePath(createUri(testHarness.getAbsoluteRootDirectory(), ROOT_CHILD_DIRECTORY).getPath());
     String rootChildDirectoryPath =
         normalizePath(new URI(testHarness.getRootDirectory()).resolve(ROOT_CHILD_DIRECTORY).toString());
     doCreateDirectory(rootChildDirectoryPath);

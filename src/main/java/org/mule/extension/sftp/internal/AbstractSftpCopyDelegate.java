@@ -112,7 +112,7 @@ public abstract class AbstractSftpCopyDelegate implements SftpCopyDelegate {
             .exception(format("Could not read file '%s' while trying to copy it to remote path '%s'", source.getPath(), target));
       }
 
-      writeCopy(config, target.toString(), inputStream, overwrite, writerConnection);
+      writeCopy(config, target.getPath(), inputStream, overwrite, writerConnection);
     } catch (Exception e) {
       throw command
           .exception(format("Found exception while trying to copy file '%s' to remote path '%s'", source.getPath(), target), e);

@@ -16,10 +16,6 @@ import org.mule.extension.sftp.internal.connection.SftpClient;
 import org.mule.extension.sftp.internal.connection.SftpFileSystem;
 
 import java.net.URI;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-
-import org.apache.commons.io.FilenameUtils;
 
 /**
  * A {@link SftpCommand} which implements the {@link CopyCommand} contract
@@ -51,26 +47,9 @@ public class SftpCopyCommand extends SftpCommand implements CopyCommand {
       super(command, fileSystem);
     }
 
-    protected void copyDirectory(FileConnectorConfig config, Path sourcePath, Path target, boolean overwrite,
-                                 SftpFileSystem writerConnection) {
-      for (FileAttributes fileAttributes : client.list(sourcePath.toString())) {
-        if (isVirtualDirectory(fileAttributes.getName())) {
-          continue;
-        }
-
-        if (fileAttributes.isDirectory()) {
-          Path targetPath = target.resolve(fileAttributes.getName());
-          sourcePath = Paths.get(fileAttributes.getPath());
-        } else {
-          target = target.resolve(fileAttributes.getName());
-        }
-      }
-    }
-
     @Override
     protected void copyDirectory(FileConnectorConfig config, URI sourceUri, URI target, boolean overwrite,
                                  SftpFileSystem writerConnection) {
-      copyDirectory(config, Paths.get(sourceUri.getPath()), Paths.get(target.getPath()), overwrite, writerConnection);
       for (FileAttributes fileAttributes : client.list(sourceUri.getPath())) {
         if (isVirtualDirectory(fileAttributes.getName())) {
           continue;
