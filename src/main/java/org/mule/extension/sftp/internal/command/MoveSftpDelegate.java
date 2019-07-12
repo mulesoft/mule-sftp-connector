@@ -14,7 +14,6 @@ import org.mule.extension.sftp.internal.connection.SftpFileSystem;
 import org.mule.runtime.extension.api.exception.ModuleException;
 
 import java.net.URI;
-import java.nio.file.Path;
 
 public class MoveSftpDelegate implements SftpCopyDelegate {
 

@@ -53,17 +53,15 @@ public class SftpCreateDirectoryTestCase extends CommonSftpConnectorTestCase {
 
   @Test
   public void createDirectoryWithComplexPath() throws Exception {
-    String complexPathDir = new URI(testHarness.getWorkingDirectory() + "/").resolve(DIRECTORY).toString();
-    doCreateDirectory(complexPathDir);
+    String complexPath = createUri(testHarness.getWorkingDirectory(), DIRECTORY).getPath();
+    doCreateDirectory(complexPath);
 
-    assertThat(testHarness.dirExists(complexPathDir), is(true));
+    assertThat(testHarness.dirExists(complexPath), is(true));
   }
 
   @Test
   public void createDirectoryFromRoot() throws Exception {
-    String rootChildDirectoryPath2 = normalizePath(createUri(testHarness.getAbsoluteRootDirectory(), ROOT_CHILD_DIRECTORY).getPath());
-    String rootChildDirectoryPath =
-        normalizePath(new URI(testHarness.getRootDirectory()).resolve(ROOT_CHILD_DIRECTORY).toString());
+    String rootChildDirectoryPath = createUri(testHarness.getAbsoluteRootDirectory(), ROOT_CHILD_DIRECTORY).getPath();
     doCreateDirectory(rootChildDirectoryPath);
     assertThat(testHarness.dirExists(rootChildDirectoryPath), is(true));
   }
@@ -130,13 +128,6 @@ public class SftpCreateDirectoryTestCase extends CommonSftpConnectorTestCase {
   }
 
   @Test
-  public void createDirectoryWithSpaceAndChildDirectory() throws Exception {
-    doCreateDirectory("zarasa/ /valid");
-    assertThat(testHarness.dirExists("zarasa/ "), is(true));
-    assertThat(testHarness.dirExists("zarasa/ /valid"), is(true));
-  }
-
-  @Test
   public void createBlankDirectory() throws Exception {
     testHarness.expectedError().expectErrorType("SFTP", "ILLEGAL_PATH");
     testHarness.expectedError().expectMessage(containsString("directory path cannot be null nor blank"));
@@ -148,6 +139,13 @@ public class SftpCreateDirectoryTestCase extends CommonSftpConnectorTestCase {
     testHarness.expectedError().expectErrorType("SFTP", "ILLEGAL_PATH");
     testHarness.expectedError().expectMessage(containsString("directory path cannot be null nor blank"));
     doCreateDirectory(" ");
+  }
+
+  @Test
+  public void createComplexDirectoryWithSpace() throws Exception {
+    doCreateDirectory("zarasa/ /valid");
+    assertThat(testHarness.dirExists("zarasa/ "), is(true));
+    assertThat(testHarness.dirExists("zarasa/ /valid"), is(true));
   }
 
   @Test
@@ -173,7 +171,6 @@ public class SftpCreateDirectoryTestCase extends CommonSftpConnectorTestCase {
     testHarness.expectedError().expectError(NAMESPACE, FILE_ALREADY_EXISTS.getType(), FileAlreadyExistsException.class,
                                             "already exists");
     doCreateDirectory("../valid");
-    assertThat(testHarness.dirExists("valid"), is(true));
   }
 
   @Test
@@ -181,6 +178,15 @@ public class SftpCreateDirectoryTestCase extends CommonSftpConnectorTestCase {
     doCreateDirectory("/secondBase/child");
     assertThat(testHarness.dirExists("/secondBase/child"), is(true));
     assertThat(testHarness.dirExists("/base/secondBase/child"), is(false));
+  }
+
+  @Test
+  public void createRelativeDirectoryResolvesCorrectly() throws Exception {
+    testHarness.makeDir("child");
+    doCreateDirectory("child/secondChild");
+    assertThat(testHarness.dirExists("/base/child/secondChild"), is(true));
+    assertThat(testHarness.dirExists("/base/child/child/secondChild"), is(false));
+    assertThat(testHarness.dirExists("/base/child/child"), is(false));
   }
 
   private void doCreateDirectory(String directory) throws Exception {

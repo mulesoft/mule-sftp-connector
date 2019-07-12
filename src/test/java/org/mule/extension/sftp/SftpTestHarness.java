@@ -14,6 +14,7 @@ import static org.junit.Assert.fail;
 import static org.mule.extension.file.common.api.FileWriteMode.APPEND;
 import static org.mule.extension.file.common.api.FileWriteMode.OVERWRITE;
 import static org.mule.extension.file.common.api.util.UriUtils.createUri;
+import static org.mule.extension.file.common.api.util.UriUtils.trimLastFragment;
 import static org.mule.extension.sftp.SftpServer.PASSWORD;
 import static org.mule.extension.sftp.SftpServer.USERNAME;
 import static org.mule.extension.sftp.internal.SftpUtils.normalizePath;
@@ -33,11 +34,11 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.net.URI;
 import java.util.List;
 
 import com.jcraft.jsch.JSchException;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.sshd.server.config.keys.AuthorizedKeysAuthenticator;
 import org.junit.rules.TemporaryFolder;
@@ -256,15 +257,14 @@ public class SftpTestHarness extends AbstractSftpTestHarness {
    */
   @Override
   public void assertDeleted(String path) throws Exception {
-    Path directoryPath = Paths.get(sftpClient.getWorkingDirectory()).resolve(path);
-    int lastFragmentIndex = directoryPath.getNameCount() - 1;
+    URI directoryUri = createUri(sftpClient.getWorkingDirectory(), path);
 
-    Path lastFragment = directoryPath.getName(lastFragmentIndex);
-    if (".".equals(lastFragment.toString())) {
-      directoryPath = directoryPath.subpath(0, lastFragmentIndex);
+    String lastFragment2 = FilenameUtils.getName(directoryUri.getPath());
+    if (".".equals(lastFragment2)) {
+      directoryUri = trimLastFragment(directoryUri);
     }
 
-    assertThat(dirExists(directoryPath.toString()), is(false));
+    assertThat(dirExists(directoryUri.getPath()), is(false));
   }
 
   public enum AuthType {

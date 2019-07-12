@@ -18,7 +18,6 @@ import org.mule.runtime.extension.api.runtime.operation.Result;
 
 import java.io.InputStream;
 import java.net.URI;
-import java.nio.file.Paths;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;

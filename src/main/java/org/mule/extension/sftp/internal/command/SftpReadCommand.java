@@ -6,6 +6,8 @@
  */
 package org.mule.extension.sftp.internal.command;
 
+import static org.mule.extension.file.common.api.util.UriUtils.createUri;
+
 import org.mule.extension.file.common.api.FileConnectorConfig;
 import org.mule.extension.file.common.api.command.ReadCommand;
 import org.mule.extension.file.common.api.lock.NullPathLock;
@@ -21,8 +23,6 @@ import org.mule.runtime.extension.api.runtime.operation.Result;
 
 import java.io.InputStream;
 import java.net.URI;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -53,7 +53,7 @@ public final class SftpReadCommand extends SftpCommand implements ReadCommand<Sf
                                                       Long timeBetweenSizeCheck) {
     SftpFileAttributes attributes = getExistingFile(filePath);
     if (attributes.isDirectory()) {
-      throw cannotReadDirectoryException(Paths.get(attributes.getPath()));
+      throw cannotReadDirectoryException(createUri(attributes.getPath()));
     }
 
     return read(config, attributes, lock, timeBetweenSizeCheck);

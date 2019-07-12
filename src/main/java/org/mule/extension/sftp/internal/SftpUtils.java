@@ -9,7 +9,6 @@ package org.mule.extension.sftp.internal;
 import static java.lang.Thread.currentThread;
 
 import java.net.URL;
-import java.nio.file.Path;
 
 import org.apache.commons.io.FilenameUtils;
 

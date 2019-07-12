@@ -14,8 +14,6 @@ import org.mule.extension.sftp.internal.connection.SftpClient;
 import org.mule.extension.sftp.internal.connection.SftpFileSystem;
 
 import java.net.URI;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 
 import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
@@ -76,8 +74,8 @@ public final class SftpDeleteCommand extends SftpCommand implements DeleteComman
     }
 
     URI directoryUri = createUri(path);
-    String directoryFragment2 = FilenameUtils.getName(directoryUri.getPath());
-    if (isVirtualDirectory(directoryFragment2)) {
+    String directoryFragment = FilenameUtils.getName(directoryUri.getPath());
+    if (isVirtualDirectory(directoryFragment)) {
       path = directoryUri.getPath();
     }
     client.deleteDirectory(path);

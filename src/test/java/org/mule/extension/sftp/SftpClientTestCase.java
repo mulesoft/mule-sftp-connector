@@ -27,9 +27,7 @@ import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.SftpException;
 
 import java.net.URI;
-import java.nio.file.Path;
 
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
