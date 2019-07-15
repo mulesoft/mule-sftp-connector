@@ -56,7 +56,7 @@ public class SftpWriteTestCase extends CommonSftpConnectorTestCase {
   @Test
   public void writeOnAPathWithColon() throws Exception {
     //TODO: Remove assumption once MULE-15733 get fixed.
-    assumeTrue(!IS_OS_WINDOWS);
+    //assumeTrue(!IS_OS_WINDOWS);
     final String filePath = "X:/file.txt";
 
     doWrite(filePath, HELLO_WORLD, OVERWRITE, true);
