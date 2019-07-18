@@ -100,6 +100,9 @@ public abstract class SftpCommand extends UriBasedFileCommand<SftpFileSystem> {
     }
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   protected boolean exists(URI uri) {
     return getBaseUri(fileSystem).equals(uri) || ROOT.equals(uri.getPath()) || getFile(normalizePath(uri.getPath())) != null;
@@ -110,7 +113,7 @@ public abstract class SftpCommand extends UriBasedFileCommand<SftpFileSystem> {
    */
   @Override
   protected URI getBaseUri(FileSystem fileSystem) {
-    return URI.create(getCurrentWorkingDirectory());
+    return createUri(getCurrentWorkingDirectory());
   }
 
   /**
