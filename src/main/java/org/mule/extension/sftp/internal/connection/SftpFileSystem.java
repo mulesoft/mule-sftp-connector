@@ -128,24 +128,17 @@ public class SftpFileSystem extends ExternalFileSystem {
 
   /**
    * {@inheritDoc}
-   *
-   * @return a {@link URLPathLock} based on the {@link #client}'s connection information
    */
   @Override
   protected PathLock createLock(Path path) {
-    return new URLPathLock(toURL(path), lockFactory);
+    throw new IllegalStateException("This method is deprecated in the SFTP Connector. Use createLock(URI uri) instead.");
   }
 
+  /**
+   * {@inheritDoc}
+   */
   protected PathLock createLock(URI uri) {
     return new URLPathLock(toURL(uri), lockFactory);
-  }
-
-  private URL toURL(Path path) {
-    try {
-      return new URL("ftp", client.getHost(), client.getPort(), path != null ? path.toString() : EMPTY);
-    } catch (MalformedURLException e) {
-      throw new MuleRuntimeException(createStaticMessage("Could not get URL for SFTP server"), e);
-    }
   }
 
   private URL toURL(URI uri) {
