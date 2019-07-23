@@ -26,6 +26,7 @@ import org.mule.extension.file.common.api.command.WriteCommand;
 import org.mule.extension.file.common.api.exceptions.IllegalPathException;
 import org.mule.extension.file.common.api.lock.PathLock;
 import org.mule.extension.file.common.api.lock.URLPathLock;
+import org.mule.extension.file.common.api.lock.UriLock;
 import org.mule.extension.sftp.api.SftpConnectionException;
 import org.mule.extension.sftp.api.SftpFileAttributes;
 import org.mule.extension.sftp.internal.command.SftpCopyCommand;
@@ -137,7 +138,7 @@ public class SftpFileSystem extends ExternalFileSystem {
   /**
    * {@inheritDoc}
    */
-  protected PathLock createLock(URI uri) {
+  protected UriLock createLock(URI uri) {
     return new URLPathLock(toURL(uri), lockFactory);
   }
 

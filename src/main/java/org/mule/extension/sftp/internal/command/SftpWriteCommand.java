@@ -12,8 +12,8 @@ import org.mule.extension.file.common.api.FileAttributes;
 import org.mule.extension.file.common.api.FileWriteMode;
 import org.mule.extension.file.common.api.command.WriteCommand;
 import org.mule.extension.file.common.api.exceptions.FileAlreadyExistsException;
-import org.mule.extension.file.common.api.lock.NullPathLock;
-import org.mule.extension.file.common.api.lock.PathLock;
+import org.mule.extension.file.common.api.lock.NullUriLock;
+import org.mule.extension.file.common.api.lock.UriLock;
 import org.mule.extension.sftp.internal.connection.SftpClient;
 import org.mule.extension.sftp.internal.connection.SftpFileSystem;
 
@@ -70,7 +70,7 @@ public final class SftpWriteCommand extends SftpCommand implements WriteCommand 
       }
     }
 
-    PathLock pathLock = lock ? externalFileSystem.lock(uri) : new NullPathLock(uri);
+    UriLock pathLock = lock ? externalFileSystem.lock(uri) : new NullUriLock(uri);
 
     try (OutputStream outputStream = getOutputStream(uri, mode)) {
       IOUtils.copy(content, outputStream);

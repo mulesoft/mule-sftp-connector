@@ -16,7 +16,7 @@ import static org.mule.extension.sftp.internal.SftpUtils.normalizePath;
 import org.mule.extension.file.common.api.FileAttributes;
 import org.mule.extension.file.common.api.FileConnectorConfig;
 import org.mule.extension.file.common.api.FileSystem;
-import org.mule.extension.file.common.api.command.UriBasedFileCommand;
+import org.mule.extension.file.common.api.command.ExternalFileCommand;
 import org.mule.extension.file.common.api.exceptions.FileAlreadyExistsException;
 import org.mule.extension.sftp.api.SftpFileAttributes;
 import org.mule.extension.sftp.internal.SftpCopyDelegate;
@@ -32,11 +32,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Base class for {@link UriBasedFileCommand} implementations that target a SFTP server
+ * Base class for {@link ExternalFileCommand} implementations that target a SFTP server
  *
  * @since 1.0
  */
-public abstract class SftpCommand extends UriBasedFileCommand<SftpFileSystem> {
+public abstract class SftpCommand extends ExternalFileCommand<SftpFileSystem> {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(SftpCommand.class);
   protected static final String ROOT = "/";
