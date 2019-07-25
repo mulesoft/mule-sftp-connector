@@ -70,7 +70,7 @@ public final class SftpWriteCommand extends SftpCommand implements WriteCommand 
       }
     }
 
-    UriLock pathLock = lock ? externalFileSystem.lock(uri) : new NullUriLock(uri);
+    UriLock pathLock = lock ? fileSystem.lock(uri) : new NullUriLock(uri);
 
     try (OutputStream outputStream = getOutputStream(uri, mode)) {
       IOUtils.copy(content, outputStream);

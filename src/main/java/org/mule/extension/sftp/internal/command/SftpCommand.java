@@ -24,7 +24,6 @@ import org.mule.extension.sftp.internal.connection.SftpClient;
 import org.mule.extension.sftp.internal.connection.SftpFileSystem;
 
 import java.net.URI;
-import java.nio.file.Path;
 import java.util.Stack;
 
 import org.apache.commons.io.FilenameUtils;
@@ -269,24 +268,6 @@ public abstract class SftpCommand extends ExternalFileCommand<SftpFileSystem> {
       URI fragment = fragments.pop();
       client.mkdir(fragment.getPath());
     }
-  }
-
-  @Override
-  @Deprecated
-  protected boolean exists(Path path) {
-    throw new IllegalStateException("This method is no longer supported in the SFTP Connector, use exists(URI uri) instead.");
-  }
-
-  @Override
-  @Deprecated
-  protected void doMkDirs(Path path) {
-    throw new IllegalStateException("This method is no longer supported in the SFTP Connector, use doMkDirs(URI directoryUri) instead.");
-  }
-
-  @Override
-  @Deprecated
-  protected Path getBasePath(FileSystem fileSystem) {
-    throw new IllegalStateException("This method is no longer supported in the SFTP Connector, use getBaseUri(FileSystem fileSystem) instead.");
   }
 
   /**

@@ -24,7 +24,6 @@ import org.mule.extension.file.common.api.command.MoveCommand;
 import org.mule.extension.file.common.api.command.RenameCommand;
 import org.mule.extension.file.common.api.command.WriteCommand;
 import org.mule.extension.file.common.api.exceptions.IllegalPathException;
-import org.mule.extension.file.common.api.lock.PathLock;
 import org.mule.extension.file.common.api.lock.URLPathLock;
 import org.mule.extension.file.common.api.lock.UriLock;
 import org.mule.extension.sftp.api.SftpConnectionException;
@@ -45,7 +44,6 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
-import java.nio.file.Path;
 
 /**
  * Implementation of {@link AbstractFileSystem} for files residing on a SFTP server
@@ -125,14 +123,6 @@ public class SftpFileSystem extends AbstractExternalFileSystem {
 
   protected boolean isConnected() {
     return client.isConnected();
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  protected PathLock createLock(Path path) {
-    throw new IllegalStateException("This method is deprecated in the SFTP Connector. Use createLock(URI uri) instead.");
   }
 
   /**
