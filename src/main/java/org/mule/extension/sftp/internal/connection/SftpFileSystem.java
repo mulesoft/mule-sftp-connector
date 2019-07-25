@@ -14,8 +14,8 @@ import static org.mule.runtime.api.connection.ConnectionValidationResult.failure
 import static org.mule.runtime.api.connection.ConnectionValidationResult.success;
 import static org.mule.runtime.api.i18n.I18nMessageFactory.createStaticMessage;
 
+import org.mule.extension.file.common.api.AbstractExternalFileSystem;
 import org.mule.extension.file.common.api.AbstractFileSystem;
-import org.mule.extension.file.common.api.ExternalFileSystem;
 import org.mule.extension.file.common.api.FileAttributes;
 import org.mule.extension.file.common.api.command.CopyCommand;
 import org.mule.extension.file.common.api.command.CreateDirectoryCommand;
@@ -52,7 +52,7 @@ import java.nio.file.Path;
  *
  * @since 1.0
  */
-public class SftpFileSystem extends ExternalFileSystem {
+public class SftpFileSystem extends AbstractExternalFileSystem {
 
   protected final SftpClient client;
   protected final CopyCommand copyCommand;

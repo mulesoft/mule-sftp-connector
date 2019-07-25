@@ -10,9 +10,7 @@ import static org.mule.extension.file.common.api.util.UriUtils.createUri;
 
 import org.mule.extension.file.common.api.FileConnectorConfig;
 import org.mule.extension.file.common.api.command.ReadCommand;
-import org.mule.extension.file.common.api.lock.NullPathLock;
 import org.mule.extension.file.common.api.lock.NullUriLock;
-import org.mule.extension.file.common.api.lock.PathLock;
 import org.mule.extension.file.common.api.lock.UriLock;
 import org.mule.extension.sftp.api.SftpFileAttributes;
 import org.mule.extension.sftp.internal.SftpConnector;

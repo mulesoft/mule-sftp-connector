@@ -41,11 +41,11 @@ public class SftpFileAttributes extends AbstractFileAttributes {
   /**
    * Creates a new instance
    *
-   * @param path the file's {@link URI}
+   * @param uri the file's {@link URI}
    * @param attrs the {@link SftpATTRS} which represents the file on the SFTP server
    */
-  public SftpFileAttributes(URI path, SftpATTRS attrs) {
-    super(path);
+  public SftpFileAttributes(URI uri, SftpATTRS attrs) {
+    super(uri);
 
     Date timestamp = new Date(((long) attrs.getMTime()) * 1000L);
     this.timestamp = asDateTime(timestamp.toInstant());

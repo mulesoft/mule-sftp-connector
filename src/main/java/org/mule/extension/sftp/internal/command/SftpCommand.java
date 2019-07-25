@@ -125,7 +125,7 @@ public abstract class SftpCommand extends ExternalFileCommand<SftpFileSystem> {
   protected void changeWorkingDirectory(String path) {
     if (!tryChangeWorkingDirectory(path)) {
       throw new IllegalArgumentException(format("Could not change working directory to '%s'. Path doesn't exist or is not a directory",
-                                                path.toString()));
+                                                path));
     }
     LOGGER.debug("working directory changed to {}", path);
   }
