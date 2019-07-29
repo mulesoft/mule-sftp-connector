@@ -56,7 +56,7 @@ public final class SftpWriteCommand extends SftpCommand implements WriteCommand 
   @Override
   public void write(String filePath, InputStream content, FileWriteMode mode,
                     boolean lock, boolean createParentDirectory) {
-    URI uri = resolvePathIntoUri(filePath);
+    URI uri = resolvePath(filePath);
     FileAttributes file = getFile(filePath);
 
     if (file == null) {

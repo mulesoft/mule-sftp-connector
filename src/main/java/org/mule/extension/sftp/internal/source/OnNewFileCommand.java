@@ -29,6 +29,6 @@ public class OnNewFileCommand extends SftpCommand {
    * @return the resolved {@link URI} to listen on
    */
   public URI resolveRootPath(String directory) {
-    return resolveExistingPathIntoUri(directory);
+    return resolveExistingPath(directory);
   }
 }

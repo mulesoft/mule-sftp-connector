@@ -80,7 +80,7 @@ public abstract class SftpCommand extends ExternalFileCommand<SftpFileSystem> {
   }
 
   protected SftpFileAttributes getFile(String filePath, boolean requireExistence) {
-    URI uri = resolvePathIntoUri(normalizePath(filePath));
+    URI uri = resolvePath(normalizePath(filePath));
     SftpFileAttributes attributes;
     try {
       attributes = client.getAttributes(uri);
@@ -104,15 +104,7 @@ public abstract class SftpCommand extends ExternalFileCommand<SftpFileSystem> {
    */
   @Override
   protected boolean exists(URI uri) {
-    return getBaseUri(fileSystem).equals(uri) || ROOT.equals(uri.getPath()) || getFile(normalizePath(uri.getPath())) != null;
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  protected URI getBaseUri(FileSystem fileSystem) {
-    return createUri(getCurrentWorkingDirectory());
+    return getBasePath(fileSystem).equals(uri) || ROOT.equals(uri.getPath()) || getFile(normalizePath(uri.getPath())) != null;
   }
 
   /**
@@ -156,7 +148,7 @@ public abstract class SftpCommand extends ExternalFileCommand<SftpFileSystem> {
    * @param overwrite whether to overwrite the target file if it already exists
    */
   protected void rename(String filePath, String newName, boolean overwrite) {
-    URI sourceUri = resolveExistingPathIntoUri(filePath);
+    URI sourceUri = resolveExistingPath(filePath);
     URI targetUri = createUri(trimLastFragment(sourceUri).getPath(), newName);
 
     if (exists(targetUri)) {
@@ -217,7 +209,7 @@ public abstract class SftpCommand extends ExternalFileCommand<SftpFileSystem> {
   protected final void copy(FileConnectorConfig config, String source, String target, boolean overwrite,
                             boolean createParentDirectory, String renameTo, SftpCopyDelegate delegate) {
     FileAttributes sourceFile = getExistingFile(source);
-    URI targetUri = resolvePathIntoUri(target);
+    URI targetUri = resolvePath(target);
     FileAttributes targetFile = getFile(targetUri.getPath());
     String targetFileName = isBlank(renameTo) ? FilenameUtils.getName(source) : renameTo;
 
@@ -271,8 +263,8 @@ public abstract class SftpCommand extends ExternalFileCommand<SftpFileSystem> {
   }
 
   /**
-     * @return the path of the current working directory
-     */
+   * @return the path of the current working directory
+   */
   protected String getCurrentWorkingDirectory() {
     try {
       return normalizePath(client.getWorkingDirectory());
@@ -280,4 +272,12 @@ public abstract class SftpCommand extends ExternalFileCommand<SftpFileSystem> {
       throw exception("Failed to determine current working directory");
     }
   }
+
+  /**
+   * {@inheritDoc}
+   */
+  protected URI getBasePath(FileSystem fileSystem) {
+    return createUri(getCurrentWorkingDirectory());
+  }
+
 }
