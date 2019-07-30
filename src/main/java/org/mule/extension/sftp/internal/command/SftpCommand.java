@@ -239,9 +239,7 @@ public abstract class SftpCommand extends ExternalFileCommand<SftpFileSystem> {
   }
 
   /**
-   * Creates the directory pointed by {@code directoryUri} also creating any missing parent directories
-   *
-   * @param directoryUri the {@link URI} to the directory you want to create
+   * {@inheritDoc}
    */
   @Override
   protected void doMkDirs(URI directoryUri) {
