@@ -16,7 +16,7 @@
 
     <munit:dynamic-port propertyName="sftp.server.port"/>
 
-    <sftp:config name="config-with-limited-pool">
+    <sftp:config name="config">
         <sftp:connection username="muletest1" password="muletest1" host="localhost" port="${sftp.server.port}"
                          workingDir="/" prngAlgorithm="SHA1PRNG">
             <pooling-profile exhaustedAction="WHEN_EXHAUSTED_WAIT" maxActive="7" maxIdle="3" maxWait="5000"/>
@@ -44,37 +44,26 @@
         </java:invoke-static>
     </munit:after-suite>
 
-    <munit:test name="sftp-read-multiple-files">
+    <munit:test name="sftp-read-file">
         <munit:behavior>
-            <set-variable variableName="filesToCreate" value="#[20]"/>
+            <set-variable variableName="fileName" value="filePath.txt"/>
             <set-variable variableName="fileContent" value="I just want to impress Mr. Stark"/>
-            <flow-ref name="writeFiles"/>
+            <sftp:write config-ref="config" path="#[vars.fileName]">
+                <sftp:content>#[vars.fileContent]</sftp:content>
+            </sftp:write>
         </munit:behavior>
         <munit:execution>
-            <sftp:list config-ref="config-with-limited-pool" directoryPath="."/>
-            <foreach>
-                <sftp:read config-ref="config-with-limited-pool" path='#[attributes.path]'/>
-                <logger level="ERROR" message="#[payload]"/>
-            </foreach>
-            <set-payload value="OK"/>
+            <sftp:read config-ref="config" path='#[vars.fileName]'/>
         </munit:execution>
         <munit:validation>
             <munit-tools:assert>
                 <munit-tools:that><![CDATA[#[import * from dw::test::Asserts
                                      ---
-                                    payload must equalTo("OK")
+                                    payload must equalTo(vars.fileContent)
                                     ]]]>
                 </munit-tools:that>
             </munit-tools:assert>
         </munit:validation>
     </munit:test>
-
-    <flow name="writeFiles">
-        <foreach collection="#[1 to vars.filesToCreate]">
-            <sftp:write config-ref="config-with-limited-pool" path="#[payload ++ '.txt']">
-                <sftp:content>#[vars.fileContent]</sftp:content>
-            </sftp:write>
-        </foreach>
-    </flow>
 
 </mule>
