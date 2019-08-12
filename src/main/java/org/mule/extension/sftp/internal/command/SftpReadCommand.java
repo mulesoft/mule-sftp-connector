@@ -67,7 +67,6 @@ public final class SftpReadCommand extends SftpCommand implements ReadCommand<Sf
   public Result<InputStream, SftpFileAttributes> read(FileConnectorConfig config, SftpFileAttributes attributes, boolean lock,
                                                       Long timeBetweenSizeCheck) {
     URI uri = UriUtils.createUri(attributes.getPath());
-    // URI.create(attributes.getPath());
 
     UriLock pathLock = lock ? fileSystem.lock(uri) : new NullUriLock(uri);
     InputStream payload = null;
