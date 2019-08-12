@@ -27,9 +27,12 @@ import org.mule.extension.file.common.api.matcher.NullFilePayloadPredicate;
 import org.mule.extension.sftp.api.SftpFileAttributes;
 import org.mule.extension.sftp.api.SftpFileMatcher;
 import org.mule.extension.sftp.internal.connection.SftpFileSystem;
+import org.mule.runtime.api.connection.ConnectionException;
+import org.mule.runtime.api.connection.ConnectionHandler;
 import org.mule.runtime.api.exception.MuleException;
 import org.mule.runtime.api.message.Message;
 import org.mule.runtime.api.streaming.CursorProvider;
+import org.mule.runtime.core.api.connector.ConnectionManager;
 import org.mule.runtime.extension.api.annotation.error.Throws;
 import org.mule.runtime.extension.api.annotation.param.Config;
 import org.mule.runtime.extension.api.annotation.param.ConfigOverride;
@@ -130,18 +133,21 @@ public final class SftpOperations extends BaseFileSystemOperations {
   @Summary("Obtains the content and metadata of a file at a given path")
   @Throws(FileReadErrorTypeProvider.class)
   @MediaType(value = ANY, strict = false)
-  public Result<InputStream, SftpFileAttributes> read(@Config FileConnectorConfig config,
-                                                      @Connection SftpFileSystem fileSystem,
+  public Result<InputStream, SftpFileAttributes> read(@Config SftpConnector config,
                                                       @DisplayName("File Path") @Path(type = FILE,
                                                           location = EXTERNAL) String path,
                                                       @Optional(defaultValue = "false") @Placement(
                                                           tab = ADVANCED_TAB) boolean lock,
                                                       @ConfigOverride @Placement(tab = ADVANCED_TAB) Long timeBetweenSizeCheck,
                                                       @ConfigOverride @Placement(
-                                                          tab = ADVANCED_TAB) TimeUnit timeBetweenSizeCheckUnit) {
+                                                          tab = ADVANCED_TAB) TimeUnit timeBetweenSizeCheckUnit)
+      throws ConnectionException {
+    ConnectionHandler<SftpFileSystem> connectionHandler = config.getConnectionManager().getConnection(config);
+    SftpFileSystem fileSystem = connectionHandler.getConnection();
     Result result =
         doRead(config, fileSystem, path, lock,
                config.getTimeBetweenSizeCheckInMillis(timeBetweenSizeCheck, timeBetweenSizeCheckUnit).orElse(null));
+    connectionHandler.release();
     return (Result<InputStream, SftpFileAttributes>) result;
   }
 
