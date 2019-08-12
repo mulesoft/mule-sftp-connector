@@ -133,21 +133,18 @@ public final class SftpOperations extends BaseFileSystemOperations {
   @Summary("Obtains the content and metadata of a file at a given path")
   @Throws(FileReadErrorTypeProvider.class)
   @MediaType(value = ANY, strict = false)
-  public Result<InputStream, SftpFileAttributes> read(@Config SftpConnector config,
+  public Result<InputStream, SftpFileAttributes> read(@Config FileConnectorConfig config,
+                                                      @Connection SftpFileSystem fileSystem,
                                                       @DisplayName("File Path") @Path(type = FILE,
                                                           location = EXTERNAL) String path,
                                                       @Optional(defaultValue = "false") @Placement(
                                                           tab = ADVANCED_TAB) boolean lock,
                                                       @ConfigOverride @Placement(tab = ADVANCED_TAB) Long timeBetweenSizeCheck,
                                                       @ConfigOverride @Placement(
-                                                          tab = ADVANCED_TAB) TimeUnit timeBetweenSizeCheckUnit)
-      throws ConnectionException {
-    ConnectionHandler<SftpFileSystem> connectionHandler = config.getConnectionManager().getConnection(config);
-    SftpFileSystem fileSystem = connectionHandler.getConnection();
+                                                          tab = ADVANCED_TAB) TimeUnit timeBetweenSizeCheckUnit) {
     Result result =
         doRead(config, fileSystem, path, lock,
                config.getTimeBetweenSizeCheckInMillis(timeBetweenSizeCheck, timeBetweenSizeCheckUnit).orElse(null));
-    connectionHandler.release();
     return (Result<InputStream, SftpFileAttributes>) result;
   }
 
