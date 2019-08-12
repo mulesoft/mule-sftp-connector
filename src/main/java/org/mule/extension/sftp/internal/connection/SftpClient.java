@@ -317,10 +317,8 @@ public class SftpClient {
       return emptyList();
     }
 
-    List list3 = entries.stream().map(entry -> new SftpFileAttributes(createUri(path, entry.getFilename()), entry.getAttrs()))
+    return entries.stream().map(entry -> new SftpFileAttributes(createUri(path, entry.getFilename()), entry.getAttrs()))
         .collect(toImmutableList());
-
-    return list3;
   }
 
   /**

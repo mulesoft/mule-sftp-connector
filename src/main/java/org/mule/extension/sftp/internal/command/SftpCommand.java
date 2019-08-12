@@ -153,13 +153,13 @@ public abstract class SftpCommand extends ExternalFileCommand<SftpFileSystem> {
 
     if (exists(targetUri)) {
       if (!overwrite) {
-        throw new FileAlreadyExistsException(format("'%s' cannot be renamed because '%s' already exists", sourceUri, targetUri));
+        throw new FileAlreadyExistsException(format("'%s' cannot be renamed because '%s' already exists", sourceUri.getPath(), targetUri.getPath()));
       }
 
       try {
         fileSystem.delete(targetUri.getPath());
       } catch (Exception e) {
-        throw exception(format("Exception was found deleting '%s' as part of renaming '%s'", targetUri, sourceUri), e);
+        throw exception(format("Exception was found deleting '%s' as part of renaming '%s'", targetUri.getPath(), sourceUri.getPath()), e);
       }
     }
 
@@ -167,7 +167,7 @@ public abstract class SftpCommand extends ExternalFileCommand<SftpFileSystem> {
       doRename(sourceUri.getPath(), targetUri.getPath());
       LOGGER.debug("{} renamed to {}", filePath, newName);
     } catch (Exception e) {
-      throw exception(format("Exception was found renaming '%s' to '%s'", sourceUri, newName), e);
+      throw exception(format("Exception was found renaming '%s' to '%s'", sourceUri.getPath(), newName), e);
     }
   }
 

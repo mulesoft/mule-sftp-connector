@@ -59,7 +59,7 @@ public abstract class AbstractSftpCopyDelegate implements SftpCopyDelegate {
     } catch (ConnectionException e) {
       throw command
           .exception(format("FTP Copy operations require the use of two FTP connections. An exception was found trying to obtain second connection to"
-              + "copy the path '%s' to '%s'", source.getPath(), targetUri), e);
+              + "copy the path '%s' to '%s'", source.getPath(), targetUri.getPath()), e);
     }
     try {
       if (source.isDirectory()) {
@@ -70,7 +70,7 @@ public abstract class AbstractSftpCopyDelegate implements SftpCopyDelegate {
     } catch (ModuleException e) {
       throw e;
     } catch (Exception e) {
-      throw command.exception(format("Found exception copying file '%s' to '%s'", source, targetUri), e);
+      throw command.exception(format("Found exception copying file '%s' to '%s'", source, targetUri.getPath()), e);
     } finally {
       writerConnectionHandler.release();
     }

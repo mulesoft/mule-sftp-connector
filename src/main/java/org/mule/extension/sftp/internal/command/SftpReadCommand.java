@@ -12,6 +12,7 @@ import org.mule.extension.file.common.api.FileConnectorConfig;
 import org.mule.extension.file.common.api.command.ReadCommand;
 import org.mule.extension.file.common.api.lock.NullUriLock;
 import org.mule.extension.file.common.api.lock.UriLock;
+import org.mule.extension.file.common.api.util.UriUtils;
 import org.mule.extension.sftp.api.SftpFileAttributes;
 import org.mule.extension.sftp.internal.SftpConnector;
 import org.mule.extension.sftp.internal.SftpInputStream;
@@ -65,7 +66,8 @@ public final class SftpReadCommand extends SftpCommand implements ReadCommand<Sf
   @Override
   public Result<InputStream, SftpFileAttributes> read(FileConnectorConfig config, SftpFileAttributes attributes, boolean lock,
                                                       Long timeBetweenSizeCheck) {
-    URI uri = URI.create(attributes.getPath());
+    URI uri = UriUtils.createUri(attributes.getPath());
+    // URI.create(attributes.getPath());
 
     UriLock pathLock = lock ? fileSystem.lock(uri) : new NullUriLock(uri);
     InputStream payload = null;

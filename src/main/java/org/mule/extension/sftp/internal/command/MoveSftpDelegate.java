@@ -40,7 +40,7 @@ public class MoveSftpDelegate implements SftpCopyDelegate {
     } catch (ModuleException e) {
       throw e;
     } catch (Exception e) {
-      throw command.exception(format("Found exception copying file '%s' to '%s'", source, targetUri), e);
+      throw command.exception(format("Found exception copying file '%s' to '%s'", source.getPath(), targetUri.getPath()), e);
     }
   }
 }
