@@ -15,7 +15,8 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
-import org.mule.extension.file.common.api.lock.PathLock;
+
+import org.mule.extension.file.common.api.lock.UriLock;
 import org.mule.runtime.api.connection.ConnectionHandler;
 
 import java.io.ByteArrayInputStream;
@@ -33,7 +34,7 @@ public class SftpInputStreamTestCase {
   public static final String STREAM_CONTENT = "My stream content";
 
   @Mock
-  private PathLock pathLock;
+  private UriLock uriLock;
 
   @Mock
   private SftpInputStream.SftpFileInputStreamSupplier streamSupplier;
@@ -44,11 +45,11 @@ public class SftpInputStreamTestCase {
 
   @Before
   public void setUp() throws Exception {
-    when(pathLock.isLocked()).thenReturn(true);
+    when(uriLock.isLocked()).thenReturn(true);
     doAnswer(invocation -> {
-      when(pathLock.isLocked()).thenReturn(false);
+      when(uriLock.isLocked()).thenReturn(false);
       return null;
-    }).when(pathLock).release();
+    }).when(uriLock).release();
 
     when(streamSupplier.getConnectionHandler()).thenReturn(Optional.of(connectionHandler));
     when(streamSupplier.get()).thenReturn(new ByteArrayInputStream(STREAM_CONTENT.getBytes(UTF_8)));
@@ -56,30 +57,30 @@ public class SftpInputStreamTestCase {
 
   @Test
   public void readLockReleasedOnContentConsumed() throws Exception {
-    SftpInputStream inputStream = new SftpInputStream(streamSupplier, pathLock);
+    SftpInputStream inputStream = new SftpInputStream(streamSupplier, uriLock);
 
-    verifyZeroInteractions(pathLock);
+    verifyZeroInteractions(uriLock);
     assertThat(inputStream.isLocked(), is(true));
-    verify(pathLock).isLocked();
+    verify(uriLock).isLocked();
 
     org.apache.commons.io.IOUtils.toString(inputStream, "UTF-8");
 
-    verify(pathLock, times(1)).release();
+    verify(uriLock, times(1)).release();
     assertThat(inputStream.isLocked(), is(false));
     verify(connectionHandler).release();
   }
 
   @Test
   public void readLockReleasedOnEarlyClose() throws Exception {
-    SftpInputStream inputStream = new SftpInputStream(streamSupplier, pathLock);
+    SftpInputStream inputStream = new SftpInputStream(streamSupplier, uriLock);
 
-    verifyZeroInteractions(pathLock);
+    verifyZeroInteractions(uriLock);
     assertThat(inputStream.isLocked(), is(true));
-    verify(pathLock).isLocked();
+    verify(uriLock).isLocked();
 
     inputStream.close();
 
-    verify(pathLock, times(1)).release();
+    verify(uriLock, times(1)).release();
     assertThat(inputStream.isLocked(), is(false));
   }
 

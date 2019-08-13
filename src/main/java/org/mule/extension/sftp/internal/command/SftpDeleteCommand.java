@@ -6,15 +6,16 @@
  */
 package org.mule.extension.sftp.internal.command;
 
+import static org.mule.extension.file.common.api.util.UriUtils.createUri;
 import static org.slf4j.LoggerFactory.getLogger;
 import org.mule.extension.file.common.api.FileAttributes;
 import org.mule.extension.file.common.api.command.DeleteCommand;
 import org.mule.extension.sftp.internal.connection.SftpClient;
 import org.mule.extension.sftp.internal.connection.SftpFileSystem;
 
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.net.URI;
 
+import org.apache.commons.io.FilenameUtils;
 import org.slf4j.Logger;
 
 /**
@@ -50,7 +51,7 @@ public final class SftpDeleteCommand extends SftpCommand implements DeleteComman
   }
 
   private void deleteFile(String path) {
-    fileSystem.verifyNotLocked(Paths.get(path));
+    fileSystem.verifyNotLocked(createUri(path));
     LOGGER.debug("Preparing to delete file '{}'", path);
     client.deleteFile(path);
 
@@ -72,10 +73,10 @@ public final class SftpDeleteCommand extends SftpCommand implements DeleteComman
       }
     }
 
-    Path directoryPath = Paths.get(path);
-    Path directoryFragment = directoryPath.getName(directoryPath.getNameCount() - 1);
-    if (isVirtualDirectory(directoryFragment.getFileName().toString())) {
-      path = Paths.get("/").resolve(directoryPath.subpath(0, directoryPath.getNameCount() - 1)).toString();
+    URI directoryUri = createUri(path);
+    String directoryFragment = FilenameUtils.getName(directoryUri.getPath());
+    if (isVirtualDirectory(directoryFragment)) {
+      path = directoryUri.getPath();
     }
     client.deleteDirectory(path);
 

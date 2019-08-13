@@ -13,10 +13,12 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 import static org.mule.extension.file.common.api.FileWriteMode.APPEND;
 import static org.mule.extension.file.common.api.FileWriteMode.OVERWRITE;
+import static org.mule.extension.file.common.api.util.UriUtils.createUri;
+import static org.mule.extension.file.common.api.util.UriUtils.trimLastFragment;
 import static org.mule.extension.sftp.SftpServer.PASSWORD;
 import static org.mule.extension.sftp.SftpServer.USERNAME;
 import static org.mule.extension.sftp.internal.SftpUtils.normalizePath;
-import static org.mule.extension.sftp.internal.SftpUtils.resolvePath;
+import static org.mule.extension.sftp.internal.SftpUtils.resolvePathOrResource;
 import static org.mule.extension.sftp.random.alg.PRNGAlgorithm.SHA1PRNG;
 
 import org.mule.extension.AbstractSftpTestHarness;
@@ -32,11 +34,11 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.net.URI;
 import java.util.List;
 
 import com.jcraft.jsch.JSchException;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.sshd.server.config.keys.AuthorizedKeysAuthenticator;
 import org.junit.rules.TemporaryFolder;
@@ -73,9 +75,9 @@ public class SftpTestHarness extends AbstractSftpTestHarness {
         serverAuthConfigurator = (SftpServer::setPasswordAuthenticator);
         break;
       case PUBLIC_KEY:
-        clientAuthConfigurator = (sftpClient -> sftpClient.setIdentity(resolvePath("sftp-test-key"), null));
+        clientAuthConfigurator = (sftpClient -> sftpClient.setIdentity(resolvePathOrResource("sftp-test-key"), null));
         serverAuthConfigurator = (sftpServer -> sftpServer
-            .setPublicKeyAuthenticator(new AuthorizedKeysAuthenticator(new File(resolvePath("sftp-test-key.pub")))));
+            .setPublicKeyAuthenticator(new AuthorizedKeysAuthenticator(new File(resolvePathOrResource("sftp-test-key.pub")))));
     }
   }
 
@@ -191,7 +193,7 @@ public class SftpTestHarness extends AbstractSftpTestHarness {
    */
   @Override
   public boolean dirExists(String path) throws Exception {
-    FileAttributes attributes = sftpClient.getAttributes(Paths.get(path));
+    FileAttributes attributes = sftpClient.getAttributes(createUri(path));
     return attributes != null && attributes.isDirectory();
   }
 
@@ -200,7 +202,7 @@ public class SftpTestHarness extends AbstractSftpTestHarness {
    */
   @Override
   public boolean fileExists(String path) throws Exception {
-    return sftpClient.getAttributes(Paths.get(path)) != null;
+    return sftpClient.getAttributes(createUri(path)) != null;
   }
 
   /**
@@ -239,7 +241,7 @@ public class SftpTestHarness extends AbstractSftpTestHarness {
   @Override
   public void assertAttributes(String path, Object attributes) throws Exception {
     SftpFileAttributes fileAttributes = (SftpFileAttributes) attributes;
-    SftpFileAttributes file = sftpClient.getAttributes(Paths.get(path));
+    SftpFileAttributes file = sftpClient.getAttributes(createUri(path));
 
     assertThat(fileAttributes.getName(), equalTo(file.getName()));
     assertThat(fileAttributes.getPath(), is(normalizePath(getWorkingDirectory() + "/" + HELLO_PATH)));
@@ -255,15 +257,14 @@ public class SftpTestHarness extends AbstractSftpTestHarness {
    */
   @Override
   public void assertDeleted(String path) throws Exception {
-    Path directoryPath = Paths.get(sftpClient.getWorkingDirectory()).resolve(path);
-    int lastFragmentIndex = directoryPath.getNameCount() - 1;
+    URI directoryUri = createUri(sftpClient.getWorkingDirectory(), path);
 
-    Path lastFragment = directoryPath.getName(lastFragmentIndex);
-    if (".".equals(lastFragment.toString())) {
-      directoryPath = directoryPath.subpath(0, lastFragmentIndex);
+    String lastFragment2 = FilenameUtils.getName(directoryUri.getPath());
+    if (".".equals(lastFragment2)) {
+      directoryUri = trimLastFragment(directoryUri);
     }
 
-    assertThat(dirExists(directoryPath.toString()), is(false));
+    assertThat(dirExists(directoryUri.getPath()), is(false));
   }
 
   public enum AuthType {

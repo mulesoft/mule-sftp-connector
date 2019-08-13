@@ -6,10 +6,13 @@
  */
 package org.mule.extension.sftp.internal.command;
 
+import static org.mule.extension.file.common.api.util.UriUtils.createUri;
+
 import org.mule.extension.file.common.api.FileConnectorConfig;
 import org.mule.extension.file.common.api.command.ReadCommand;
-import org.mule.extension.file.common.api.lock.NullPathLock;
-import org.mule.extension.file.common.api.lock.PathLock;
+import org.mule.extension.file.common.api.lock.NullUriLock;
+import org.mule.extension.file.common.api.lock.UriLock;
+import org.mule.extension.file.common.api.util.UriUtils;
 import org.mule.extension.sftp.api.SftpFileAttributes;
 import org.mule.extension.sftp.internal.SftpConnector;
 import org.mule.extension.sftp.internal.SftpInputStream;
@@ -20,8 +23,7 @@ import org.mule.runtime.core.api.util.IOUtils;
 import org.mule.runtime.extension.api.runtime.operation.Result;
 
 import java.io.InputStream;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.net.URI;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -52,7 +54,7 @@ public final class SftpReadCommand extends SftpCommand implements ReadCommand<Sf
                                                       Long timeBetweenSizeCheck) {
     SftpFileAttributes attributes = getExistingFile(filePath);
     if (attributes.isDirectory()) {
-      throw cannotReadDirectoryException(Paths.get(attributes.getPath()));
+      throw cannotReadDirectoryException(createUri(attributes.getPath()));
     }
 
     return read(config, attributes, lock, timeBetweenSizeCheck);
@@ -64,9 +66,9 @@ public final class SftpReadCommand extends SftpCommand implements ReadCommand<Sf
   @Override
   public Result<InputStream, SftpFileAttributes> read(FileConnectorConfig config, SftpFileAttributes attributes, boolean lock,
                                                       Long timeBetweenSizeCheck) {
-    Path path = Paths.get(attributes.getPath());
+    URI uri = UriUtils.createUri(attributes.getPath());
 
-    PathLock pathLock = lock ? fileSystem.lock(path) : new NullPathLock(path);
+    UriLock pathLock = lock ? fileSystem.lock(uri) : new NullUriLock(uri);
     InputStream payload = null;
     try {
       payload = SftpInputStream.newInstance((SftpConnector) config, attributes, pathLock, timeBetweenSizeCheck);
@@ -76,7 +78,7 @@ public final class SftpReadCommand extends SftpCommand implements ReadCommand<Sf
     } catch (Exception e) {
       pathLock.release();
       IOUtils.closeQuietly(payload);
-      throw exception("Could not fetch file " + path, e);
+      throw exception("Could not fetch file " + uri.getPath(), e);
     }
   }
 

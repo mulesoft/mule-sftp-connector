@@ -91,13 +91,4 @@ public class SftpNegativeConnectivityTestCase extends CommonSftpConnectorTestCas
     utils.assertFailedConnection(name + "ConfigUnknownHost", ANYTHING, is(errorType(UNKNOWN_HOST)));
   }
 
-  @Test
-  public void ftpConfigServiceUnavailable() {
-    // For some strange reason the usage of "assumeThat()" doesn't make the test being ignored and breaks it.
-    // assumeThat(name, is("ftp"));
-    if (name.equals("ftp")) {
-      utils.assertSuccessConnection("ftpConfigFirstConnection");
-      utils.assertFailedConnection("ftpConfigServiceUnavailable", ANYTHING, is(errorType(SERVICE_NOT_AVAILABLE)));
-    }
-  }
 }

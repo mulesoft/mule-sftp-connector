@@ -6,6 +6,8 @@
  */
 package org.mule.extension.sftp.internal.command;
 
+import static org.mule.extension.file.common.api.util.UriUtils.createUri;
+
 import org.mule.extension.file.common.api.FileAttributes;
 import org.mule.extension.file.common.api.FileConnectorConfig;
 import org.mule.extension.file.common.api.command.CopyCommand;
@@ -13,8 +15,7 @@ import org.mule.extension.sftp.internal.AbstractSftpCopyDelegate;
 import org.mule.extension.sftp.internal.connection.SftpClient;
 import org.mule.extension.sftp.internal.connection.SftpFileSystem;
 
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.net.URI;
 
 /**
  * A {@link SftpCommand} which implements the {@link CopyCommand} contract
@@ -36,7 +37,8 @@ public class SftpCopyCommand extends SftpCommand implements CopyCommand {
   @Override
   public void copy(FileConnectorConfig config, String sourcePath, String targetPath, boolean overwrite,
                    boolean createParentDirectories, String renameTo) {
-    copy(config, sourcePath, targetPath, overwrite, createParentDirectories, renameTo, new SftpCopyDelegate(this, fileSystem));
+    copy(config, sourcePath, targetPath, overwrite, createParentDirectories, renameTo,
+         new SftpCopyDelegate(this, this.fileSystem));
   }
 
   private class SftpCopyDelegate extends AbstractSftpCopyDelegate {
@@ -46,18 +48,18 @@ public class SftpCopyCommand extends SftpCommand implements CopyCommand {
     }
 
     @Override
-    protected void copyDirectory(FileConnectorConfig config, Path sourcePath, Path target, boolean overwrite,
+    protected void copyDirectory(FileConnectorConfig config, URI sourceUri, URI target, boolean overwrite,
                                  SftpFileSystem writerConnection) {
-      for (FileAttributes fileAttributes : client.list(sourcePath.toString())) {
+      for (FileAttributes fileAttributes : client.list(sourceUri.getPath())) {
         if (isVirtualDirectory(fileAttributes.getName())) {
           continue;
         }
 
+        URI targetUri = createUri(target.getPath(), fileAttributes.getName());
         if (fileAttributes.isDirectory()) {
-          Path targetPath = target.resolve(fileAttributes.getName());
-          copyDirectory(config, Paths.get(fileAttributes.getPath()), targetPath, overwrite, writerConnection);
+          copyDirectory(config, URI.create(fileAttributes.getPath()), targetUri, overwrite, writerConnection);
         } else {
-          copyFile(config, fileAttributes, target.resolve(fileAttributes.getName()), overwrite, writerConnection);
+          copyFile(config, fileAttributes, targetUri, overwrite, writerConnection);
         }
       }
     }

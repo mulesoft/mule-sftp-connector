@@ -10,14 +10,14 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mule.extension.file.common.api.exceptions.FileError.FILE_ALREADY_EXISTS;
 import static org.mule.extension.file.common.api.exceptions.FileError.ILLEGAL_PATH;
+import static org.mule.extension.file.common.api.util.UriUtils.createUri;
+import static org.mule.extension.file.common.api.util.UriUtils.trimLastFragment;
 import static org.mule.extension.sftp.AllureConstants.SftpFeature.SFTP_EXTENSION;
 import static org.mule.test.extension.file.common.api.FileTestHarness.HELLO_FILE_NAME;
 import static org.mule.test.extension.file.common.api.FileTestHarness.HELLO_PATH;
 import static org.mule.test.extension.file.common.api.FileTestHarness.HELLO_WORLD;
 import org.mule.extension.file.common.api.exceptions.FileAlreadyExistsException;
 import org.mule.extension.file.common.api.exceptions.IllegalPathException;
-
-import java.nio.file.Paths;
 
 import io.qameta.allure.Feature;
 import org.junit.Test;
@@ -53,7 +53,7 @@ public class SftpRenameTestCase extends CommonSftpConnectorTestCase {
   @Test
   public void renameDirectory() throws Exception {
     testHarness.createHelloWorldFile();
-    final String sourcePath = Paths.get(HELLO_PATH).getParent().toString();
+    final String sourcePath = trimLastFragment(createUri(HELLO_PATH)).getPath();
     doRename(sourcePath);
 
     assertThat(testHarness.dirExists(sourcePath), is(false));
@@ -73,7 +73,7 @@ public class SftpRenameTestCase extends CommonSftpConnectorTestCase {
     testHarness.expectedError().expectError(NAMESPACE, ILLEGAL_PATH.getType(), IllegalPathException.class,
                                             "parameter of rename operation should not contain any file separator character");
     testHarness.createHelloWorldFile();
-    final String sourcePath = Paths.get(HELLO_PATH).getParent().toString();
+    final String sourcePath = trimLastFragment(createUri(HELLO_PATH)).getPath();
     doRename("rename", sourcePath, "path/with/parts", true);
   }
 
@@ -91,7 +91,8 @@ public class SftpRenameTestCase extends CommonSftpConnectorTestCase {
   @Test
   public void targetAlreadyExistsWithOverwrite() throws Exception {
     testHarness.createHelloWorldFile();
-    final String sourcePath = Paths.get(HELLO_PATH).getParent().resolve(RENAME_TO).toString();
+    final String parentPath = trimLastFragment(createUri(HELLO_PATH)).getPath();
+    final String sourcePath = createUri(parentPath, RENAME_TO).getPath();
     testHarness.write(sourcePath, "I was here first");
 
     doRename(HELLO_PATH, true);
@@ -99,8 +100,8 @@ public class SftpRenameTestCase extends CommonSftpConnectorTestCase {
   }
 
   private void assertRenamedFile() throws Exception {
-    final String targetPath =
-        Paths.get(testHarness.getWorkingDirectory()).resolve(HELLO_PATH).getParent().resolve(RENAME_TO).toString();
+    final String parentPath = trimLastFragment(createUri(testHarness.getWorkingDirectory(), HELLO_PATH)).getPath();
+    final String targetPath = createUri(parentPath, RENAME_TO).getPath();
 
     assertThat(testHarness.fileExists(targetPath), is((true)));
     assertThat(testHarness.fileExists(HELLO_PATH), is((false)));

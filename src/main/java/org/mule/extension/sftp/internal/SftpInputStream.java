@@ -11,7 +11,7 @@ import static org.mule.runtime.api.i18n.I18nMessageFactory.createStaticMessage;
 import static org.slf4j.LoggerFactory.getLogger;
 import org.mule.extension.file.common.api.AbstractFileInputStreamSupplier;
 import org.mule.extension.file.common.api.FileAttributes;
-import org.mule.extension.file.common.api.lock.PathLock;
+import org.mule.extension.file.common.api.lock.UriLock;
 import org.mule.extension.file.common.api.stream.AbstractFileInputStream;
 import org.mule.extension.file.common.api.stream.LazyStreamSupplier;
 import org.mule.extension.sftp.api.SftpFileAttributes;
@@ -47,12 +47,12 @@ public class SftpInputStream extends AbstractFileInputStream {
    *
    * @param config the config which is parameterizing this operation
    * @param attributes a {@link FileAttributes} referencing the file which contents are to be fetched
-   * @param lock the {@link PathLock} to be used
+   * @param lock the {@link UriLock} to be used
    * @param timeBetweenSizeCheck time in milliseconds to wait between size checks to decide if a file is ready to be read
    * @return a new {@link SftpFileAttributes}
    * @throws ConnectionException if a connection could not be established
    */
-  public static SftpInputStream newInstance(SftpConnector config, SftpFileAttributes attributes, PathLock lock,
+  public static SftpInputStream newInstance(SftpConnector config, SftpFileAttributes attributes, UriLock lock,
                                             Long timeBetweenSizeCheck)
       throws ConnectionException {
     SftpFileInputStreamSupplier sftpFileInputStreamSupplier =
@@ -62,7 +62,7 @@ public class SftpInputStream extends AbstractFileInputStream {
 
   private SftpFileInputStreamSupplier sftpFileInputStreamSupplier;
 
-  protected SftpInputStream(SftpFileInputStreamSupplier sftpFileInputStreamSupplier, PathLock lock) {
+  protected SftpInputStream(SftpFileInputStreamSupplier sftpFileInputStreamSupplier, UriLock lock) {
     super(new LazyStreamSupplier(sftpFileInputStreamSupplier), lock);
     this.sftpFileInputStreamSupplier = sftpFileInputStreamSupplier;
   }

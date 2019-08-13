@@ -15,6 +15,7 @@ import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.when;
+import static org.mule.extension.file.common.api.util.UriUtils.createUri;
 import static org.mule.extension.sftp.random.alg.PRNGAlgorithm.NativePRNGNonBlocking;
 
 import org.mule.extension.sftp.internal.connection.SftpClient;
@@ -25,9 +26,8 @@ import com.jcraft.jsch.ChannelSftp;
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.SftpException;
 
-import java.nio.file.Path;
+import java.net.URI;
 
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -45,8 +45,7 @@ public class SftpClientTestCase {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  @Mock
-  private Path path;
+  private URI uri = createUri(FILE_PATH);
 
   @Mock
   private JSch jsch;
@@ -57,15 +56,10 @@ public class SftpClientTestCase {
   @InjectMocks
   private SftpClient client = new SftpClient(EMPTY, 0, () -> jsch, NativePRNGNonBlocking);
 
-  @Before
-  public void setUp() {
-    when(path.toString()).thenReturn(FILE_PATH);
-  }
-
   @Test
   public void returnNullOnUnexistingFile() throws Exception {
     when(channel.stat(any())).thenThrow(new SftpException(SSH_FX_NO_SUCH_FILE, "No such file"));
-    assertThat(client.getAttributes(path), is(nullValue()));
+    assertThat(client.getAttributes(uri), is(nullValue()));
   }
 
   @Test
@@ -73,6 +67,6 @@ public class SftpClientTestCase {
     expectedException.expect(MuleRuntimeException.class);
     expectedException.expectMessage(format("Could not obtain attributes for path %s", FILE_PATH));
     when(channel.stat(any())).thenThrow(new SftpException(SSH_FX_PERMISSION_DENIED, EMPTY));
-    client.getAttributes(path);
+    client.getAttributes(uri);
   }
 }
