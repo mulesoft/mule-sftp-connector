@@ -13,6 +13,7 @@ import static org.junit.Assert.assertThat;
 import static org.junit.internal.matchers.ThrowableCauseMatcher.hasCause;
 import static org.junit.rules.ExpectedException.none;
 import static org.mule.extension.file.common.api.exceptions.FileError.ILLEGAL_PATH;
+import static org.mule.extension.file.common.api.util.UriUtils.createUri;
 import static org.mule.extension.sftp.AllureConstants.SftpFeature.SFTP_EXTENSION;
 import static org.mule.runtime.api.metadata.MediaType.JSON;
 import static org.mule.test.extension.file.common.api.FileTestHarness.BINARY_FILE_NAME;
@@ -27,7 +28,6 @@ import org.mule.runtime.api.metadata.MediaType;
 import org.mule.runtime.core.api.event.CoreEvent;
 
 import java.io.InputStream;
-import java.nio.file.Paths;
 
 import io.qameta.allure.Description;
 import io.qameta.allure.Feature;
@@ -140,7 +140,7 @@ public class SftpReadTestCase extends CommonSftpConnectorTestCase {
 
   private Message readWithLock() throws Exception {
     Message message =
-        flowRunner("readWithLock").withVariable("readPath", Paths.get("files/hello.json").toString()).run().getMessage();
+        flowRunner("readWithLock").withVariable("readPath", createUri("files/hello.json").getPath()).run().getMessage();
     return message;
   }
 

@@ -14,6 +14,7 @@ import static org.mule.runtime.api.connection.ConnectionValidationResult.failure
 import static org.mule.runtime.api.connection.ConnectionValidationResult.success;
 import static org.mule.runtime.api.i18n.I18nMessageFactory.createStaticMessage;
 
+import org.mule.extension.file.common.api.AbstractExternalFileSystem;
 import org.mule.extension.file.common.api.AbstractFileSystem;
 import org.mule.extension.file.common.api.FileAttributes;
 import org.mule.extension.file.common.api.command.CopyCommand;
@@ -23,8 +24,8 @@ import org.mule.extension.file.common.api.command.MoveCommand;
 import org.mule.extension.file.common.api.command.RenameCommand;
 import org.mule.extension.file.common.api.command.WriteCommand;
 import org.mule.extension.file.common.api.exceptions.IllegalPathException;
-import org.mule.extension.file.common.api.lock.PathLock;
 import org.mule.extension.file.common.api.lock.URLPathLock;
+import org.mule.extension.file.common.api.lock.UriLock;
 import org.mule.extension.sftp.api.SftpConnectionException;
 import org.mule.extension.sftp.api.SftpFileAttributes;
 import org.mule.extension.sftp.internal.command.SftpCopyCommand;
@@ -41,15 +42,15 @@ import org.mule.runtime.api.lock.LockFactory;
 
 import java.io.InputStream;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
-import java.nio.file.Path;
 
 /**
  * Implementation of {@link AbstractFileSystem} for files residing on a SFTP server
  *
  * @since 1.0
  */
-public class SftpFileSystem extends AbstractFileSystem {
+public class SftpFileSystem extends AbstractExternalFileSystem {
 
   protected final SftpClient client;
   protected final CopyCommand copyCommand;
@@ -126,17 +127,14 @@ public class SftpFileSystem extends AbstractFileSystem {
 
   /**
    * {@inheritDoc}
-   *
-   * @return a {@link URLPathLock} based on the {@link #client}'s connection information
    */
-  @Override
-  protected PathLock createLock(Path path) {
-    return new URLPathLock(toURL(path), lockFactory);
+  protected UriLock createLock(URI uri) {
+    return new URLPathLock(toURL(uri), lockFactory);
   }
 
-  private URL toURL(Path path) {
+  private URL toURL(URI uri) {
     try {
-      return new URL("ftp", client.getHost(), client.getPort(), path != null ? path.toString() : EMPTY);
+      return new URL("ftp", client.getHost(), client.getPort(), uri != null ? uri.getPath() : EMPTY);
     } catch (MalformedURLException e) {
       throw new MuleRuntimeException(createStaticMessage("Could not get URL for SFTP server"), e);
     }

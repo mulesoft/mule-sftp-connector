@@ -19,6 +19,7 @@ import static org.mule.extension.file.common.api.FileWriteMode.CREATE_NEW;
 import static org.mule.extension.file.common.api.FileWriteMode.OVERWRITE;
 import static org.mule.extension.file.common.api.exceptions.FileError.FILE_ALREADY_EXISTS;
 import static org.mule.extension.file.common.api.exceptions.FileError.ILLEGAL_PATH;
+import static org.mule.extension.file.common.api.util.UriUtils.createUri;
 import static org.mule.extension.sftp.AllureConstants.SftpFeature.SFTP_EXTENSION;
 import static org.mule.runtime.core.api.util.IOUtils.toByteArray;
 import static org.mule.test.extension.file.common.api.FileTestHarness.HELLO_WORLD;
@@ -31,7 +32,6 @@ import org.mule.runtime.core.api.event.CoreEvent;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Method;
-import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
 
@@ -54,10 +54,11 @@ public class SftpWriteTestCase extends CommonSftpConnectorTestCase {
   }
 
   @Test
-  public void writeOnAPathWithColon() throws Exception {
-    //TODO: Remove assumption once MULE-15733 get fixed.
+  public void writeOnFileWithColonInName() throws Exception {
+    //TODO: This assumption must stay as long as the test server runs in the same OS as the tests. It could be
+    // removed when the test server always runs in an external Linux container.
     assumeTrue(!IS_OS_WINDOWS);
-    final String filePath = "X:/file.txt";
+    final String filePath = "folder/fi:le.txt";
 
     doWrite(filePath, HELLO_WORLD, OVERWRITE, true);
     toString(readPath(filePath).getPayload().getValue());
@@ -153,7 +154,7 @@ public class SftpWriteTestCase extends CommonSftpConnectorTestCase {
   @Test
   public void writeWithLock() throws Exception {
     testHarness.makeDir(TEMP_DIRECTORY);
-    String path = Paths.get(testHarness.getWorkingDirectory(), TEMP_DIRECTORY, "test.txt").toString();
+    String path = createUri(createUri(testHarness.getWorkingDirectory(), TEMP_DIRECTORY).getPath(), "test.txt").getPath();
     doWrite("writeWithLock", path, HELLO_WORLD, CREATE_NEW, false);
 
     String content = toString(readPath(path).getPayload().getValue());
@@ -174,7 +175,7 @@ public class SftpWriteTestCase extends CommonSftpConnectorTestCase {
   @Test
   public void writeStaticContent() throws Exception {
     testHarness.makeDir(TEMP_DIRECTORY);
-    String path = Paths.get(testHarness.getWorkingDirectory(), TEMP_DIRECTORY, "test.txt").toString();
+    String path = createUri(createUri(testHarness.getWorkingDirectory(), TEMP_DIRECTORY).getPath(), "test.txt").getPath();
     doWrite("writeStaticContent", path, "", CREATE_NEW, false);
 
     String content = toString(readPath(path).getPayload().getValue());
@@ -193,7 +194,7 @@ public class SftpWriteTestCase extends CommonSftpConnectorTestCase {
     final String filename = "encoding.txt";
 
     doWrite("write", filename, HELLO_WORLD, CREATE_NEW, false, customEncoding);
-    String path = Paths.get(testHarness.getWorkingDirectory()).resolve(filename).toString();
+    String path = createUri(testHarness.getWorkingDirectory(), filename).getPath();
     InputStream content = (InputStream) readPath(path, false).getPayload().getValue();
 
     assertThat(Arrays.equals(toByteArray(content), HELLO_WORLD.getBytes(customEncoding)), is(true));
@@ -201,7 +202,8 @@ public class SftpWriteTestCase extends CommonSftpConnectorTestCase {
 
   private void doWriteNotExistingFileWithCreatedParent(FileWriteMode mode) throws Exception {
     testHarness.makeDir(TEMP_DIRECTORY);
-    String path = Paths.get(testHarness.getWorkingDirectory(), TEMP_DIRECTORY, "a/b/test.txt").toString();
+    String path = createUri(createUri(testHarness.getWorkingDirectory(), TEMP_DIRECTORY).getPath(), "a/b/test.txt").getPath();
+
 
     doWrite(path, HELLO_WORLD, mode, true);
 
@@ -212,7 +214,7 @@ public class SftpWriteTestCase extends CommonSftpConnectorTestCase {
 
   private void doWriteOnNotExistingFile(FileWriteMode mode) throws Exception {
     testHarness.makeDir(TEMP_DIRECTORY);
-    String path = Paths.get(testHarness.getWorkingDirectory(), TEMP_DIRECTORY, "test.txt").toString();
+    String path = createUri(createUri(testHarness.getWorkingDirectory(), TEMP_DIRECTORY).getPath(), "test.txt").getPath();
     doWrite(path, HELLO_WORLD, mode, false);
 
     String content = toString(readPath(path));
@@ -221,7 +223,7 @@ public class SftpWriteTestCase extends CommonSftpConnectorTestCase {
 
   private void doWriteOnNotExistingParentWithoutCreateFolder(FileWriteMode mode) throws Exception {
     testHarness.makeDir(TEMP_DIRECTORY);
-    String path = Paths.get(testHarness.getWorkingDirectory(), TEMP_DIRECTORY, "a/b/test.txt").toString();
+    String path = createUri(createUri(testHarness.getWorkingDirectory(), TEMP_DIRECTORY).getPath(), "a/b/test.txt").getPath();
     doWrite(path, HELLO_WORLD, mode, false);
   }
 

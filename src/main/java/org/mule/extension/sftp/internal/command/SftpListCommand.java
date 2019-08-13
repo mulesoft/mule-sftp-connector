@@ -6,6 +6,7 @@
  */
 package org.mule.extension.sftp.internal.command;
 
+import static org.mule.extension.file.common.api.util.UriUtils.createUri;
 import static org.slf4j.LoggerFactory.getLogger;
 import org.mule.extension.file.common.api.FileAttributes;
 import org.mule.extension.file.common.api.FileConnectorConfig;
@@ -16,8 +17,7 @@ import org.mule.extension.sftp.internal.connection.SftpFileSystem;
 import org.mule.runtime.extension.api.runtime.operation.Result;
 
 import java.io.InputStream;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.net.URI;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -75,10 +75,10 @@ public final class SftpListCommand extends SftpCommand implements ListCommand<Sf
                                                             Long timeBetweenSizeCheck) {
 
     FileAttributes directoryAttributes = getExistingFile(directoryPath);
-    Path path = Paths.get(directoryAttributes.getPath());
+    URI uri = createUri(directoryAttributes.getPath(), "");
 
     if (!directoryAttributes.isDirectory()) {
-      throw cannotListFileException(path);
+      throw cannotListFileException(uri);
     }
 
     List<Result<InputStream, SftpFileAttributes>> accumulator = new LinkedList<>();
