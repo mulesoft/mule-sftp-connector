@@ -6,15 +6,16 @@
  */
 package org.mule.extension.sftp;
 
+import static org.apache.commons.lang3.SystemUtils.IS_OS_WINDOWS;
+import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assume.assumeTrue;
 import static org.mule.extension.file.common.api.exceptions.FileError.FILE_ALREADY_EXISTS;
+import static org.mule.extension.file.common.api.util.UriUtils.createUri;
 import static org.mule.extension.sftp.AllureConstants.SftpFeature.SFTP_EXTENSION;
-import static org.mule.extension.sftp.internal.SftpUtils.normalizePath;
 
 import org.mule.extension.file.common.api.exceptions.FileAlreadyExistsException;
-
-import java.net.URI;
 
 import io.qameta.allure.Feature;
 import org.junit.Test;
@@ -51,18 +52,160 @@ public class SftpCreateDirectoryTestCase extends CommonSftpConnectorTestCase {
 
   @Test
   public void createDirectoryWithComplexPath() throws Exception {
-    String complexPathDir = new URI(testHarness.getWorkingDirectory()).resolve(DIRECTORY).toString();
-    doCreateDirectory(complexPathDir);
+    String complexPath = createUri(testHarness.getWorkingDirectory(), DIRECTORY).getPath();
+    doCreateDirectory(complexPath);
 
-    assertThat(testHarness.dirExists(complexPathDir), is(true));
+    assertThat(testHarness.dirExists(complexPath), is(true));
   }
 
   @Test
   public void createDirectoryFromRoot() throws Exception {
-    String rootChildDirectoryPath =
-        normalizePath(new URI(testHarness.getRootDirectory()).resolve(ROOT_CHILD_DIRECTORY).toString());
+    String rootChildDirectoryPath = createUri(testHarness.getAbsoluteRootDirectory(), ROOT_CHILD_DIRECTORY).getPath();
     doCreateDirectory(rootChildDirectoryPath);
     assertThat(testHarness.dirExists(rootChildDirectoryPath), is(true));
+  }
+
+  @Test
+  public void createRootDirectory() throws Exception {
+    testHarness.expectedError().expectError(NAMESPACE, FILE_ALREADY_EXISTS.getType(), FileAlreadyExistsException.class,
+                                            "already exists");
+    doCreateDirectory("/");
+  }
+
+  @Test
+  public void createRootCurrentDirectory() throws Exception {
+    testHarness.expectedError().expectError(NAMESPACE, FILE_ALREADY_EXISTS.getType(), FileAlreadyExistsException.class,
+                                            "already exists");
+    doCreateDirectory("/.");
+  }
+
+  @Test
+  public void createRootParentDirectory() throws Exception {
+    testHarness.expectedError().expectError(NAMESPACE, FILE_ALREADY_EXISTS.getType(), FileAlreadyExistsException.class,
+                                            "already exists");
+    doCreateDirectory("/..");
+  }
+
+  @Test
+  public void createCurrentDirectory() throws Exception {
+    testHarness.expectedError().expectError(NAMESPACE, FILE_ALREADY_EXISTS.getType(), FileAlreadyExistsException.class,
+                                            "already exists");
+    doCreateDirectory(".");
+  }
+
+  @Test
+  public void createParentDirectory() throws Exception {
+    testHarness.expectedError().expectError(NAMESPACE, FILE_ALREADY_EXISTS.getType(), FileAlreadyExistsException.class,
+                                            "already exists");
+    doCreateDirectory("..");
+  }
+
+  @Test
+  public void createParentParentDirectory() throws Exception {
+    testHarness.expectedError().expectError(NAMESPACE, FILE_ALREADY_EXISTS.getType(), FileAlreadyExistsException.class,
+                                            "already exists");
+    doCreateDirectory("../..");
+  }
+
+  @Test
+  public void createDirectoryTwice() throws Exception {
+    testHarness.expectedError().expectError(NAMESPACE, FILE_ALREADY_EXISTS.getType(), FileAlreadyExistsException.class,
+                                            "already exists");
+    doCreateDirectory("zarasa/..");
+  }
+
+  @Test
+  public void createCurrentDirectoryWithNonExistingParent() throws Exception {
+    doCreateDirectory("zarasa/.");
+    assertThat(testHarness.dirExists("zarasa"), is(true));
+  }
+
+  @Test
+  public void createDirectoryEndingInSlash() throws Exception {
+    doCreateDirectory("zarasa/");
+    assertThat(testHarness.dirExists("zarasa"), is(true));
+  }
+
+  @Test
+  public void createBlankDirectory() throws Exception {
+    testHarness.expectedError().expectErrorType("SFTP", "ILLEGAL_PATH");
+    testHarness.expectedError().expectMessage(containsString("directory path cannot be null nor blank"));
+    doCreateDirectory("");
+  }
+
+  @Test
+  public void createDirectoryWithSpace() throws Exception {
+    testHarness.expectedError().expectErrorType("SFTP", "ILLEGAL_PATH");
+    testHarness.expectedError().expectMessage(containsString("directory path cannot be null nor blank"));
+    doCreateDirectory(" ");
+  }
+
+  @Test
+  public void createComplexDirectoryWithSpace() throws Exception {
+    doCreateDirectory("zarasa/ /valid");
+    assertThat(testHarness.dirExists("zarasa/ "), is(true));
+    assertThat(testHarness.dirExists("zarasa/ /valid"), is(true));
+  }
+
+  @Test
+  public void createDirectoryWithSpaceAndSlash() throws Exception {
+    doCreateDirectory(" /");
+    assertThat(testHarness.dirExists(" "), is(true));
+  }
+
+  @Test
+  public void createDirectoryWithSpecialCharacter() throws Exception {
+    doCreateDirectory("@");
+    assertThat(testHarness.dirExists("@"), is(true));
+  }
+
+  @Test
+  public void createCurrentDirectoryAndChildDirectoryIgnoresDot() throws Exception {
+    doCreateDirectory("./valid");
+    assertThat(testHarness.dirExists("valid"), is(true));
+  }
+
+  @Test
+  public void createParentDirectoryAndChildDirectory() throws Exception {
+    testHarness.expectedError().expectError(NAMESPACE, FILE_ALREADY_EXISTS.getType(), FileAlreadyExistsException.class,
+                                            "already exists");
+    doCreateDirectory("../valid");
+  }
+
+  @Test
+  public void createDirectoryStartingWithSlashCreatesAbsoluteDirectory() throws Exception {
+    doCreateDirectory("/secondBase/child");
+    assertThat(testHarness.dirExists("/secondBase/child"), is(true));
+    assertThat(testHarness.dirExists("/base/secondBase/child"), is(false));
+  }
+
+  @Test
+  public void createRelativeDirectoryResolvesCorrectly() throws Exception {
+    testHarness.makeDir("child");
+    doCreateDirectory("child/secondChild");
+    assertThat(testHarness.dirExists("/base/child/secondChild"), is(true));
+    assertThat(testHarness.dirExists("/base/child/child/secondChild"), is(false));
+    assertThat(testHarness.dirExists("/base/child/child"), is(false));
+  }
+
+  @Test
+  public void createDirectoryWithColon() throws Exception {
+    //TODO: This assumption must stay as long as the test server runs in the same OS as the tests. It could be
+    // removed when the test server always runs in an external Linux container.
+    assumeTrue(!IS_OS_WINDOWS);
+    final String path = "pathWith:Colon";
+    doCreateDirectory(path);
+    assertThat(testHarness.dirExists("/base/pathWith:Colon"), is(true));
+  }
+
+  @Test
+  public void createDirectoryWithGreaterThan() throws Exception {
+    //TODO: This assumption must stay as long as the test server runs in the same OS as the tests. It could be
+    // removed when the test server always runs in an external Linux container.
+    assumeTrue(!IS_OS_WINDOWS);
+    final String path = "pathWith>";
+    doCreateDirectory(path);
+    assertThat(testHarness.dirExists("/base/pathWith>"), is(true));
   }
 
   private void doCreateDirectory(String directory) throws Exception {

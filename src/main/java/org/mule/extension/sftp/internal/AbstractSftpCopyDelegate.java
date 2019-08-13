@@ -18,8 +18,7 @@ import org.mule.runtime.extension.api.exception.ModuleException;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.net.URI;
 
 /**
  * Abstract implementation of {@link SftpCopyDelegate} for copying operations which require to FTP connections, one for reading the
@@ -47,11 +46,11 @@ public abstract class AbstractSftpCopyDelegate implements SftpCopyDelegate {
    * Performs a recursive copy
    *  @param config the config which is parameterizing this operation
    * @param source the {@link FileAttributes} for the file to be copied
-   * @param targetPath the {@link Path} to the target destination
+   * @param targetUri the {@link URI} to the target destination
    * @param overwrite whether to overwrite existing target paths
    */
   @Override
-  public void doCopy(FileConnectorConfig config, FileAttributes source, Path targetPath, boolean overwrite) {
+  public void doCopy(FileConnectorConfig config, FileAttributes source, URI targetUri, boolean overwrite) {
     ConnectionHandler<SftpFileSystem> writerConnectionHandler;
     final SftpFileSystem writerConnection;
     try {
@@ -60,18 +59,18 @@ public abstract class AbstractSftpCopyDelegate implements SftpCopyDelegate {
     } catch (ConnectionException e) {
       throw command
           .exception(format("FTP Copy operations require the use of two FTP connections. An exception was found trying to obtain second connection to"
-              + "copy the path '%s' to '%s'", source.getPath(), targetPath), e);
+              + "copy the path '%s' to '%s'", source.getPath(), targetUri.getPath()), e);
     }
     try {
       if (source.isDirectory()) {
-        copyDirectory(config, Paths.get(source.getPath()), targetPath, overwrite, writerConnection);
+        copyDirectory(config, URI.create(source.getPath()), targetUri, overwrite, writerConnection);
       } else {
-        copyFile(config, source, targetPath, overwrite, writerConnection);
+        copyFile(config, source, targetUri, overwrite, writerConnection);
       }
     } catch (ModuleException e) {
       throw e;
     } catch (Exception e) {
-      throw command.exception(format("Found exception copying file '%s' to '%s'", source, targetPath), e);
+      throw command.exception(format("Found exception copying file '%s' to '%s'", source, targetUri.getPath()), e);
     } finally {
       writerConnectionHandler.release();
     }
@@ -80,25 +79,25 @@ public abstract class AbstractSftpCopyDelegate implements SftpCopyDelegate {
   /**
    * Performs a recursive copy of a directory
    *  @param config the config which is parameterizing this operation
-   * @param sourcePath the path to the directory to be copied
+   * @param sourceUri the path to the directory to be copied
    * @param target the target path
    * @param overwrite whether to overwrite the target files if they already exists
    * @param writerConnection the {@link SftpFileSystem} which connects to the target endpoint
    */
-  protected abstract void copyDirectory(FileConnectorConfig config, Path sourcePath, Path target, boolean overwrite,
+  protected abstract void copyDirectory(FileConnectorConfig config, URI sourceUri, URI target, boolean overwrite,
                                         SftpFileSystem writerConnection);
 
   /**
    * Copies one individual file
    *  @param config the config which is parameterizing this operation
    * @param source the {@link FileAttributes} for the file to be copied
-   * @param target the target path
+   * @param target the target uri
    * @param overwrite whether to overwrite the target files if they already exists
    * @param writerConnection the {@link SftpFileSystem} which connects to the target endpoint
    */
-  protected void copyFile(FileConnectorConfig config, FileAttributes source, Path target, boolean overwrite,
+  protected void copyFile(FileConnectorConfig config, FileAttributes source, URI target, boolean overwrite,
                           SftpFileSystem writerConnection) {
-    FileAttributes targetFile = command.getFile(target.toString());
+    FileAttributes targetFile = command.getFile(target.getPath());
     if (targetFile != null) {
       if (overwrite) {
         fileSystem.delete(targetFile.getPath());
@@ -113,7 +112,7 @@ public abstract class AbstractSftpCopyDelegate implements SftpCopyDelegate {
             .exception(format("Could not read file '%s' while trying to copy it to remote path '%s'", source.getPath(), target));
       }
 
-      writeCopy(config, target.toString(), inputStream, overwrite, writerConnection);
+      writeCopy(config, target.getPath(), inputStream, overwrite, writerConnection);
     } catch (Exception e) {
       throw command
           .exception(format("Found exception while trying to copy file '%s' to remote path '%s'", source.getPath(), target), e);

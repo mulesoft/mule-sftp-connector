@@ -8,11 +8,10 @@ package org.mule.extension.sftp;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
+import static org.mule.extension.file.common.api.util.UriUtils.createUri;
 import static org.mule.test.extension.file.common.api.FileTestHarness.HELLO_WORLD;
 import org.mule.runtime.api.message.Message;
 import org.mule.tck.junit4.rule.DynamicPort;
-
-import java.nio.file.Paths;
 
 import org.junit.Rule;
 import org.junit.Test;
@@ -52,7 +51,7 @@ public class SftpProxyTestCase extends AbstractSftpConnectorTestCase {
   public void connectsThroughProxy() throws Exception {
     testHarness.createHelloWorldFile();
     Message message =
-        flowRunner("sftpRead").withVariable("readPath", Paths.get("files/hello.json").toString()).run().getMessage();
+        flowRunner("sftpRead").withVariable("readPath", createUri("files/hello.json").getPath()).run().getMessage();
     assertThat(getPayloadAsString(message), is(HELLO_WORLD));
   }
 }

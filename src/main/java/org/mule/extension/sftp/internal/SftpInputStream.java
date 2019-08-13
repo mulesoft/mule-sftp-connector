@@ -10,9 +10,10 @@ import static java.lang.Thread.sleep;
 import static org.mule.runtime.api.i18n.I18nMessageFactory.createStaticMessage;
 import static org.slf4j.LoggerFactory.getLogger;
 import org.mule.extension.file.common.api.FileAttributes;
-import org.mule.extension.file.common.api.lock.PathLock;
+import org.mule.extension.file.common.api.lock.UriLock;
 import org.mule.extension.file.common.api.stream.AbstractFileInputStream;
 import org.mule.extension.file.common.api.stream.LazyStreamSupplier;
+import org.mule.extension.file.common.api.util.UriUtils;
 import org.mule.extension.sftp.api.SftpFileAttributes;
 import org.mule.extension.sftp.internal.connection.SftpFileSystem;
 import org.mule.extension.sftp.internal.exception.DeletedFileWhileReadException;
@@ -47,11 +48,11 @@ public class SftpInputStream extends AbstractFileInputStream {
    *
    * @param config     the config which is parameterizing this operation
    * @param attributes a {@link FileAttributes} referencing the file which contents are to be fetched
-   * @param lock       the {@link PathLock} to be used
+   * @param lock       the {@link UriLock} to be used
    * @return a new {@link SftpFileAttributes}
    * @throws ConnectionException if a connection could not be established
    */
-  public static SftpInputStream newInstance(SftpConnector config, SftpFileAttributes attributes, PathLock lock,
+  public static SftpInputStream newInstance(SftpConnector config, SftpFileAttributes attributes, UriLock lock,
                                             Long timeBetweenSizeCheck, TimeUnit timeBetweenSizeCheckUnit)
       throws ConnectionException {
     ConnectionAwareSupplier connectionAwareSupplier =
@@ -73,7 +74,7 @@ public class SftpInputStream extends AbstractFileInputStream {
 
   private ConnectionAwareSupplier connectionAwareSupplier;
 
-  protected SftpInputStream(ConnectionAwareSupplier connectionAwareSupplier, PathLock lock) {
+  protected SftpInputStream(ConnectionAwareSupplier connectionAwareSupplier, UriLock lock) {
     super(new LazyStreamSupplier(connectionAwareSupplier), lock);
     this.connectionAwareSupplier = connectionAwareSupplier;
   }

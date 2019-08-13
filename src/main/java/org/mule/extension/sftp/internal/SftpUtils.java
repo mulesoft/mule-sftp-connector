@@ -9,7 +9,6 @@ package org.mule.extension.sftp.internal;
 import static java.lang.Thread.currentThread;
 
 import java.net.URL;
-import java.nio.file.Path;
 
 import org.apache.commons.io.FilenameUtils;
 
@@ -30,11 +29,7 @@ public class SftpUtils {
     return FilenameUtils.normalize(path, true);
   }
 
-  public static String normalizePath(Path path) {
-    return normalizePath(path.toString());
-  }
-
-  public static String resolvePath(String pathOrResourceName) {
+  public static String resolvePathOrResource(String pathOrResourceName) {
     URL resource = currentThread().getContextClassLoader().getResource(pathOrResourceName);
     return resource != null ? resource.getPath() : pathOrResourceName;
   }
