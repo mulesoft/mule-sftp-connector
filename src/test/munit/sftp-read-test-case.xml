@@ -16,10 +16,10 @@
 
     <munit:dynamic-port propertyName="sftp.server.port"/>
 
-    <sftp:config name="config">
+    <sftp:config name="config-with-limited-pool">
         <sftp:connection username="muletest1" password="muletest1" host="localhost" port="${sftp.server.port}"
                          workingDir="/" prngAlgorithm="SHA1PRNG">
-            <pooling-profile exhaustedAction="WHEN_EXHAUSTED_WAIT" maxActive="7" maxIdle="3" maxWait="5000"/>
+            <pooling-profile exhaustedAction="WHEN_EXHAUSTED_WAIT" maxActive="1" maxIdle="1" maxWait="5000"/>
         </sftp:connection>
     </sftp:config>
 
@@ -44,16 +44,16 @@
         </java:invoke-static>
     </munit:after-suite>
 
-    <munit:test name="sftp-read-file">
+    <munit:test name="sftp-read-file-using-single-connection">
         <munit:behavior>
             <set-variable variableName="fileName" value="filePath.txt"/>
             <set-variable variableName="fileContent" value="I just want to impress Mr. Stark"/>
-            <sftp:write config-ref="config" path="#[vars.fileName]">
+            <sftp:write config-ref="config-with-limited-pool" path="#[vars.fileName]">
                 <sftp:content>#[vars.fileContent]</sftp:content>
             </sftp:write>
         </munit:behavior>
         <munit:execution>
-            <sftp:read config-ref="config" path='#[vars.fileName]'/>
+            <sftp:read config-ref="config-with-limited-pool" path='#[vars.fileName]'/>
         </munit:execution>
         <munit:validation>
             <munit-tools:assert>

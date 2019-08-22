@@ -18,6 +18,7 @@ import org.mule.extension.sftp.internal.SftpConnector;
 import org.mule.extension.sftp.internal.SftpInputStream;
 import org.mule.extension.sftp.internal.connection.SftpClient;
 import org.mule.extension.sftp.internal.connection.SftpFileSystem;
+import org.mule.runtime.api.connection.ConnectionException;
 import org.mule.runtime.api.metadata.MediaType;
 import org.mule.runtime.core.api.util.IOUtils;
 import org.mule.runtime.extension.api.runtime.operation.Result;
@@ -57,7 +58,7 @@ public final class SftpReadCommand extends SftpCommand implements ReadCommand<Sf
       throw cannotReadDirectoryException(createUri(attributes.getPath()));
     }
 
-    return read(config, attributes, lock, timeBetweenSizeCheck);
+    return read(config, attributes, lock, timeBetweenSizeCheck, true);
   }
 
   /**
@@ -66,20 +67,7 @@ public final class SftpReadCommand extends SftpCommand implements ReadCommand<Sf
   @Override
   public Result<InputStream, SftpFileAttributes> read(FileConnectorConfig config, SftpFileAttributes attributes, boolean lock,
                                                       Long timeBetweenSizeCheck) {
-    URI uri = UriUtils.createUri(attributes.getPath());
-
-    UriLock pathLock = lock ? fileSystem.lock(uri) : new NullUriLock(uri);
-    InputStream payload = null;
-    try {
-      payload = SftpInputStream.newInstance((SftpConnector) config, attributes, pathLock, timeBetweenSizeCheck);
-      MediaType resolvedMediaType = fileSystem.getFileMessageMediaType(attributes);
-      return Result.<InputStream, SftpFileAttributes>builder().output(payload).mediaType(resolvedMediaType).attributes(attributes)
-          .build();
-    } catch (Exception e) {
-      pathLock.release();
-      IOUtils.closeQuietly(payload);
-      throw exception("Could not fetch file " + uri.getPath(), e);
-    }
+    return read(config, attributes, lock, timeBetweenSizeCheck, false);
   }
 
   @Deprecated
@@ -91,5 +79,33 @@ public final class SftpReadCommand extends SftpCommand implements ReadCommand<Sf
 
   public SftpFileAttributes readAttributes(String filePath) {
     return getFile(filePath);
+  }
+
+  private Result<InputStream, SftpFileAttributes> read(FileConnectorConfig config, SftpFileAttributes attributes, boolean lock,
+                                                       Long timeBetweenSizeCheck, boolean useCurrentConnection) {
+    URI uri = UriUtils.createUri(attributes.getPath());
+
+    UriLock pathLock = lock ? fileSystem.lock(uri) : new NullUriLock(uri);
+    InputStream payload = null;
+    try {
+      payload = getFileInputStream((SftpConnector) config, attributes, pathLock, timeBetweenSizeCheck, useCurrentConnection);
+      MediaType resolvedMediaType = fileSystem.getFileMessageMediaType(attributes);
+      return Result.<InputStream, SftpFileAttributes>builder().output(payload).mediaType(resolvedMediaType).attributes(attributes)
+          .build();
+    } catch (Exception e) {
+      pathLock.release();
+      IOUtils.closeQuietly(payload);
+      throw exception("Could not fetch file " + uri.getPath(), e);
+    }
+  }
+
+  private InputStream getFileInputStream(SftpConnector config, SftpFileAttributes attributes, UriLock pathLock,
+                                         Long timeBetweenSizeCheck, boolean useCurrentConnection)
+      throws ConnectionException {
+    if (useCurrentConnection) {
+      return SftpInputStream.newInstance(fileSystem, attributes, pathLock, timeBetweenSizeCheck);
+    } else {
+      return SftpInputStream.newInstance(config, attributes, pathLock, timeBetweenSizeCheck);
+    }
   }
 }
