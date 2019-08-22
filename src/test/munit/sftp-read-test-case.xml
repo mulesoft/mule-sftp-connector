@@ -44,7 +44,8 @@
         </java:invoke-static>
     </munit:after-suite>
 
-    <munit:test name="sftp-read-file-using-single-connection">
+    <munit:test name="sftp-read-file-using-single-connection"
+                description="Perform a read operation with a pooling profile which allows only 1 active connection">
         <munit:behavior>
             <set-variable variableName="fileName" value="filePath.txt"/>
             <set-variable variableName="fileContent" value="I just want to impress Mr. Stark"/>
