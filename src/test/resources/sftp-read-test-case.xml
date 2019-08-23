@@ -12,17 +12,10 @@
         http://www.mulesoft.org/schema/mule/sftp http://www.mulesoft.org/schema/mule/sftp/current/mule-sftp.xsd
         http://www.mulesoft.org/schema/mule/java http://www.mulesoft.org/schema/mule/java/current/mule-java.xsd">
 
-    <munit:config name="sftp-read-test-case.xml"/>
+    <munit:config name="sftp-read-test-case.xml">
+    </munit:config>
 
     <munit:dynamic-port propertyName="sftp.server.port"/>
-
-    <sftp:config name="config">
-        <sftp:connection username="muletest1" password="muletest1" host="localhost" port="${sftp.server.port}"
-                         workingDir="/" prngAlgorithm="SHA1PRNG">
-            <pooling-profile exhaustedAction="WHEN_EXHAUSTED_WAIT" maxActive="7" maxIdle="3" maxWait="5000"/>
-        </sftp:connection>
-    </sftp:config>
-
 
     <munit:before-suite name="startSftpTestServer">
         <java:invoke-static class="org.mule.extension.sftp.internal.lifecycle.SftpServerLifecycleManager"
@@ -65,5 +58,4 @@
             </munit-tools:assert>
         </munit:validation>
     </munit:test>
-
 </mule>

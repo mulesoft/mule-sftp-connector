@@ -46,7 +46,6 @@ public class SftpServerLifecycleManager {
       }
     } finally {
       temporaryFolder.delete();
-      System.clearProperty(WORKING_DIR_SYSTEM_PROPERTY);
     }
   }
 

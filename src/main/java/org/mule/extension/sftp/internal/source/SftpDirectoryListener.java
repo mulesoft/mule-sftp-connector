@@ -139,7 +139,7 @@ public class SftpDirectoryListener extends PollingSource<InputStream, SftpFileAt
 
   @Override
   protected void doStart() {
-    matcher = predicateBuilder != null ? predicateBuilder.build() : new NullFilePayloadPredicate<>();
+    refreshMatcher();
     directoryUri = resolveRootPath();
   }
 
@@ -167,6 +167,7 @@ public class SftpDirectoryListener extends PollingSource<InputStream, SftpFileAt
 
   @Override
   public void poll(PollContext<InputStream, SftpFileAttributes> pollContext) {
+    refreshMatcher();
     if (pollContext.isSourceStopping()) {
       return;
     }
@@ -221,6 +222,10 @@ public class SftpDirectoryListener extends PollingSource<InputStream, SftpFileAt
     } finally {
       fileSystemProvider.disconnect(fileSystem);
     }
+  }
+
+  private void refreshMatcher() {
+    matcher = predicateBuilder != null ? predicateBuilder.build() : new NullFilePayloadPredicate<>();
   }
 
   private SftpFileSystem openConnection() throws Exception {
