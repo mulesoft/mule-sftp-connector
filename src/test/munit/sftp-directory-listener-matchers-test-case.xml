@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:munit="http://www.mulesoft.org/schema/mule/munit"
+      xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools"
+      xmlns="http://www.mulesoft.org/schema/mule/core"
+      xmlns:sftp="http://www.mulesoft.org/schema/mule/sftp"
+      xmlns:java="http://www.mulesoft.org/schema/mule/java"
+      xsi:schemaLocation="
+		http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+		http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
+		http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd
+        http://www.mulesoft.org/schema/mule/sftp http://www.mulesoft.org/schema/mule/sftp/current/mule-sftp.xsd
+        http://www.mulesoft.org/schema/mule/java http://www.mulesoft.org/schema/mule/java/current/mule-java.xsd">
+
+    <munit:config name="sftp-directory-listener-matchers-test-case.xml">
+        <munit:parameterizations>
+            <munit:parameterization name="process-new-files">
+                <munit:parameters>
+                    <munit:parameter propertyName="matcherName" value="new-files"/>
+                </munit:parameters>
+            </munit:parameterization>
+            <munit:parameterization name="process-old-files">
+                <munit:parameters>
+                    <munit:parameter propertyName="matcherName" value="old-files"/>
+                </munit:parameters>
+            </munit:parameterization>
+            <munit:parameterization name="process-all-files">
+                <munit:parameters>
+                    <munit:parameter propertyName="matcherName" value="all-files"/>
+                </munit:parameters>
+            </munit:parameterization>
+            <munit:parameterization name="process-recent-files-that-are-not-new">
+                <munit:parameters>
+                    <munit:parameter propertyName="matcherName" value="recent-files-that-are-not-new"/>
+                </munit:parameters>
+            </munit:parameterization>
+        </munit:parameterizations>
+    </munit:config>
+
+    <munit:dynamic-port propertyName="sftp.server.port"/>
+
+    <munit:before-suite name="startDirectoryListenerMatcherTestServer">
+        <java:invoke-static class="org.mule.extension.sftp.internal.lifecycle.SftpServerLifecycleManager"
+                            method="startSftpServer(String)">
+            <java:args>
+                #[{
+                arg0: ${sftp.server.port},
+                }]
+            </java:args>
+        </java:invoke-static>
+    </munit:before-suite>
+
+    <munit:after-suite name="clearDirectoryListenerMatcherTestServer">
+        <java:invoke-static class="org.mule.extension.sftp.internal.lifecycle.SftpServerLifecycleManager"
+                            method="stopSftpServer()">
+            <java:args>
+                #[{}]
+            </java:args>
+        </java:invoke-static>
+    </munit:after-suite>
+
+    <munit:test name="listenerProcessesAllFiles">
+
+        <munit:enable-flow-sources>
+            <munit:enable-flow-source value="fileListenerFlow"/>
+        </munit:enable-flow-sources>
+
+        <munit:behavior>
+            <set-variable variableName="amountOfFiles" value="#[100]"/>
+            <set-variable variableName="fileContent" value="File content"/>
+        </munit:behavior>
+        <munit:execution>
+            <foreach collection="#[1 to vars.amountOfFiles]">
+                <sftp:write config-ref="config" path="#[payload ++ '.txt']">
+                    <sftp:content>#[vars.fileContent]</sftp:content>
+                </sftp:write>
+                <logger level="DEBUG" message="Waiting 100 milliseconds before writing the next file"/>
+                <munit-tools:sleep time="100"/>
+            </foreach>
+        </munit:execution>
+        <munit:validation>
+            <until-successful maxRetries="50" millisBetweenRetries="1000">
+                <munit-tools:assert-that expression="#[MunitTools::queueSize()]"
+                                         is="#[MunitTools::equalTo(vars.amountOfFiles)]"/>
+            </until-successful>
+            <flow-ref name="wait-2-seconds"/>
+            <munit-tools:assert-that expression="#[MunitTools::queueSize()]"
+                                     is="#[MunitTools::equalTo(vars.amountOfFiles)]"/>
+        </munit:validation>
+    </munit:test>
+
+    <sftp:matcher name="new-files" updatedInTheLast="3" timeUnit="SECONDS"/>
+
+    <sftp:matcher name="old-files" notUpdatedInTheLast="3000" timeUnit="MILLISECONDS"/>
+
+    <sftp:matcher name="all-files"/>
+
+    <sftp:matcher name="recent-files-that-are-not-new" notUpdatedInTheLast="3" updatedInTheLast="6"
+                 timeUnit="SECONDS"/>
+
+    <flow name="fileListenerFlow">
+        <sftp:listener config-ref="config" matcher="${matcherName}" watermarkEnabled="true">
+            <scheduling-strategy>
+                <fixed-frequency frequency="500"/>
+            </scheduling-strategy>
+        </sftp:listener>
+        <set-payload value="attributes.fileName"/>
+        <munit-tools:queue/>
+    </flow>
+
+</mule>

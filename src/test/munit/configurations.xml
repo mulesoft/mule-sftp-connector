@@ -19,16 +19,9 @@
         </sftp:connection>
     </sftp:config>
 
-    <sftp:config name="config1">
-        <sftp:connection username="foo" password="pass" host="localhost" port="22222"
-                         workingDir="/upload" prngAlgorithm="SHA1PRNG">
-        </sftp:connection>
-    </sftp:config>
-
     <flow name="wait-2-seconds">
-        <logger level="WARN" message="#[%dw 2.0 import * from dw::Runtime output application/json
-                            ---
-                            'Waiting for 2 seconds' wait 2000]"/>
+        <logger level="ERROR" message="Waiting for 2 seconds"/>
+        <munit-tools:sleep time="2000"/>
     </flow>
 
     <flow name="modify-file">
@@ -39,12 +32,6 @@
     <flow name="write-file">
         <set-payload value="File Content"/>
         <sftp:write config-ref="config" path="random.txt"/>
-        <logger level="WARN" message="File Written"/>
-    </flow>
-
-    <flow name="delete-file">
-        <sftp:delete config-ref="config" path="random.txt"/>
-        <logger level="WARN" message="File Deleted"/>
     </flow>
 
 </mule>

@@ -20,6 +20,7 @@ import org.mule.runtime.extension.api.annotation.param.display.Summary;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Predicate;
 
 import org.slf4j.Logger;
@@ -33,6 +34,9 @@ import org.slf4j.Logger;
 @Alias("matcher")
 @TypeDsl(allowTopLevelDefinition = true)
 public class SftpFileMatcher extends FileMatcher<SftpFileMatcher, SftpFileAttributes> {
+
+  private static final AtomicBoolean alreadyLoggedWarning = new AtomicBoolean();
+  private static final Logger LOGGER = getLogger(SftpFileMatcher.class);
 
   /**
    * Files created before this date are rejected.
@@ -96,21 +100,27 @@ public class SftpFileMatcher extends FileMatcher<SftpFileMatcher, SftpFileAttrib
     LocalDateTime now = now();
 
     if (notUpdatedInTheLast != null) {
-      predicate = predicate.and(attributes -> attributes.getTimestamp() == null
-          || FILE_TIME_UNTIL.apply(minusTime(now, notUpdatedInTheLast, timeUnit), attributes.getTimestamp()));
+      predicate = predicate.and(attributes -> {
+        checkTimestampPrecision(attributes);
+        return attributes.getTimestamp() == null
+            || FILE_TIME_UNTIL.apply(minusTime(now, notUpdatedInTheLast, timeUnit), attributes.getTimestamp());
+      });
     }
 
     if (updatedInTheLast != null) {
-      predicate = predicate.and(attributes -> attributes.getTimestamp() == null
-          || FILE_TIME_SINCE.apply(minusTime(now, updatedInTheLast, timeUnit), attributes.getTimestamp()));
+      predicate = predicate.and(attributes -> {
+        checkTimestampPrecision(attributes);
+        return attributes.getTimestamp() == null
+            || FILE_TIME_SINCE.apply(minusTime(now, updatedInTheLast, timeUnit), attributes.getTimestamp());
+      });
     }
 
     return predicate;
   }
 
   private void checkTimestampPrecision(SftpFileAttributes attributes) {
-    if (isSecondsOrLower(timeUnit) && attributes.getTimestamp().getSecond() == 0 && attributes.getTimestamp().getNano() == 0) {
-      Logger LOGGER = getLogger(SftpFileMatcher.class);
+    if (alreadyLoggedWarning.compareAndSet(false, true) && isSecondsOrLower(timeUnit)
+        && attributes.getTimestamp().getSecond() == 0 && attributes.getTimestamp().getNano() == 0) {
       LOGGER
           .warn("The timestamp precision was set to SECONDS or higher, but it seems like the server does not support such precision.");
     }
