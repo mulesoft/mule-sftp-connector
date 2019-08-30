@@ -12,7 +12,7 @@
         http://www.mulesoft.org/schema/mule/sftp http://www.mulesoft.org/schema/mule/sftp/current/mule-sftp.xsd
         http://www.mulesoft.org/schema/mule/java http://www.mulesoft.org/schema/mule/java/current/mule-java.xsd">
 
-    <munit:config name="sftp-directory-listener-matchers-test-case.xml">
+    <munit:config name="sftp-directory-listener-matchers-test-case.xml" ignore="true">
         <munit:parameterizations>
             <munit:parameterization name="process-new-files">
                 <munit:parameters>
@@ -104,7 +104,7 @@
                 <fixed-frequency frequency="500"/>
             </scheduling-strategy>
         </sftp:listener>
-        <set-payload value="attributes.fileName"/>
+        <set-payload value="#[attributes.fileName]"/>
         <munit-tools:queue/>
     </flow>
 

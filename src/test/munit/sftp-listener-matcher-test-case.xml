@@ -45,6 +45,7 @@
     </munit:after-suite>
 
     <munit:before-test name="create-file-for-listener">
+        <logger level="ERROR" message="Writing File Before Test."/>
         <flow-ref name="write-file"/>
         <flow-ref name="reset-file-listed"/>
     </munit:before-test>
@@ -55,6 +56,7 @@
         </munit:enable-flow-sources>
         <munit:execution>
             <flow-ref name="check-no-file-is-listened"/>
+            <logger level="ERROR" message="Test Complete"/>
         </munit:execution>
     </munit:test>
 
@@ -65,6 +67,7 @@
         <munit:execution>
             <flow-ref name="check-no-file-is-listened"/>
             <flow-ref name="check-until-one-file-is-listened"/>
+            <logger level="ERROR" message="Test Complete"/>
         </munit:execution>
     </munit:test>
 
@@ -74,6 +77,7 @@
         </munit:enable-flow-sources>
         <munit:execution>
             <flow-ref name="check-until-no-file-is-listened"/>
+            <logger level="ERROR" message="Test Complete"/>
         </munit:execution>
     </munit:test>
 
@@ -85,6 +89,7 @@
         <munit:execution>
             <flow-ref name="check-until-one-file-is-listened"/>
             <flow-ref name="check-until-no-file-is-listened"/>
+            <logger level="ERROR" message="Test Complete"/>
         </munit:execution>
     </munit:test>
 
@@ -98,10 +103,11 @@
             <flow-ref name="check-until-one-file-is-listened"/>
             <flow-ref name="check-until-no-file-is-listened"/>
             <flow-ref name="check-no-file-is-listened-over-time"/>
+            <logger level="ERROR" message="Test Complete"/>
         </munit:execution>
     </munit:test>
 
-<!--    <munit:test name="newFileBeingConstantlyUpdatedIsNotListened"
+    <munit:test name="newFileBeingConstantlyUpdatedIsNotListened"
                 description="New file that is constantly being updated is not listened">
         <munit:enable-flow-sources>
             <munit:enable-flow-source value="listen-filtering-updated-recently"/>
@@ -111,10 +117,12 @@
         </munit:behavior>
         <munit:execution>
             <foreach collection="#[1 to vars.numberOfModifications]">
+                <logger level="ERROR" message="Writing File newFileBeingConstantlyUpdatedIsNotListened Test."/>
                 <flow-ref name="modify-file"/>
                 <flow-ref name="wait-2-seconds"/>
                 <flow-ref name="check-no-file-is-listened"/>
             </foreach>
+            <logger level="ERROR" message="Test Complete"/>
         </munit:execution>
     </munit:test>
 
@@ -128,12 +136,14 @@
         </munit:behavior>
         <munit:execution>
             <foreach collection="#[1 to vars.numberOfModifications]">
+                <logger level="ERROR" message="Writing File newFileBeingConstantlyUpdatedIsListened Test."/>
                 <flow-ref name="modify-file"/>
                 <flow-ref name="wait-2-seconds"/>
                 <flow-ref name="check-one-file-is-listened"/>
             </foreach>
+            <logger level="ERROR" message="Test Complete"/>
         </munit:execution>
-    </munit:test>-->
+    </munit:test>
 
     <flow name="listen-filtering-updated-recently">
         <sftp:listener config-ref="config" directory=".">
@@ -184,7 +194,7 @@
         <until-successful maxRetries="50" millisBetweenRetries="1000">
             <flow-ref name="assert-file-was-listened"/>
         </until-successful>
-        <!--Wait for a polling cycle, so that the listener sets the isFileBeingListed key to true-->
+        <!--Wait for a polling cycle, so that the listener sets the isFileBeingListed key back to true and avoid race conditions-->
         <munit-tools:sleep time="300"/>
         <error-handler>
             <on-error-continue type="MULE:RETRY_EXHAUSTED">
@@ -197,6 +207,8 @@
         <until-successful maxRetries="50" millisBetweenRetries="1000">
             <flow-ref name="assert-file-was-not-listened"/>
         </until-successful>
+        <!--Wait for a polling cycle, so that the listener sets the isFileBeingListed key back to true and avoid race conditions-->
+        <munit-tools:sleep time="300"/>
         <error-handler>
             <on-error-continue type="MULE:RETRY_EXHAUSTED">
                 <raise-error type="MULE:EXPRESSION" description="Test failure: the file was always listened."/>

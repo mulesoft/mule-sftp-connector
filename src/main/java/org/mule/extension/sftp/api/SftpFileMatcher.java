@@ -6,6 +6,7 @@
  */
 package org.mule.extension.sftp.api;
 
+import static java.lang.String.format;
 import static java.time.LocalDateTime.now;
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -35,8 +36,8 @@ import org.slf4j.Logger;
 @TypeDsl(allowTopLevelDefinition = true)
 public class SftpFileMatcher extends FileMatcher<SftpFileMatcher, SftpFileAttributes> {
 
-  private static final AtomicBoolean alreadyLoggedWarning = new AtomicBoolean();
   private static final Logger LOGGER = getLogger(SftpFileMatcher.class);
+  private AtomicBoolean alreadyLoggedWarning = new AtomicBoolean();
 
   /**
    * Files created before this date are rejected.
@@ -122,7 +123,8 @@ public class SftpFileMatcher extends FileMatcher<SftpFileMatcher, SftpFileAttrib
     if (alreadyLoggedWarning.compareAndSet(false, true) && isSecondsOrLower(timeUnit)
         && attributes.getTimestamp().getSecond() == 0 && attributes.getTimestamp().getNano() == 0) {
       LOGGER
-          .warn("The timestamp precision was set to SECONDS or higher, but it seems like the server does not support such precision.");
+          .debug(format("The timestamp precision was set to %s, but it seems like the server does not support such precision.",
+                        timeUnit));
     }
   }
 
