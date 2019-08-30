@@ -56,7 +56,6 @@
         </munit:enable-flow-sources>
         <munit:execution>
             <flow-ref name="check-no-file-is-listened"/>
-            <logger level="ERROR" message="Test Complete"/>
         </munit:execution>
     </munit:test>
 
@@ -65,9 +64,10 @@
             <munit:enable-flow-source value="listen-filtering-updated-recently"/>
         </munit:enable-flow-sources>
         <munit:execution>
+            <logger level="ERROR" message="ASD1"/>
             <flow-ref name="check-no-file-is-listened"/>
             <flow-ref name="check-until-one-file-is-listened"/>
-            <logger level="ERROR" message="Test Complete"/>
+            <logger level="ERROR" message="ASD3"/>
         </munit:execution>
     </munit:test>
 
@@ -77,7 +77,6 @@
         </munit:enable-flow-sources>
         <munit:execution>
             <flow-ref name="check-until-no-file-is-listened"/>
-            <logger level="ERROR" message="Test Complete"/>
         </munit:execution>
     </munit:test>
 
@@ -89,7 +88,6 @@
         <munit:execution>
             <flow-ref name="check-until-one-file-is-listened"/>
             <flow-ref name="check-until-no-file-is-listened"/>
-            <logger level="ERROR" message="Test Complete"/>
         </munit:execution>
     </munit:test>
 
@@ -103,7 +101,6 @@
             <flow-ref name="check-until-one-file-is-listened"/>
             <flow-ref name="check-until-no-file-is-listened"/>
             <flow-ref name="check-no-file-is-listened-over-time"/>
-            <logger level="ERROR" message="Test Complete"/>
         </munit:execution>
     </munit:test>
 
@@ -122,7 +119,6 @@
                 <flow-ref name="wait-2-seconds"/>
                 <flow-ref name="check-no-file-is-listened"/>
             </foreach>
-            <logger level="ERROR" message="Test Complete"/>
         </munit:execution>
     </munit:test>
 
@@ -141,7 +137,6 @@
                 <flow-ref name="wait-2-seconds"/>
                 <flow-ref name="check-one-file-is-listened"/>
             </foreach>
-            <logger level="ERROR" message="Test Complete"/>
         </munit:execution>
     </munit:test>
 
@@ -191,7 +186,7 @@
     </flow>
 
     <flow name="check-until-one-file-is-listened">
-        <until-successful maxRetries="50" millisBetweenRetries="1000">
+        <until-successful maxRetries="20" millisBetweenRetries="1000">
             <flow-ref name="assert-file-was-listened"/>
         </until-successful>
         <!--Wait for a polling cycle, so that the listener sets the isFileBeingListed key back to true and avoid race conditions-->
@@ -204,7 +199,7 @@
     </flow>
 
     <flow name="check-until-no-file-is-listened">
-        <until-successful maxRetries="50" millisBetweenRetries="1000">
+        <until-successful maxRetries="20" millisBetweenRetries="1000">
             <flow-ref name="assert-file-was-not-listened"/>
         </until-successful>
         <!--Wait for a polling cycle, so that the listener sets the isFileBeingListed key back to true and avoid race conditions-->
