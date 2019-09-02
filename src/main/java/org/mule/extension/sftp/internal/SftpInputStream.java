@@ -6,10 +6,7 @@
  */
 package org.mule.extension.sftp.internal;
 
-import static java.util.Optional.ofNullable;
-import static org.mule.runtime.api.i18n.I18nMessageFactory.createStaticMessage;
-import static org.slf4j.LoggerFactory.getLogger;
-import org.mule.extension.file.common.api.AbstractFileInputStreamSupplier;
+import org.mule.extension.file.common.api.AbstractConnectedFileInputStreamSupplier;
 import org.mule.extension.file.common.api.FileAttributes;
 import org.mule.extension.file.common.api.lock.UriLock;
 import org.mule.extension.file.common.api.stream.AbstractFileInputStream;
@@ -17,7 +14,6 @@ import org.mule.extension.file.common.api.stream.LazyStreamSupplier;
 import org.mule.extension.sftp.api.SftpFileAttributes;
 import org.mule.extension.sftp.internal.connection.SftpFileSystem;
 import org.mule.runtime.api.connection.ConnectionException;
-import org.mule.runtime.api.connection.ConnectionHandler;
 import org.mule.runtime.api.exception.MuleRuntimeException;
 import org.mule.runtime.core.api.connector.ConnectionManager;
 
@@ -25,9 +21,6 @@ import com.jcraft.jsch.SftpException;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Optional;
-
-import org.slf4j.Logger;
 
 /**
  * Implementation of {@link AbstractFileInputStream} for SFTP connections
@@ -60,6 +53,25 @@ public class SftpInputStream extends AbstractFileInputStream {
     return new SftpInputStream(sftpFileInputStreamSupplier, lock);
   }
 
+  /**
+   * Using the given connection ,returns a new instance of this class.
+   * <p>
+   * Instances returned by this method <b>MUST</b> be closed or fully consumed.
+   *
+   * @param fileSystem            the {@link SftpFileSystem} to be used to connect to the FTP server
+   * @param attributes            a {@link FileAttributes} referencing the file which contents are to be fetched
+   * @param lock                  the {@link UriLock} to be used
+   * @param timeBetweenSizeCheck  the time to be waited between size checks if configured.
+   * @return a mew {@link SftpInputStream}
+   * @return
+   */
+  public static SftpInputStream newInstance(SftpFileSystem fileSystem, SftpFileAttributes attributes, UriLock lock,
+                                            Long timeBetweenSizeCheck) {
+    SftpFileInputStreamSupplier sftpFileInputStreamSupplier =
+        new SftpFileInputStreamSupplier(attributes, timeBetweenSizeCheck, fileSystem);
+    return new SftpInputStream(sftpFileInputStreamSupplier, lock);
+  }
+
   private SftpFileInputStreamSupplier sftpFileInputStreamSupplier;
 
   protected SftpInputStream(SftpFileInputStreamSupplier sftpFileInputStreamSupplier, UriLock lock) {
@@ -72,68 +84,36 @@ public class SftpInputStream extends AbstractFileInputStream {
     try {
       super.doClose();
     } finally {
-      sftpFileInputStreamSupplier.getConnectionHandler().ifPresent(ConnectionHandler::release);
+      sftpFileInputStreamSupplier.releaseConnectionUsedForContentInputStream();
     }
   }
 
-  protected static class SftpFileInputStreamSupplier extends AbstractFileInputStreamSupplier {
+  protected static class SftpFileInputStreamSupplier extends AbstractConnectedFileInputStreamSupplier<SftpFileSystem> {
 
-    private static final Logger LOGGER = getLogger(SftpFileInputStreamSupplier.class);
     private static final String FILE_NOT_FOUND_EXCEPTION = "FileNotFoundException";
 
-    private ConnectionHandler<SftpFileSystem> connectionHandler;
-    private ConnectionManager connectionManager;
-    private SftpFileSystem sftpFileSystem;
-    private SftpConnector config;
+    private SftpFileInputStreamSupplier(SftpFileAttributes attributes, ConnectionManager connectionManager,
+                                        Long timeBetweenSizeCheck, SftpConnector config) {
+      super(attributes, connectionManager, timeBetweenSizeCheck, config);
+    }
 
-    SftpFileInputStreamSupplier(SftpFileAttributes attributes, ConnectionManager connectionManager,
-                                Long timeBetweenSizeCheck, SftpConnector config) {
-      super(attributes, timeBetweenSizeCheck);
-      this.connectionManager = connectionManager;
-      this.config = config;
+    private SftpFileInputStreamSupplier(SftpFileAttributes attributes, Long timeBetweenSizeCheck, SftpFileSystem fileSystem) {
+      super(attributes, timeBetweenSizeCheck, fileSystem);
     }
 
     @Override
-    protected FileAttributes getUpdatedAttributes() {
-      try {
-        ConnectionHandler<SftpFileSystem> connectionHandler = connectionManager.getConnection(config);
-        SftpFileSystem sftpFileSystem = connectionHandler.getConnection();
-        SftpFileAttributes updatedSftpFileAttributes = sftpFileSystem.readFileAttributes(attributes.getPath());
-        connectionHandler.release();
-        if (updatedSftpFileAttributes == null) {
-          LOGGER.error(String.format(FILE_NO_LONGER_EXISTS_MESSAGE, attributes.getPath()));
-        }
-        return updatedSftpFileAttributes;
-      } catch (ConnectionException e) {
-        throw new MuleRuntimeException(createStaticMessage("Could not obtain connection to fetch file " + attributes.getPath()),
-                                       e);
-      }
+    protected FileAttributes getUpdatedAttributes(SftpFileSystem fileSystem) {
+      return fileSystem.readFileAttributes(attributes.getPath());
     }
 
     @Override
-    protected InputStream getContentInputStream() {
-      try {
-        connectionHandler = connectionManager.getConnection(config);
-        sftpFileSystem = connectionHandler.getConnection();
-        return sftpFileSystem.retrieveFileContent(attributes);
-      } catch (MuleRuntimeException e) {
-        if (fileWasDeleted(e)) {
-          onFileDeleted(e);
-        }
-        throw e;
-      } catch (ConnectionException e) {
-        throw new MuleRuntimeException(createStaticMessage("Could not obtain connection to fetch file " + attributes.getPath()),
-                                       e);
-      }
+    protected InputStream getContentInputStream(SftpFileSystem fileSystem) {
+      return fileSystem.retrieveFileContent(attributes);
     }
 
-    private boolean fileWasDeleted(Exception e) {
+    @Override
+    protected boolean fileWasDeleted(MuleRuntimeException e) {
       return e.getCause() instanceof SftpException && e.getCause().getMessage().contains(FILE_NOT_FOUND_EXCEPTION);
     }
-
-    public Optional<ConnectionHandler> getConnectionHandler() {
-      return ofNullable(connectionHandler);
-    }
-
   }
 }

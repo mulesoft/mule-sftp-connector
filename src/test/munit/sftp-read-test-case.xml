@@ -12,10 +12,16 @@
         http://www.mulesoft.org/schema/mule/sftp http://www.mulesoft.org/schema/mule/sftp/current/mule-sftp.xsd
         http://www.mulesoft.org/schema/mule/java http://www.mulesoft.org/schema/mule/java/current/mule-java.xsd">
 
-    <munit:config name="sftp-read-test-case.xml">
-    </munit:config>
+    <munit:config name="sftp-read-test-case.xml"/>
 
     <munit:dynamic-port propertyName="sftp.server.port"/>
+
+    <sftp:config name="config-with-limited-pool">
+        <sftp:connection username="muletest1" password="muletest1" host="localhost" port="${sftp.server.port}"
+                         workingDir="/" prngAlgorithm="SHA1PRNG">
+            <pooling-profile exhaustedAction="WHEN_EXHAUSTED_WAIT" maxActive="1" maxIdle="1" maxWait="5000"/>
+        </sftp:connection>
+    </sftp:config>
 
     <munit:before-suite name="startSftpTestServer">
         <java:invoke-static class="org.mule.extension.sftp.internal.lifecycle.SftpServerLifecycleManager"
@@ -37,16 +43,17 @@
         </java:invoke-static>
     </munit:after-suite>
 
-    <munit:test name="sftp-read-file">
+    <munit:test name="sftp-read-file-using-single-connection"
+                description="Perform a read operation with a pooling profile which allows only 1 active connection">
         <munit:behavior>
             <set-variable variableName="fileName" value="filePath.txt"/>
             <set-variable variableName="fileContent" value="I just want to impress Mr. Stark"/>
-            <sftp:write config-ref="default-config" path="#[vars.fileName]">
+            <sftp:write config-ref="config-with-limited-pool" path="#[vars.fileName]">
                 <sftp:content>#[vars.fileContent]</sftp:content>
             </sftp:write>
         </munit:behavior>
         <munit:execution>
-            <sftp:read config-ref="default-config" path='#[vars.fileName]'/>
+            <sftp:read config-ref="config-with-limited-pool" path='#[vars.fileName]'/>
         </munit:execution>
         <munit:validation>
             <munit-tools:assert>
