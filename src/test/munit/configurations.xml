@@ -9,7 +9,7 @@
 		http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd
         http://www.mulesoft.org/schema/mule/sftp http://www.mulesoft.org/schema/mule/sftp/current/mule-sftp.xsd">
 
-    <sftp:config name="config">
+    <sftp:config name="default-config">
         <sftp:connection username="muletest1" password="muletest1" host="localhost" port="${sftp.server.port}"
                          workingDir="/" prngAlgorithm="SHA1PRNG">
             <pooling-profile exhaustedAction="WHEN_EXHAUSTED_WAIT" maxActive="17" maxIdle="13" maxWait="5000"/>
@@ -23,12 +23,12 @@
 
     <flow name="modify-file">
         <set-payload value="Content to append"/>
-        <sftp:write config-ref="config" path="random.txt" mode="APPEND"/>
+        <sftp:write config-ref="default-config" path="random.txt" mode="APPEND"/>
     </flow>
 
     <flow name="write-file">
         <set-payload value="File Content"/>
-        <sftp:write config-ref="config" path="random.txt"/>
+        <sftp:write config-ref="default-config" path="random.txt"/>
     </flow>
 
 </mule>

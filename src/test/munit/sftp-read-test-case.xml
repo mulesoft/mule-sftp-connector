@@ -41,12 +41,12 @@
         <munit:behavior>
             <set-variable variableName="fileName" value="filePath.txt"/>
             <set-variable variableName="fileContent" value="I just want to impress Mr. Stark"/>
-            <sftp:write config-ref="config" path="#[vars.fileName]">
+            <sftp:write config-ref="default-config" path="#[vars.fileName]">
                 <sftp:content>#[vars.fileContent]</sftp:content>
             </sftp:write>
         </munit:behavior>
         <munit:execution>
-            <sftp:read config-ref="config" path='#[vars.fileName]'/>
+            <sftp:read config-ref="default-config" path='#[vars.fileName]'/>
         </munit:execution>
         <munit:validation>
             <munit-tools:assert>

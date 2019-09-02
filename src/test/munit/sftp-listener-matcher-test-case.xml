@@ -141,7 +141,7 @@
     </munit:test>
 
     <flow name="listen-filtering-updated-recently">
-        <sftp:listener config-ref="config" directory=".">
+        <sftp:listener config-ref="default-config" directory=".">
             <scheduling-strategy>
                 <fixed-frequency frequency="200"/>
             </scheduling-strategy>
@@ -153,7 +153,7 @@
     </flow>
 
     <flow name="listen-filtering-not-updated-recently">
-        <sftp:listener config-ref="config" directory=".">
+        <sftp:listener config-ref="default-config" directory=".">
             <scheduling-strategy>
                 <fixed-frequency frequency="200"/>
             </scheduling-strategy>
@@ -165,7 +165,7 @@
     </flow>
 
     <flow name="listen-filtering-updated-recently-or-too-old">
-        <sftp:listener config-ref="config" directory=".">
+        <sftp:listener config-ref="default-config" directory=".">
             <scheduling-strategy>
                 <fixed-frequency frequency="200"/>
             </scheduling-strategy>

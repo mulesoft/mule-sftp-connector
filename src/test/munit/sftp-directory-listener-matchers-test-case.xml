@@ -71,7 +71,7 @@
         </munit:behavior>
         <munit:execution>
             <foreach collection="#[1 to vars.amountOfFiles]">
-                <sftp:write config-ref="config" path="#[payload ++ '.txt']">
+                <sftp:write config-ref="default-config" path="#[payload ++ '.txt']">
                     <sftp:content>#[vars.fileContent]</sftp:content>
                 </sftp:write>
                 <logger level="DEBUG" message="Waiting 100 milliseconds before writing the next file"/>
@@ -99,7 +99,7 @@
                  timeUnit="SECONDS"/>
 
     <flow name="fileListenerFlow">
-        <sftp:listener config-ref="config" matcher="${matcherName}" watermarkEnabled="true">
+        <sftp:listener config-ref="default-config" matcher="${matcherName}" watermarkEnabled="true">
             <scheduling-strategy>
                 <fixed-frequency frequency="500"/>
             </scheduling-strategy>
