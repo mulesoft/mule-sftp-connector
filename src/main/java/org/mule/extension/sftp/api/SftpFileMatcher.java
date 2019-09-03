@@ -123,7 +123,7 @@ public class SftpFileMatcher extends FileMatcher<SftpFileMatcher, SftpFileAttrib
     if (alreadyLoggedWarning.compareAndSet(false, true) && isSecondsOrLower(timeUnit)
         && attributes.getTimestamp().getSecond() == 0 && attributes.getTimestamp().getNano() == 0) {
       LOGGER
-          .debug(format("The timestamp precision was set to %s, but it seems like the server does not support such precision.",
+          .debug(format("The required timestamp precision %s cannot be met. The server may not support it.",
                         timeUnit));
     }
   }
