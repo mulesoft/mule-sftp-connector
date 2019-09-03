@@ -115,6 +115,14 @@
             <classifier>mule-plugin</classifier>
             <scope>test</scope>
         </dependency>
+
+        <dependency>
+            <groupId>org.mule.modules</groupId>
+            <artifactId>mule-scripting-module</artifactId>
+            <version>1.1.6</version>
+            <classifier>mule-plugin</classifier>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>

@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:munit="http://www.mulesoft.org/schema/mule/munit"
+      xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools"
+      xmlns="http://www.mulesoft.org/schema/mule/core"
+      xmlns:sftp="http://www.mulesoft.org/schema/mule/sftp"
+      xmlns:java="http://www.mulesoft.org/schema/mule/java"
+      xmlns:scripting="http://www.mulesoft.org/schema/mule/scripting"
+      xsi:schemaLocation="
+		http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+		http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
+		http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd
+        http://www.mulesoft.org/schema/mule/sftp http://www.mulesoft.org/schema/mule/sftp/current/mule-sftp.xsd
+        http://www.mulesoft.org/schema/mule/java http://www.mulesoft.org/schema/mule/java/current/mule-java.xsd
+        http://www.mulesoft.org/schema/mule/scripting http://www.mulesoft.org/schema/mule/scripting/current/mule-scripting.xsd">
+
+    <munit:config name="stop-start-test-case.xml"/>
+
+    <munit:dynamic-port propertyName="sftp.server.port"/>
+
+    <munit:before-suite name="startSftpTestServer1">
+        <java:invoke-static class="org.mule.extension.sftp.internal.lifecycle.SftpServerLifecycleManager"
+                            method="startSftpServer(String)">
+            <java:args>
+                #[{
+                arg0: ${sftp.server.port},
+                }]
+            </java:args>
+        </java:invoke-static>
+    </munit:before-suite>
+
+    <munit:after-suite name="clearSftpTestServer1">
+        <java:invoke-static class="org.mule.extension.sftp.internal.lifecycle.SftpServerLifecycleManager"
+                            method="stopSftpServer()">
+            <java:args>
+                #[{}]
+            </java:args>
+        </java:invoke-static>
+    </munit:after-suite>
+
+    <munit:test name="sftp-start-stop">
+        <munit:enable-flow-sources>
+            <munit:enable-flow-source value="listen-filtering-updated-recently-flow"/>
+        </munit:enable-flow-sources>
+        <munit:behavior>
+            <set-variable variableName="fileName" value="filePath.txt"/>
+            <set-variable variableName="fileContent" value="I just want to impress Mr. Stark"/>
+            <sftp:write config-ref="config" path="#[vars.fileName]">
+                <sftp:content>#[vars.fileContent]</sftp:content>
+            </sftp:write>
+            <flow-ref name="start"/>
+        </munit:behavior>
+        <munit:validation>
+            <flow-ref name="stop"/>
+            <flow-ref name="wait-2-seconds"/>
+            <foreach collection="#[1 to 2]">
+                <flow-ref name="start"/>
+                <flow-ref name="modify-file"/>
+                <flow-ref name="wait-2-seconds"/>
+                <flow-ref name="wait-2-seconds"/>
+                <flow-ref name="wait-2-seconds"/>
+                <flow-ref name="stop"/>
+            </foreach>
+        </munit:validation>
+    </munit:test>
+
+    <flow name="start">
+        <scripting:execute engine="groovy">
+            <scripting:code>
+                flow = registry.lookupByName(&quot;listen-filtering-updated-recently-flow&quot;).get();
+                flow.start();
+            </scripting:code>
+        </scripting:execute>
+    </flow>
+
+    <flow name="stop">
+        <scripting:execute engine="groovy">
+            <scripting:code>
+                flow = registry.lookupByName(&quot;listen-filtering-updated-recently-flow&quot;).get();
+                flow.stop();
+            </scripting:code>
+        </scripting:execute>
+    </flow>
+
+    <flow name="listen-filtering-updated-recently-flow" initialState="stopped">
+        <sftp:listener config-ref="config" directory=".">
+            <scheduling-strategy>
+                <fixed-frequency frequency="500"/>
+            </scheduling-strategy>
+        </sftp:listener>
+        <logger level="ERROR" message="ASD"/>
+        <munit-tools:store key="isFileBeingListed">
+            <munit-tools:value>#[true]</munit-tools:value>
+        </munit-tools:store>
+    </flow>
+</mule>

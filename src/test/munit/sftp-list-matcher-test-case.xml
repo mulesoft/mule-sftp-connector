@@ -12,7 +12,7 @@
         http://www.mulesoft.org/schema/mule/sftp http://www.mulesoft.org/schema/mule/sftp/current/mule-sftp.xsd
         http://www.mulesoft.org/schema/mule/java http://www.mulesoft.org/schema/mule/java/current/mule-java.xsd">
 
-    <munit:config name="sftp-list-matchers-test-case.xml"/>
+    <munit:config name="sftp-list-matchers-test-case.xml" ignore="true"/>
 
     <munit:dynamic-port propertyName="sftp.server.port"/>
 
@@ -75,7 +75,6 @@
         </munit:behavior>
         <munit:execution>
             <flow-ref name="check-until-no-file-is-listed"/>
-            <logger level="ERROR" message="FINISH TEST"/>
         </munit:execution>
     </munit:test>
 
@@ -109,7 +108,7 @@
         </munit:execution>
     </munit:test>
 
-<!--    <munit:test name="newFileBeingConstantlyUpdatedIsNotListed"
+    <munit:test name="newFileBeingConstantlyUpdatedIsNotListed"
                 description="New file that is constantly being updated is not listed">
         <munit:behavior>
             <set-variable variableName="listFlowName" value="list-filtering-updated-recently"/>
@@ -137,7 +136,7 @@
                 <flow-ref name="check-one-file-is-listed"/>
             </foreach>
         </munit:execution>
-    </munit:test>-->
+    </munit:test>
 
     <flow name="list-filtering-updated-recently">
         <sftp:list config-ref="config" directoryPath=".">
