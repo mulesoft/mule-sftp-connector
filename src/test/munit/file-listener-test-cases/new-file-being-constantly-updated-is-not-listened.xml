@@ -12,7 +12,7 @@
         http://www.mulesoft.org/schema/mule/sftp http://www.mulesoft.org/schema/mule/sftp/current/mule-sftp.xsd
         http://www.mulesoft.org/schema/mule/java http://www.mulesoft.org/schema/mule/java/current/mule-java.xsd">
 
-    <munit:config name="new-file-being-constantly-updated-is-not-listened.xml" ignore="#[Munit::muleVersionNewerThan('4.2.2-SNAPSHOT')]"/>
+    <munit:config name="new-file-being-constantly-updated-is-not-listened.xml"/>
 
     <munit:dynamic-port propertyName="sftp.server.port"/>
 
