@@ -12,15 +12,7 @@
         http://www.mulesoft.org/schema/mule/sftp http://www.mulesoft.org/schema/mule/sftp/current/mule-sftp.xsd
         http://www.mulesoft.org/schema/mule/java http://www.mulesoft.org/schema/mule/java/current/mule-java.xsd">
 
-    <munit:config name="sftp-listener-matcher-test-case.xml">
-        <munit:parameterizations>
-            <munit:parameterization name="Param to avoid tests flaking">
-                <munit:parameters>
-                    <munit:parameter propertyName="NoOp" value="Whatever"/>
-                </munit:parameters>
-            </munit:parameterization>
-        </munit:parameterizations>
-    </munit:config>
+    <munit:config name="sftp-listener-matcher-test-case.xml" />
 
     <munit:dynamic-port propertyName="sftp.server.port"/>
 
@@ -45,7 +37,6 @@
     </munit:after-suite>
 
     <munit:before-test name="create-file-for-listener">
-        <logger level="ERROR" message="Writing File Before Test."/>
         <flow-ref name="write-file"/>
         <flow-ref name="reset-file-listed"/>
     </munit:before-test>
@@ -64,10 +55,8 @@
             <munit:enable-flow-source value="listen-filtering-updated-recently"/>
         </munit:enable-flow-sources>
         <munit:execution>
-            <logger level="ERROR" message="ASD1"/>
             <flow-ref name="check-no-file-is-listened"/>
             <flow-ref name="check-until-one-file-is-listened"/>
-            <logger level="ERROR" message="ASD3"/>
         </munit:execution>
     </munit:test>
 
@@ -115,9 +104,10 @@
         </munit:behavior>
         <munit:execution>
             <foreach collection="#[1 to vars.numberOfModifications]">
-                <logger level="ERROR" message="Writing File newFileBeingConstantlyUpdatedIsNotListened Test."/>
-                <flow-ref name="modify-file"/>
                 <flow-ref name="wait-2-seconds"/>
+                <flow-ref name="modify-file"/>
+                <!--Wait for a polling cycle to avoid race conditions-->
+                <munit-tools:sleep time="300"/>
                 <flow-ref name="check-no-file-is-listened"/>
             </foreach>
         </munit:execution>
@@ -134,7 +124,6 @@
         </munit:behavior>
         <munit:execution>
             <foreach collection="#[1 to vars.numberOfModifications]">
-                <logger level="ERROR" message="Writing File newFileBeingConstantlyUpdatedIsListened Test."/>
                 <flow-ref name="wait-2-seconds"/>
                 <flow-ref name="modify-file"/>
                 <!--Wait for a polling cycle, so that the listener sets the isFileBeingListed key to true and avoid race conditions-->
@@ -190,7 +179,7 @@
     </flow>
 
     <flow name="check-until-one-file-is-listened">
-        <until-successful maxRetries="20" millisBetweenRetries="1000">
+        <until-successful maxRetries="50" millisBetweenRetries="1000">
             <flow-ref name="assert-file-was-listened"/>
         </until-successful>
         <!--Wait for a polling cycle, so that the listener sets the isFileBeingListed key back to true and avoid race conditions-->
@@ -203,7 +192,7 @@
     </flow>
 
     <flow name="check-until-no-file-is-listened">
-        <until-successful maxRetries="20" millisBetweenRetries="1000">
+        <until-successful maxRetries="50" millisBetweenRetries="1000">
             <flow-ref name="assert-file-was-not-listened"/>
         </until-successful>
         <!--Wait for a polling cycle, so that the listener sets the isFileBeingListed key back to true and avoid race conditions-->
