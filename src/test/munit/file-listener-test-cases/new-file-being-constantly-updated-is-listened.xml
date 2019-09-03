@@ -52,8 +52,8 @@
             <foreach collection="#[1 to vars.numberOfModifications]">
                 <flow-ref name="wait-2-seconds"/>
                 <flow-ref name="modify-file"/>
-                <!--Wait for a polling cycle, so that the listener sets the isFileBeingListed key to true and avoid race conditions-->
-                <munit-tools:sleep time="300"/>
+                <!--Wait for some polling cycles, so that the listener sets the isFileBeingListed key to true and avoid race conditions-->
+                <munit-tools:sleep time="600"/>
                 <flow-ref name="check-one-file-is-listened"/>
             </foreach>
         </munit:execution>
