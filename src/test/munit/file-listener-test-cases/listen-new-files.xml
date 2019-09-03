@@ -46,8 +46,8 @@
             <munit:enable-flow-source value="listen-filtering-updated-recently-listenNewFiles"/>
         </munit:enable-flow-sources>
         <munit:execution>
-            <!--Wait for a polling cycle to avoid race conditions-->
-            <munit-tools:sleep time="300"/>
+            <!--Wait for some polling cycles to avoid race conditions-->
+            <munit-tools:sleep time="600"/>
             <flow-ref name="check-no-file-is-listened"/>
             <flow-ref name="check-until-one-file-is-listened"/>
         </munit:execution>

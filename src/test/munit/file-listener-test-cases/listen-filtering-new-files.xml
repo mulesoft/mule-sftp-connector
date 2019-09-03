@@ -47,7 +47,7 @@
         </munit:enable-flow-sources>
         <munit:execution>
             <!--Wait for a polling cycle to avoid race conditions-->
-            <munit-tools:sleep time="300"/>
+            <munit-tools:sleep time="600"/>
             <flow-ref name="check-no-file-is-listened"/>
         </munit:execution>
     </munit:test>

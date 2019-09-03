@@ -16,13 +16,6 @@
         </sftp:connection>
     </sftp:config>
 
-    <sftp:config name="config1">
-        <sftp:connection username="foo" password="pass" host="localhost" port="22222"
-                         workingDir="/upload" prngAlgorithm="SHA1PRNG">
-            <pooling-profile exhaustedAction="WHEN_EXHAUSTED_WAIT" maxActive="7" maxIdle="3" maxWait="5000"/>
-        </sftp:connection>
-    </sftp:config>
-
     <flow name="wait-2-seconds">
         <logger level="ERROR" message="Waiting for 2 seconds"/>
         <munit-tools:sleep time="2000"/>
@@ -33,19 +26,9 @@
         <sftp:write config-ref="config" path="random.txt" mode="APPEND"/>
     </flow>
 
-    <flow name="modify-file1">
-        <set-payload value="Content to append"/>
-        <sftp:write config-ref="config1" path="random.txt" mode="APPEND"/>
-    </flow>
-
     <flow name="write-file">
         <set-payload value="File Content"/>
         <sftp:write config-ref="config" path="random.txt"/>
-    </flow>
-
-    <flow name="write-file1">
-        <set-payload value="File Content"/>
-        <sftp:write config-ref="config1" path="random.txt"/>
     </flow>
 
 </mule>

@@ -4,10 +4,6 @@
         <Console name="Console" target="SYSTEM_OUT">
             <PatternLayout pattern="%-5p %d [%t] %c: %m%n"/>
         </Console>
-
-        <File name="MyFile" fileName="target/app.log">
-            <PatternLayout pattern="%-5p %d [%t] %c: %m%n"/>
-        </File>
     </Appenders>
 
     <Loggers>
@@ -30,9 +26,6 @@
 
         <AsyncRoot level="INFO">
             <AppenderRef ref="Console"/>
-<!--
-            <AppenderRef ref="MyFile"/>
--->
         </AsyncRoot>
     </Loggers>
 

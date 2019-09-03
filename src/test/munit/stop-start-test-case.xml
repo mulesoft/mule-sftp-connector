@@ -14,7 +14,7 @@
         http://www.mulesoft.org/schema/mule/java http://www.mulesoft.org/schema/mule/java/current/mule-java.xsd
         http://www.mulesoft.org/schema/mule/scripting http://www.mulesoft.org/schema/mule/scripting/current/mule-scripting.xsd">
 
-    <munit:config name="stop-start-test-case.xml"/>
+    <munit:config name="stop-start-test-case.xml" ignore="true"/>
 
     <munit:dynamic-port propertyName="sftp.server.port"/>
 

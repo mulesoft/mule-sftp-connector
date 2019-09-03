@@ -46,8 +46,8 @@
             <munit:enable-flow-source value="listen-filtering-updated-recently"/>
         </munit:enable-flow-sources>
         <munit:execution>
-            <!--Wait for a polling cycle to avoid race conditions-->
-            <munit-tools:sleep time="300"/>
+            <!--Wait for some polling cycles to avoid race conditions-->
+            <munit-tools:sleep time="600"/>
             <flow-ref name="check-no-file-is-listened"/>
         </munit:execution>
     </munit:test>
@@ -57,8 +57,8 @@
             <munit:enable-flow-source value="listen-filtering-updated-recently"/>
         </munit:enable-flow-sources>
         <munit:execution>
-            <!--Wait for a polling cycle to avoid race conditions-->
-            <munit-tools:sleep time="300"/>
+            <!--Wait for some polling cycles to avoid race conditions-->
+            <munit-tools:sleep time="600"/>
             <flow-ref name="check-no-file-is-listened"/>
             <flow-ref name="check-until-one-file-is-listened"/>
         </munit:execution>
@@ -107,8 +107,8 @@
             <foreach collection="#[1 to vars.numberOfModifications]">
                 <flow-ref name="wait-2-seconds"/>
                 <flow-ref name="modify-file"/>
-                <!--Wait for a polling cycle to avoid race conditions-->
-                <munit-tools:sleep time="300"/>
+                <!--Wait for some polling cycles to avoid race conditions-->
+                <munit-tools:sleep time="600"/>
                 <flow-ref name="check-no-file-is-listened"/>
             </foreach>
         </munit:execution>
@@ -125,8 +125,8 @@
             <foreach collection="#[1 to vars.numberOfModifications]">
                 <flow-ref name="wait-2-seconds"/>
                 <flow-ref name="modify-file"/>
-                <!--Wait for a polling cycle, so that the listener sets the isFileBeingListed key to true and avoid race conditions-->
-                <munit-tools:sleep time="300"/>
+                <!--Wait for some polling cycles, so that the listener sets the isFileBeingListed key to true and avoid race conditions-->
+                <munit-tools:sleep time="600"/>
                 <flow-ref name="check-one-file-is-listened"/>
             </foreach>
         </munit:execution>
@@ -180,8 +180,8 @@
         <until-successful maxRetries="50" millisBetweenRetries="1000">
             <flow-ref name="assert-file-was-listened"/>
         </until-successful>
-        <!--Wait for a polling cycle, so that the listener sets the isFileBeingListed key back to true and avoid race conditions-->
-        <munit-tools:sleep time="300"/>
+        <!--Wait for some polling cycles, so that the listener sets the isFileBeingListed key back to true and avoid race conditions-->
+        <munit-tools:sleep time="600"/>
         <error-handler>
             <on-error-continue type="MULE:RETRY_EXHAUSTED">
                 <raise-error type="MULE:EXPRESSION" description="Test failure: the file was never listened."/>
@@ -193,8 +193,8 @@
         <until-successful maxRetries="50" millisBetweenRetries="1000">
             <flow-ref name="assert-file-was-not-listened"/>
         </until-successful>
-        <!--Wait for a polling cycle, so that the listener sets the isFileBeingListed key back to true and avoid race conditions-->
-        <munit-tools:sleep time="300"/>
+        <!--Wait for some polling cycles, so that the listener sets the isFileBeingListed key back to true and avoid race conditions-->
+        <munit-tools:sleep time="600"/>
         <error-handler>
             <on-error-continue type="MULE:RETRY_EXHAUSTED">
                 <raise-error type="MULE:EXPRESSION" description="Test failure: the file was always listened."/>
