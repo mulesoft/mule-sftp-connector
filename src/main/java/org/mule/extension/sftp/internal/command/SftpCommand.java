@@ -214,7 +214,7 @@ public abstract class SftpCommand extends ExternalFileCommand<SftpFileSystem> {
     FileAttributes sourceFile = getExistingFile(source);
     URI targetUri = resolvePath(target);
     FileAttributes targetFile = getFile(targetUri.getPath());
-    String targetFileName = isBlank(renameTo) ? FilenameUtils.getName(source) : renameTo;
+    String targetFileName = isBlank(renameTo) ? getFileName(source) : renameTo;
 
     if (targetFile != null) {
       if (targetFile.isDirectory()) {
@@ -241,6 +241,12 @@ public abstract class SftpCommand extends ExternalFileCommand<SftpFileSystem> {
     changeWorkingDirectory(cwd);
   }
 
+  private String getFileName(String path) {
+    // This path needs to be normalized first because if it ends in a separator the method will return an empty String.
+    return FilenameUtils.getName(normalizeUri(createUri(path)).getPath());
+  }
+
+
   /**
    * {@inheritDoc}
    */
@@ -248,7 +254,8 @@ public abstract class SftpCommand extends ExternalFileCommand<SftpFileSystem> {
   protected void doMkDirs(URI directoryUri) {
     Stack<URI> fragments = new Stack<>();
     String[] subPaths = directoryUri.getPath().split("/");
-    URI subUri = directoryUri;
+    // This uri needs to be normalized so that if it has a trailing separator it is erased.
+    URI subUri = normalizeUri(directoryUri);
     for (int i = subPaths.length - 1; i > 0; i--) {
       if (exists(subUri)) {
         break;
