@@ -12,7 +12,9 @@
     <sftp:config name="default-config">
         <sftp:connection username="muletest1" password="muletest1" host="localhost" port="${sftp.server.port}"
                          workingDir="/" prngAlgorithm="SHA1PRNG">
-            <pooling-profile exhaustedAction="WHEN_EXHAUSTED_WAIT" maxActive="17" maxIdle="13" maxWait="5000"/>
+            <reconnection >
+                <reconnect frequency="1000" count="5" />
+            </reconnection>
         </sftp:connection>
     </sftp:config>
 
