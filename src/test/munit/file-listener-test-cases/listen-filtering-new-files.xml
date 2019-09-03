@@ -12,18 +12,11 @@
         http://www.mulesoft.org/schema/mule/sftp http://www.mulesoft.org/schema/mule/sftp/current/mule-sftp.xsd
         http://www.mulesoft.org/schema/mule/java http://www.mulesoft.org/schema/mule/java/current/mule-java.xsd">
 
-    <munit:config name="sftp-read-test-case.xml"/>
+    <munit:config name="listen-filtering-new-files.xml"/>
 
     <munit:dynamic-port propertyName="sftp.server.port"/>
 
-    <sftp:config name="config-with-limited-pool">
-        <sftp:connection username="muletest1" password="muletest1" host="localhost" port="${sftp.server.port}"
-                         workingDir="/" prngAlgorithm="SHA1PRNG">
-            <pooling-profile exhaustedAction="WHEN_EXHAUSTED_WAIT" maxActive="1" maxIdle="1" maxWait="5000"/>
-        </sftp:connection>
-    </sftp:config>
-
-    <munit:before-suite name="startSftpTestServer">
+    <munit:before-suite name="listen-filtering-new-files-startListenerMatcherTestServer">
         <java:invoke-static class="org.mule.extension.sftp.internal.lifecycle.SftpServerLifecycleManager"
                             method="startSftpServer(String)">
             <java:args>
@@ -34,7 +27,7 @@
         </java:invoke-static>
     </munit:before-suite>
 
-    <munit:after-suite name="clearSftpTestServer">
+    <munit:after-suite name="listen-filtering-new-files-clearListenerMatcherTestServer">
         <java:invoke-static class="org.mule.extension.sftp.internal.lifecycle.SftpServerLifecycleManager"
                             method="stopSftpServer()">
             <java:args>
@@ -43,26 +36,32 @@
         </java:invoke-static>
     </munit:after-suite>
 
-    <munit:test name="sftp-read-file-using-single-connection"
-                description="Perform a read operation with a pooling profile which allows only 1 active connection">
-        <munit:behavior>
-            <set-variable variableName="fileName" value="filePath.txt"/>
-            <set-variable variableName="fileContent" value="I just want to impress Mr. Stark"/>
-            <sftp:write config-ref="config-with-limited-pool" path="#[vars.fileName]">
-                <sftp:content>#[vars.fileContent]</sftp:content>
-            </sftp:write>
-        </munit:behavior>
+    <munit:before-test name="listen-filtering-new-files-create-file-for-listener">
+        <flow-ref name="write-file"/>
+        <flow-ref name="reset-file-listed"/>
+    </munit:before-test>
+
+    <munit:test name="listenFilteringNewFiles" description="Newly added files are filtered by the matcher">
+        <munit:enable-flow-sources>
+            <munit:enable-flow-source value="listen-filtering-updated-recently-listenFilteringNewFiles"/>
+        </munit:enable-flow-sources>
         <munit:execution>
-            <sftp:read config-ref="config-with-limited-pool" path='#[vars.fileName]'/>
+            <!--Wait for a polling cycle to avoid race conditions-->
+            <munit-tools:sleep time="300"/>
+            <flow-ref name="check-no-file-is-listened"/>
         </munit:execution>
-        <munit:validation>
-            <munit-tools:assert>
-                <munit-tools:that><![CDATA[#[import * from dw::test::Asserts
-                                     ---
-                                    payload must equalTo(vars.fileContent)
-                                    ]]]>
-                </munit-tools:that>
-            </munit-tools:assert>
-        </munit:validation>
     </munit:test>
+
+    <flow name="listen-filtering-updated-recently-listenFilteringNewFiles">
+        <sftp:listener config-ref="config" directory=".">
+            <scheduling-strategy>
+                <fixed-frequency frequency="200"/>
+            </scheduling-strategy>
+            <sftp:matcher notUpdatedInTheLast="4" timeUnit="SECONDS"/>
+        </sftp:listener>
+        <munit-tools:store key="isFileBeingListed">
+            <munit-tools:value>#[true]</munit-tools:value>
+        </munit-tools:store>
+    </flow>
+
 </mule>

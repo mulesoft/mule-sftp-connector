@@ -20,7 +20,6 @@ import org.mule.extension.file.common.api.lock.UriLock;
 import org.mule.runtime.api.connection.ConnectionHandler;
 
 import java.io.ByteArrayInputStream;
-import java.util.Optional;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -51,7 +50,6 @@ public class SftpInputStreamTestCase {
       return null;
     }).when(uriLock).release();
 
-    when(streamSupplier.getConnectionHandler()).thenReturn(Optional.of(connectionHandler));
     when(streamSupplier.get()).thenReturn(new ByteArrayInputStream(STREAM_CONTENT.getBytes(UTF_8)));
   }
 
@@ -67,7 +65,7 @@ public class SftpInputStreamTestCase {
 
     verify(uriLock, times(1)).release();
     assertThat(inputStream.isLocked(), is(false));
-    verify(connectionHandler).release();
+    verify(streamSupplier).releaseConnectionUsedForContentInputStream();
   }
 
   @Test

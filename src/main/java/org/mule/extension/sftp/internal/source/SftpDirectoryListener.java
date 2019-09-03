@@ -247,7 +247,6 @@ public class SftpDirectoryListener extends PollingSource<InputStream, SftpFileAt
     PollItemStatus status = pollContext.accept(item -> {
       final SourceCallbackContext ctx = item.getSourceCallbackContext();
       Result result = null;
-      SftpFileSystem fileSystem = null;
 
       try {
         ctx.addVariable(ATTRIBUTES_CONTEXT_VAR, attributes);
@@ -261,10 +260,6 @@ public class SftpDirectoryListener extends PollingSource<InputStream, SftpFileAt
                             fullPath, t.getMessage()),
                      t);
 
-        if (fileSystem != null) {
-          fileSystemProvider.disconnect(fileSystem);
-        }
-
         if (result != null) {
           onRejectedItem(result, ctx);
         }
@@ -272,7 +267,6 @@ public class SftpDirectoryListener extends PollingSource<InputStream, SftpFileAt
         throw new MuleRuntimeException(t);
       }
     });
-
 
     return status != SOURCE_STOPPING;
   }

@@ -53,7 +53,7 @@
         <munit:validation>
             <flow-ref name="stop"/>
             <flow-ref name="wait-2-seconds"/>
-            <foreach collection="#[1 to 2]">
+            <foreach collection="#[1 to 3]">
                 <flow-ref name="start"/>
                 <flow-ref name="modify-file"/>
                 <flow-ref name="wait-2-seconds"/>
