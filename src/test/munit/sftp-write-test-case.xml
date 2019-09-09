@@ -12,11 +12,11 @@
         http://www.mulesoft.org/schema/mule/sftp http://www.mulesoft.org/schema/mule/sftp/current/mule-sftp.xsd
         http://www.mulesoft.org/schema/mule/java http://www.mulesoft.org/schema/mule/java/current/mule-java.xsd">
 
-    <munit:config name="sftp-read-test-case.xml"/>
+    <munit:config name="sftp-write-test-case.xml"/>
 
     <munit:dynamic-port propertyName="sftp.server.port"/>
 
-    <munit:before-suite name="startSftpTestServer">
+    <munit:before-suite name="startSftpTestServerForWriting">
         <java:invoke-static class="org.mule.extension.sftp.internal.lifecycle.SftpServerLifecycleManager"
                             method="startSftpServer(String)">
             <java:args>
@@ -27,7 +27,7 @@
         </java:invoke-static>
     </munit:before-suite>
 
-    <munit:after-suite name="clearSftpTestServer">
+    <munit:after-suite name="clearSftpTestServerForWriting">
         <java:invoke-static class="org.mule.extension.sftp.internal.lifecycle.SftpServerLifecycleManager"
                             method="stopSftpServer()">
             <java:args>
@@ -40,7 +40,6 @@
                 description="Perform a write operation with a big content">
         <munit:behavior>
             <set-variable variableName="fileName" value="filePath.txt"/>
-            <set-variable variableName="fileContent" value="I just want to impress Mr. Stark"/>
         </munit:behavior>
         <munit:execution>
             <sftp:write config-ref="config" path='#[vars.fileName]'>
@@ -65,4 +64,5 @@
             </munit-tools:assert>
         </munit:validation>
     </munit:test>
+
 </mule>
