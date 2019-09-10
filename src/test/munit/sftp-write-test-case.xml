@@ -40,7 +40,7 @@
                 description="Perform a write operation with a big content">
         <munit:behavior>
             <set-variable variableName="fileName" value="filePath.txt"/>
-            <set-variable variableName="loopSize" value="1000000"/>
+            <set-variable variableName="loopSize" value="500000"/>
             <set-variable variableName="singleLineSize" value="30"/>
             <set-variable variableName="overheadSize" value="2"/>
             <set-variable variableName="line" value="#[%dw 2.0 output application/json --- {'big' : 'payload'}]"/>
