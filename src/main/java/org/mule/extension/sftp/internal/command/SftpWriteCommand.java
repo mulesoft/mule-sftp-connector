@@ -72,8 +72,8 @@ public final class SftpWriteCommand extends SftpCommand implements WriteCommand 
 
     UriLock pathLock = lock ? fileSystem.lock(uri) : new NullUriLock(uri);
 
-    try (OutputStream outputStream = getOutputStream(uri, mode)) {
-      IOUtils.copy(content, outputStream);
+    try {
+      client.write(uri.getPath(), content, mode);
       LOGGER.debug("Successfully wrote to path {}", uri.getPath());
     } catch (Exception e) {
       pathLock.release();
@@ -81,11 +81,4 @@ public final class SftpWriteCommand extends SftpCommand implements WriteCommand 
     }
   }
 
-  private OutputStream getOutputStream(URI uri, FileWriteMode mode) {
-    try {
-      return client.getOutputStream(uri.getPath(), mode);
-    } catch (Exception e) {
-      throw exception(format("Could not open stream to write to path '%s' using mode '%s'", uri.getPath(), mode), e);
-    }
-  }
 }
