@@ -40,6 +40,11 @@
                 description="Perform a write operation with a big content">
         <munit:behavior>
             <set-variable variableName="fileName" value="filePath.txt"/>
+            <set-variable variableName="loopSize" value="1000000"/>
+            <set-variable variableName="singleLineSize" value="30"/>
+            <set-variable variableName="overheadSize" value="2"/>
+            <set-variable variableName="line" value="#[%dw 2.0 output application/json --- {'big' : 'payload'}]"/>
+            <set-variable variableName="fileSize" value="#[vars.loopSize * vars.singleLineSize + vars.overheadSize]"/>
         </munit:behavior>
         <munit:execution>
             <sftp:write config-ref="config" path='#[vars.fileName]'>
@@ -47,9 +52,7 @@
                     #[%dw 2.0
                     output application/json
                     ---
-                    1 to 1000000 map {
-                    "big" : "payload"
-                    }]
+                    1 to vars.loopSize map vars.line]
                 </sftp:content>
             </sftp:write>
         </munit:execution>
@@ -58,7 +61,7 @@
             <munit-tools:assert>
                 <munit-tools:that><![CDATA[#[import * from dw::test::Asserts
                                      ---
-                                     attributes.size must equalTo(30000002)
+                                     attributes.size must equalTo(vars.fileSize)
                                     ]]]>
                 </munit-tools:that>
             </munit-tools:assert>
