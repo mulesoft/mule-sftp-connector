@@ -12,6 +12,7 @@ import static org.mule.extension.file.common.api.util.UriUtils.createUri;
 import static org.mule.extension.file.common.api.util.UriUtils.normalizeUri;
 import static org.mule.extension.file.common.api.util.UriUtils.trimLastFragment;
 import static org.mule.extension.sftp.internal.SftpUtils.normalizePath;
+import static org.mule.extension.sftp.internal.connection.SftpFileSystem.ROOT;
 
 import org.mule.extension.file.common.api.FileAttributes;
 import org.mule.extension.file.common.api.FileConnectorConfig;
@@ -38,7 +39,6 @@ import org.slf4j.LoggerFactory;
 public abstract class SftpCommand extends ExternalFileCommand<SftpFileSystem> {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(SftpCommand.class);
-  protected static final String ROOT = "/";
 
   protected final SftpClient client;
 
@@ -285,7 +285,7 @@ public abstract class SftpCommand extends ExternalFileCommand<SftpFileSystem> {
    * {@inheritDoc}
    */
   protected URI getBasePath(FileSystem fileSystem) {
-    return createUri(getCurrentWorkingDirectory());
+    return createUri(fileSystem.getBasePath());
   }
 
 }
