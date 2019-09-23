@@ -100,6 +100,7 @@ public class SftpConnectionProviderTestCase extends AbstractMuleTestCase {
       }
     });
 
+    when(channel.pwd()).thenReturn("/");
     when(jsch.getSession(USERNAME, HOST)).thenReturn(session);
     when(session.openChannel("sftp")).thenReturn(channel);
   }
