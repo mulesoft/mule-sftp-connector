@@ -45,6 +45,9 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * Implementation of {@link AbstractFileSystem} for files residing on a SFTP server
  *
@@ -63,6 +66,7 @@ public class SftpFileSystem extends AbstractExternalFileSystem {
   protected final WriteCommand writeCommand;
   private final LockFactory lockFactory;
 
+  private static Logger LOGGER = LoggerFactory.getLogger(SftpFileSystem.class);
 
   private static String resolveBasePath(String basePath, SftpClient client) {
     if (isBlank(basePath)) {
@@ -217,7 +221,7 @@ public class SftpFileSystem extends AbstractExternalFileSystem {
     try {
       changeToBaseDir();
     } catch (Exception e) {
-      failure("Configured workingDir is unavailable", e);
+      return failure("Configured workingDir is unavailable", e);
     }
     return success();
   }
