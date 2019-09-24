@@ -158,12 +158,7 @@ public class SftpDirectoryListener extends PollingSource<InputStream, SftpFileAt
   }
 
   @OnTerminate
-  public void onTerminate(SourceCallbackContext ctx) {
-    SftpFileSystem fileSystem = ctx.getConnection();
-    if (fileSystem != null) {
-      fileSystemProvider.disconnect(fileSystem);
-    }
-  }
+  public void onTerminate(SourceCallbackContext ctx) {}
 
   @Override
   public void poll(PollContext<InputStream, SftpFileAttributes> pollContext) {
