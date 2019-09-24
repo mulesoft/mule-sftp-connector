@@ -45,9 +45,6 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 /**
  * Implementation of {@link AbstractFileSystem} for files residing on a SFTP server
  *
