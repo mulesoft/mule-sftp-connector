@@ -66,8 +66,6 @@ public class SftpFileSystem extends AbstractExternalFileSystem {
   protected final WriteCommand writeCommand;
   private final LockFactory lockFactory;
 
-  private static Logger LOGGER = LoggerFactory.getLogger(SftpFileSystem.class);
-
   private static String resolveBasePath(String basePath, SftpClient client) {
     if (isBlank(basePath)) {
       try {
