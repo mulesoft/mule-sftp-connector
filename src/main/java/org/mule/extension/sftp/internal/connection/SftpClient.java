@@ -15,7 +15,6 @@ import static org.mule.runtime.api.i18n.I18nMessageFactory.createStaticMessage;
 import static org.mule.runtime.api.util.collection.Collectors.toImmutableList;
 import static org.mule.runtime.core.api.util.StringUtils.isEmpty;
 import static com.jcraft.jsch.ChannelSftp.SSH_FX_NO_SUCH_FILE;
-import static com.jcraft.jsch.ChannelSftp.SSH_FX_FAILURE;
 import static java.lang.String.format;
 
 import org.mule.extension.file.common.api.FileWriteMode;
@@ -119,7 +118,7 @@ public class SftpClient {
     try {
       sftp.cd(normalizePath(path));
     } catch (SftpException e) {
-      if (e.getCause() instanceof IOException || e.id == SSH_FX_FAILURE) {
+      if (e.getCause() instanceof IOException) {
         throw exception("Exception occurred while trying to change working directory to " + path, new ConnectionException(e));
       }
       throw exception("Exception occurred while trying to change working directory to " + path, e);
