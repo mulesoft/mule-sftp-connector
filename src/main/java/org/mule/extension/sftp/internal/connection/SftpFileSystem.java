@@ -215,11 +215,10 @@ public class SftpFileSystem extends AbstractExternalFileSystem {
     if (!isConnected()) {
       return failure("Connection is stale", new SftpConnectionException("Connection is stale", DISCONNECTED));
     }
-
     try {
       changeToBaseDir();
     } catch (Exception e) {
-      failure("Configured workingDir is unavailable", e);
+      return failure("Configured workingDir is unavailable", e);
     }
     return success();
   }

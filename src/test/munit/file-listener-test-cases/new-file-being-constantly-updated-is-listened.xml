@@ -41,7 +41,7 @@
         <flow-ref name="reset-file-listed"/>
     </munit:before-test>
 
-    <munit:test name="newFileBeingConstantlyUpdatedIsListened" description="New file that is constantly being updated is listened" ignore="#[Munit::muleVersionNewerThan('4.2.2-SNAPSHOT')]">
+    <munit:test name="newFileBeingConstantlyUpdatedIsListened" description="New file that is constantly being updated is listened">
         <munit:enable-flow-sources>
             <munit:enable-flow-source value="listen-filtering-not-updated-recently-newFileBeingConstantlyUpdatedIsListened"/>
         </munit:enable-flow-sources>
