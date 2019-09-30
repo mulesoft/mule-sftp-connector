@@ -12,6 +12,7 @@ import static org.mule.extension.file.common.api.util.UriUtils.createUri;
 import static org.mule.extension.file.common.api.util.UriUtils.normalizeUri;
 import static org.mule.extension.file.common.api.util.UriUtils.trimLastFragment;
 import static org.mule.extension.sftp.internal.SftpUtils.normalizePath;
+import static org.mule.extension.sftp.internal.connection.SftpFileSystem.ROOT;
 
 import org.mule.extension.file.common.api.FileAttributes;
 import org.mule.extension.file.common.api.FileConnectorConfig;
@@ -38,7 +39,6 @@ import org.slf4j.LoggerFactory;
 public abstract class SftpCommand extends ExternalFileCommand<SftpFileSystem> {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(SftpCommand.class);
-  protected static final String ROOT = "/";
 
   protected final SftpClient client;
 
@@ -214,7 +214,7 @@ public abstract class SftpCommand extends ExternalFileCommand<SftpFileSystem> {
     FileAttributes sourceFile = getExistingFile(source);
     URI targetUri = resolvePath(target);
     FileAttributes targetFile = getFile(targetUri.getPath());
-    String targetFileName = isBlank(renameTo) ? FilenameUtils.getName(source) : renameTo;
+    String targetFileName = isBlank(renameTo) ? getFileName(source) : renameTo;
 
     if (targetFile != null) {
       if (targetFile.isDirectory()) {
@@ -241,6 +241,12 @@ public abstract class SftpCommand extends ExternalFileCommand<SftpFileSystem> {
     changeWorkingDirectory(cwd);
   }
 
+  private String getFileName(String path) {
+    // This path needs to be normalized first because if it ends in a separator the method will return an empty String.
+    return FilenameUtils.getName(normalizeUri(createUri(path)).getPath());
+  }
+
+
   /**
    * {@inheritDoc}
    */
@@ -248,7 +254,8 @@ public abstract class SftpCommand extends ExternalFileCommand<SftpFileSystem> {
   protected void doMkDirs(URI directoryUri) {
     Stack<URI> fragments = new Stack<>();
     String[] subPaths = directoryUri.getPath().split("/");
-    URI subUri = directoryUri;
+    // This uri needs to be normalized so that if it has a trailing separator it is erased.
+    URI subUri = normalizeUri(directoryUri);
     for (int i = subPaths.length - 1; i > 0; i--) {
       if (exists(subUri)) {
         break;
@@ -278,7 +285,7 @@ public abstract class SftpCommand extends ExternalFileCommand<SftpFileSystem> {
    * {@inheritDoc}
    */
   protected URI getBasePath(FileSystem fileSystem) {
-    return createUri(getCurrentWorkingDirectory());
+    return createUri(fileSystem.getBasePath());
   }
 
 }

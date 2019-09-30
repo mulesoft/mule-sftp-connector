@@ -139,7 +139,7 @@ public class SftpDirectoryListener extends PollingSource<InputStream, SftpFileAt
 
   @Override
   protected void doStart() {
-    matcher = predicateBuilder != null ? predicateBuilder.build() : new NullFilePayloadPredicate<>();
+    refreshMatcher();
     directoryUri = resolveRootPath();
   }
 
@@ -158,15 +158,11 @@ public class SftpDirectoryListener extends PollingSource<InputStream, SftpFileAt
   }
 
   @OnTerminate
-  public void onTerminate(SourceCallbackContext ctx) {
-    SftpFileSystem fileSystem = ctx.getConnection();
-    if (fileSystem != null) {
-      fileSystemProvider.disconnect(fileSystem);
-    }
-  }
+  public void onTerminate(SourceCallbackContext ctx) {}
 
   @Override
   public void poll(PollContext<InputStream, SftpFileAttributes> pollContext) {
+    refreshMatcher();
     if (pollContext.isSourceStopping()) {
       return;
     }
@@ -223,12 +219,17 @@ public class SftpDirectoryListener extends PollingSource<InputStream, SftpFileAt
     }
   }
 
+  private void refreshMatcher() {
+    matcher = predicateBuilder != null ? predicateBuilder.build() : new NullFilePayloadPredicate<>();
+  }
+
   private SftpFileSystem openConnection() throws Exception {
 
     SftpFileSystem fileSystem = fileSystemProvider.connect();
     try {
       fileSystem.changeToBaseDir();
     } catch (Exception e) {
+      LOGGER.debug("Exception while trying to open connection. Cause: {} . Message: {}", e.getCause(), e.getMessage());
       fileSystemProvider.disconnect(fileSystem);
       throw e;
     }
@@ -242,7 +243,6 @@ public class SftpDirectoryListener extends PollingSource<InputStream, SftpFileAt
     PollItemStatus status = pollContext.accept(item -> {
       final SourceCallbackContext ctx = item.getSourceCallbackContext();
       Result result = null;
-      SftpFileSystem fileSystem = null;
 
       try {
         ctx.addVariable(ATTRIBUTES_CONTEXT_VAR, attributes);
@@ -256,10 +256,6 @@ public class SftpDirectoryListener extends PollingSource<InputStream, SftpFileAt
                             fullPath, t.getMessage()),
                      t);
 
-        if (fileSystem != null) {
-          fileSystemProvider.disconnect(fileSystem);
-        }
-
         if (result != null) {
           onRejectedItem(result, ctx);
         }
@@ -267,7 +263,6 @@ public class SftpDirectoryListener extends PollingSource<InputStream, SftpFileAt
         throw new MuleRuntimeException(t);
       }
     });
-
 
     return status != SOURCE_STOPPING;
   }

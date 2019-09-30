@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:munit="http://www.mulesoft.org/schema/mule/munit"
+      xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools"
+      xmlns="http://www.mulesoft.org/schema/mule/core"
+      xmlns:sftp="http://www.mulesoft.org/schema/mule/sftp"
+      xsi:schemaLocation="
+		http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+		http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd
+        http://www.mulesoft.org/schema/mule/sftp http://www.mulesoft.org/schema/mule/sftp/current/mule-sftp.xsd">
+
+    <sftp:config name="config">
+        <sftp:connection username="muletest1" password="muletest1" host="localhost" port="${sftp.server.port}"
+                         workingDir="/" prngAlgorithm="SHA1PRNG">
+            <pooling-profile exhaustedAction="WHEN_EXHAUSTED_WAIT" maxActive="7" maxIdle="3" maxWait="5000"/>
+        </sftp:connection>
+    </sftp:config>
+
+    <flow name="wait-2-seconds">
+        <logger level="ERROR" message="Waiting for 2 seconds"/>
+        <munit-tools:sleep time="2000"/>
+    </flow>
+
+    <flow name="modify-file">
+        <set-payload value="Content to append"/>
+        <sftp:write config-ref="config" path="random.txt" mode="APPEND"/>
+    </flow>
+
+    <flow name="write-file">
+        <set-payload value="File Content"/>
+        <sftp:write config-ref="config" path="random.txt"/>
+    </flow>
+
+</mule>

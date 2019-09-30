@@ -9,6 +9,7 @@ package org.mule.extension.sftp.internal.connection;
 import static org.apache.commons.lang3.StringUtils.EMPTY;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.mule.extension.file.common.api.exceptions.FileError.DISCONNECTED;
+import static org.mule.extension.file.common.api.util.UriUtils.createUri;
 import static org.mule.extension.sftp.internal.SftpUtils.normalizePath;
 import static org.mule.runtime.api.connection.ConnectionValidationResult.failure;
 import static org.mule.runtime.api.connection.ConnectionValidationResult.success;
@@ -52,6 +53,20 @@ import java.net.URL;
  */
 public class SftpFileSystem extends AbstractExternalFileSystem {
 
+  public static final String ROOT = "/";
+
+  private static String resolveBasePath(String basePath, SftpClient client) {
+    if (isBlank(basePath)) {
+      try {
+        basePath = client.getWorkingDirectory();
+      } catch (Exception e) {
+        throw new IllegalPathException("SFTP working dir was not specified and failed to resolve a default one",
+                                       e);
+      }
+    }
+    return createUri(ROOT, basePath).getPath();
+  }
+
   protected final SftpClient client;
   protected final CopyCommand copyCommand;
   protected final CreateDirectoryCommand createDirectoryCommand;
@@ -62,19 +77,6 @@ public class SftpFileSystem extends AbstractExternalFileSystem {
   protected final RenameCommand renameCommand;
   protected final WriteCommand writeCommand;
   private final LockFactory lockFactory;
-
-
-  private static String resolveBasePath(String basePath, SftpClient client) {
-    if (isBlank(basePath)) {
-      try {
-        return client.getWorkingDirectory();
-      } catch (Exception e) {
-        throw new IllegalPathException("SFTP working dir was not specified and failed to resolve a default one",
-                                       e);
-      }
-    }
-    return basePath;
-  }
 
   public SftpFileSystem(SftpClient client, String basePath, LockFactory lockFactory) {
     super(resolveBasePath(basePath, client));
@@ -213,11 +215,10 @@ public class SftpFileSystem extends AbstractExternalFileSystem {
     if (!isConnected()) {
       return failure("Connection is stale", new SftpConnectionException("Connection is stale", DISCONNECTED));
     }
-
     try {
       changeToBaseDir();
     } catch (Exception e) {
-      failure("Configured workingDir is unavailable", e);
+      return failure("Configured workingDir is unavailable", e);
     }
     return success();
   }
