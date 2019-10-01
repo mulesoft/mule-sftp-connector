@@ -8,7 +8,8 @@ package org.mule.extension.sftp;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
-import org.mule.extension.file.common.api.stream.AbstractFileInputStream;
+
+import org.mule.extension.file.common.api.stream.AbstractNonFinalizableFileInputStream;
 import org.mule.runtime.api.exception.MuleException;
 import org.mule.runtime.api.exception.MuleRuntimeException;
 import org.mule.runtime.core.api.event.CoreEvent;
@@ -22,7 +23,7 @@ public class StreamCloserTestMessageProcessor implements Processor {
   @Override
   public CoreEvent process(CoreEvent event) throws MuleException {
     try {
-      assertThat(((AbstractFileInputStream) event.getMessage().getPayload().getValue()).isLocked(), is(true));
+      assertThat(((AbstractNonFinalizableFileInputStream) event.getMessage().getPayload().getValue()).isLocked(), is(true));
       ((InputStream) event.getMessage().getPayload().getValue()).close();
     } catch (IOException e) {
       throw new MuleRuntimeException(e);
