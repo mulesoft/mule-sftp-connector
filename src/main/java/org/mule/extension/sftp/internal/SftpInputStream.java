@@ -9,7 +9,7 @@ package org.mule.extension.sftp.internal;
 import org.mule.extension.file.common.api.AbstractConnectedFileInputStreamSupplier;
 import org.mule.extension.file.common.api.FileAttributes;
 import org.mule.extension.file.common.api.lock.UriLock;
-import org.mule.extension.file.common.api.stream.AbstractFileInputStream;
+import org.mule.extension.file.common.api.stream.AbstractNonFinalizableFileInputStream;
 import org.mule.extension.file.common.api.stream.LazyStreamSupplier;
 import org.mule.extension.sftp.api.SftpFileAttributes;
 import org.mule.extension.sftp.internal.connection.SftpFileSystem;
@@ -17,17 +17,17 @@ import org.mule.runtime.api.connection.ConnectionException;
 import org.mule.runtime.api.exception.MuleRuntimeException;
 import org.mule.runtime.core.api.connector.ConnectionManager;
 
-import com.jcraft.jsch.SftpException;
-
 import java.io.IOException;
 import java.io.InputStream;
 
+import com.jcraft.jsch.SftpException;
+
 /**
- * Implementation of {@link AbstractFileInputStream} for SFTP connections
+ * Implementation of {@link AbstractNonFinalizableFileInputStream} for SFTP connections
  *
  * @since 1.0
  */
-public class SftpInputStream extends AbstractFileInputStream {
+public class SftpInputStream extends AbstractNonFinalizableFileInputStream {
 
   protected static ConnectionManager getConnectionManager(SftpConnector config) throws ConnectionException {
     return config.getConnectionManager();
@@ -72,7 +72,7 @@ public class SftpInputStream extends AbstractFileInputStream {
     return new SftpInputStream(sftpFileInputStreamSupplier, lock);
   }
 
-  private SftpFileInputStreamSupplier sftpFileInputStreamSupplier;
+  private final SftpFileInputStreamSupplier sftpFileInputStreamSupplier;
 
   protected SftpInputStream(SftpFileInputStreamSupplier sftpFileInputStreamSupplier, UriLock lock) {
     super(new LazyStreamSupplier(sftpFileInputStreamSupplier), lock);
