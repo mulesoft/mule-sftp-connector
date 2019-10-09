@@ -81,8 +81,6 @@ public class SftpInputStream extends AbstractNonFinalizableFileInputStream {
 
   @Override
   protected void doClose() throws IOException {
-    System.out.println(" >> SftpInputStream.doClose");
-
     try {
       super.doClose();
     } finally {
