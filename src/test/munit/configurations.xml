@@ -31,4 +31,11 @@
         <sftp:write config-ref="config" path="random.txt"/>
     </flow>
 
+    <sftp:config name="config-invalid-folder">
+        <sftp:connection username="muletest1" password="muletest1" host="localhost" port="${sftp.server.port}"
+                         workingDir="/invalid" prngAlgorithm="SHA1PRNG">
+            <pooling-profile exhaustedAction="WHEN_EXHAUSTED_WAIT" maxActive="7" maxIdle="3" maxWait="5000"/>
+        </sftp:connection>
+    </sftp:config>
+
 </mule>
