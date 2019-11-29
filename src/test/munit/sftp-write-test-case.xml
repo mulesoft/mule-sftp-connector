@@ -74,12 +74,7 @@
         </munit:behavior>
         <munit:execution>
             <sftp:write config-ref="config-invalid-folder" path='#[vars.fileName]' createParentDirectories="false">
-                <sftp:content>
-                    #[%dw 2.0
-                    output application/java
-                    ---
-                    "asd"]
-                </sftp:content>
+                <sftp:content>test content</sftp:content>
             </sftp:write>
         </munit:execution>
     </munit:test>
@@ -90,28 +85,18 @@
         </munit:behavior>
         <munit:execution>
             <sftp:write config-ref="config" path='#[vars.fileName]' createParentDirectories="false">
-                <sftp:content>
-                    #[%dw 2.0
-                    output application/java
-                    ---
-                    "asd"]
-                </sftp:content>
+                <sftp:content>test content</sftp:content>
             </sftp:write>
         </munit:execution>
     </munit:test>
 
-    <munit:test name="sfto-write-on-invalid-absolute-path-equals-to-working-directory" expectedErrorType="SFTP:ILLEGAL_PATH">
+    <munit:test name="sftp-write-on-invalid-absolute-path" expectedErrorType="SFTP:ILLEGAL_PATH">
         <munit:behavior>
             <set-variable variableName="fileName" value="/invalid/filePath.txt"/>
         </munit:behavior>
         <munit:execution>
             <sftp:write config-ref="config-invalid-folder" path='#[vars.fileName]' createParentDirectories="false">
-                <sftp:content>
-                    #[%dw 2.0
-                    output application/java
-                    ---
-                    "asd"]
-                </sftp:content>
+                <sftp:content>test content</sftp:content>
             </sftp:write>
         </munit:execution>
     </munit:test>
