@@ -115,7 +115,7 @@
         </munit:validation>
     </munit:test>
 
-    <munit:test name="renameToeWithSameFileName" description="Verifies that files that cannot be renamed (because a file already exists in the directory with that name) remain untouched">
+    <munit:test name="renameToWithSameFileName" description="Verifies that files that cannot be renamed (because a file already exists in the directory with that name) remain untouched">
         <munit:enable-flow-sources>
             <munit:enable-flow-source value="renameToFlow"/>
         </munit:enable-flow-sources>
