@@ -118,9 +118,6 @@ public class SftpClient {
     try {
       sftp.cd(normalizePath(path));
     } catch (SftpException e) {
-      if (e.getCause() instanceof IOException) {
-        throw exception("Exception occurred while trying to change working directory to " + path, new ConnectionException(e));
-      }
       throw exception("Exception occurred while trying to change working directory to " + path, e);
     }
   }
@@ -403,6 +400,11 @@ public class SftpClient {
   }
 
   protected RuntimeException exception(String message, Exception cause) {
+    if (cause instanceof SftpException) {
+      if (cause.getCause() instanceof IOException) {
+        return exception(message, new ConnectionException(cause));
+      }
+    }
     return new MuleRuntimeException(createStaticMessage(message), cause);
   }
 

@@ -10,6 +10,7 @@ import static com.jcraft.jsch.ChannelSftp.SSH_FX_NO_SUCH_FILE;
 import static com.jcraft.jsch.ChannelSftp.SSH_FX_PERMISSION_DENIED;
 import static java.lang.String.format;
 import static org.apache.commons.lang3.StringUtils.EMPTY;
+import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
@@ -19,6 +20,7 @@ import static org.mule.extension.file.common.api.util.UriUtils.createUri;
 import static org.mule.extension.sftp.random.alg.PRNGAlgorithm.NativePRNGNonBlocking;
 
 import org.mule.extension.sftp.internal.connection.SftpClient;
+import org.mule.runtime.api.connection.ConnectionException;
 import org.mule.runtime.api.exception.MuleRuntimeException;
 import org.mule.tck.size.SmallTest;
 
@@ -26,6 +28,7 @@ import com.jcraft.jsch.ChannelSftp;
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.SftpException;
 
+import java.io.IOException;
 import java.net.URI;
 
 import org.junit.Rule;
@@ -67,6 +70,14 @@ public class SftpClientTestCase {
     expectedException.expect(MuleRuntimeException.class);
     expectedException.expectMessage(format("Could not obtain attributes for path %s", FILE_PATH));
     when(channel.stat(any())).thenThrow(new SftpException(SSH_FX_PERMISSION_DENIED, EMPTY));
+    client.getAttributes(uri);
+  }
+
+  @Test
+  public void expectConnectionExceptionWhenIOExceptionIsThrown() throws Exception {
+    expectedException.expect(MuleRuntimeException.class);
+    expectedException.expectCause(instanceOf(ConnectionException.class));
+    when(channel.stat(any())).thenThrow(new SftpException(SSH_FX_PERMISSION_DENIED, EMPTY, new IOException()));
     client.getAttributes(uri);
   }
 }
