@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:munit="http://www.mulesoft.org/schema/mule/munit"
+      xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools"
+      xmlns="http://www.mulesoft.org/schema/mule/core"
+      xmlns:sftp="http://www.mulesoft.org/schema/mule/sftp"
+      xmlns:java="http://www.mulesoft.org/schema/mule/java"
+      xsi:schemaLocation="
+		http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+		http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
+		http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd
+        http://www.mulesoft.org/schema/mule/sftp http://www.mulesoft.org/schema/mule/sftp/current/mule-sftp.xsd
+        http://www.mulesoft.org/schema/mule/java http://www.mulesoft.org/schema/mule/java/current/mule-java.xsd">
+
+    <munit:config name="sftp-directory-listener-post-processing-action-test-case.xml" />
+
+    <munit:dynamic-port propertyName="sftp.server.port"/>
+
+    <munit:before-suite name="startDirectoryListenerMatcherTestServer">
+        <java:invoke-static class="org.mule.extension.sftp.internal.lifecycle.SftpServerLifecycleManager"
+                            method="startSftpServer(String)">
+            <java:args>
+                #[{
+                arg0: ${sftp.server.port},
+                }]
+            </java:args>
+        </java:invoke-static>
+    </munit:before-suite>
+
+    <munit:after-suite name="clearDirectoryListenerMatcherTestServer">
+        <java:invoke-static class="org.mule.extension.sftp.internal.lifecycle.SftpServerLifecycleManager"
+                            method="stopSftpServer()">
+            <java:args>
+                #[{}]
+            </java:args>
+        </java:invoke-static>
+    </munit:after-suite>
+
+    <munit:test name="renameTo" description="Verifies that files are renamed after processing">
+        <munit:enable-flow-sources>
+            <munit:enable-flow-source value="renameToFlow"/>
+        </munit:enable-flow-sources>
+        <munit:behavior>
+            <set-variable variableName="fileName" value="input.txt"/>
+            <set-variable variableName="fileContent" value="File content"/>
+            <set-variable variableName="renameTo" value="renamed.bak" />
+        </munit:behavior>
+        <munit:execution>
+            <sftp:write config-ref="SFTP_Config" path="#[vars.fileName]">
+                <sftp:content>#[vars.fileContent]</sftp:content>
+            </sftp:write>
+            <flow-ref name="wait-2-seconds"/>
+            <set-variable variableName="fileExists" value="#[vars.fileName]" />
+            <flow-ref name="file-exists" target="existsOriginal"/>
+            <set-variable variableName="fileExists" value="#[vars.renameTo]" />
+            <flow-ref name="file-exists" target="existsRenamed" />
+        </munit:execution>
+        <munit:validation >
+            <munit-tools:assert-equals actual="#[vars.existsOriginal]" expected="#[false]"/>
+            <munit-tools:assert-equals actual="#[vars.existsRenamed]" expected="#[true]" />
+        </munit:validation>
+    </munit:test>
+
+    <munit:test name="renameToAndAutoDelete" description="Verifies that files are renamed after processing even if autoDelete is configured">
+        <munit:enable-flow-sources>
+            <munit:enable-flow-source value="renameToAndAutoDeleteFlow"/>
+        </munit:enable-flow-sources>
+        <munit:behavior>
+            <set-variable variableName="fileName" value="input.txt"/>
+            <set-variable variableName="fileContent" value="File content"/>
+            <set-variable variableName="renameTo" value="renamed.bak" />
+        </munit:behavior>
+        <munit:execution>
+            <sftp:write config-ref="SFTP_Config" path="#[vars.fileName]">
+                <sftp:content>#[vars.fileContent]</sftp:content>
+            </sftp:write>
+            <flow-ref name="wait-2-seconds"/>
+            <set-variable variableName="fileExists" value="#[vars.fileName]" />
+            <flow-ref name="file-exists" target="existsOriginal"/>
+            <set-variable variableName="fileExists" value="#[vars.renameTo]" />
+            <flow-ref name="file-exists" target="existsRenamed" />
+        </munit:execution>
+        <munit:validation >
+            <munit-tools:assert-equals actual="#[vars.existsOriginal]" expected="#[false]"/>
+            <munit-tools:assert-equals actual="#[vars.existsRenamed]" expected="#[true]" />
+        </munit:validation>
+    </munit:test>
+
+    <munit:test name="renameToAndAutoDeleteWithSameFileName" description="Verifies that files that cannot be renamed (because a file already exists in the directory with that name) are deleted">
+        <munit:enable-flow-sources>
+            <munit:enable-flow-source value="renameToAndAutoDeleteFlow"/>
+        </munit:enable-flow-sources>
+        <munit:behavior>
+            <set-variable variableName="fileName" value="input.txt"/>
+            <set-variable variableName="fileContent" value="File content"/>
+            <set-variable variableName="renameTo" value="renamed.bak" />
+        </munit:behavior>
+        <munit:execution>
+            <sftp:write config-ref="SFTP_Config" path="#[vars.fileName]">
+                <sftp:content>#[vars.fileContent]</sftp:content>
+            </sftp:write>
+            <flow-ref name="wait-2-seconds"/>
+            <sftp:write config-ref="SFTP_Config" path="#[vars.fileName]">
+                <sftp:content>#[vars.fileContent]</sftp:content>
+            </sftp:write>
+            <flow-ref name="wait-2-seconds"/>
+            <set-variable variableName="fileExists" value="#[vars.fileName]" />
+            <flow-ref name="file-exists" target="existsOriginal"/>
+            <set-variable variableName="fileExists" value="#[vars.renameTo]" />
+            <flow-ref name="file-exists" target="existsRenamed" />
+        </munit:execution>
+        <munit:validation >
+            <munit-tools:assert-equals actual="#[vars.existsOriginal]" expected="#[false]"/>
+            <munit-tools:assert-equals actual="#[vars.existsRenamed]" expected="#[true]" />
+        </munit:validation>
+    </munit:test>
+
+    <munit:test name="renameToWithSameFileName" description="Verifies that files that cannot be renamed (because a file already exists in the directory with that name) remain untouched">
+        <munit:enable-flow-sources>
+            <munit:enable-flow-source value="renameToFlow"/>
+        </munit:enable-flow-sources>
+        <munit:behavior>
+            <set-variable variableName="fileName" value="input.txt"/>
+            <set-variable variableName="fileContent" value="File content"/>
+            <set-variable variableName="renameTo" value="renamed.bak" />
+        </munit:behavior>
+        <munit:execution>
+            <sftp:write config-ref="SFTP_Config" path="#[vars.fileName]">
+                <sftp:content>#[vars.fileContent]</sftp:content>
+            </sftp:write>
+            <flow-ref name="wait-2-seconds"/>
+            <sftp:write config-ref="SFTP_Config" path="#[vars.fileName]">
+                <sftp:content>#[vars.fileContent]</sftp:content>
+            </sftp:write>
+            <flow-ref name="wait-2-seconds"/>
+            <set-variable variableName="fileExists" value="#[vars.fileName]" />
+            <flow-ref name="file-exists" target="existsOriginal"/>
+            <set-variable variableName="fileExists" value="#[vars.renameTo]" />
+            <flow-ref name="file-exists" target="existsRenamed" />
+        </munit:execution>
+        <munit:validation >
+            <munit-tools:assert-equals actual="#[vars.existsOriginal]" expected="#[true]"/>
+            <munit-tools:assert-equals actual="#[vars.existsRenamed]" expected="#[true]" />
+        </munit:validation>
+    </munit:test>
+
+    <flow name="renameToFlow">
+        <sftp:listener config-ref="SFTP_Config" directory="." renameTo="renamed.bak" recursive="false">
+            <scheduling-strategy>
+                <fixed-frequency />
+            </scheduling-strategy>
+            <sftp:matcher filenamePattern="*.txt" />
+        </sftp:listener>
+        <logger level="INFO" message="#[attributes.fileName]"/>
+    </flow>
+
+    <flow name="renameToAndAutoDeleteFlow">
+        <sftp:listener config-ref="SFTP_Config" directory="." renameTo="renamed.bak" recursive="false" autoDelete="true">
+            <scheduling-strategy>
+                <fixed-frequency frequency="1" timeUnit="SECONDS"/>
+            </scheduling-strategy>
+            <sftp:matcher filenamePattern="*.txt" />
+        </sftp:listener>
+        <logger level="INFO" message="#[attributes.fileName]"/>
+    </flow>
+
+    <flow name="file-exists">
+        <try>
+            <sftp:read config-ref="SFTP_Config" path="#[vars.fileExists]" />
+            <set-payload value="#[true]" />
+            <error-handler>
+                <on-error-continue enableNotifications="true" logException="true">
+                    <set-payload value="#[false]" />
+                </on-error-continue>
+            </error-handler>
+        </try>
+    </flow>
+
+</mule>
