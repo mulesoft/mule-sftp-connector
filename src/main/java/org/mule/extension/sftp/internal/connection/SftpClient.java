@@ -402,7 +402,7 @@ public class SftpClient {
   protected RuntimeException exception(String message, Exception cause) {
     if (cause instanceof SftpException) {
       if (cause.getCause() instanceof IOException) {
-        throw exception(message, new ConnectionException(cause));
+        return exception(message, new ConnectionException(cause));
       }
     }
     return new MuleRuntimeException(createStaticMessage(message), cause);
