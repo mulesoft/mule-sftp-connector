@@ -43,6 +43,7 @@ import java.net.UnknownHostException;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.inject.Inject;
 
@@ -67,6 +68,9 @@ public class SftpConnectionProvider extends FileSystemProvider<SftpFileSystem>
   private static final String AUTH_FAIL_MESSAGE = "Auth fail";
   private static final String SSH_DISCONNECTION_MESSAGE = "SSH_MSG_DISCONNECT";
   private static final String TIMEOUT = "timeout";
+
+  private static AtomicBoolean alreadyLoggedConnectionTimeoutWarning = new AtomicBoolean();
+  private static AtomicBoolean alreadyLoggedResponseTimeoutWarning = new AtomicBoolean();
 
   @Inject
   private LockFactory lockFactory;
@@ -116,6 +120,8 @@ public class SftpConnectionProvider extends FileSystemProvider<SftpFileSystem>
 
   @Override
   public SftpFileSystem connect() throws ConnectionException {
+    checkConnectionTimeoutPrecision();
+    checkResponseTimeoutPrecision();
     if (LOGGER.isDebugEnabled()) {
       LOGGER.debug(format("Connecting to host: '%s' at port: '%d'", connectionSettings.getHost(), connectionSettings.getPort()));
     }
@@ -306,4 +312,21 @@ public class SftpConnectionProvider extends FileSystemProvider<SftpFileSystem>
                         knownHostsFile, proxyConfig);
   }
 
+  private void checkConnectionTimeoutPrecision() {
+    if (!supportedTimeoutPrecision(getConnectionTimeoutUnit(), getConnectionTimeout())
+        && alreadyLoggedConnectionTimeoutWarning.compareAndSet(false, true)) {
+      LOGGER.warn("Connection timeout configuration not supported. Minimum value allowed is 1 millisecond.");
+    }
+  }
+
+  private void checkResponseTimeoutPrecision() {
+    if (!supportedTimeoutPrecision(getResponseTimeoutUnit(), getResponseTimeout())
+        && alreadyLoggedResponseTimeoutWarning.compareAndSet(false, true)) {
+      LOGGER.warn("Response timeout configuration not supported. Minimum value allowed is 1 millisecond.");
+    }
+  }
+
+  private boolean supportedTimeoutPrecision(TimeUnit timeUnit, Integer timeout) {
+    return timeUnit.toMillis(timeout) >= 1 || timeout == 0;
+  }
 }
