@@ -69,8 +69,8 @@ public class SftpConnectionProvider extends FileSystemProvider<SftpFileSystem>
   private static final String SSH_DISCONNECTION_MESSAGE = "SSH_MSG_DISCONNECT";
   private static final String TIMEOUT = "timeout";
 
-  private static AtomicBoolean alreadyLoggedConnectionTimeoutWarning = new AtomicBoolean();
-  private static AtomicBoolean alreadyLoggedResponseTimeoutWarning = new AtomicBoolean();
+  private static AtomicBoolean alreadyLoggedConnectionTimeoutWarning = new AtomicBoolean(false);
+  private static AtomicBoolean alreadyLoggedResponseTimeoutWarning = new AtomicBoolean(false);
 
   @Inject
   private LockFactory lockFactory;
