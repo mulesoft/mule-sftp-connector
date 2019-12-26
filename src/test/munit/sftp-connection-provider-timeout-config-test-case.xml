@@ -56,7 +56,7 @@
         </munit:execution>
     </munit:test>
 
-    <munit:test name="responseTimeoutWarning" description="Warning is logged once because of an invalid connection timeout configuration">
+    <munit:test name="responseTimeoutWarning" description="Warning is logged once because of an invalid response timeout configuration">
         <munit:behavior>
             <set-variable variableName="fileContent" value="File content"/>
         </munit:behavior>
