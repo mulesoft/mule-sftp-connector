@@ -51,7 +51,7 @@
 
     <sftp:config name="config-valid-connection-timeout">
         <sftp:connection username="muletest1" password="muletest1" host="localhost" port="${sftp.server.port}"
-                         workingDir="/" prngAlgorithm="SHA1PRNG" connectionTimeoutUnit="NANOSECONDS" connectionTimeout="5">
+                         workingDir="/" prngAlgorithm="SHA1PRNG" connectionTimeoutUnit="SECONDS" connectionTimeout="5">
             <pooling-profile exhaustedAction="WHEN_EXHAUSTED_WAIT" maxActive="7" maxIdle="3" maxWait="5000"/>
         </sftp:connection>
     </sftp:config>
@@ -59,6 +59,27 @@
     <sftp:config name="config-valid-zero-connection-timeout">
         <sftp:connection username="muletest1" password="muletest1" host="localhost" port="${sftp.server.port}"
                          workingDir="/" prngAlgorithm="SHA1PRNG" connectionTimeoutUnit="NANOSECONDS" connectionTimeout="0">
+            <pooling-profile exhaustedAction="WHEN_EXHAUSTED_WAIT" maxActive="7" maxIdle="3" maxWait="5000"/>
+        </sftp:connection>
+    </sftp:config>
+
+    <sftp:config name="config-invalid-response-timeout">
+        <sftp:connection username="muletest1" password="muletest1" host="localhost" port="${sftp.server.port}"
+                         workingDir="/" prngAlgorithm="SHA1PRNG" responseTimeoutUnit="NANOSECONDS" responseTimeout="5">
+            <pooling-profile exhaustedAction="WHEN_EXHAUSTED_WAIT" maxActive="7" maxIdle="3" maxWait="5000"/>
+        </sftp:connection>
+    </sftp:config>
+
+    <sftp:config name="config-valid-response-timeout">
+        <sftp:connection username="muletest1" password="muletest1" host="localhost" port="${sftp.server.port}"
+                         workingDir="/" prngAlgorithm="SHA1PRNG" responseTimeoutUnit="SECONDS" responseTimeout="5">
+            <pooling-profile exhaustedAction="WHEN_EXHAUSTED_WAIT" maxActive="7" maxIdle="3" maxWait="5000"/>
+        </sftp:connection>
+    </sftp:config>
+
+    <sftp:config name="config-valid-zero-response-timeout">
+        <sftp:connection username="muletest1" password="muletest1" host="localhost" port="${sftp.server.port}"
+                         workingDir="/" prngAlgorithm="SHA1PRNG" responseTimeoutUnit="NANOSECONDS" responseTimeout="0">
             <pooling-profile exhaustedAction="WHEN_EXHAUSTED_WAIT" maxActive="7" maxIdle="3" maxWait="5000"/>
         </sftp:connection>
     </sftp:config>

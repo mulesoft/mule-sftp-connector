@@ -56,4 +56,24 @@
         </munit:execution>
     </munit:test>
 
+    <munit:test name="responseTimeoutWarning" description="Warning is logged once because of an invalid connection timeout configuration">
+        <munit:behavior>
+            <set-variable variableName="fileContent" value="File content"/>
+        </munit:behavior>
+        <munit:execution>
+            <sftp:write config-ref="config-valid-response-timeout" path="input.txt">
+                <sftp:content>#[vars.fileContent]</sftp:content>
+            </sftp:write>
+            <sftp:write config-ref="config-valid-zero-response-timeout" path="input2.txt">
+                <sftp:content>#[vars.fileContent]</sftp:content>
+            </sftp:write>
+            <sftp:write config-ref="config-invalid-response-timeout" path="input3.txt">
+                <sftp:content>#[vars.fileContent]</sftp:content>
+            </sftp:write>
+            <sftp:write config-ref="config-invalid-response-timeout" path="input4.txt">
+                <sftp:content>#[vars.fileContent]</sftp:content>
+            </sftp:write>
+        </munit:execution>
+    </munit:test>
+
 </mule>
