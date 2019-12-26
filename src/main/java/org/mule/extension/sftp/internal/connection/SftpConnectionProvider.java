@@ -327,6 +327,6 @@ public class SftpConnectionProvider extends FileSystemProvider<SftpFileSystem>
   }
 
   private boolean supportedTimeoutPrecision(TimeUnit timeUnit, Integer timeout) {
-    return timeUnit.toMillis(timeout) >= 1 || timeout == 0;
+    return timeUnit != null && timeout != null && (timeUnit.toMillis(timeout) >= 1 || timeout == 0);
   }
 }
