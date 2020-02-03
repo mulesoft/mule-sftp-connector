@@ -96,14 +96,6 @@
         </dependency>
 
         <dependency>
-            <groupId>org.mule.module</groupId>
-            <artifactId>mule-java-module</artifactId>
-            <version>1.2.6</version>
-            <classifier>mule-plugin</classifier>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
             <groupId>org.mule.tests</groupId>
             <artifactId>mule-tests-runner</artifactId>
             <version>${muleTestsRunnerVersion}</version>
@@ -213,11 +205,6 @@
             <id>mule</id>
             <name>Mule Repository</name>
             <url>https://repository.mulesoft.org/nexus/content/repositories/public/</url>
-        </repository>
-        <repository>
-            <id>spring-snapshot</id>
-            <name>Spring Snapshot Repository</name>
-            <url>http://repo.spring.io/snapshot/</url>
         </repository>
     </repositories>
 
