@@ -11,8 +11,12 @@ import static java.util.Collections.unmodifiableSet;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.apache.commons.io.FileUtils.write;
 import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.ArgumentCaptor.forClass;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mule.extension.sftp.SftpServer.PASSWORD;
@@ -193,7 +197,9 @@ public class SftpConnectionProviderTestCase extends AbstractMuleTestCase {
   }
 
   private void login() throws Exception {
-    provider.connect();
+    SftpFileSystem fileSystem = provider.connect();
+    SftpClient client = spy(fileSystem.getClient());
+    assertThat(fileSystem.getBasePath(), is(""));
     verify(jsch).setKnownHosts(hostFile.getAbsolutePath());
     verify(session).setTimeout(new Long(SECONDS.toMillis(TIMEOUT)).intValue());
     verify(session).connect();
@@ -202,6 +208,7 @@ public class SftpConnectionProviderTestCase extends AbstractMuleTestCase {
     Properties properties = captureLoginProperties();
     assertThat(properties.getProperty(PREFERRED_AUTHENTICATION_METHODS), equalTo(GSSAPI_WITH_MIC.toString()));
     assertThat(properties.getProperty(STRICT_HOST_KEY_CHECKING), equalTo("ask"));
+    verify(client, never()).changeWorkingDirectory(anyString());
   }
 
   private Properties captureLoginProperties() {
