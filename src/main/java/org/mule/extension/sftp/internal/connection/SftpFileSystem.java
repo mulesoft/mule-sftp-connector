@@ -15,6 +15,11 @@ import static org.mule.runtime.api.connection.ConnectionValidationResult.failure
 import static org.mule.runtime.api.connection.ConnectionValidationResult.success;
 import static org.mule.runtime.api.i18n.I18nMessageFactory.createStaticMessage;
 
+import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URL;
+
 import org.mule.extension.file.common.api.AbstractExternalFileSystem;
 import org.mule.extension.file.common.api.AbstractFileSystem;
 import org.mule.extension.file.common.api.FileAttributes;
@@ -24,7 +29,6 @@ import org.mule.extension.file.common.api.command.DeleteCommand;
 import org.mule.extension.file.common.api.command.MoveCommand;
 import org.mule.extension.file.common.api.command.RenameCommand;
 import org.mule.extension.file.common.api.command.WriteCommand;
-import org.mule.extension.file.common.api.exceptions.IllegalPathException;
 import org.mule.extension.file.common.api.lock.URLPathLock;
 import org.mule.extension.file.common.api.lock.UriLock;
 import org.mule.extension.sftp.api.SftpConnectionException;
@@ -41,11 +45,6 @@ import org.mule.runtime.api.connection.ConnectionValidationResult;
 import org.mule.runtime.api.exception.MuleRuntimeException;
 import org.mule.runtime.api.lock.LockFactory;
 
-import java.io.InputStream;
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URL;
-
 /**
  * Implementation of {@link AbstractFileSystem} for files residing on a SFTP server
  *
@@ -55,14 +54,9 @@ public class SftpFileSystem extends AbstractExternalFileSystem {
 
   public static final String ROOT = "/";
 
-  private static String resolveBasePath(String basePath, SftpClient client) {
+  private static String resolveBasePath(String basePath) {
     if (isBlank(basePath)) {
-      try {
-        basePath = client.getWorkingDirectory();
-      } catch (Exception e) {
-        throw new IllegalPathException("SFTP working dir was not specified and failed to resolve a default one",
-                                       e);
-      }
+      return "";
     }
     return createUri(ROOT, basePath).getPath();
   }
@@ -79,7 +73,7 @@ public class SftpFileSystem extends AbstractExternalFileSystem {
   private final LockFactory lockFactory;
 
   public SftpFileSystem(SftpClient client, String basePath, LockFactory lockFactory) {
-    super(resolveBasePath(basePath, client));
+    super(resolveBasePath(basePath));
     this.client = client;
     this.lockFactory = lockFactory;
 
@@ -102,7 +96,7 @@ public class SftpFileSystem extends AbstractExternalFileSystem {
    */
   @Override
   public void changeToBaseDir() {
-    if (getBasePath() != null) {
+    if (!isBlank(getBasePath())) {
       client.changeWorkingDirectory(getBasePath());
     }
   }
