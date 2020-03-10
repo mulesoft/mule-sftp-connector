@@ -12,7 +12,20 @@
         http://www.mulesoft.org/schema/mule/sftp http://www.mulesoft.org/schema/mule/sftp/current/mule-sftp.xsd
         http://www.mulesoft.org/schema/mule/java http://www.mulesoft.org/schema/mule/java/current/mule-java.xsd">
 
-    <munit:config name="sftp-write-test-case.xml"/>
+    <munit:config name="sftp-write-test-case.xml">
+        <munit:parameterizations>
+            <munit:parameterization name="config">
+                <munit:parameters>
+                    <munit:parameter propertyName="config" value="config"/>
+                </munit:parameters>
+            </munit:parameterization>
+            <munit:parameterization name="config-without-working-dir">
+                <munit:parameters>
+                    <munit:parameter propertyName="config" value="config-without-working-dir"/>
+                </munit:parameters>
+            </munit:parameterization>
+        </munit:parameterizations>
+    </munit:config>
 
     <munit:dynamic-port propertyName="sftp.server.port"/>
 
@@ -47,7 +60,7 @@
             <set-variable variableName="fileSize" value="#[vars.loopSize * vars.singleLineSize + vars.overheadSize]"/>
         </munit:behavior>
         <munit:execution>
-            <sftp:write config-ref="config" path='#[vars.fileName]'>
+            <sftp:write config-ref="${config}" path='#[vars.fileName]'>
                 <sftp:content>
                     #[%dw 2.0
                     output application/json
@@ -57,7 +70,7 @@
             </sftp:write>
         </munit:execution>
         <munit:validation>
-            <sftp:read config-ref="config" path='#[vars.fileName]'/>
+            <sftp:read config-ref="${config}" path='#[vars.fileName]'/>
             <munit-tools:assert>
                 <munit-tools:that><![CDATA[#[import * from dw::test::Asserts
                                      ---
@@ -84,7 +97,7 @@
             <set-variable variableName="fileName" value="invalid/filePath.txt"/>
         </munit:behavior>
         <munit:execution>
-            <sftp:write config-ref="config" path='#[vars.fileName]' createParentDirectories="false">
+            <sftp:write config-ref="${config}" path='#[vars.fileName]' createParentDirectories="false">
                 <sftp:content>test content</sftp:content>
             </sftp:write>
         </munit:execution>

@@ -8,6 +8,7 @@ package org.mule.extension.sftp.internal.command;
 
 import static java.lang.String.format;
 import static org.apache.commons.lang3.StringUtils.isBlank;
+import static org.apache.commons.lang3.StringUtils.isEmpty;
 import static org.mule.extension.file.common.api.util.UriUtils.createUri;
 import static org.mule.extension.file.common.api.util.UriUtils.normalizeUri;
 import static org.mule.extension.file.common.api.util.UriUtils.trimLastFragment;
@@ -104,7 +105,7 @@ public abstract class SftpCommand extends ExternalFileCommand<SftpFileSystem> {
    */
   @Override
   protected boolean exists(URI uri) {
-    return ROOT.equals(uri.getPath()) || getFile(normalizePath(uri.getPath())) != null;
+    return isEmpty(uri.getPath()) || ROOT.equals(uri.getPath()) || getFile(normalizePath(uri.getPath())) != null;
   }
 
   /**
