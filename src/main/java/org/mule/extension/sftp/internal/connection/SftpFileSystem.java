@@ -85,6 +85,7 @@ public class SftpFileSystem extends AbstractExternalFileSystem {
     listCommand = new SftpListCommand(this, client, (SftpReadCommand) readCommand);
     renameCommand = new SftpRenameCommand(this, client);
     writeCommand = new SftpWriteCommand(this, client);
+    client.setOwner(this);
   }
 
   public void disconnect() {
