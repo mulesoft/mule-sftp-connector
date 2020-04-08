@@ -28,8 +28,6 @@ import org.mule.runtime.api.connection.ConnectionException;
 import org.mule.runtime.api.connection.ConnectionValidationResult;
 import org.mule.runtime.api.connection.PoolingConnectionProvider;
 import org.mule.runtime.api.lock.LockFactory;
-import org.mule.runtime.api.meta.MuleVersion;
-import org.mule.runtime.core.api.config.MuleManifest;
 import org.mule.runtime.extension.api.annotation.Alias;
 import org.mule.runtime.extension.api.annotation.param.Optional;
 import org.mule.runtime.extension.api.annotation.param.Parameter;
@@ -73,12 +71,6 @@ public class SftpConnectionProvider extends FileSystemProvider<SftpFileSystem>
 
   private static AtomicBoolean alreadyLoggedConnectionTimeoutWarning = new AtomicBoolean(false);
   private static AtomicBoolean alreadyLoggedResponseTimeoutWarning = new AtomicBoolean(false);
-
-  private static final MuleVersion RECONNECTION_FIX_MULE_VERSION = new MuleVersion("4.1.3");
-
-  private boolean shouldValidateConnectionOnReturn =
-      !(new MuleVersion(MuleManifest.getProductVersion()).atLeast(RECONNECTION_FIX_MULE_VERSION));
-
 
   @Inject
   private LockFactory lockFactory;

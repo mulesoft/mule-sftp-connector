@@ -33,6 +33,7 @@
         <munit:behavior>
             <set-variable variableName="fileContent" value="File content"/>
             <set-variable variableName="fileName" value="fileName.txt"/>
+            <set-variable variableName="quantityPolled" value="#[2]"/>
         </munit:behavior>
         <munit:execution>
             <sftp:write config-ref="config-with-reconnection" path="#[vars.fileName]">
@@ -42,7 +43,7 @@
         <munit:validation>
             <until-successful maxRetries="50" millisBetweenRetries="1000">
                 <munit-tools:assert-that expression="#[MunitTools::queueSize()]"
-                                         is="#[MunitTools::greaterThan(2)]"/>
+                                         is="#[MunitTools::greaterThan(vars.quantityPolled)]"/>
             </until-successful>
             <flow-ref name="stopServerFlow"/>
             <flow-ref name="wait-2-seconds"/>
@@ -56,7 +57,7 @@
             </sftp:write>
             <until-successful maxRetries="50" millisBetweenRetries="1000">
                 <munit-tools:assert-that expression="#[MunitTools::queueSize()]"
-                                         is="#[MunitTools::greaterThan(vars.preCount + 2)]"/>
+                                         is="#[MunitTools::greaterThan(vars.preCount + vars.quantityPolled)]"/>
             </until-successful>
         </munit:validation>
     </munit:test>
