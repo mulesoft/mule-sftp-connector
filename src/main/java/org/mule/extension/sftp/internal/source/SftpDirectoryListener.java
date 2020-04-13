@@ -169,11 +169,8 @@ public class SftpDirectoryListener extends PollingSource<InputStream, SftpFileAt
 
     SftpFileSystem fileSystem;
     try {
-      fileSystem = openConnection();
+      fileSystem = openConnection(pollContext);
     } catch (Exception e) {
-      if (e.getCause() instanceof ConnectionException) {
-        pollContext.onConnectionException((ConnectionException) e.getCause());
-      }
       LOGGER.error(format("Could not obtain connection while trying to poll directory '%s'. %s", directoryUri.getPath(),
                           e.getMessage()));
       return;
@@ -223,14 +220,18 @@ public class SftpDirectoryListener extends PollingSource<InputStream, SftpFileAt
     matcher = predicateBuilder != null ? predicateBuilder.build() : new NullFilePayloadPredicate<>();
   }
 
-  private SftpFileSystem openConnection() throws Exception {
+  private SftpFileSystem openConnection(PollContext pollContext) throws Exception {
 
     SftpFileSystem fileSystem = fileSystemProvider.connect();
     try {
       fileSystem.changeToBaseDir();
     } catch (Exception e) {
       LOGGER.debug("Exception while trying to open connection. Cause: {} . Message: {}", e.getCause(), e.getMessage());
-      fileSystemProvider.disconnect(fileSystem);
+      if (e.getCause() instanceof ConnectionException) {
+        pollContext.onConnectionException((ConnectionException) e.getCause());
+      } else {
+        fileSystemProvider.disconnect(fileSystem);
+      }
       throw e;
     }
     return fileSystem;
