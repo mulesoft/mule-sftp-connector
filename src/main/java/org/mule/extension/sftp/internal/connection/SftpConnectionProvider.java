@@ -156,15 +156,6 @@ public class SftpConnectionProvider extends FileSystemProvider<SftpFileSystem>
     return ftpFileSystem.validateConnection();
   }
 
-  //This validation needs to be done because of the bug explained in MULE-15197
-  @Override
-  public void onReturn(SftpFileSystem connection) {
-    if (!connection.validateConnection().isValid()) {
-      LOGGER.debug("Connection is not valid, it is destroyed and not returned to the pool.");
-      throw new IllegalStateException("Connection that is being returned to the pool is invalid.");
-    }
-  }
-
   void setPort(int port) {
     connectionSettings.setPort(port);
   }

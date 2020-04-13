@@ -82,6 +82,8 @@ public class SftpClient {
   private SftpProxyConfig proxyConfig;
   private String prngAlgorithmClassImplementation;
 
+  private SftpFileSystem owner;
+
   /**
    * Creates a new instance which connects to a server on a given {@code host} and {@code port}
    *
@@ -402,7 +404,7 @@ public class SftpClient {
   protected RuntimeException exception(String message, Exception cause) {
     if (cause instanceof SftpException) {
       if (cause.getCause() instanceof IOException) {
-        return exception(message, new ConnectionException(cause));
+        return exception(message, new ConnectionException(cause, owner));
       }
     }
     return new MuleRuntimeException(createStaticMessage(message), cause);
@@ -451,5 +453,9 @@ public class SftpClient {
 
       this.proxyConfig = proxyConfig;
     }
+  }
+
+  public void setOwner(SftpFileSystem owner) {
+    this.owner = owner;
   }
 }

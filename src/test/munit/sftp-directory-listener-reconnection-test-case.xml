@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:munit="http://www.mulesoft.org/schema/mule/munit"
+      xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools"
+      xmlns="http://www.mulesoft.org/schema/mule/core"
+      xmlns:sftp="http://www.mulesoft.org/schema/mule/sftp"
+      xmlns:java="http://www.mulesoft.org/schema/mule/java"
+      xsi:schemaLocation="
+		http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+		http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
+		http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd
+        http://www.mulesoft.org/schema/mule/sftp http://www.mulesoft.org/schema/mule/sftp/current/mule-sftp.xsd
+        http://www.mulesoft.org/schema/mule/java http://www.mulesoft.org/schema/mule/java/current/mule-java.xsd">
+
+    <munit:config name="sftp-directory-listener-reconnection-test-case.xml" />
+
+    <munit:dynamic-port propertyName="sftp.server.port"/>
+
+    <munit:before-suite name="startDirectoryListenerReconnectionTestServer">
+        <flow-ref name="startServerFlow"/>
+    </munit:before-suite>
+
+    <munit:after-suite name="clearDirectoryListenerReconnectionTestServer">
+        <flow-ref name="stopServerFlow"/>
+    </munit:after-suite>
+
+    <munit:test name="listenerProcessesAllFiles">
+
+        <munit:enable-flow-sources>
+            <munit:enable-flow-source value="reconnectionFileListenerFlow"/>
+        </munit:enable-flow-sources>
+
+        <munit:behavior>
+            <set-variable variableName="fileContent" value="File content"/>
+            <set-variable variableName="fileName" value="fileName.txt"/>
+            <set-variable variableName="quantityPolled" value="#[2]"/>
+        </munit:behavior>
+        <munit:execution>
+            <sftp:write config-ref="config-with-reconnection" path="#[vars.fileName]">
+                <sftp:content>#[vars.fileContent]</sftp:content>
+            </sftp:write>
+        </munit:execution>
+        <munit:validation>
+            <until-successful maxRetries="50" millisBetweenRetries="1000">
+                <munit-tools:assert-that expression="#[MunitTools::queueSize()]"
+                                         is="#[MunitTools::greaterThan(vars.quantityPolled)]"/>
+            </until-successful>
+            <flow-ref name="stopServerFlow"/>
+            <flow-ref name="wait-2-seconds"/>
+            <set-variable variableName="preCount" value="#[MunitTools::queueSize()]"/>
+            <flow-ref name="wait-2-seconds"/>
+            <munit-tools:assert-that expression="#[MunitTools::queueSize()]"
+                                     is="#[MunitTools::equalTo(vars.preCount)]"/>
+            <flow-ref name="startServerFlow"/>
+            <sftp:write config-ref="config-with-reconnection" path="#[vars.fileName]">
+                <sftp:content>#[vars.fileContent]</sftp:content>
+            </sftp:write>
+            <until-successful maxRetries="50" millisBetweenRetries="1000">
+                <munit-tools:assert-that expression="#[MunitTools::queueSize()]"
+                                         is="#[MunitTools::greaterThan(vars.preCount + vars.quantityPolled)]"/>
+            </until-successful>
+        </munit:validation>
+    </munit:test>
+
+    <flow name="reconnectionFileListenerFlow">
+        <sftp:listener config-ref="config-with-reconnection" watermarkEnabled="false">
+            <scheduling-strategy>
+                <fixed-frequency frequency="500"/>
+            </scheduling-strategy>
+        </sftp:listener>
+        <set-payload value="#[attributes.fileName]"/>
+        <munit-tools:queue/>
+    </flow>
+
+    <flow name="startServerFlow">
+        <java:invoke-static class="org.mule.extension.sftp.internal.lifecycle.SftpServerLifecycleManager"
+                            method="startSftpServer(String)">
+            <java:args>
+                #[{
+                arg0: ${sftp.server.port},
+                }]
+            </java:args>
+        </java:invoke-static>
+    </flow>
+
+    <flow name="stopServerFlow">
+        <java:invoke-static class="org.mule.extension.sftp.internal.lifecycle.SftpServerLifecycleManager"
+                            method="stopSftpServer()">
+            <java:args>
+                #[{}]
+            </java:args>
+        </java:invoke-static>
+    </flow>
+
+</mule>
