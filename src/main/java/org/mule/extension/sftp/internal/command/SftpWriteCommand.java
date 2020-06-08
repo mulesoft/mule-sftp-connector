@@ -76,8 +76,9 @@ public final class SftpWriteCommand extends SftpCommand implements WriteCommand 
       client.write(uri.getPath(), content, mode);
       LOGGER.debug("Successfully wrote to path {}", uri.getPath());
     } catch (Exception e) {
-      pathLock.release();
       throw exception(format("Exception was found writing to file '%s'", uri.getPath()), e);
+    } finally {
+      pathLock.release();
     }
   }
 
