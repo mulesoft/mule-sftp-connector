@@ -1,11 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<mule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:munit="http://www.mulesoft.org/schema/mule/munit"
+<mule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
       xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools"
       xmlns="http://www.mulesoft.org/schema/mule/core"
       xmlns:sftp="http://www.mulesoft.org/schema/mule/sftp"
+      xmlns:vm="http://www.mulesoft.org/schema/mule/vm"
       xsi:schemaLocation="
 		http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+		http://www.mulesoft.org/schema/mule/vm http://www.mulesoft.org/schema/mule/vm/current/mule-vm.xsd
 		http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd
         http://www.mulesoft.org/schema/mule/sftp http://www.mulesoft.org/schema/mule/sftp/current/mule-sftp.xsd">
 
@@ -58,5 +60,37 @@
             <pooling-profile exhaustedAction="WHEN_EXHAUSTED_WAIT" maxActive="7" maxIdle="3" maxWait="5000"/>
         </sftp:connection>
     </sftp:config>
+
+    <vm:config name="VM_Config">
+        <vm:queues>
+            <vm:queue queueName="testq"/>
+            <vm:queue queueName="testq2"/>
+        </vm:queues>
+    </vm:config>
+
+    <flow name="write-number-collection-until-successful" maxConcurrency="1">
+        <vm:listener config-ref="VM_Config" queueName="testq" numberOfConsumers="1"/>
+        <choice>
+            <when expression="#[payload == 0]">
+                <set-variable variableName="writeMode" value="CREATE_NEW" />
+            </when>
+            <otherwise>
+                <set-variable variableName="writeMode" value="APPEND" />
+            </otherwise>
+        </choice>
+        <set-payload value="#[payload as String]"/>
+        <until-successful maxRetries="3" millisBetweenRetries="1000">
+            <sftp:write config-ref="${config}" path="filePath.txt" lock="true" mode="#[vars.writeMode]">
+                <sftp:content>#[payload]</sftp:content>
+            </sftp:write>
+        </until-successful>
+    </flow>
+
+    <flow name="simple-write">
+        <vm:listener config-ref="VM_Config" queueName="testq2" numberOfConsumers="1"/>
+        <sftp:write config-ref="${config}" path="filePath.txt" lock="true" mode="APPEND">
+            <sftp:content>7</sftp:content>
+        </sftp:write>
+    </flow>
 
 </mule>
