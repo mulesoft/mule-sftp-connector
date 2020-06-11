@@ -1,15 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<mule xmlns="http://www.mulesoft.org/schema/mule/core"
-      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-      xmlns:munit="http://www.mulesoft.org/schema/mule/munit"
-      xmlns:vm="http://www.mulesoft.org/schema/mule/vm"
-      xmlns:test="http://www.mulesoft.org/schema/mule/test"
+
+<mule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:munit="http://www.mulesoft.org/schema/mule/munit"
       xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools"
+      xmlns="http://www.mulesoft.org/schema/mule/core"
       xmlns:sftp="http://www.mulesoft.org/schema/mule/sftp"
       xmlns:java="http://www.mulesoft.org/schema/mule/java"
       xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
       http://www.mulesoft.org/schema/mule/test http://www.mulesoft.org/schema/mule/test/current/mule-test.xsd
-      	http://www.mulesoft.org/schema/mule/vm http://www.mulesoft.org/schema/mule/vm/current/mule-vm.xsd
 		http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
 		http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd
         http://www.mulesoft.org/schema/mule/sftp http://www.mulesoft.org/schema/mule/sftp/current/mule-sftp.xsd
@@ -117,10 +114,26 @@
         </munit:execution>
     </munit:test>
 
+    <flow name="write-number-collection-until-successful">
+        <choice>
+            <when expression="#[payload == 0]">
+                <set-variable variableName="writeMode" value="CREATE_NEW" />
+            </when>
+            <otherwise>
+                <set-variable variableName="writeMode" value="APPEND" />
+            </otherwise>
+        </choice>
+        <set-payload value="#[payload as String]"/>
+        <until-successful maxRetries="10" millisBetweenRetries="1000">
+            <sftp:write config-ref="${config}" path="filePath.txt" lock="true" mode="#[vars.writeMode]">
+                <sftp:content>#[payload]</sftp:content>
+            </sftp:write>
+        </until-successful>
+    </flow>
+
     <munit:test name="consecutive-writes-from-separate-flows-succeed-with-until-successful">
         <munit:enable-flow-sources>
             <munit:enable-flow-source value="write-number-collection-until-successful"/>
-            <munit:enable-flow-source value="simple-write" />
         </munit:enable-flow-sources>
         <munit:behavior>
             <set-variable variableName="fileName" value="filePath.txt"/>
@@ -128,14 +141,18 @@
         </munit:behavior>
         <munit:execution>
             <foreach collection="#[1 to vars.fileSize]">
-                <vm:publish config-ref="VM_Config" queueName="testq"/>
+                <async>
+                    <flow-ref name="write-number-collection-until-successful"/>
+                </async>
             </foreach>
             <munit-tools:sleep time="2" timeUnit="SECONDS"/>
-            <flow-ref name="simple-write" />
+            <sftp:write config-ref="${config}" path="#[vars.fileName]" lock="true" mode="APPEND">
+                <sftp:content>7</sftp:content>
+            </sftp:write>
         </munit:execution>
         <munit:validation>
             <sftp:read config-ref="${config}" path='#[vars.fileName]'/>
-            <logger level="WARN" message="#[payload]" />
+            <logger level="INFO" message="#[payload]" />
             <munit-tools:assert>
                 <munit-tools:that><![CDATA[#[import * from dw::test::Asserts
                                      ---
