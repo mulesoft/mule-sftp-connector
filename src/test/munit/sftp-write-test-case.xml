@@ -138,6 +138,7 @@
         <munit:behavior>
             <set-variable variableName="fileName" value="filePath.txt"/>
             <set-variable variableName="fileSize" value="#[6]"/>
+            <set-variable variableName="expectedFileSize" value="#[vars.fileSize + 1]"/>
         </munit:behavior>
         <munit:execution>
             <foreach collection="#[1 to vars.fileSize]">
@@ -156,7 +157,7 @@
             <munit-tools:assert>
                 <munit-tools:that><![CDATA[#[import * from dw::test::Asserts
                                      ---
-                                     attributes.size must equalTo(vars.fileSize + 1)
+                                     attributes.size must equalTo(vars.expectedFileSize)
                                     ]]]>
                 </munit-tools:that>
             </munit-tools:assert>
