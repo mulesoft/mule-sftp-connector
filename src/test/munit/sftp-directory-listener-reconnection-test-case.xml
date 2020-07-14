@@ -24,7 +24,7 @@
         <flow-ref name="stopServerFlow"/>
     </munit:after-suite>
 
-    <!-- TODO: SFTPC-48, test failing for 4.1.6 -->
+    <!-- Requires MULE-18294 -->
     <munit:test name="listenerProcessesAllFiles" ignore="#[Munit::muleVersionPriorTo('4.2.0')]">
 
         <munit:enable-flow-sources>
