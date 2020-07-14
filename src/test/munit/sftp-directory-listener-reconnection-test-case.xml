@@ -49,13 +49,14 @@
             <flow-ref name="stopServerFlow"/>
             <flow-ref name="wait-2-seconds"/>
             <set-variable variableName="preCount" value="#[MunitTools::queueSize()]"/>
-            <flow-ref name="wait-2-seconds"/>
             <munit-tools:assert-that expression="#[MunitTools::queueSize()]"
                                      is="#[MunitTools::equalTo(vars.preCount)]"/>
             <flow-ref name="startServerFlow"/>
+            <flow-ref name="wait-2-seconds"/>
             <sftp:write config-ref="config-with-reconnection" path="#[vars.fileName]">
                 <sftp:content>#[vars.fileContent]</sftp:content>
             </sftp:write>
+            <flow-ref name="wait-2-seconds"/>
             <until-successful maxRetries="50" millisBetweenRetries="1000">
                 <munit-tools:assert-that expression="#[MunitTools::queueSize()]"
                                          is="#[MunitTools::greaterThan(vars.preCount + vars.quantityPolled)]"/>
