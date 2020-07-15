@@ -24,8 +24,8 @@
         <flow-ref name="stopServerFlow"/>
     </munit:after-suite>
 
-    <!-- TODO: SFTPC-48, test failing for 4.1.6 -->
-    <munit:test name="listenerProcessesAllFiles" ignore="#[Munit::muleVersionPriorTo('4.2.0')]">
+    <!-- TODO: SFTPC-9 -->
+    <munit:test name="listenerProcessesAllFiles" ignore="#[true]">
 
         <munit:enable-flow-sources>
             <munit:enable-flow-source value="reconnectionFileListenerFlow"/>
