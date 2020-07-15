@@ -24,7 +24,8 @@
         <flow-ref name="stopServerFlow"/>
     </munit:after-suite>
 
-    <munit:test name="listenerProcessesAllFiles">
+    <!-- TODO: SFTPC-9 -->
+    <munit:test name="listenerProcessesAllFiles" ignore="#[true]">
 
         <munit:enable-flow-sources>
             <munit:enable-flow-source value="reconnectionFileListenerFlow"/>
