@@ -90,7 +90,7 @@ public class SftpInputStream extends AbstractNonFinalizableFileInputStream {
 
   protected static class SftpFileInputStreamSupplier extends AbstractConnectedFileInputStreamSupplier<SftpFileSystem> {
 
-    private static final String FILE_NOT_FOUND_EXCEPTION = "FileNotFoundException";
+    private static final String NO_SUCH_FILE = "No such file";
 
     private SftpFileInputStreamSupplier(SftpFileAttributes attributes, ConnectionManager connectionManager,
                                         Long timeBetweenSizeCheck, SftpConnector config) {
@@ -113,7 +113,13 @@ public class SftpInputStream extends AbstractNonFinalizableFileInputStream {
 
     @Override
     protected boolean fileWasDeleted(MuleRuntimeException e) {
-      return e.getCause() instanceof SftpException && e.getCause().getMessage().contains(FILE_NOT_FOUND_EXCEPTION);
+      if (e.getCause() instanceof SftpException) {
+        SftpException fileDeleted = (SftpException) e.getCause();
+        if (fileDeleted.id == 2 && fileDeleted.getMessage().contains(NO_SUCH_FILE)) {
+          return true;
+        }
+      }
+      return false;
     }
   }
 }
