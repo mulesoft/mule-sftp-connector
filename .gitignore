@@ -8,7 +8,7 @@ target/
 .classpath
 .project
 .settings
-/workspace/
+/workspace/ 
 
 # IntelliJ Idea files
 *.iml
