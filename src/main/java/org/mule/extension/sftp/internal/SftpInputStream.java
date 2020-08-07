@@ -22,6 +22,8 @@ import java.io.InputStream;
 
 import com.jcraft.jsch.SftpException;
 
+import static com.jcraft.jsch.ChannelSftp.SSH_FX_NO_SUCH_FILE;
+
 /**
  * Implementation of {@link AbstractNonFinalizableFileInputStream} for SFTP connections
  *
@@ -115,7 +117,7 @@ public class SftpInputStream extends AbstractNonFinalizableFileInputStream {
     protected boolean fileWasDeleted(MuleRuntimeException e) {
       if (e.getCause() instanceof SftpException) {
         SftpException fileDeleted = (SftpException) e.getCause();
-        if (fileDeleted.id == 2 && fileDeleted.getMessage().contains(NO_SUCH_FILE)) {
+        if (fileDeleted.id == SSH_FX_NO_SUCH_FILE && fileDeleted.getMessage().contains(NO_SUCH_FILE)) {
           return true;
         }
       }
