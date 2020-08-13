@@ -212,7 +212,7 @@ public class SftpDirectoryListener extends PollingSource<InputStream, SftpFileAt
       LOGGER.error(format("Found exception trying to poll directory '%s'. Will try again on the next poll. ",
                           directoryUri.getPath(), e.getMessage()),
                    e);
-      extractConnectionException(e).ifPresent((connectionException)->pollContext.onConnectionException(connectionException));
+      extractConnectionException(e).ifPresent((connectionException) -> pollContext.onConnectionException(connectionException));
     } finally {
       fileSystemProvider.disconnect(fileSystem);
     }
