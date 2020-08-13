@@ -9,6 +9,7 @@ package org.mule.extension.sftp.internal.source;
 import static java.lang.String.format;
 import static org.mule.extension.file.common.api.FileDisplayConstants.MATCHER;
 import static org.mule.runtime.core.api.util.IOUtils.closeQuietly;
+import static org.mule.runtime.core.api.util.ExceptionUtils.extractConnectionException;
 import static org.mule.runtime.extension.api.annotation.param.MediaType.ANY;
 import static org.mule.runtime.extension.api.runtime.source.PollContext.PollItemStatus.SOURCE_STOPPING;
 
@@ -211,6 +212,7 @@ public class SftpDirectoryListener extends PollingSource<InputStream, SftpFileAt
       LOGGER.error(format("Found exception trying to poll directory '%s'. Will try again on the next poll. ",
                           directoryUri.getPath(), e.getMessage()),
                    e);
+      extractConnectionException(e).ifPresent((connectionException)->pollContext.onConnectionException(connectionException));
     } finally {
       fileSystemProvider.disconnect(fileSystem);
     }
