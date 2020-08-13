@@ -10,7 +10,7 @@ target/
 .settings
 /workspace/
 
-# IntelliJ Idea files
+# IntelliJ Idea files 
 *.iml
 *.ipr
 *.iws
