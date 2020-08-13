@@ -11,7 +11,7 @@ target/
 /workspace/
 
 # IntelliJ Idea files
-*.iml
+*.iml 
 *.ipr
 *.iws
 *.idea
