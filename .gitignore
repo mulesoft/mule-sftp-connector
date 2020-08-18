@@ -19,7 +19,7 @@ target/
 # Mac
 .DS_Store
 
-# Test remnants
+# Test remnants 
 objectstore/
 .mule/
 *.log
