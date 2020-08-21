@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:munit="http://www.mulesoft.org/schema/mule/munit"
+      xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools"
+      xmlns="http://www.mulesoft.org/schema/mule/core"
+      xmlns:connection-test="http://www.mulesoft.org/schema/mule/connection-test"
+      xmlns:sftp="http://www.mulesoft.org/schema/mule/sftp"
+      xmlns:java="http://www.mulesoft.org/schema/mule/java"
+      xsi:schemaLocation="
+		http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+		http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
+		http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd
+        http://www.mulesoft.org/schema/mule/sftp http://www.mulesoft.org/schema/mule/sftp/current/mule-sftp.xsd
+        http://www.mulesoft.org/schema/mule/connection-test http://www.mulesoft.org/schema/mule/connection-test/current/mule-connection-test.xsd
+        http://www.mulesoft.org/schema/mule/java http://www.mulesoft.org/schema/mule/java/current/mule-java.xsd">
+
+    <munit:config name="sftp-directory-listener-on-connection-exception.xml" />
+
+    <munit:dynamic-port propertyName="sftp.server.port"/>
+
+    <munit:before-suite name="startDirectoryListenerReconnectionTestServer">
+        <java:invoke-static class="org.mule.extension.sftp.internal.lifecycle.SftpServerLifecycleManager"
+                            method="startSftpServer(String)">
+            <java:args>
+                #[{
+                arg0: ${sftp.server.port},
+                }]
+            </java:args>
+        </java:invoke-static>
+        <connection-test:create-proxy realPort="${sftp.server.port}" realHost="0.0.0.0" proxyPort="${connection.lost.port}"/>
+    </munit:before-suite>
+
+    <munit:after-suite name="clearDirectoryListenerReconnectionTestServer">
+        <java:invoke-static class="org.mule.extension.sftp.internal.lifecycle.SftpServerLifecycleManager"
+                            method="stopSftpServer()">
+            <java:args>
+                #[{}]
+            </java:args>
+        </java:invoke-static>
+    </munit:after-suite>
+
+    <munit:test name="listDirectorySourceWithReconnection">
+        <munit:enable-flow-sources>
+            <munit:enable-flow-source value="reconnectionFileListenerFlow"/>
+        </munit:enable-flow-sources>
+        <munit:behavior>
+            <set-variable variableName="fileName" value="filePath.txt"/>
+        </munit:behavior>
+        <munit:execution>
+            <sftp:write config-ref="config-with-reconnection-toxi-proxy" path="#[vars.fileName]" lock="true" mode="APPEND">
+                <sftp:content>test content</sftp:content>
+            </sftp:write>
+            <flow-ref name="wait-2-seconds"/>
+        </munit:execution>
+    </munit:test>
+
+    <flow name="reconnectionFileListenerFlow">
+        <sftp:listener config-ref="config-with-reconnection-toxi-proxy" directory="/">
+            <scheduling-strategy>
+                <fixed-frequency frequency="500"/>
+            </scheduling-strategy>
+        </sftp:listener>
+        <set-payload value="#[attributes.fileName]"/>
+<!--        <munit-tools:queue/>-->
+    </flow>
+
+</mule>

@@ -20,7 +20,8 @@
 
     <properties>
         <mule.version>4.1.2</mule.version>
-
+        <docker.maven.plugin.version>0.33.0</docker.maven.plugin.version>
+        <maven.helper.plugin.version>3.1.0</maven.helper.plugin.version>
         <commonsIoVersion>2.7</commonsIoVersion>
         <commonsLangVersion>3.9</commonsLangVersion>
         <commonsCollectionsVersion>3.2.2</commonsCollectionsVersion>
@@ -109,6 +110,13 @@
             <classifier>mule-plugin</classifier>
             <scope>test</scope>
         </dependency>
+
+        <dependency>
+            <groupId>org.mule.modules</groupId>
+            <artifactId>mule-connection-test-module</artifactId>
+            <version>1.0.0</version>
+            <classifier>mule-plugin</classifier>
+        </dependency>
         
     </dependencies>
 
@@ -182,8 +190,109 @@
                     </execution>
                 </executions>
             </plugin>
+
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <version>${maven.helper.plugin.version}</version>
+                <executions>
+                    <execution>
+                        <id>reserve-network-port</id>
+                        <phase>generate-test-resources</phase>
+                        <goals>
+                            <goal>reserve-network-port</goal>
+                        </goals>
+                        <configuration>
+                            <portNames>
+                                <portName>connection.lost.port</portName>
+                                <portName>connection.broken.port</portName>
+                                <portName>toxiproxy.port</portName>
+                            </portNames>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
+
+    <profiles>
+        <profile>
+            <id>docker</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>io.fabric8</groupId>
+                        <artifactId>docker-maven-plugin</artifactId>
+                        <version>${docker.maven.plugin.version}</version>
+                        <configuration>
+                            <images>
+                                <image>
+                                    <name>shopify/toxiproxy</name>
+                                    <alias>toxiproxy</alias>
+                                    <run>
+                                        <ports>
+                                            <port>8474:8474</port>
+                                            <port>${connection.lost.port}:${connection.lost.port}</port>
+                                            <port>${connection.broken.port}:${connection.broken.port}</port>
+                                        </ports>
+                                    </run>
+                                </image>
+<!--                                <image>-->
+<!--                                    <name>atmoz/sftp</name>-->
+<!--                                    <alias>sftp</alias>-->
+<!--                                    <run>-->
+<!--                                entrypoint is not working, I have tried to pass container arguments but failed :(-->
+<!--                                        <entrypoint>foo:pass:::upload</entrypoint>-->
+<!--                                        <ports>-->
+<!--                                            <port>25:22</port>-->
+<!--                                        </ports>-->
+<!--                                    </run>-->
+<!--                                </image>-->
+                            </images>
+                            <verbose>true</verbose>
+                        </configuration>
+                        <dependencies>
+                            <dependency>
+                                <groupId>org.slf4j</groupId>
+                                <artifactId>slf4j-api</artifactId>
+                                <version>1.7.24</version>
+                            </dependency>
+                            <dependency>
+                                <groupId>org.slf4j</groupId>
+                                <artifactId>jcl-over-slf4j</artifactId>
+                                <version>1.7.24</version>
+                            </dependency>
+                        </dependencies>
+                        <executions>
+                            <execution>
+                                <id>start</id>
+                                <phase>pre-integration-test</phase>
+                                <goals>
+                                    <goal>stop</goal>
+                                    <goal>build</goal>
+                                    <goal>start</goal>
+                                </goals>
+                                <configuration>
+                                    <showLogs>true</showLogs>
+                                    <logStdout>true</logStdout>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>stop</id>
+                                <phase>post-integration-test</phase>
+                                <goals>
+                                    <goal>stop</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 
 
     <distributionManagement>
