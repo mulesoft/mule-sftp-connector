@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:munit="http://www.mulesoft.org/schema/mule/munit"
+      xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools"
+      xmlns="http://www.mulesoft.org/schema/mule/core"
+      xmlns:connection-test="http://www.mulesoft.org/schema/mule/connection-test"
+      xmlns:sftp="http://www.mulesoft.org/schema/mule/sftp"
+      xsi:schemaLocation="
+		http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+		http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
+		http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd
+        http://www.mulesoft.org/schema/mule/sftp http://www.mulesoft.org/schema/mule/sftp/current/mule-sftp.xsd
+        http://www.mulesoft.org/schema/mule/connection-test http://www.mulesoft.org/schema/mule/connection-test/current/mule-connection-test.xsd">
+
+    <munit:config name="sftp-directory-listener-on-connection-exception.xml" />
+
+    <munit:dynamic-port propertyName="sftp.server.port"/>
+
+    <munit:before-suite name="startDirectoryListenerReconnectionTestServer">
+        <connection-test:create-proxy realPort="2222" realHost="openssh" proxyPort="${connection.lost.port}"/>
+    </munit:before-suite>
+
+    <munit:test name="listDirectorySourceWithReconnection">
+        <munit:enable-flow-sources>
+            <munit:enable-flow-source value="reconnectionFileListenerFlow"/>
+        </munit:enable-flow-sources>
+        <munit:behavior>
+            <set-variable variableName="fileName" value="filePath.txt"/>
+        </munit:behavior>
+        <munit:execution>
+            <sftp:write config-ref="config-with-reconnection-toxi-proxy" path="#[vars.fileName]" lock="true" mode="APPEND">
+                <sftp:content>1</sftp:content>
+            </sftp:write>
+            <munit-tools:dequeue timeout="2000"/>
+            <set-variable variableName="testContent1" value="#[payload]"/>
+
+            <connection-test:disconnect-proxy proxyPort="${connection.lost.port}"/>
+            <flow-ref name="wait-2-seconds"/>
+            <connection-test:reconnect-proxy proxyPort="${connection.lost.port}"/>
+
+            <sftp:write config-ref="config-with-reconnection-toxi-proxy" path="#[vars.fileName]" lock="true" mode="APPEND">
+                <sftp:content>2</sftp:content>
+            </sftp:write>
+            <munit-tools:dequeue timeout="2000"/>
+            <set-variable variableName="testContent2" value="#[payload]"/>
+        </munit:execution>
+        <munit:validation>
+            <munit-tools:assert-that expression="#[MunitTools::queueSize()]" is="#[MunitTools::equalTo(0)]"/>
+            <logger level="INFO" message="#['DEQUEUE ' ++ vars.testContent1 as String]"/>
+
+            <munit-tools:assert-that expression="#[vars.testContent1]" is="#[MunitTools::equalTo('1')]"/>
+            <logger level="INFO" message="#['DEQUEUE ' ++ vars.testContent2 as String]"/>
+
+            <munit-tools:assert-that expression="#[vars.testContent2]" is="#[MunitTools::equalTo('12')]"/>
+        </munit:validation>
+    </munit:test>
+
+    <flow name="reconnectionFileListenerFlow">
+        <sftp:listener config-ref="config-with-reconnection-toxi-proxy" directory="/app" watermarkEnabled="true">
+            <scheduling-strategy>
+                <fixed-frequency frequency="500"/>
+            </scheduling-strategy>
+        </sftp:listener>
+        <logger level="ERROR" message="#['QUEUE ' ++ payload]"/>
+        <munit-tools:queue/>
+    </flow>
+
+</mule>
