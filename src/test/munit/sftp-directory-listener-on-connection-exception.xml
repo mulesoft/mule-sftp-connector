@@ -16,13 +16,13 @@
 
     <munit:dynamic-port propertyName="sftp.server.port"/>
 
-    <munit:before-suite name="startDirectoryListenerReconnectionTestServer">
+    <munit:before-suite name="startDirectoryListenerReconnectionTestProxy">
         <connection-test:create-proxy realPort="2222" realHost="openssh" proxyPort="${connection.lost.port}"/>
     </munit:before-suite>
 
     <munit:test name="listDirectorySourceWithReconnection">
         <munit:enable-flow-sources>
-            <munit:enable-flow-source value="reconnectionFileListenerFlow"/>
+            <munit:enable-flow-source value="listenerFlow"/>
         </munit:enable-flow-sources>
         <munit:behavior>
             <set-variable variableName="fileName" value="filePath.txt"/>
@@ -55,13 +55,13 @@
         </munit:validation>
     </munit:test>
 
-    <flow name="reconnectionFileListenerFlow">
+    <flow name="listenerFlow">
         <sftp:listener config-ref="config-with-reconnection-toxi-proxy" directory="/app" watermarkEnabled="true">
             <scheduling-strategy>
                 <fixed-frequency frequency="500"/>
             </scheduling-strategy>
         </sftp:listener>
-        <logger level="ERROR" message="#['QUEUE ' ++ payload]"/>
+        <logger level="INFO" message="#['QUEUE ' ++ payload]"/>
         <munit-tools:queue/>
     </flow>
 
