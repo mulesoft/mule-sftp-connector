@@ -206,7 +206,7 @@
                             <portNames>
                                 <portName>toxiproxy.port</portName>
                                 <portName>connection.lost.port</portName>
-                                <portName>sftp.server.port</portName>
+                                <portName>sftp.listener.port</portName>
                             </portNames>
                         </configuration>
                     </execution>
@@ -242,7 +242,7 @@
                                             <USER_NAME>mule</USER_NAME>
                                         </env>
                                         <ports>
-                                            <port>${sftp.server.port}:2222</port>
+                                            <port>${sftp.listener.port}:2222</port>
                                         </ports>
                                         <log>
                                             <enabled>true</enabled>

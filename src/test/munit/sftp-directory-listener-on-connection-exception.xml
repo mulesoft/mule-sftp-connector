@@ -28,30 +28,30 @@
             <set-variable variableName="fileName" value="filePath.txt"/>
         </munit:behavior>
         <munit:execution>
-            <sftp:write config-ref="config-with-reconnection-toxi-proxy" path="#[vars.fileName]" lock="true" mode="APPEND">
-                <sftp:content>1</sftp:content>
+            <sftp:write config-ref="config-with-reconnection-toxi-proxy" path="#[vars.fileName]" lock="true">
+                <sftp:content>test content</sftp:content>
             </sftp:write>
+
             <munit-tools:dequeue timeout="2000"/>
-            <set-variable variableName="testContent1" value="#[payload]"/>
+            <logger level="ERROR" message="#['DEQUEUE ' ++ payload as String]"/>
+            <set-variable variableName="testContent1" value="#[payload as String]"/>
 
             <connection-test:disconnect-proxy proxyPort="${connection.lost.port}"/>
             <flow-ref name="wait-2-seconds"/>
             <connection-test:reconnect-proxy proxyPort="${connection.lost.port}"/>
+            <flow-ref name="wait-2-seconds"/>
 
-            <sftp:write config-ref="config-with-reconnection-toxi-proxy" path="#[vars.fileName]" lock="true" mode="APPEND">
-                <sftp:content>2</sftp:content>
+            <sftp:write config-ref="config-with-reconnection-toxi-proxy" path="#[vars.fileName]" lock="true">
+                <sftp:content>test content</sftp:content>
             </sftp:write>
+
             <munit-tools:dequeue timeout="2000"/>
-            <set-variable variableName="testContent2" value="#[payload]"/>
+            <logger level="ERROR" message="#['DEQUEUE ' ++ payload as String]"/>
+            <set-variable variableName="testContent2" value="#[payload as String]"/>
         </munit:execution>
         <munit:validation>
-            <munit-tools:assert-that expression="#[MunitTools::queueSize()]" is="#[MunitTools::equalTo(0)]"/>
-            <logger level="INFO" message="#['DEQUEUE ' ++ vars.testContent1 as String]"/>
-
-            <munit-tools:assert-that expression="#[vars.testContent1]" is="#[MunitTools::equalTo('1')]"/>
-            <logger level="INFO" message="#['DEQUEUE ' ++ vars.testContent2 as String]"/>
-
-            <munit-tools:assert-that expression="#[vars.testContent2]" is="#[MunitTools::equalTo('12')]"/>
+            <munit-tools:assert-that expression="#[vars.testContent1]" is="#[MunitTools::equalTo('test content')]"/>
+            <munit-tools:assert-that expression="#[vars.testContent2]" is="#[MunitTools::equalTo('test content')]"/>
         </munit:validation>
     </munit:test>
 
