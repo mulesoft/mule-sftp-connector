@@ -204,9 +204,9 @@
                         </goals>
                         <configuration>
                             <portNames>
-                                <portName>connection.lost.port</portName>
-                                <portName>connection.broken.port</portName>
                                 <portName>toxiproxy.port</portName>
+                                <portName>connection.lost.port</portName>
+                                <portName>sftp.server.port</portName>
                             </portNames>
                         </configuration>
                     </execution>
@@ -230,27 +230,38 @@
                         <configuration>
                             <images>
                                 <image>
+                                    <name>linuxserver/openssh-server</name>
+                                    <alias>openssh</alias>
+                                    <run>
+                                        <env>
+                                            <PUID>1000</PUID>
+                                            <PGID>1000</PGID>
+                                            <TZ>Europe/London</TZ>
+                                            <PASSWORD_ACCESS>true</PASSWORD_ACCESS>
+                                            <USER_PASSWORD>test</USER_PASSWORD>
+                                            <USER_NAME>mule</USER_NAME>
+                                        </env>
+                                        <ports>
+                                            <port>${sftp.server.port}:2222</port>
+                                        </ports>
+                                        <log>
+                                            <enabled>true</enabled>
+                                        </log>
+                                    </run>
+                                </image>
+                                <image>
                                     <name>shopify/toxiproxy</name>
                                     <alias>toxiproxy</alias>
                                     <run>
                                         <ports>
                                             <port>8474:8474</port>
                                             <port>${connection.lost.port}:${connection.lost.port}</port>
-                                            <port>${connection.broken.port}:${connection.broken.port}</port>
                                         </ports>
+                                        <links>
+                                            <link>openssh</link>
+                                        </links>
                                     </run>
                                 </image>
-<!--                                <image>-->
-<!--                                    <name>atmoz/sftp</name>-->
-<!--                                    <alias>sftp</alias>-->
-<!--                                    <run>-->
-<!--                                entrypoint is not working, I have tried to pass container arguments but failed :(-->
-<!--                                        <entrypoint>foo:pass:::upload</entrypoint>-->
-<!--                                        <ports>-->
-<!--                                            <port>25:22</port>-->
-<!--                                        </ports>-->
-<!--                                    </run>-->
-<!--                                </image>-->
                             </images>
                             <verbose>true</verbose>
                         </configuration>
