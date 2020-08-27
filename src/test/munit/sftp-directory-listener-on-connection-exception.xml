@@ -32,7 +32,7 @@
                 <sftp:content>test content</sftp:content>
             </sftp:write>
 
-            <munit-tools:dequeue timeout="2000"/>
+            <munit-tools:dequeue timeout="5" timeoutUnit="SECONDS"/>
             <logger level="ERROR" message="#['DEQUEUE ' ++ payload as String]"/>
             <set-variable variableName="testContent1" value="#[payload as String]"/>
 
@@ -45,7 +45,7 @@
                 <sftp:content>test content</sftp:content>
             </sftp:write>
 
-            <munit-tools:dequeue timeout="2000"/>
+            <munit-tools:dequeue timeout="5" timeoutUnit="SECONDS"/>
             <logger level="ERROR" message="#['DEQUEUE ' ++ payload as String]"/>
             <set-variable variableName="testContent2" value="#[payload as String]"/>
         </munit:execution>
