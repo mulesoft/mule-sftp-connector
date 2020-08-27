@@ -33,7 +33,7 @@
             </sftp:write>
 
             <munit-tools:dequeue timeout="5" timeoutUnit="SECONDS"/>
-            <logger level="ERROR" message="#['DEQUEUE ' ++ payload as String]"/>
+            <logger level="INFO" message="#['DEQUEUE ' ++ payload as String]"/>
             <set-variable variableName="testContent1" value="#[payload as String]"/>
 
             <connection-test:disconnect-proxy proxyPort="${connection.lost.port}"/>
@@ -41,12 +41,15 @@
             <connection-test:reconnect-proxy proxyPort="${connection.lost.port}"/>
             <flow-ref name="wait-2-seconds"/>
 
-            <sftp:write config-ref="config-with-reconnection-toxi-proxy" path="#[vars.fileName]" lock="true">
-                <sftp:content>test content</sftp:content>
-            </sftp:write>
+            <until-successful maxRetries="50" millisBetweenRetries="1000">
+                <sftp:write config-ref="config-with-reconnection-toxi-proxy" path="#[vars.fileName]" lock="true">
+                    <sftp:content>test content</sftp:content>
+                </sftp:write>
+            </until-successful>
+
 
             <munit-tools:dequeue timeout="5" timeoutUnit="SECONDS"/>
-            <logger level="ERROR" message="#['DEQUEUE ' ++ payload as String]"/>
+            <logger level="INFO" message="#['DEQUEUE ' ++ payload as String]"/>
             <set-variable variableName="testContent2" value="#[payload as String]"/>
         </munit:execution>
         <munit:validation>
