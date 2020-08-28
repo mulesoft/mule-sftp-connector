@@ -20,7 +20,7 @@
         <connection-test:create-proxy realPort="2222" realHost="openssh" proxyPort="${connection.lost.port}"/>
     </munit:before-suite>
 
-    <munit:test name="listDirectorySourceWithReconnection">
+    <munit:test name="listDirectorySourceWithReconnection" ignore="#[Munit::muleVersionPriorTo('4.1.7')]">
         <munit:enable-flow-sources>
             <munit:enable-flow-source value="listenerFlow"/>
         </munit:enable-flow-sources>
