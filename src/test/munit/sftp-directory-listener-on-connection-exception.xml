@@ -28,7 +28,7 @@
             <set-variable variableName="fileName" value="filePath.txt"/>
         </munit:behavior>
         <munit:execution>
-            <sftp:write config-ref="config-with-reconnection-toxi-proxy" path="#[vars.fileName]" lock="true">
+            <sftp:write config-ref="config-with-reconnection-toxi-proxy" path="#[vars.fileName]">
                 <sftp:content>test content</sftp:content>
             </sftp:write>
 
@@ -42,7 +42,7 @@
             <flow-ref name="wait-2-seconds"/>
 
             <until-successful maxRetries="50" millisBetweenRetries="1000">
-                <sftp:write config-ref="config-with-reconnection-toxi-proxy" path="#[vars.fileName]" lock="true">
+                <sftp:write config-ref="config-with-reconnection-toxi-proxy" path="#[vars.fileName]">
                     <sftp:content>test content</sftp:content>
                 </sftp:write>
             </until-successful>
@@ -59,7 +59,7 @@
     </munit:test>
 
     <flow name="listenerFlow">
-        <sftp:listener config-ref="config-with-reconnection-toxi-proxy" directory="/app" watermarkEnabled="true">
+        <sftp:listener config-ref="config-with-reconnection-toxi-proxy" directory="/app" watermarkEnabled="false">
             <scheduling-strategy>
                 <fixed-frequency frequency="500"/>
             </scheduling-strategy>
