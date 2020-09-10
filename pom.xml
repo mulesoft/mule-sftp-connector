@@ -22,7 +22,7 @@
         <mule.version>4.1.2</mule.version>
         <docker.maven.plugin.version>0.33.0</docker.maven.plugin.version>
         <maven.helper.plugin.version>3.1.0</maven.helper.plugin.version>
-        <commonsIoVersion>2.7</commonsIoVersion>
+        <commonsIoVersion>2.8.0</commonsIoVersion>
         <commonsLangVersion>3.11</commonsLangVersion>
         <commonsCollectionsVersion>3.2.2</commonsCollectionsVersion>
         <jschVersion>0.1.55</jschVersion>
