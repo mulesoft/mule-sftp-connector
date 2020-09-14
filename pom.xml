@@ -20,9 +20,7 @@
 
     <properties>
         <mule.version>4.1.2</mule.version>
-        <commonsIoVersion>2.6</commonsIoVersion>
-        <commonsLangVersion>3.8.1</commonsLangVersion>
-        <docker.maven.plugin.version>0.33.0</docker.maven.plugin.version>
+        <docker.maven.plugin.version>0.34.0</docker.maven.plugin.version>
         <maven.helper.plugin.version>3.2.0</maven.helper.plugin.version>
         <commonsIoVersion>2.8.0</commonsIoVersion>
         <commonsLangVersion>3.11</commonsLangVersion>
@@ -108,7 +106,7 @@
         <dependency>
             <groupId>org.mule.module</groupId>
             <artifactId>mule-java-module</artifactId>
-            <version>1.2.1</version>
+            <version>1.2.6</version>
             <classifier>mule-plugin</classifier>
             <scope>test</scope>
         </dependency>
