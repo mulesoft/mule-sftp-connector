@@ -6,6 +6,7 @@
  */
 package org.mule.extension.sftp.internal.connection;
 
+import static com.jcraft.jsch.ChannelSftp.SSH_FX_PERMISSION_DENIED;
 import static java.util.Collections.emptyList;
 import static org.apache.commons.collections.CollectionUtils.isEmpty;
 import static org.mule.extension.file.common.api.util.UriUtils.createUri;
@@ -46,6 +47,7 @@ import java.util.List;
 import java.util.Properties;
 import java.util.function.Supplier;
 
+import org.mule.runtime.extension.api.exception.ModuleException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -330,7 +332,11 @@ public class SftpClient {
     try {
       return sftp.get(normalizePath(path));
     } catch (SftpException e) {
-      throw exception("Exception was found trying to retrieve the contents of file " + path, e);
+      String message = "Exception was found trying to retrieve the contents of file " + path;
+      if (e.id == SSH_FX_PERMISSION_DENIED) {
+        throw new ModuleException(message, FileError.ACCESS_DENIED, e);
+      }
+      throw exception(message, e);
     }
   }
 
