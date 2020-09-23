@@ -19,7 +19,7 @@
     <description>A Mule extension that provides functionality to manage files in an SFTP server</description>
 
     <properties>
-        <mule.version>4.1.2</mule.version>
+        <mule.version>4.4.0-20200922</mule.version>
         <docker.maven.plugin.version>0.34.0</docker.maven.plugin.version>
         <maven.helper.plugin.version>3.2.0</maven.helper.plugin.version>
         <commonsIoVersion>2.8.0</commonsIoVersion>
