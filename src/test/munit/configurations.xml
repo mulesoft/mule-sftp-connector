@@ -25,6 +25,15 @@
         </sftp:connection>
     </sftp:config>
 
+    <sftp:config name="config-docker-server">
+        <sftp:connection username="mule" password="test" host="localhost" port="${sftp.listener.port}"
+                         workingDir="/" prngAlgorithm="SHA1PRNG">
+            <reconnection>
+                <reconnect count="20" frequency="1000"/>
+            </reconnection>
+        </sftp:connection>
+    </sftp:config>
+
     <sftp:config name="config-with-reconnection">
         <sftp:connection username="muletest1" password="muletest1" host="localhost" port="${sftp.server.port}"
                          workingDir="/" prngAlgorithm="SHA1PRNG">

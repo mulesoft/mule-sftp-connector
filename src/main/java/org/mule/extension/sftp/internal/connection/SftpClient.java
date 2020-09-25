@@ -332,11 +332,7 @@ public class SftpClient {
     try {
       return sftp.get(normalizePath(path));
     } catch (SftpException e) {
-      String message = "Exception was found trying to retrieve the contents of file " + path;
-      if (e.id == SSH_FX_PERMISSION_DENIED) {
-        throw new ModuleException(message, FileError.ACCESS_DENIED, e);
-      }
-      throw exception(message, e);
+      throw exception("Exception was found trying to retrieve the contents of file " + path, e);
     }
   }
 
@@ -411,6 +407,9 @@ public class SftpClient {
     if (cause instanceof SftpException) {
       if (cause.getCause() instanceof IOException) {
         return exception(message, new ConnectionException(cause, owner));
+      }
+      if (((SftpException) cause).id == SSH_FX_PERMISSION_DENIED) {
+        return new ModuleException(message, FileError.ACCESS_DENIED, cause);
       }
     }
     return new MuleRuntimeException(createStaticMessage(message), cause);

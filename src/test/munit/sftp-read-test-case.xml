@@ -65,4 +65,13 @@
             </munit-tools:assert>
         </munit:validation>
     </munit:test>
+
+    <munit:test name="sftp-read-file-permission-denied"
+                description="Trying to read for a protected file should throw SFTP:ACCESS_DENIED. The exception is thrown when the stream is evaluated (write operation)."
+                expectedErrorType="SFTP:ACCESS_DENIED">
+        <munit:execution>
+            <sftp:read config-ref="config-docker-server" path="/etc/sudoers"/>
+            <sftp:write config-ref="config-docker-server" path="/tmp/sudoers-copy"/>
+        </munit:execution>
+    </munit:test>
 </mule>
