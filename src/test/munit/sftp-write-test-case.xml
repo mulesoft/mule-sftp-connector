@@ -164,12 +164,22 @@
         </munit:validation>
     </munit:test>
 
-    <munit:test name="sftp-write-file-permission-denied"
+    <munit:test name="sftp-write-file-permission-denied-directory"
                 description="Trying write a file to a write protected folder should throw SFTP:ACCESS_DENIED."
                 expectedErrorType="SFTP:ACCESS_DENIED">
         <munit:execution>
             <sftp:read config-ref="config-docker-server" path="/init"/>
             <sftp:write config-ref="config-docker-server" path="/root/init"/>
+        </munit:execution>
+    </munit:test>
+
+    <munit:test name="sftp-write-file-permission-denied"
+                description="Trying write content to a write protected file should throw SFTP:ACCESS_DENIED."
+                expectedErrorType="SFTP:ACCESS_DENIED">
+        <munit:execution>
+            <sftp:write config-ref="config-docker-server" path="/init">
+                <sftp:content>Some content</sftp:content>
+            </sftp:write>
         </munit:execution>
     </munit:test>
 
