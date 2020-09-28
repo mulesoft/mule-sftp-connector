@@ -17,6 +17,7 @@
     <munit:dynamic-port propertyName="sftp.server.port"/>
 
     <munit:before-suite name="startDirectoryListenerReconnectionTestProxy">
+        <connection-test:define-proxy-server-port serverPort="${toxiproxy.port}"/>
         <connection-test:create-proxy realPort="2222" realHost="openssh" proxyPort="${connection.lost.port}"/>
     </munit:before-suite>
 
