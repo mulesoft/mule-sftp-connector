@@ -163,7 +163,7 @@
             </munit-tools:assert>
         </munit:validation>
     </munit:test>
-
+  
     <munit:test name="sftp-write-file-permission-denied-directory"
                 description="Trying write a file to a write protected folder should throw SFTP:ACCESS_DENIED."
                 expectedErrorType="SFTP:ACCESS_DENIED">
@@ -182,5 +182,38 @@
             </sftp:write>
         </munit:execution>
     </munit:test>
+
+    <munit:test name="sftp-write-deleted-file" description="Use the list operation to get the file content and try to write it but it was deleted before and should expect exception"
+                expectedErrorType="SFTP:FILE_DOESNT_EXIST">
+        <munit:enable-flow-sources>
+            <munit:enable-flow-source value="delete-created-files"/>
+        </munit:enable-flow-sources>
+        <munit:behavior>
+            <set-variable variableName="fileName" value="/will-be-deleted.txt"/>
+            <sftp:write config-ref="${config}" path='#[vars.fileName]' >
+                <sftp:content>test content</sftp:content>
+            </sftp:write>
+        </munit:behavior>
+        <munit:execution>
+            <sftp:list config-ref="${config}" directoryPath="/">
+            </sftp:list>
+            <flow-ref name="wait-2-seconds"/>
+            <foreach collection="#[payload]">
+                <sftp:write config-ref="${config}" path="/copy-of-will-be-deleted.txt" createParentDirectories="false" >
+                </sftp:write>
+            </foreach>
+        </munit:execution>
+    </munit:test>
+
+
+
+    <flow name="delete-created-files">
+        <sftp:listener config-ref="${config}" directory="/">
+            <scheduling-strategy>
+                <fixed-frequency startDelay="2000"/>
+            </scheduling-strategy>
+        </sftp:listener>
+        <sftp:delete config-ref="${config}" path="#[attributes.path]" />
+    </flow>
 
 </mule>

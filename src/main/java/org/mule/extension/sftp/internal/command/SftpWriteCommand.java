@@ -14,6 +14,7 @@ import com.jcraft.jsch.SftpException;
 import org.mule.extension.file.common.api.FileAttributes;
 import org.mule.extension.file.common.api.FileWriteMode;
 import org.mule.extension.file.common.api.command.WriteCommand;
+import org.mule.extension.file.common.api.exceptions.DeletedFileWhileReadException;
 import org.mule.extension.file.common.api.exceptions.FileAlreadyExistsException;
 import org.mule.extension.file.common.api.exceptions.FileError;
 import org.mule.extension.file.common.api.lock.NullUriLock;
@@ -22,7 +23,6 @@ import org.mule.extension.sftp.internal.connection.SftpClient;
 import org.mule.extension.sftp.internal.connection.SftpFileSystem;
 
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.net.URI;
 import java.util.Optional;
 
@@ -82,16 +82,17 @@ public final class SftpWriteCommand extends SftpCommand implements WriteCommand 
     try {
       client.write(uri.getPath(), content, mode);
       LOGGER.debug("Successfully wrote to path {}", uri.getPath());
-    } catch (SftpException e) {
-      if (e.id == SSH_FX_PERMISSION_DENIED) {
+    } catch (Exception e) {
+      if (e instanceof SftpException && ((SftpException) e).id == SSH_FX_PERMISSION_DENIED) {
         throw new ModuleException(format(WRITE_EXCEPTION_MESSAGE, uri.getPath()), FileError.ACCESS_DENIED, e);
+      }
+      if (e.getCause() instanceof DeletedFileWhileReadException) {
+        throw new ModuleException(WRITE_EXCEPTION_MESSAGE, FileError.FILE_DOESNT_EXIST, e.getCause());
       }
       Optional<ModuleException> exceptionFromAnotherModule = ExceptionUtils.extractOfType(e, ModuleException.class);
       if (exceptionFromAnotherModule.isPresent()) {
         throw exceptionFromAnotherModule.get();
       }
-      throw exception(format(WRITE_EXCEPTION_MESSAGE, uri.getPath()), e);
-    } catch (Exception e) {
       throw exception(format(WRITE_EXCEPTION_MESSAGE, uri.getPath()), e);
     } finally {
       pathLock.release();
