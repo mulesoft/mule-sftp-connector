@@ -6,6 +6,7 @@
  */
 package org.mule.extension.sftp.internal.connection;
 
+import static com.jcraft.jsch.ChannelSftp.SSH_FX_PERMISSION_DENIED;
 import static java.util.Collections.emptyList;
 import static org.apache.commons.collections.CollectionUtils.isEmpty;
 import static org.mule.extension.file.common.api.util.UriUtils.createUri;
@@ -46,6 +47,7 @@ import java.util.List;
 import java.util.Properties;
 import java.util.function.Supplier;
 
+import org.mule.runtime.extension.api.exception.ModuleException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -405,6 +407,9 @@ public class SftpClient {
     if (cause instanceof SftpException) {
       if (cause.getCause() instanceof IOException) {
         return exception(message, new ConnectionException(cause, owner));
+      }
+      if (((SftpException) cause).id == SSH_FX_PERMISSION_DENIED) {
+        return new ModuleException(message, FileError.ACCESS_DENIED, cause);
       }
     }
     return new MuleRuntimeException(createStaticMessage(message), cause);

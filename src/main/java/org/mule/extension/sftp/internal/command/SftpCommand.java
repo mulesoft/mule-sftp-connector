@@ -29,6 +29,7 @@ import java.net.URI;
 import java.util.Stack;
 
 import org.apache.commons.io.FilenameUtils;
+import org.mule.runtime.extension.api.exception.ModuleException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -85,6 +86,8 @@ public abstract class SftpCommand extends ExternalFileCommand<SftpFileSystem> {
     SftpFileAttributes attributes;
     try {
       attributes = client.getAttributes(uri);
+    } catch (ModuleException e) {
+      throw e;
     } catch (Exception e) {
       throw exception("Found exception trying to obtain path " + uri.getPath(), e);
     }
