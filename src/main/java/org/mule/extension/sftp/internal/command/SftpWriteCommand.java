@@ -6,9 +6,11 @@
  */
 package org.mule.extension.sftp.internal.command;
 
+import static com.jcraft.jsch.ChannelSftp.SSH_FX_PERMISSION_DENIED;
 import static java.lang.String.format;
 import static org.slf4j.LoggerFactory.getLogger;
 
+import com.jcraft.jsch.SftpException;
 import org.mule.extension.file.common.api.FileAttributes;
 import org.mule.extension.file.common.api.FileWriteMode;
 import org.mule.extension.file.common.api.command.WriteCommand;
@@ -22,7 +24,10 @@ import org.mule.extension.sftp.internal.connection.SftpFileSystem;
 
 import java.io.InputStream;
 import java.net.URI;
+import java.util.Optional;
 
+import org.apache.commons.io.IOUtils;
+import org.mule.runtime.core.api.util.ExceptionUtils;
 import org.mule.runtime.extension.api.exception.ModuleException;
 import org.slf4j.Logger;
 
@@ -34,6 +39,7 @@ import org.slf4j.Logger;
 public final class SftpWriteCommand extends SftpCommand implements WriteCommand {
 
   private static final Logger LOGGER = getLogger(SftpWriteCommand.class);
+  private static final String WRITE_EXCEPTION_MESSAGE = "Exception was found writing to file '%s'";
 
   /**
    * {@inheritDoc}
@@ -78,10 +84,17 @@ public final class SftpWriteCommand extends SftpCommand implements WriteCommand 
       client.write(uri.getPath(), content, mode);
       LOGGER.debug("Successfully wrote to path {}", uri.getPath());
     } catch (Exception e) {
-      if (e.getCause() instanceof DeletedFileWhileReadException) {
-        throw new ModuleException(e.getCause().getMessage(), FileError.FILE_DOESNT_EXIST, e.getCause());
+      if (e instanceof SftpException && ((SftpException) e).id == SSH_FX_PERMISSION_DENIED) {
+        throw new ModuleException(format(WRITE_EXCEPTION_MESSAGE, uri.getPath()), FileError.ACCESS_DENIED, e);
       }
-      throw exception(format("Exception was found writing to file '%s'", uri.getPath()), e);
+      if (e.getCause() instanceof DeletedFileWhileReadException) {
+        throw new ModuleException(WRITE_EXCEPTION_MESSAGE, FileError.FILE_DOESNT_EXIST, e.getCause());
+      }
+      Optional<ModuleException> exceptionFromAnotherModule = ExceptionUtils.extractOfType(e, ModuleException.class);
+      if (exceptionFromAnotherModule.isPresent()) {
+        throw exceptionFromAnotherModule.get();
+      }
+      throw exception(format(WRITE_EXCEPTION_MESSAGE, uri.getPath()), e);
     } finally {
       pathLock.release();
     }

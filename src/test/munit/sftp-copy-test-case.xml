@@ -115,4 +115,22 @@
         </munit:validation>
     </munit:test>
 
+    <munit:test
+            name="sftp-copy-access-denied-on-read"
+            description="This test is trying to copy a read protected file. The expected error code should be SFTP:ACCESS_DENIED"
+            expectedErrorType="SFTP:ACCESS_DENIED">
+        <munit:execution>
+            <sftp:copy config-ref="config-docker-server" sourcePath="/etc/sudoers" targetPath="/usr/"/>
+        </munit:execution>
+    </munit:test>
+
+    <munit:test
+            name="sftp-copy-access-denied-on-write"
+            description="This test is trying to copy a file to a write protected folder. The expected error code should be SFTP:ACCESS_DENIED"
+            expectedErrorType="SFTP:ACCESS_DENIED">
+        <munit:execution>
+            <sftp:copy config-ref="config-docker-server" sourcePath="/init" targetPath="/root/init-copy"/>
+        </munit:execution>
+    </munit:test>
+
 </mule>
