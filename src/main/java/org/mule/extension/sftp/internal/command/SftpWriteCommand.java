@@ -8,20 +8,22 @@ package org.mule.extension.sftp.internal.command;
 
 import static java.lang.String.format;
 import static org.slf4j.LoggerFactory.getLogger;
+
 import org.mule.extension.file.common.api.FileAttributes;
 import org.mule.extension.file.common.api.FileWriteMode;
 import org.mule.extension.file.common.api.command.WriteCommand;
+import org.mule.extension.file.common.api.exceptions.DeletedFileWhileReadException;
 import org.mule.extension.file.common.api.exceptions.FileAlreadyExistsException;
+import org.mule.extension.file.common.api.exceptions.FileError;
 import org.mule.extension.file.common.api.lock.NullUriLock;
 import org.mule.extension.file.common.api.lock.UriLock;
 import org.mule.extension.sftp.internal.connection.SftpClient;
 import org.mule.extension.sftp.internal.connection.SftpFileSystem;
 
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.net.URI;
 
-import org.apache.commons.io.IOUtils;
+import org.mule.runtime.extension.api.exception.ModuleException;
 import org.slf4j.Logger;
 
 /**
@@ -75,6 +77,9 @@ public final class SftpWriteCommand extends SftpCommand implements WriteCommand 
       client.write(uri.getPath(), content, mode);
       LOGGER.debug("Successfully wrote to path {}", uri.getPath());
     } catch (Exception e) {
+      if (e.getCause() instanceof DeletedFileWhileReadException) {
+        throw new ModuleException(e.getCause().getMessage(), FileError.FILE_DOESNT_EXIST, e.getCause());
+      }
       throw exception(format("Exception was found writing to file '%s'", uri.getPath()), e);
     } finally {
       pathLock.release();
