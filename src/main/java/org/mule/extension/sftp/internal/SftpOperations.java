@@ -19,7 +19,6 @@ import org.mule.extension.file.common.api.FileAttributes;
 import org.mule.extension.file.common.api.FileConnectorConfig;
 import org.mule.extension.file.common.api.FileSystem;
 import org.mule.extension.file.common.api.FileWriteMode;
-import org.mule.extension.file.common.api.exceptions.FileCopyErrorTypeProvider;
 import org.mule.extension.file.common.api.exceptions.FileDeleteErrorTypeProvider;
 import org.mule.extension.file.common.api.exceptions.FileListErrorTypeProvider;
 import org.mule.extension.file.common.api.exceptions.FileReadErrorTypeProvider;
@@ -218,7 +217,7 @@ public final class SftpOperations extends BaseFileSystemOperations {
    * @throws IllegalArgumentException if an illegal combination of arguments is supplied
    */
   @Summary("Copies a file")
-  @Throws(FileCopyErrorTypeProvider.class)
+  @Throws(SftpFileCopyErrorTypeProvider.class)
   public void copy(@Config FileConnectorConfig config, @Connection FileSystem fileSystem,
                    @Path(location = EXTERNAL) String sourcePath,
                    @Path(type = DIRECTORY, location = EXTERNAL) String targetPath,
@@ -250,7 +249,7 @@ public final class SftpOperations extends BaseFileSystemOperations {
    * @throws IllegalArgumentException if an illegal combination of arguments is supplied
    */
   @Summary("Moves a file")
-  @Throws(FileCopyErrorTypeProvider.class)
+  @Throws(SftpFileCopyErrorTypeProvider.class)
   public void move(@Config FileConnectorConfig config, @Connection FileSystem fileSystem,
                    @Path(location = EXTERNAL) String sourcePath,
                    @Path(type = DIRECTORY, location = EXTERNAL) String targetPath,

@@ -256,7 +256,7 @@
                                     <alias>toxiproxy</alias>
                                     <run>
                                         <ports>
-                                            <port>8474:8474</port>
+                                            <port>${toxiproxy.port}:8474</port>
                                             <port>${connection.lost.port}:${connection.lost.port}</port>
                                         </ports>
                                         <links>
