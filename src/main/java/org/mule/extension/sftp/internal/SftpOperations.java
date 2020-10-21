@@ -30,6 +30,7 @@ import org.mule.extension.file.common.api.matcher.NullFilePayloadPredicate;
 import org.mule.extension.sftp.api.SftpFileAttributes;
 import org.mule.extension.sftp.api.SftpFileMatcher;
 import org.mule.extension.sftp.internal.connection.SftpFileSystem;
+import org.mule.extension.sftp.internal.sampledata.ObjectSampleDataProvider;
 import org.mule.runtime.api.message.Message;
 import org.mule.runtime.extension.api.annotation.error.Throws;
 import org.mule.runtime.extension.api.annotation.param.Config;
@@ -45,6 +46,7 @@ import org.mule.runtime.extension.api.annotation.param.display.Summary;
 import org.mule.runtime.extension.api.runtime.operation.Result;
 import org.mule.runtime.extension.api.runtime.streaming.PagingProvider;
 import org.mule.runtime.extension.api.runtime.streaming.StreamingHelper;
+import org.mule.sdk.api.annotation.data.sample.SampleData;
 
 import java.io.InputStream;
 import java.util.List;
@@ -82,6 +84,7 @@ public final class SftpOperations extends BaseFileSystemOperations {
   @Summary("List all the files from given directory")
   @MediaType(value = ANY, strict = false)
   @Throws(FileListErrorTypeProvider.class)
+  @SampleData(ObjectSampleDataProvider.class)
   public PagingProvider<SftpFileSystem, Result<Object, SftpFileAttributes>> list(@Config FileConnectorConfig config,
                                                                                  @Path(type = DIRECTORY,
                                                                                      location = EXTERNAL) String directoryPath,

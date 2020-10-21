@@ -1,17 +1,46 @@
 package org.mule.extension.sftp.internal.sampledata;
 
+import org.mule.extension.file.common.api.BaseFileSystemOperations;
+import org.mule.extension.file.common.api.FileAttributes;
+import org.mule.extension.file.common.api.FileConnectorConfig;
+import org.mule.extension.file.common.api.FileSystem;
+import org.mule.sdk.api.annotation.param.Config;
+import org.mule.sdk.api.annotation.param.Connection;
+import org.mule.sdk.api.annotation.param.Parameter;
 import org.mule.sdk.api.data.sample.SampleDataException;
 import org.mule.sdk.api.data.sample.SampleDataProvider;
 import org.mule.sdk.api.runtime.operation.Result;
 
-public class ObjectSampleDataProvider implements SampleDataProvider {
+import java.io.InputStream;
+import java.util.List;
+
+public class ObjectSampleDataProvider extends BaseFileSystemOperations implements SampleDataProvider {
+
+    @Parameter
+    String directoryPath;
+
+    @Config
+    FileConnectorConfig config;
+
+    @Connection
+    FileSystem connection;
+
+
     @Override
     public String getId() {
-        return null;
+        return getClass().getSimpleName();
     }
 
     @Override
-    public Result getSample() throws SampleDataException {
-        return null;
+    public Result<InputStream, FileAttributes> getSample() throws SampleDataException {
+
+        connection.changeToBaseDir();
+        List<Result<InputStream, FileAttributes>> files = connection.list(config, directoryPath, false, null, null);
+
+        if (files.isEmpty()){
+            throw new SampleDataException("No data available", SampleDataException.NO_DATA_AVAILABLE);
+        }
+
+        return files.get(0);
     }
 }
