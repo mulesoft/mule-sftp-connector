@@ -21,7 +21,6 @@
     <properties>
         <mule.version>4.1.2</mule.version>
         <mule.sdk.api.version>1.4.0-SNAPSHOT</mule.sdk.api.version>
-        <mule.extensions.maven.plugin.version>1.4.0-SNAPSHOT</mule.extensions.maven.plugin.version>
         <docker.maven.plugin.version>0.34.1</docker.maven.plugin.version>
         <maven.helper.plugin.version>3.2.0</maven.helper.plugin.version>
         <commonsIoVersion>2.8.0</commonsIoVersion>
@@ -45,16 +44,9 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.mule.runtime</groupId>
-            <artifactId>mule-extensions-api</artifactId>
+            <groupId>org.mule.sdk</groupId>
+            <artifactId>mule-sdk-api</artifactId>
             <version>${mule.sdk.api.version}</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.mule.runtime</groupId>
-            <artifactId>mule-api</artifactId>
-            <version>${mule.extensions.maven.plugin.version}</version>
-            <scope>provided</scope>
         </dependency>
 
         <dependency>
@@ -130,6 +122,7 @@
             <groupId>org.mule.modules</groupId>
             <artifactId>mule-connection-test-module</artifactId>
             <version>1.0.0</version>
+            <scope>test</scope>
             <classifier>mule-plugin</classifier>
         </dependency>
         
