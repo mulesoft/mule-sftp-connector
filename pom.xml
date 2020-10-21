@@ -116,6 +116,7 @@
             <artifactId>mule-connection-test-module</artifactId>
             <version>1.0.0</version>
             <classifier>mule-plugin</classifier>
+            <scope>test</scope>
         </dependency>
         
     </dependencies>
