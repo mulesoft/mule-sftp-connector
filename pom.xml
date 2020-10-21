@@ -111,12 +111,7 @@
             <scope>test</scope>
         </dependency>
 
-        <dependency>
-            <groupId>org.mule.modules</groupId>
-            <artifactId>mule-connection-test-module</artifactId>
-            <version>1.0.0</version>
-            <classifier>mule-plugin</classifier>
-        </dependency>
+        
         
     </dependencies>
 
@@ -176,6 +171,12 @@
                         <artifactId>munit-tools</artifactId>
                         <version>${munit.version}</version>
                         <classifier>mule-plugin</classifier>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.mule.modules</groupId>
+                        <artifactId>mule-connection-test-module</artifactId>
+                        <version>1.0.0</version>
+                        <classifier>mule-plugin</classifier>                        
                     </dependency>
                 </dependencies>
             </plugin>
