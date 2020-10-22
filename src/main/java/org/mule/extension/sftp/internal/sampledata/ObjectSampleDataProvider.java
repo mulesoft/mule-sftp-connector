@@ -20,7 +20,7 @@ import org.mule.sdk.api.runtime.operation.Result;
 import java.io.InputStream;
 import java.util.List;
 
-public class ObjectSampleDataProvider extends BaseFileSystemOperations implements SampleDataProvider {
+public class ObjectSampleDataProvider implements SampleDataProvider {
 
   @Parameter
   String directoryPath;
