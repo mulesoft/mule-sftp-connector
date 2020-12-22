@@ -12,6 +12,8 @@ import org.mule.extension.file.common.api.FileConnectorConfig;
 import org.mule.extension.sftp.internal.SftpCopyDelegate;
 import org.mule.extension.sftp.internal.connection.SftpFileSystem;
 import org.mule.runtime.extension.api.exception.ModuleException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.URI;
 
@@ -19,6 +21,7 @@ public class MoveSftpDelegate implements SftpCopyDelegate {
 
   private SftpCommand command;
   private SftpFileSystem fileSystem;
+  private Logger LOGGER = LoggerFactory.getLogger(MoveSftpDelegate.class);
 
   public MoveSftpDelegate(SftpCommand command, SftpFileSystem fileSystem) {
     this.command = command;
@@ -37,6 +40,7 @@ public class MoveSftpDelegate implements SftpCopyDelegate {
       }
 
       command.rename(source.getPath(), targetUri.getPath(), overwrite);
+      LOGGER.debug("Moved file {} to {}", source.getPath(), targetUri.getPath());
     } catch (ModuleException e) {
       throw e;
     } catch (Exception e) {

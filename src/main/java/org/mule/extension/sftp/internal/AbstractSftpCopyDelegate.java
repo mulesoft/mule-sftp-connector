@@ -15,6 +15,8 @@ import org.mule.extension.sftp.internal.connection.SftpFileSystem;
 import org.mule.runtime.api.connection.ConnectionException;
 import org.mule.runtime.api.connection.ConnectionHandler;
 import org.mule.runtime.extension.api.exception.ModuleException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -30,6 +32,7 @@ public abstract class AbstractSftpCopyDelegate implements SftpCopyDelegate {
 
   private final SftpCommand command;
   private final SftpFileSystem fileSystem;
+  private final Logger LOGGER = LoggerFactory.getLogger(AbstractSftpCopyDelegate.class);
 
   /**
    * Creates new instance
@@ -64,8 +67,10 @@ public abstract class AbstractSftpCopyDelegate implements SftpCopyDelegate {
     try {
       if (source.isDirectory()) {
         copyDirectory(config, URI.create(source.getPath()), targetUri, overwrite, writerConnection);
+        LOGGER.debug("Copied directory {} to {}", source.getPath(), targetUri);
       } else {
         copyFile(config, source, targetUri, overwrite, writerConnection);
+        LOGGER.debug("Copied file {} to {}", source.getPath(), targetUri);
       }
     } catch (ModuleException e) {
       throw e;

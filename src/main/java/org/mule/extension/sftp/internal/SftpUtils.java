@@ -11,6 +11,7 @@ import static java.lang.Thread.currentThread;
 import java.net.URL;
 
 import org.apache.commons.io.FilenameUtils;
+import org.slf4j.Logger;
 
 /**
  * Utility class for normalizing FTP paths
@@ -32,5 +33,11 @@ public class SftpUtils {
   public static String resolvePathOrResource(String pathOrResourceName) {
     URL resource = currentThread().getContextClassLoader().getResource(pathOrResourceName);
     return resource != null ? resource.getPath() : pathOrResourceName;
+  }
+
+  public static void logDebugMessage(Logger logger, String message, Object... var) {
+    if (logger.isDebugEnabled()) {
+      logger.debug(message, var);
+    }
   }
 }

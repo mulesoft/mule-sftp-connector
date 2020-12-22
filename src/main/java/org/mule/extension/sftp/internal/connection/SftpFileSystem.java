@@ -44,6 +44,8 @@ import org.mule.extension.sftp.internal.command.SftpWriteCommand;
 import org.mule.runtime.api.connection.ConnectionValidationResult;
 import org.mule.runtime.api.exception.MuleRuntimeException;
 import org.mule.runtime.api.lock.LockFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Implementation of {@link AbstractFileSystem} for files residing on a SFTP server
@@ -53,6 +55,7 @@ import org.mule.runtime.api.lock.LockFactory;
 public class SftpFileSystem extends AbstractExternalFileSystem {
 
   public static final String ROOT = "/";
+  public static final Logger LOGGER = LoggerFactory.getLogger(SftpFileSystem.class);
 
   private static String resolveBasePath(String basePath) {
     if (isBlank(basePath)) {

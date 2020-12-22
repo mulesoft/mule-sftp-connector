@@ -82,6 +82,7 @@ public abstract class SftpCommand extends ExternalFileCommand<SftpFileSystem> {
 
   protected SftpFileAttributes getFile(String filePath, boolean requireExistence) {
     URI uri = resolvePath(normalizePath(filePath));
+    LOGGER.debug("Get file attributes for path {}", uri);
     SftpFileAttributes attributes;
     try {
       attributes = client.getAttributes(uri);
@@ -89,6 +90,7 @@ public abstract class SftpCommand extends ExternalFileCommand<SftpFileSystem> {
       throw exception("Found exception trying to obtain path " + uri.getPath(), e);
     }
 
+    LOGGER.debug("Obtained file attributes {}", attributes);
     if (attributes != null) {
       return attributes;
     } else {

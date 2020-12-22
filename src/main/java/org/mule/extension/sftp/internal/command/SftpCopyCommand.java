@@ -14,6 +14,8 @@ import org.mule.extension.file.common.api.command.CopyCommand;
 import org.mule.extension.sftp.internal.AbstractSftpCopyDelegate;
 import org.mule.extension.sftp.internal.connection.SftpClient;
 import org.mule.extension.sftp.internal.connection.SftpFileSystem;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.URI;
 
@@ -23,6 +25,8 @@ import java.net.URI;
  * @since 1.0
  */
 public class SftpCopyCommand extends SftpCommand implements CopyCommand {
+
+  private final Logger LOGGER = LoggerFactory.getLogger(SftpCopyCommand.class);
 
   /**
    * {@inheritDoc}
@@ -57,8 +61,10 @@ public class SftpCopyCommand extends SftpCommand implements CopyCommand {
 
         URI targetUri = createUri(target.getPath(), fileAttributes.getName());
         if (fileAttributes.isDirectory()) {
+          LOGGER.debug("Copy directory {} to {}", fileAttributes.getPath(), target);
           copyDirectory(config, URI.create(fileAttributes.getPath()), targetUri, overwrite, writerConnection);
         } else {
+          LOGGER.debug("Copy file {} to {}", fileAttributes.getPath(), target);
           copyFile(config, fileAttributes, targetUri, overwrite, writerConnection);
         }
       }
