@@ -211,11 +211,13 @@ public class SftpFileSystem extends AbstractExternalFileSystem {
    */
   public ConnectionValidationResult validateConnection() {
     if (!isConnected()) {
+      LOGGER.trace("Connection validation failed.");
       return failure("Connection is stale", new SftpConnectionException("Connection is stale", DISCONNECTED));
     }
     try {
       changeToBaseDir();
     } catch (Exception e) {
+      LOGGER.error("Error occurred while changing to base directory {}", e);
       return failure("Configured workingDir is unavailable", e);
     }
     return success();

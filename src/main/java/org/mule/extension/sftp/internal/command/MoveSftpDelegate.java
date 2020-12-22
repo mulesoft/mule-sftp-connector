@@ -40,7 +40,7 @@ public class MoveSftpDelegate implements SftpCopyDelegate {
       }
 
       command.rename(source.getPath(), targetUri.getPath(), overwrite);
-      LOGGER.debug("Moved file {} to {}", source.getPath(), targetUri.getPath());
+      LOGGER.trace("Moved file {} to {}", source.getPath(), targetUri.getPath());
     } catch (ModuleException e) {
       throw e;
     } catch (Exception e) {

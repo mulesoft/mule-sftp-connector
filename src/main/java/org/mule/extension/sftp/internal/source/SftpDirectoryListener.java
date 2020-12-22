@@ -12,7 +12,6 @@ import static org.mule.runtime.core.api.util.IOUtils.closeQuietly;
 import static org.mule.runtime.core.api.util.ExceptionUtils.extractConnectionException;
 import static org.mule.runtime.extension.api.annotation.param.MediaType.ANY;
 import static org.mule.runtime.extension.api.runtime.source.PollContext.PollItemStatus.SOURCE_STOPPING;
-import static org.mule.extension.sftp.internal.SftpUtils.logDebugMessage;
 
 import org.mule.extension.file.common.api.matcher.NullFilePayloadPredicate;
 import org.mule.extension.sftp.api.SftpFileAttributes;
@@ -244,7 +243,7 @@ public class SftpDirectoryListener extends PollingSource<InputStream, SftpFileAt
                               PollContext<InputStream, SftpFileAttributes> pollContext) {
     SftpFileAttributes attributes = file.getAttributes().get();
     String fullPath = attributes.getPath();
-    logDebugMessage(LOGGER, "Processing file {}", attributes);
+    LOGGER.trace("Processing file {}", attributes);
     PollItemStatus status = pollContext.accept(item -> {
       final SourceCallbackContext ctx = item.getSourceCallbackContext();
       Result result = null;
@@ -264,6 +263,7 @@ public class SftpDirectoryListener extends PollingSource<InputStream, SftpFileAt
         if (result != null) {
           onRejectedItem(result, ctx);
         }
+
         throw new MuleRuntimeException(t);
       }
     });
