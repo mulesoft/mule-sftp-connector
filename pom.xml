@@ -25,7 +25,7 @@
         <commonsIoVersion>2.8.0</commonsIoVersion>
         <commonsLangVersion>3.11</commonsLangVersion>
         <commonsCollectionsVersion>3.2.2</commonsCollectionsVersion>
-        <jschVersion>0.1.55</jschVersion>
+        <minaSFTPVersion>2.5.1</minaSFTPVersion>
 
         <muleFileCommonsVersion>1.4.0-SNAPSHOT</muleFileCommonsVersion>
         <muleTestsComponentPlugin>${mule.version}</muleTestsComponentPlugin>
@@ -67,11 +67,13 @@
             <version>${commonsCollectionsVersion}</version>
         </dependency>
 
+
         <dependency>
-            <groupId>com.jcraft</groupId>
-            <artifactId>jsch</artifactId>
-            <version>${jschVersion}</version>
+            <groupId>org.apache.sshd</groupId>
+            <artifactId>sshd-sftp</artifactId>
+            <version>${minaSFTPVersion}</version>
         </dependency>
+
 
         <dependency>
             <groupId>org.mule.modules</groupId>

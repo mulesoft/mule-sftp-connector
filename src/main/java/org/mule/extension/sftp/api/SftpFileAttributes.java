@@ -7,6 +7,8 @@
 package org.mule.extension.sftp.api;
 
 import static org.mule.extension.sftp.internal.SftpUtils.normalizePath;
+
+import org.apache.sshd.client.subsystem.sftp.SftpClient;
 import org.mule.extension.file.common.api.AbstractFileAttributes;
 import org.mule.runtime.extension.api.annotation.param.Parameter;
 
@@ -44,15 +46,16 @@ public class SftpFileAttributes extends AbstractFileAttributes {
    * @param uri the file's {@link URI}
    * @param attrs the {@link SftpATTRS} which represents the file on the SFTP server
    */
-  public SftpFileAttributes(URI uri, SftpATTRS attrs) {
+  public SftpFileAttributes(URI uri, SftpClient.Attributes attrs) {
     super(uri);
 
-    Date timestamp = new Date(((long) attrs.getMTime()) * 1000L);
+    //Date timestamp = new Date(((long) attrs.getModifyTime()) * 1000L);
+    Date timestamp = new Date(attrs.getModifyTime().toMillis());
     this.timestamp = asDateTime(timestamp.toInstant());
     this.size = attrs.getSize();
-    this.regularSize = attrs.isReg();
-    this.directory = attrs.isDir();
-    this.symbolicLink = attrs.isLink();
+    this.regularSize = attrs.isRegularFile();
+    this.directory = attrs.isDirectory();
+    this.symbolicLink = attrs.isSymbolicLink();
   }
 
   /**

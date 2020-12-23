@@ -6,9 +6,8 @@
  */
 package org.mule.extension.sftp.internal.connection;
 
+import org.apache.sshd.client.SshClient;
 import org.mule.extension.sftp.random.alg.PRNGAlgorithm;
-
-import com.jcraft.jsch.JSch;
 
 /**
  * Creates instances of {@link SftpClient}
@@ -26,6 +25,6 @@ public class SftpClientFactory {
    * @return a {@link SftpClient}
    */
   public SftpClient createInstance(String host, int port, PRNGAlgorithm prngAlgorithm) {
-    return new SftpClient(host, port, JSch::new, prngAlgorithm);
+    return new SftpClient(host, port,()-> SshClient.setUpDefaultClient(), prngAlgorithm);
   }
 }
