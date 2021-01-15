@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xmlns:sftp="http://www.mulesoft.org/schema/mule/sftp"
+      xmlns:http="http://www.mulesoft.org/schema/mule/http"
+      xmlns="http://www.mulesoft.org/schema/mule/core"
+      xmlns:api-gateway="http://www.mulesoft.org/schema/mule/api-gateway"
+      xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+        http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+        http://www.mulesoft.org/schema/mule/sftp http://www.mulesoft.org/schema/mule/sftp/current/mule-sftp.xsd
+        http://www.mulesoft.org/schema/mule/api-gateway http://www.mulesoft.org/schema/mule/api-gateway/current/mule-api-gateway.xsd">
+
+    <configuration-properties file="${applicationsConfigProperties}"/>
+
+    <api-gateway:autodiscovery apiId="${api1}" flowRef="stopContainer"/>
+
+    <http:listener-config name="localListenerConfig">
+        <http:listener-connection host="localhost" port="${port}" protocol="HTTP"/>
+    </http:listener-config>
+
+    <http:request-config name="localRequestConfig">
+        <http:request-connection host="localhost" port="${port}" protocol="HTTP"/>
+    </http:request-config>
+
+    <sftp:config name="sftpConfig">
+        <sftp:connection username="mule" password="test" host="localhost" port="${sftp.port}"
+                         workingDir="/app" prngAlgorithm="SHA1PRNG">
+            <reconnection>
+                <reconnect count="20" frequency="1000"/>
+            </reconnection>
+        </sftp:connection>
+    </sftp:config>
+
+    <flow name="stopContainer">
+        <http:listener config-ref="localListenerConfig" path="/stop" />
+
+        <logger level="INFO" message="Hello World!" />
+
+        <!--java:invoke-static class="org.mule.extension.sftp.internal.lifecycle.SftpServerContainerLifecycleManger"
+                            method="stopServerContainer(String, int)" >
+            <java:args>
+                #[{ arg0: "openssh", arg1: 0}]
+            </java:args>
+        </java:invoke-static-->
+    </flow>
+
+    <!--flow name="startContainer">
+        <java:invoke-static class="org.mule.extension.sftp.internal.lifecycle.SftpServerContainerLifecycleManger"
+                            method="startServerContainer(String)">
+            <java:args>
+                #[{arg0: vars.containerId }]
+            </java:args>
+        </java:invoke-static>
+    </flow-->
+
+</mule>

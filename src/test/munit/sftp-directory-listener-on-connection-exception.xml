@@ -12,7 +12,7 @@
         http://www.mulesoft.org/schema/mule/sftp http://www.mulesoft.org/schema/mule/sftp/current/mule-sftp.xsd
         http://www.mulesoft.org/schema/mule/connection-test http://www.mulesoft.org/schema/mule/connection-test/current/mule-connection-test.xsd">
 
-    <munit:config name="sftp-directory-listener-on-connection-exception.xml" />
+    <!--munit:config name="sftp-directory-listener-on-connection-exception.xml" />
 
     <munit:dynamic-port propertyName="sftp.server.port"/>
 
@@ -66,6 +66,6 @@
         </sftp:listener>
         <logger level="INFO" message="#['QUEUE ' ++ payload]"/>
         <munit-tools:queue/>
-    </flow>
+    </flow-->
 
 </mule>

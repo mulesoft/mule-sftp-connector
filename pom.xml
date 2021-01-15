@@ -26,6 +26,7 @@
         <commonsLangVersion>3.11</commonsLangVersion>
         <commonsCollectionsVersion>3.2.2</commonsCollectionsVersion>
         <jschVersion>0.1.55</jschVersion>
+        <titaVersion>2.11.0</titaVersion>
 
         <muleFileCommonsVersion>1.4.0-SNAPSHOT</muleFileCommonsVersion>
         <muleTestsComponentPlugin>${mule.version}</muleTestsComponentPlugin>
@@ -111,7 +112,19 @@
             <scope>test</scope>
         </dependency>
 
-        
+        <dependency>
+            <groupId>com.mulesoft.anypoint</groupId>
+            <artifactId>tita-junit-runner</artifactId>
+            <version>${titaVersion}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.spotify</groupId>
+            <artifactId>docker-client</artifactId>
+            <version>8.16.0</version>
+            <scope>test</scope>
+        </dependency>
         
     </dependencies>
 
@@ -205,8 +218,8 @@
                         </goals>
                         <configuration>
                             <portNames>
-                                <portName>toxiproxy.port</portName>
-                                <portName>connection.lost.port</portName>
+                                <!--portName>toxiproxy.port</portName>
+                                <portName>connection.lost.port</portName-->
                                 <portName>sftp.listener.port</portName>
                             </portNames>
                         </configuration>
@@ -243,14 +256,15 @@
                                             <USER_NAME>mule</USER_NAME>
                                         </env>
                                         <ports>
-                                            <port>${sftp.listener.port}:2222</port>
+                                            <port>2222:2222</port>
+                                            <!--port>${sftp.listener.port}:2222</port-->
                                         </ports>
                                         <log>
                                             <enabled>true</enabled>
                                         </log>
                                     </run>
                                 </image>
-                                <image>
+                                <!--image>
                                     <name>shopify/toxiproxy</name>
                                     <alias>toxiproxy</alias>
                                     <run>
@@ -262,7 +276,7 @@
                                             <link>openssh</link>
                                         </links>
                                     </run>
-                                </image>
+                                </image-->
                             </images>
                             <verbose>true</verbose>
                         </configuration>
