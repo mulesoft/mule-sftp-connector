@@ -22,8 +22,8 @@
     </http:request-config>
 
     <sftp:config name="sftpConfig">
-        <sftp:connection username="mule" password="test" host="localhost" port="${sftp.port}"
-                         workingDir="/app" prngAlgorithm="SHA1PRNG">
+        <sftp:connection username="mule" password="test" host="localhost" port="2222"
+                         workingDir="/app" prngAlgorithm="SHA1PRNG" watermarkEnabled="true">
             <reconnection>
                 <reconnect count="20" frequency="1000"/>
             </reconnection>
@@ -33,23 +33,31 @@
     <flow name="stopContainer">
         <http:listener config-ref="localListenerConfig" path="/stop" />
 
-        <logger level="INFO" message="Hello World!" />
+        <logger level="INFO" message="Stopping container!" />
 
-        <!--java:invoke-static class="org.mule.extension.sftp.internal.lifecycle.SftpServerContainerLifecycleManger"
+        <java:invoke-static class="org.mule.extension.sftp.internal.lifecycle.SftpServerContainerLifecycleManger"
                             method="stopServerContainer(String, int)" >
             <java:args>
                 #[{ arg0: "openssh", arg1: 0}]
             </java:args>
-        </java:invoke-static-->
+        </java:invoke-static>
     </flow>
 
-    <!--flow name="startContainer">
+    <flow name="startContainer">
+        <http:listener config-ref="localListenerConfig" path="/start" />
+
+        <logger level="INFO" message="Start container!" />
+
         <java:invoke-static class="org.mule.extension.sftp.internal.lifecycle.SftpServerContainerLifecycleManger"
                             method="startServerContainer(String)">
             <java:args>
                 #[{arg0: vars.containerId }]
             </java:args>
         </java:invoke-static>
-    </flow-->
+
+        <sftp:write config-ref="sftpConfig" path="reconnected.json">
+            <sftp:content>#[{'reconnected':true}]</sftp:content>
+        </sftp:write>
+    </flow>
 
 </mule>

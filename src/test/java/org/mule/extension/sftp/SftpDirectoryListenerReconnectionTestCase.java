@@ -27,6 +27,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.apache.maven.model.Dependency;
+import org.mule.extension.sftp.internal.source.SftpDirectoryListener;
+import org.slf4j.LoggerFactory;
 
 @RunWith(Ambar.class)
 public class SftpDirectoryListenerReconnectionTestCase {
@@ -50,7 +52,7 @@ public class SftpDirectoryListenerReconnectionTestCase {
     return runtimeBuilder
         .custom("sftp-reconnection-app", "sftp-reconnection-app.xml")
         .withDependency(sftpConnectorDependency())
-        .withProperty("sftp.port", "2222") //.withProperty("sftp.port", System.getProperty("sftp.listener.port"))
+        .withProperty("sftp.port", "2222")
         .withApi(api, port);
   }
 
