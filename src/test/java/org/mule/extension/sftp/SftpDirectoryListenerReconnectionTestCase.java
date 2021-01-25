@@ -6,63 +6,76 @@
  */
 package org.mule.extension.sftp;
 
+import static org.mule.extension.sftp.internal.lifecycle.SftpServerContainerLifecycleManger.startServerContainer;
+import static org.mule.extension.sftp.internal.lifecycle.SftpServerContainerLifecycleManger.stopServerContainer;
 import static com.mulesoft.anypoint.tita.environment.api.artifact.Identifier.identifier;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.core.StringContains.containsString;
+import static org.apache.http.HttpHeaders.CONTENT_TYPE;
+
 import static org.hamcrest.core.Is.is;
 
 import com.mulesoft.anypoint.tests.http.HttpResponse;
 import com.mulesoft.anypoint.tita.environment.api.ApplicationSelector;
-import com.mulesoft.anypoint.tita.environment.api.anypoint.ApiManager;
 import com.mulesoft.anypoint.tita.environment.api.artifact.ApplicationBuilder;
 import com.mulesoft.anypoint.tita.environment.api.artifact.Identifier;
-import com.mulesoft.anypoint.tita.environment.api.artifact.policy.PolicySupplier;
 import com.mulesoft.anypoint.tita.environment.api.runtime.Runtime;
 import com.mulesoft.anypoint.tita.runner.ambar.Ambar;
 import com.mulesoft.anypoint.tita.runner.ambar.annotation.Application;
-import com.mulesoft.anypoint.tita.runner.ambar.annotation.Platform;
-import com.mulesoft.anypoint.tita.runner.ambar.annotation.Policy;
-import com.mulesoft.anypoint.tita.runner.ambar.annotation.TestTarget;
 import com.mulesoft.anypoint.tita.runner.ambar.annotation.runtime.Standalone;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.apache.maven.model.Dependency;
-import org.mule.extension.sftp.internal.source.SftpDirectoryListener;
-import org.slf4j.LoggerFactory;
+
+import static org.mule.tck.probe.PollingProber.probe;
 
 @RunWith(Ambar.class)
 public class SftpDirectoryListenerReconnectionTestCase {
 
   private static final Identifier api = identifier("api1");
+  private static final Identifier api2 = identifier("api2");
   private static final Identifier port = identifier("port");
+  private static final String PAYLOAD = "{\"Angel\":\"Aziraphale\"}";
+  private static final String PAYLOAD2 = "{\"Demon\":\"Crowley\"}";
 
-  //TODO: usar atributo 'testing' de Standalone para especificar la version del runtime
-  @Standalone
+  //@Standalone(testing = "4.2.2-20201020")
   Runtime runtime;
-
-  @Before
-  public void setup() {
-    //Las opciones son ver si se resuelve el puerto en el before o agregar un processor
-    //a la chain de processors de Ambar(ahi puedo agregar lo que quiera, incluso levantar
-    //un docker ahi programaticamente, o algo asi).
-  }
 
   @Application
   public static ApplicationBuilder app(ApplicationSelector runtimeBuilder) {
     return runtimeBuilder
         .custom("sftp-reconnection-app", "sftp-reconnection-app.xml")
         .withDependency(sftpConnectorDependency())
-        .withProperty("sftp.port", "2222")
-        .withApi(api, port);
+        .withDependency(osConnectorDependency())
+        .withProperty("sftp.port", System.getProperty("sftp.listener.port"))
+        .withApi(api, port)
+        .withApi(api2, port);
   }
 
 
-
   @Test
-  public void sftpReconnectionTestCase() {
-    HttpResponse responseApi1 = runtime.api(api).request("/stop").withPayload("My payload").get();
+  public void sftpReconnectionTestCase() throws Exception {
+    runtime.api(api).request("/sftp/files/angel-file").withPayload(PAYLOAD).withHeader(CONTENT_TYPE, "application/json").post();
 
-    assertThat(responseApi1.statusCode(), is(200));
+    probe(10000, 1000, () -> {
+      HttpResponse responseApi2 = runtime.api(api).request("/sftp/files/angel-file").get();
+      assertThat(responseApi2.statusCode(), is(200));
+      assertThat(responseApi2.asString(), containsString("Aziraphale"));
+      return true;
+    });
+
+    String containerId = stopServerContainer("openssh", 0);
+    Thread.sleep(5000);
+    startServerContainer(containerId);
+
+    runtime.api(api).request("/sftp/files/demon-file").withPayload(PAYLOAD2).withHeader(CONTENT_TYPE, "application/json").post();
+
+    probe(10000, 1000, () -> {
+      HttpResponse responseApi2 = runtime.api(api).request("/sftp/files/demon-file").get();
+      assertThat(responseApi2.statusCode(), is(200));
+      assertThat(responseApi2.asString(), containsString("Crowley"));
+      return true;
+    });
 
   }
 
@@ -76,4 +89,16 @@ public class SftpDirectoryListenerReconnectionTestCase {
 
     return sftpConnector;
   }
+
+  private static Dependency osConnectorDependency() {
+    Dependency osConnector = new Dependency();
+    osConnector.setGroupId("org.mule.connectors");
+    osConnector.setArtifactId("mule-objectstore-connector");
+    osConnector.setVersion("1.1.5");
+    osConnector.setClassifier("mule-plugin");
+
+    return osConnector;
+  }
+
+
 }
