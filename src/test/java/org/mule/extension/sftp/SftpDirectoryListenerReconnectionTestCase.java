@@ -12,6 +12,7 @@ import static com.mulesoft.anypoint.tita.environment.api.artifact.Identifier.ide
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.StringContains.containsString;
 import static org.apache.http.HttpHeaders.CONTENT_TYPE;
+import static org.apache.http.HttpStatus.SC_OK;
 
 import static org.hamcrest.core.Is.is;
 
@@ -37,6 +38,10 @@ public class SftpDirectoryListenerReconnectionTestCase {
   private static final Identifier port = identifier("port");
   private static final String PAYLOAD = "{\"Angel\":\"Aziraphale\"}";
   private static final String PAYLOAD2 = "{\"Demon\":\"Crowley\"}";
+  private static final String CONTAINER_NAME = "openssh";
+  private static final int POLLING_PROBER_TIMEOUT_MILLIS = 10000;
+  private static final int POLLING_PROBER_DELAY_MILLIS = 1000;
+  private static final int TIME_SLEEP_MILLIS = 5000;
 
   //@Standalone(testing = "4.2.2-20201020")
   Runtime runtime;
@@ -57,22 +62,22 @@ public class SftpDirectoryListenerReconnectionTestCase {
   public void sftpReconnectionTestCase() throws Exception {
     runtime.api(api).request("/sftp/files/angel-file").withPayload(PAYLOAD).withHeader(CONTENT_TYPE, "application/json").post();
 
-    probe(10000, 1000, () -> {
+    probe(POLLING_PROBER_TIMEOUT_MILLIS, POLLING_PROBER_DELAY_MILLIS, () -> {
       HttpResponse responseApi2 = runtime.api(api).request("/sftp/files/angel-file").get();
-      assertThat(responseApi2.statusCode(), is(200));
+      assertThat(responseApi2.statusCode(), is(SC_OK));
       assertThat(responseApi2.asString(), containsString("Aziraphale"));
       return true;
     });
 
-    String containerId = stopServerContainer("openssh", 0);
-    Thread.sleep(5000);
+    String containerId = stopServerContainer(CONTAINER_NAME, 0);
+    Thread.sleep(TIME_SLEEP_MILLIS);
     startServerContainer(containerId);
 
     runtime.api(api).request("/sftp/files/demon-file").withPayload(PAYLOAD2).withHeader(CONTENT_TYPE, "application/json").post();
 
-    probe(10000, 1000, () -> {
+    probe(POLLING_PROBER_TIMEOUT_MILLIS, POLLING_PROBER_DELAY_MILLIS, () -> {
       HttpResponse responseApi2 = runtime.api(api).request("/sftp/files/demon-file").get();
-      assertThat(responseApi2.statusCode(), is(200));
+      assertThat(responseApi2.statusCode(), is(SC_OK));
       assertThat(responseApi2.asString(), containsString("Crowley"));
       return true;
     });

@@ -11,9 +11,6 @@ import com.spotify.docker.client.DockerClient;
 import com.spotify.docker.client.messages.Container;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import static com.spotify.docker.client.DockerClient.ListContainersParam.allContainers;
-
 import java.util.List;
 
 import static java.lang.String.format;
@@ -21,7 +18,6 @@ import static java.lang.String.format;
 public class SftpServerContainerLifecycleManger {
 
   private static Logger LOGGER = LoggerFactory.getLogger(SftpServerContainerLifecycleManger.class);
-  //private static final String DOCKER_IMAGE = "linuxserver/openssh-server:latest";
   private static final String SFTP_SERVER_NAME = "openssh";
 
   public static Container getContainerByName(String containerName) throws Exception {
@@ -35,50 +31,21 @@ public class SftpServerContainerLifecycleManger {
     }
 
     throw new Exception(format("No container found for name {}", containerName));
-
-    //final ContainerConfig config = ContainerConfig.builder()
-    //        .image(DOCKER_IMAGE)
-    //        .build();
-
-    //final ContainerCreation creation = docker.createContainer(config, IMAGE_NAME);
-
   }
 
-  public static Container getContainerByImageId(String imageId) throws Exception {
-    final DockerClient docker = DefaultDockerClient.fromEnv().build();
-    final List<Container> containers = docker.listContainers(allContainers());
-
-    for (Container container : containers) {
-      if (container.id().equals(imageId)) {
-        return container;
-      }
-    }
-
-    throw new Exception(format("No container found for id {}", imageId));
-
-    //final ContainerConfig config = ContainerConfig.builder()
-    //        .image(DOCKER_IMAGE)
-    //        .build();
-
-    //final ContainerCreation creation = docker.createContainer(config, IMAGE_NAME);
-
-  }
 
   public static String stopServerContainer(String containerName, int delay) throws Exception {
     final DockerClient docker = DefaultDockerClient.fromEnv().build();
     Container sftpServerContainer = getContainerByName(SFTP_SERVER_NAME);
     docker.stopContainer(sftpServerContainer.id(), delay);
-    LOGGER.error(String.format("STOPPING DOCKER CONTAINER %s", sftpServerContainer.id()));
+    LOGGER.info(String.format("STOPPING DOCKER CONTAINER %s", sftpServerContainer.id()));
     return sftpServerContainer.id();
   }
 
   public static void startServerContainer(String containerId) throws Exception {
-    LOGGER.error(String.format("STARTING DOCKER CONTAINER %s", containerId));
+    LOGGER.info(String.format("STARTING DOCKER CONTAINER %s", containerId));
     final DockerClient docker = DefaultDockerClient.fromEnv().build();
-    //Container sftpServerContainer = getContainerByImageId(containerId);
-    //if (sftpServerContainer.state().equalsIgnoreCase("stopped")) {
     docker.startContainer(containerId);
-    //}
   }
 
 }
