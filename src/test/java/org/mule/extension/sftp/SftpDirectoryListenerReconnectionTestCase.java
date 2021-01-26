@@ -39,11 +39,14 @@ public class SftpDirectoryListenerReconnectionTestCase {
   private static final String PAYLOAD = "{\"Angel\":\"Aziraphale\"}";
   private static final String PAYLOAD2 = "{\"Demon\":\"Crowley\"}";
   private static final String CONTAINER_NAME = "openssh";
+  private static final String CONTENT_TYPE_HEADER_VALUE = "application/json";
+  private static final String FILES_ENDPOINT = "/sftp/files";
+  private static final String CLEAR_OS_ENDPOINT = "/os/files";
   private static final int POLLING_PROBER_TIMEOUT_MILLIS = 10000;
   private static final int POLLING_PROBER_DELAY_MILLIS = 1000;
   private static final int TIME_SLEEP_MILLIS = 5000;
 
-  //@Standalone(testing = "4.2.2-20201020")
+  @Standalone
   Runtime runtime;
 
   @Application
@@ -60,28 +63,35 @@ public class SftpDirectoryListenerReconnectionTestCase {
 
   @Test
   public void sftpReconnectionTestCase() throws Exception {
-    runtime.api(api).request("/sftp/files/angel-file").withPayload(PAYLOAD).withHeader(CONTENT_TYPE, "application/json").post();
+    runtime.api(api).request(FILES_ENDPOINT + "/angel-file").withPayload(PAYLOAD)
+        .withHeader(CONTENT_TYPE, CONTENT_TYPE_HEADER_VALUE)
+        .post();
+    runtime.api(api).request(FILES_ENDPOINT + "/demon-file").withPayload(PAYLOAD2)
+        .withHeader(CONTENT_TYPE, CONTENT_TYPE_HEADER_VALUE)
+        .post();
 
     probe(POLLING_PROBER_TIMEOUT_MILLIS, POLLING_PROBER_DELAY_MILLIS, () -> {
-      HttpResponse responseApi2 = runtime.api(api).request("/sftp/files/angel-file").get();
-      assertThat(responseApi2.statusCode(), is(SC_OK));
-      assertThat(responseApi2.asString(), containsString("Aziraphale"));
-      return true;
+      return getFileAndAssertContent(FILES_ENDPOINT + "/angel-file", "Aziraphale")
+          && getFileAndAssertContent(FILES_ENDPOINT + "/demon-file", "Crowley");
     });
 
     String containerId = stopServerContainer(CONTAINER_NAME, 0);
-    Thread.sleep(TIME_SLEEP_MILLIS);
+    runtime.api(api).request(CLEAR_OS_ENDPOINT).put();
     startServerContainer(containerId);
 
-    runtime.api(api).request("/sftp/files/demon-file").withPayload(PAYLOAD2).withHeader(CONTENT_TYPE, "application/json").post();
+    Thread.sleep(TIME_SLEEP_MILLIS);
 
     probe(POLLING_PROBER_TIMEOUT_MILLIS, POLLING_PROBER_DELAY_MILLIS, () -> {
-      HttpResponse responseApi2 = runtime.api(api).request("/sftp/files/demon-file").get();
-      assertThat(responseApi2.statusCode(), is(SC_OK));
-      assertThat(responseApi2.asString(), containsString("Crowley"));
-      return true;
+      return getFileAndAssertContent(FILES_ENDPOINT + "/angel-file", "Aziraphale")
+          && getFileAndAssertContent(FILES_ENDPOINT + "/demon-file", "Crowley");
     });
+  }
 
+  private boolean getFileAndAssertContent(String endpoint, String fileContent) throws AssertionError {
+    HttpResponse responseApi = runtime.api(api).request(endpoint).get();
+    assertThat(responseApi.statusCode(), is(SC_OK));
+    assertThat(responseApi.asString(), containsString(fileContent));
+    return true;
   }
 
 
@@ -89,7 +99,7 @@ public class SftpDirectoryListenerReconnectionTestCase {
     Dependency sftpConnector = new Dependency();
     sftpConnector.setGroupId("org.mule.connectors");
     sftpConnector.setArtifactId("mule-sftp-connector");
-    sftpConnector.setVersion("1.3.8");
+    sftpConnector.setVersion("1.3.9");
     sftpConnector.setClassifier("mule-plugin");
 
     return sftpConnector;

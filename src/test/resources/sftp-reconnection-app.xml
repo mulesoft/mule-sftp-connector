@@ -24,41 +24,58 @@
 
 
     <sftp:config name="sftp-config">
-        <sftp:connection username="mule" password="test" host="localhost" port="${sftp.port}"
+        <sftp:connection username="mule" password="test" host="127.0.0.1" port="${sftp.port}"
                          workingDir="/app" prngAlgorithm="SHA1PRNG">
             <reconnection>
-                <reconnect count="20" frequency="1000"/>
+                <reconnect frequency="1000" count="10" />
             </reconnection>
+            <pooling-profile exhaustedAction="WHEN_EXHAUSTED_WAIT" maxActive="2" maxIdle="0" maxWait="5000"/>
         </sftp:connection>
     </sftp:config>
 
     <flow name="sftp-poll-flow">
-        <sftp:listener config-ref="sftp-config" directory="/app" watermarkEnabled="true">
+        <sftp:listener config-ref="sftp-config" directory="/app" watermarkEnabled="false">
             <scheduling-strategy>
-                <fixed-frequency frequency="500"/>
+                <fixed-frequency frequency="500" />
             </scheduling-strategy>
         </sftp:listener>
-        <logger level="ERROR" message="#[payload]"/>
 
+        <logger level="DEBUG" message="#[payload]"/>
+        <flow-ref name="os-store" />
+    </flow>
+
+    <flow name="os-store" maxConcurrency="1">
         <os:store key="#[attributes.fileName]" objectStore="sftp-os"/>
     </flow>
 
     <flow name="get-sftp-polled-files">
         <http:listener config-ref="localListenerConfig" path="/sftp/files/{fileName}" allowedMethods="GET"/>
+        <try>
+            <os:retrieve key="#[attributes.uriParams.fileName ++ '.json']" objectStore="sftp-os" />
+            <set-payload value="#[output application/json --- payload]"/>
 
-        <os:retrieve key="#[attributes.uriParams.fileName ++ '.json']" objectStore="sftp-os" />
-        <set-payload value="#[output application/json --- payload]"/>
+            <error-handler>
+                <on-error-continue type="OS:KEY_NOT_FOUND">
+                    <set-payload value="#[output application/json --- {}]"/>
+                </on-error-continue>
+            </error-handler>
+        </try>
     </flow>
-
 
     <flow name="write-file-to-sftp">
         <http:listener config-ref="localListenerConfig" path="/sftp/files/{fileName}" allowedMethods="POST" />
 
-        <logger level="ERROR" message="WRITING SFTP FILE!!!" />
-        <logger level="ERROR" message="#[payload]" />
-
+        <logger level="DEBUG" message="WRITING SFTP FILE!!!" />
+        <logger level="DEBUG" message="#[payload]" />
         <sftp:write path="#['/app/' ++ attributes.uriParams.fileName ++ '.json']" config-ref="sftp-config">
             <sftp:content>#[payload]</sftp:content>
         </sftp:write>
     </flow>
+
+    <flow name="clear-os">
+        <http:listener config-ref="localListenerConfig" path="/os/files" allowedMethods="PUT" />
+        <logger level="DEBUG" message="CLEARING OBJECT STORE!!!" />
+        <os:clear objectStore="sftp-os"/>
+    </flow>
+
 </mule>
