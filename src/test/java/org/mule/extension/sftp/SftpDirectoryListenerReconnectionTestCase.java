@@ -60,7 +60,6 @@ public class SftpDirectoryListenerReconnectionTestCase {
         .withApi(api2, port);
   }
 
-
   @Test
   public void sftpReconnectionTestCase() throws Exception {
     runtime.api(api).request(FILES_ENDPOINT + "/angel-file").withPayload(PAYLOAD)

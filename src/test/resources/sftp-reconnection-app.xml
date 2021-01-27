@@ -3,12 +3,14 @@
       xmlns:sftp="http://www.mulesoft.org/schema/mule/sftp"
       xmlns:http="http://www.mulesoft.org/schema/mule/http"
       xmlns="http://www.mulesoft.org/schema/mule/core"
+      xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
       xmlns:os="http://www.mulesoft.org/schema/mule/os"
       xmlns:api-gateway="http://www.mulesoft.org/schema/mule/api-gateway"
       xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
         http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
         http://www.mulesoft.org/schema/mule/sftp http://www.mulesoft.org/schema/mule/sftp/current/mule-sftp.xsd
         http://www.mulesoft.org/schema/mule/os http://www.mulesoft.org/schema/mule/os/current/mule-os.xsd
+        http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
         http://www.mulesoft.org/schema/mule/api-gateway http://www.mulesoft.org/schema/mule/api-gateway/current/mule-api-gateway.xsd">
 
     <configuration-properties file="${applicationsConfigProperties}"/>
@@ -29,19 +31,19 @@
             <reconnection>
                 <reconnect frequency="1000" count="10" />
             </reconnection>
-            <pooling-profile exhaustedAction="WHEN_EXHAUSTED_WAIT" maxActive="2" maxIdle="0" maxWait="5000"/>
         </sftp:connection>
     </sftp:config>
 
     <flow name="sftp-poll-flow">
         <sftp:listener config-ref="sftp-config" directory="/app" watermarkEnabled="false">
+            <ee:repeatable-file-store-stream inMemorySize="1000" />
             <scheduling-strategy>
                 <fixed-frequency frequency="500" />
             </scheduling-strategy>
         </sftp:listener>
 
-        <logger level="DEBUG" message="#[payload]"/>
         <flow-ref name="os-store" />
+        <logger level="ERROR" message="#[payload]"/>
     </flow>
 
     <flow name="os-store" maxConcurrency="1">
