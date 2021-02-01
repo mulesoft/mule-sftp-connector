@@ -230,6 +230,7 @@
                 <configuration>
                     <systemPropertyVariables>
                         <sftp.listener.port>${sftp.listener.port}</sftp.listener.port>
+                        <tita.testing>4.2.2,4.3.0,4.4.0-SNAPSHOT</tita.testing>
                     </systemPropertyVariables>
                 </configuration>
             </plugin>
