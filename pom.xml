@@ -26,6 +26,7 @@
         <commonsLangVersion>3.11</commonsLangVersion>
         <commonsCollectionsVersion>3.2.2</commonsCollectionsVersion>
         <jschVersion>0.1.55</jschVersion>
+        <titaVersion>2.11.0</titaVersion>
 
         <muleFileCommonsVersion>1.4.0-SNAPSHOT</muleFileCommonsVersion>
         <muleTestsComponentPlugin>${mule.version}</muleTestsComponentPlugin>
@@ -39,6 +40,7 @@
         <mavenResources.version>3.2.0</mavenResources.version>
 
         <formatterConfigPath>formatter.xml</formatterConfigPath>
+        <settingsFile>${java.io.tmpdir}/effective-settings.xml</settingsFile>
     </properties>
 
     <dependencies>
@@ -111,7 +113,19 @@
             <scope>test</scope>
         </dependency>
 
-        
+        <dependency>
+            <groupId>com.mulesoft.anypoint</groupId>
+            <artifactId>tita-junit-runner</artifactId>
+            <version>${titaVersion}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.spotify</groupId>
+            <artifactId>docker-client</artifactId>
+            <version>8.16.0</version>
+            <scope>test</scope>
+        </dependency>
         
     </dependencies>
 
@@ -199,19 +213,45 @@
                 <executions>
                     <execution>
                         <id>reserve-network-port</id>
-                        <phase>generate-test-resources</phase>
+                        <phase>compile</phase>
                         <goals>
                             <goal>reserve-network-port</goal>
                         </goals>
                         <configuration>
                             <portNames>
-                                <portName>toxiproxy.port</portName>
-                                <portName>connection.lost.port</portName>
                                 <portName>sftp.listener.port</portName>
                             </portNames>
                         </configuration>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-help-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <phase>process-test-resources</phase>
+                        <id>copy-settings</id>
+                        <goals>
+                            <goal>effective-settings</goal>
+                        </goals>
+                        <configuration>
+                            <output>${settingsFile}</output>
+                            <showPasswords>true</showPasswords>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <argLine>-Dmaven.settings.local=${settingsFile}</argLine>
+                    <systemPropertyVariables>
+                        <sftp.listener.port>${sftp.listener.port}</sftp.listener.port>
+                        <tita.testing>4.2.2,4.3.0</tita.testing>
+                    </systemPropertyVariables>
+                </configuration>
             </plugin>
         </plugins>
     </build>
@@ -250,19 +290,6 @@
                                         </log>
                                     </run>
                                 </image>
-                                <image>
-                                    <name>shopify/toxiproxy</name>
-                                    <alias>toxiproxy</alias>
-                                    <run>
-                                        <ports>
-                                            <port>8474:8474</port>
-                                            <port>${connection.lost.port}:${connection.lost.port}</port>
-                                        </ports>
-                                        <links>
-                                            <link>openssh</link>
-                                        </links>
-                                    </run>
-                                </image>
                             </images>
                             <verbose>true</verbose>
                         </configuration>
@@ -281,7 +308,7 @@
                         <executions>
                             <execution>
                                 <id>start</id>
-                                <phase>pre-integration-test</phase>
+                                <phase>test-compile</phase>
                                 <goals>
                                     <goal>stop</goal>
                                     <goal>build</goal>
@@ -297,6 +324,7 @@
                                 <phase>post-integration-test</phase>
                                 <goals>
                                     <goal>stop</goal>
+                                    <goal>remove</goal>
                                 </goals>
                             </execution>
                         </executions>
