@@ -40,6 +40,7 @@
         <mavenResources.version>3.2.0</mavenResources.version>
 
         <formatterConfigPath>formatter.xml</formatterConfigPath>
+        <settingsFile>${java.io.tmpdir}/effective-settings.xml</settingsFile>
     </properties>
 
     <dependencies>
@@ -226,8 +227,26 @@
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-help-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <phase>process-test-resources</phase>
+                        <id>copy-settings</id>
+                        <goals>
+                            <goal>effective-settings</goal>
+                        </goals>
+                        <configuration>
+                            <output>${settingsFile}</output>
+                            <showPasswords>true</showPasswords>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
+                    <argLine>-Dmaven.settings.local=${settingsFile}</argLine>
                     <systemPropertyVariables>
                         <sftp.listener.port>${sftp.listener.port}</sftp.listener.port>
                         <tita.testing>4.2.2,4.3.0</tita.testing>
