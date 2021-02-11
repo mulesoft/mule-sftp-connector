@@ -26,7 +26,7 @@
         <commonsLangVersion>3.11</commonsLangVersion>
         <commonsCollectionsVersion>3.2.2</commonsCollectionsVersion>
         <jschVersion>0.1.55</jschVersion>
-        <titaVersion>2.11.0</titaVersion>
+        <titaVersion>3.0.0</titaVersion>
 
         <muleFileCommonsVersion>1.4.0-SNAPSHOT</muleFileCommonsVersion>
         <muleTestsComponentPlugin>${mule.version}</muleTestsComponentPlugin>
