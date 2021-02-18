@@ -9,20 +9,17 @@ package org.mule.extension.sftp.internal.command;
 import static java.lang.String.format;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
-import static org.mule.extension.file.common.api.exceptions.FileError.CONNECTIVITY;
 import static org.mule.extension.file.common.api.util.UriUtils.createUri;
 import static org.mule.extension.file.common.api.util.UriUtils.normalizeUri;
 import static org.mule.extension.file.common.api.util.UriUtils.trimLastFragment;
 import static org.mule.extension.sftp.internal.SftpUtils.normalizePath;
 import static org.mule.extension.sftp.internal.connection.SftpFileSystem.ROOT;
-import static org.mule.runtime.core.api.util.ExceptionUtils.extractConnectionException;
 
 import org.mule.extension.file.common.api.FileAttributes;
 import org.mule.extension.file.common.api.FileConnectorConfig;
 import org.mule.extension.file.common.api.FileSystem;
 import org.mule.extension.file.common.api.command.ExternalFileCommand;
 import org.mule.extension.file.common.api.exceptions.FileAlreadyExistsException;
-import org.mule.extension.sftp.api.SftpConnectionException;
 import org.mule.extension.sftp.api.SftpFileAttributes;
 import org.mule.extension.sftp.internal.SftpCopyDelegate;
 import org.mule.extension.sftp.internal.connection.SftpClient;
@@ -89,11 +86,6 @@ public abstract class SftpCommand extends ExternalFileCommand<SftpFileSystem> {
     try {
       attributes = client.getAttributes(uri);
     } catch (Exception e) {
-      if (extractConnectionException(e).isPresent()) {
-        throw exception(format("Connection error occurred trying to connect to %s", uri.getRawPath()),
-                        new SftpConnectionException(e,
-                                                    CONNECTIVITY));
-      }
       throw exception("Found exception trying to obtain path " + uri.getPath(), e);
     }
 
