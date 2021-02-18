@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xmlns:munit="http://www.mulesoft.org/schema/mule/munit"
+      xmlns="http://www.mulesoft.org/schema/mule/core"
+      xmlns:sftp="http://www.mulesoft.org/schema/mule/sftp"
+      xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools"
+      xmlns:java="http://www.mulesoft.org/schema/mule/java"
+      xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+		http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
+        http://www.mulesoft.org/schema/mule/sftp http://www.mulesoft.org/schema/mule/sftp/current/mule-sftp.xsd
+        http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd
+        http://www.mulesoft.org/schema/mule/java http://www.mulesoft.org/schema/mule/java/current/mule-java.xsd">
+
+    <munit:config name="sftp-connectivity-error-test-case.xml"/>
+
+    <munit:dynamic-port propertyName="sftp.server.port"/>
+
+    <munit:before-suite name="start-test-sftp-server">
+        <java:invoke-static class="org.mule.extension.sftp.internal.lifecycle.SftpServerLifecycleManager"
+                            method="startSftpServer(String)">
+            <java:args>
+                #[{
+                arg0: ${sftp.server.port},
+                }]
+            </java:args>
+        </java:invoke-static>
+    </munit:before-suite>
+
+    <munit:after-suite name="stop-test-sftp-server">
+        <java:invoke-static class="org.mule.extension.sftp.internal.lifecycle.SftpServerLifecycleManager"
+                            method="stopSftpServer()">
+            <java:args>
+                #[{}]
+            </java:args>
+        </java:invoke-static>
+    </munit:after-suite>
+
+    <munit:after-test name="start-test-sftp-server-after-test">
+        <java:invoke-static class="org.mule.extension.sftp.internal.lifecycle.SftpServerLifecycleManager"
+                            method="startSftpServer(String)">
+            <java:args>
+                #[{
+                arg0: ${sftp.server.port},
+                }]
+            </java:args>
+        </java:invoke-static>
+    </munit:after-test>
+
+    <munit:test name="sftp-connectivity-error-namespace-write" expectedErrorType="SFTP:CONNECTIVITY" description="Connectivity error throws SFTP:CONNECTIVITY for write operation">
+        <munit:execution>
+            <sftp:write config-ref="config" path="/happiness-to-do-list.txt" >
+                <sftp:content>Read Good Omens</sftp:content>
+            </sftp:write>
+
+            <munit-tools:sleep time="2000"/>
+
+            <flow-ref name="stop-sftp-server" />
+
+            <sftp:write config-ref="config" path="/happiness-to-do-list.txt">
+                <sftp:content>Read it now</sftp:content>
+            </sftp:write>
+        </munit:execution>
+    </munit:test>
+
+    <munit:test name="sftp-connectivity-error-namespace-read" expectedErrorType="SFTP:CONNECTIVITY" description="Connectivity error throws SFTP:CONNECTIVITY for read operation">
+        <munit:execution>
+            <sftp:write config-ref="config" path="/good-omens.txt" >
+                <sftp:content>In the beginning, it was a nice day.</sftp:content>
+            </sftp:write>
+
+            <munit-tools:sleep time="2000"/>
+
+            <flow-ref name="stop-sftp-server" />
+
+            <sftp:read config-ref="config" path="/good-omens.txt" />
+        </munit:execution>
+    </munit:test>
+
+    <munit:test name="sftp-connectivity-error-namespace-delete" expectedErrorType="SFTP:CONNECTIVITY" description="Connectivity error throws SFTP:CONNECTIVITY for delete operation">
+        <munit:execution>
+            <sftp:write config-ref="config" path="/good-omens.txt" >
+                <sftp:content>In the beginning, it was a nice day.</sftp:content>
+            </sftp:write>
+
+            <munit-tools:sleep time="2000"/>
+
+            <flow-ref name="stop-sftp-server" />
+
+            <sftp:delete config-ref="config" path="/good-omens.txt" />
+        </munit:execution>
+    </munit:test>
+
+    <munit:test name="sftp-connectivity-error-namespace-rename" expectedErrorType="SFTP:CONNECTIVITY" description="Connectivity error throws SFTP:CONNECTIVITY for rename operation">
+        <munit:execution>
+            <sftp:write config-ref="config" path="/good-omens.txt" >
+                <sftp:content>In the beginning, it was a nice day.</sftp:content>
+            </sftp:write>
+
+            <munit-tools:sleep time="2000"/>
+
+            <flow-ref name="stop-sftp-server" />
+
+            <sftp:rename config-ref="config" path="/good-omens.txt" to="/good-omens-the-nice-and-accurate-prophecies-of-agnes-nutter-witch.txt" overwrite="#[true]"/>
+        </munit:execution>
+    </munit:test>
+
+    <munit:test name="sftp-connectivity-error-namespace-list" expectedErrorType="SFTP:CONNECTIVITY" description="Connectivity error throws SFTP:CONNECTIVITY for list operation">
+        <munit:execution>
+            <sftp:write config-ref="config" path="/good-omens.txt" >
+                <sftp:content>In the beginning, it was a nice day.</sftp:content>
+            </sftp:write>
+
+            <munit-tools:sleep time="2000"/>
+
+            <flow-ref name="stop-sftp-server" />
+
+            <sftp:list config-ref="config" directoryPath="." />
+        </munit:execution>
+    </munit:test>
+
+    <munit:test name="sftp-connectivity-error-namespace-move" expectedErrorType="SFTP:CONNECTIVITY" description="Connectivity error throws SFTP:CONNECTIVITY for move operation">
+        <munit:execution>
+            <sftp:write config-ref="config" path="/good-omens.txt" >
+                <sftp:content>In the beginning, it was a nice day.</sftp:content>
+            </sftp:write>
+
+            <munit-tools:sleep time="2000"/>
+
+            <flow-ref name="stop-sftp-server" />
+
+            <sftp:move config-ref="config" sourcePath="/good-omens.txt" targetPath="/apocalypse" />
+        </munit:execution>
+    </munit:test>
+
+    <munit:test name="sftp-connectivity-error-namespace-copy" expectedErrorType="SFTP:CONNECTIVITY" description="Connectivity error throws SFTP:CONNECTIVITY for copy operation">
+        <munit:execution>
+            <sftp:write config-ref="config" path="/good-omens.txt" >
+                <sftp:content>In the beginning, it was a nice day.</sftp:content>
+            </sftp:write>
+
+            <munit-tools:sleep time="2000"/>
+
+            <flow-ref name="stop-sftp-server" />
+
+            <sftp:copy config-ref="config" sourcePath="/good-omens.txt" targetPath="/apocalypse" />
+        </munit:execution>
+    </munit:test>
+
+    <munit:test name="sftp-connectivity-error-namespace-create-dir" expectedErrorType="SFTP:CONNECTIVITY" description="Connectivity error throws SFTP:CONNECTIVITY for create directory operation">
+        <munit:execution>
+            <sftp:write config-ref="config" path="/good-omens.txt" >
+                <sftp:content>In the beginning, it was a nice day.</sftp:content>
+            </sftp:write>
+
+            <munit-tools:sleep time="2000"/>
+
+            <flow-ref name="stop-sftp-server" />
+
+            <sftp:create-directory config-ref="config" directoryPath="apocalypse"/>
+        </munit:execution>
+    </munit:test>
+
+    <flow name="start-sftp-server">
+        <java:invoke-static class="org.mule.extension.sftp.internal.lifecycle.SftpServerLifecycleManager"
+                            method="startSftpServer(String)">
+            <java:args>
+                #[{
+                arg0: ${sftp.server.port},
+                }]
+            </java:args>
+        </java:invoke-static>
+    </flow>
+
+    <flow name="stop-sftp-server">
+        <java:invoke-static class="org.mule.extension.sftp.internal.lifecycle.SftpServerLifecycleManager"
+                            method="stopSftpServer()">
+            <java:args>
+                #[{}]
+            </java:args>
+        </java:invoke-static>
+    </flow>
+</mule>

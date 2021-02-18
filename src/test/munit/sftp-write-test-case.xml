@@ -187,38 +187,7 @@
         </munit:execution>
     </munit:test>
 
-    <munit:test name="sftp-connectivity-error-with-sftp-namespace" description="Connectivity error throws SFTP:CONNECTIVITY">
-        <munit:behavior>
-            <set-variable variableName="sftpConnectivityErrorThrown" value="#[false]" />
-        </munit:behavior>
-        <munit:execution>
-            <try>
-                <sftp:write config-ref="config" path="/happiness-to-do-list.txt" createParentDirectories="false" >
-                    <sftp:content>Read Good Omens</sftp:content>
-                </sftp:write>
 
-                <flow-ref name="stop-sftp-server" />
-
-                <sftp:write config-ref="config" path="/happiness-to-do-list.txt" createParentDirectories="false" >
-                    <sftp:content>Read it now</sftp:content>
-                </sftp:write>
-                <error-handler>
-                    <on-error-continue type="SFTP:CONNECTIVITY">
-                        <set-variable variableName="sftpConnectivityErrorThrown" value="#[true]" />
-                    </on-error-continue>
-                    <on-error-continue>
-                        <logger level="ERROR" message="A different exception was thrown, expected SFTP:CONNECTIVITY" />
-                    </on-error-continue>
-                </error-handler>
-            </try>
-
-            <flow-ref name="start-sftp-server" />
-
-        </munit:execution>
-        <munit:validation>
-            <munit-tools:assert-that expression="#[vars.sftpConnectivityErrorThrown]" is="#[MunitTools::equalTo(true)]"/>
-        </munit:validation>
-    </munit:test>
 
     <flow name="delete-created-files">
         <sftp:listener config-ref="${config}" directory="/">
@@ -227,25 +196,5 @@
             </scheduling-strategy>
         </sftp:listener>
         <sftp:delete config-ref="${config}" path="#[attributes.path]" />
-    </flow>
-
-    <flow name="start-sftp-server">
-        <java:invoke-static class="org.mule.extension.sftp.internal.lifecycle.SftpServerLifecycleManager"
-                            method="startSftpServer(String)">
-            <java:args>
-                #[{
-                arg0: ${sftp.server.port},
-                }]
-            </java:args>
-        </java:invoke-static>
-    </flow>
-
-    <flow name="stop-sftp-server">
-        <java:invoke-static class="org.mule.extension.sftp.internal.lifecycle.SftpServerLifecycleManager"
-                            method="stopSftpServer()">
-            <java:args>
-                #[{}]
-            </java:args>
-        </java:invoke-static>
     </flow>
 </mule>
