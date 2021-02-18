@@ -169,11 +169,6 @@ public abstract class SftpCommand extends ExternalFileCommand<SftpFileSystem> {
       try {
         fileSystem.delete(targetUri.getPath());
       } catch (Exception e) {
-        if (extractConnectionException(e).isPresent()) {
-          throw exception(format("Connection error occurred trying to connect to %s", targetUri.getRawPath()),
-                          new SftpConnectionException(e,
-                                                      CONNECTIVITY));
-        }
         throw exception(format("Exception was found deleting '%s' as part of renaming '%s'", targetUri.getPath(),
                                sourceUri.getPath()),
                         e);
@@ -184,11 +179,6 @@ public abstract class SftpCommand extends ExternalFileCommand<SftpFileSystem> {
       doRename(sourceUri.getPath(), targetUri.getPath());
       LOGGER.debug("{} renamed to {}", filePath, newName);
     } catch (Exception e) {
-      if (extractConnectionException(e).isPresent()) {
-        throw exception(format("Connection error occurred trying to connect to %s", targetUri.getRawPath()),
-                        new SftpConnectionException(e,
-                                                    CONNECTIVITY));
-      }
       throw exception(format("Exception was found renaming '%s' to '%s'", sourceUri.getPath(), newName), e);
     }
   }
@@ -296,11 +286,6 @@ public abstract class SftpCommand extends ExternalFileCommand<SftpFileSystem> {
     try {
       return normalizePath(client.getWorkingDirectory());
     } catch (Exception e) {
-      if (extractConnectionException(e).isPresent()) {
-        throw exception("Connection error occurred trying to connect to host",
-                        new SftpConnectionException(e,
-                                                    CONNECTIVITY));
-      }
       throw exception("Failed to determine current working directory");
     }
   }
