@@ -94,6 +94,7 @@ public abstract class CommonSftpConnectorTestCase extends AbstractSftpConnectorT
     return flowRunner("read")
         .withVariable("path", path)
         .withVariable("streaming", streaming)
+        .keepStreamsOpen()
         .run();
   }
 

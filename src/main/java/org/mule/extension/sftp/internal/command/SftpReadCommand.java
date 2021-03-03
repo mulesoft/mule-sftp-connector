@@ -93,9 +93,10 @@ public final class SftpReadCommand extends SftpCommand implements ReadCommand<Sf
       return Result.<InputStream, SftpFileAttributes>builder().output(payload).mediaType(resolvedMediaType).attributes(attributes)
           .build();
     } catch (Exception e) {
-      pathLock.release();
       IOUtils.closeQuietly(payload);
       throw exception("Could not fetch file " + uri.getPath(), e);
+    } finally {
+      pathLock.release();
     }
   }
 

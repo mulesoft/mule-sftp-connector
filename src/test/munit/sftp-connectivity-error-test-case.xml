@@ -1,0 +1,314 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xmlns:munit="http://www.mulesoft.org/schema/mule/munit"
+      xmlns="http://www.mulesoft.org/schema/mule/core"
+      xmlns:sftp="http://www.mulesoft.org/schema/mule/sftp"
+      xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools"
+      xmlns:java="http://www.mulesoft.org/schema/mule/java"
+      xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+		http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
+        http://www.mulesoft.org/schema/mule/sftp http://www.mulesoft.org/schema/mule/sftp/current/mule-sftp.xsd
+        http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd
+        http://www.mulesoft.org/schema/mule/java http://www.mulesoft.org/schema/mule/java/current/mule-java.xsd">
+
+    <munit:config name="sftp-connectivity-error-test-case.xml"/>
+
+    <munit:dynamic-port propertyName="sftp.server.port"/>
+
+    <munit:before-suite name="start-test-sftp-server">
+        <java:invoke-static class="org.mule.extension.sftp.internal.lifecycle.SftpServerLifecycleManager"
+                            method="startSftpServer(String)">
+            <java:args>
+                #[{
+                arg0: ${sftp.server.port},
+                }]
+            </java:args>
+        </java:invoke-static>
+    </munit:before-suite>
+
+    <munit:after-suite name="stop-test-sftp-server">
+        <java:invoke-static class="org.mule.extension.sftp.internal.lifecycle.SftpServerLifecycleManager"
+                            method="stopSftpServer()">
+            <java:args>
+                #[{}]
+            </java:args>
+        </java:invoke-static>
+    </munit:after-suite>
+
+    <munit:test name="sftp-connectivity-error-namespace-write" description="Connectivity error throws SFTP:CONNECTIVITY for write operation">
+        <munit:behavior>
+            <set-variable variableName="sftpConnectivityExceptionThrown" value="#[true]" />
+        </munit:behavior>
+        <munit:execution>
+            <sftp:write config-ref="config-with-reconnection" path="/happiness-to-do-list.txt" >
+                <sftp:content>Read Good Omens</sftp:content>
+            </sftp:write>
+
+            <munit-tools:sleep time="2000"/>
+
+            <try>
+                <flow-ref name="stop-sftp-server" />
+                <munit-tools:sleep time="1000"/>
+
+                <sftp:write config-ref="config-with-reconnection" path="/happiness-to-do-list.txt">
+                    <sftp:content>Read it now</sftp:content>
+                </sftp:write>
+                <error-handler>
+                    <on-error-continue type="SFTP:CONNECTIVITY">
+                        <set-variable variableName="sftpConnectivityExceptionThrown" value="#[true]" />
+                    </on-error-continue>
+                    <on-error-continue type="ANY">
+                        <set-variable variableName="sftpConnectivityExceptionThrown" value="#[false]" />
+                        <logger level="ERROR" message="Expected 'SFTP:CONNECTIVITY' but a different exception was thrown" />
+                    </on-error-continue>
+                </error-handler>
+            </try>
+
+            <flow-ref name="start-sftp-server" />
+
+        </munit:execution>
+        <munit:validation>
+            <munit-tools:assert-that expression="#[vars.sftpConnectivityExceptionThrown]" is="#[MunitTools::equalTo(true)]"/>
+        </munit:validation>
+    </munit:test>
+
+    <munit:test name="sftp-connectivity-error-namespace-read" description="Connectivity error throws SFTP:CONNECTIVITY for read operation">
+        <munit:behavior>
+            <set-variable variableName="sftpConnectivityExceptionThrown" value="#[true]" />
+        </munit:behavior>
+        <munit:execution>
+            <try>
+                <flow-ref name="stop-sftp-server" />
+
+                <sftp:read config-ref="config-with-reconnection" path="/good-omens.txt" />
+                <error-handler>
+                    <on-error-continue type="SFTP:CONNECTIVITY">
+                        <set-variable variableName="sftpConnectivityExceptionThrown" value="#[true]" />
+                    </on-error-continue>
+                    <on-error-continue type="ANY">
+                        <set-variable variableName="sftpConnectivityExceptionThrown" value="#[false]" />
+                        <logger level="ERROR" message="Expected 'SFTP:CONNECTIVITY' but a different exception was thrown" />
+                    </on-error-continue>
+                </error-handler>
+            </try>
+
+            <flow-ref name="start-sftp-server" />
+        </munit:execution>
+        <munit:validation>
+            <munit-tools:assert-that expression="#[vars.sftpConnectivityExceptionThrown]" is="#[MunitTools::equalTo(true)]"/>
+        </munit:validation>
+    </munit:test>
+
+    <munit:test name="sftp-connectivity-error-namespace-delete" description="Connectivity error throws SFTP:CONNECTIVITY for delete operation">
+        <munit:behavior>
+            <set-variable variableName="sftpConnectivityExceptionThrown" value="#[true]" />
+        </munit:behavior>
+        <munit:execution>
+            <try>
+                <flow-ref name="stop-sftp-server" />
+
+                <sftp:delete config-ref="config-with-reconnection" path="/good-omens.txt" />
+                <error-handler>
+                    <on-error-continue type="SFTP:CONNECTIVITY">
+                        <set-variable variableName="sftpConnectivityExceptionThrown" value="#[true]" />
+                    </on-error-continue>
+                    <on-error-continue type="ANY">
+                        <set-variable variableName="sftpConnectivityExceptionThrown" value="#[false]" />
+                        <logger level="ERROR" message="Expected 'SFTP:CONNECTIVITY' but a different exception was thrown" />
+                    </on-error-continue>
+                </error-handler>
+            </try>
+
+            <flow-ref name="start-sftp-server" />
+        </munit:execution>
+        <munit:validation>
+            <munit-tools:assert-that expression="#[vars.sftpConnectivityExceptionThrown]" is="#[MunitTools::equalTo(true)]"/>
+        </munit:validation>
+    </munit:test>
+
+    <munit:test name="sftp-connectivity-error-namespace-rename" description="Connectivity error throws SFTP:CONNECTIVITY for rename operation">
+        <munit:behavior>
+            <set-variable variableName="sftpConnectivityExceptionThrown" value="#[true]" />
+        </munit:behavior>
+        <munit:execution>
+            <sftp:write config-ref="config-with-reconnection" path="/good-omens.txt" >
+                <sftp:content>In the beginning, it was a nice day.</sftp:content>
+            </sftp:write>
+
+            <munit-tools:sleep time="2000"/>
+
+            <try>
+                <flow-ref name="stop-sftp-server" />
+
+                <sftp:rename config-ref="config-with-reconnection" path="/good-omens.txt" to="/good-omens-the-nice-and-accurate-prophecies-of-agnes-nutter-witch.txt" overwrite="#[true]"/>
+                <error-handler>
+                    <on-error-continue type="SFTP:CONNECTIVITY">
+                        <set-variable variableName="sftpConnectivityExceptionThrown" value="#[true]" />
+                    </on-error-continue>
+                    <on-error-continue type="ANY">
+                        <set-variable variableName="sftpConnectivityExceptionThrown" value="#[false]" />
+                        <logger level="ERROR" message="Expected 'SFTP:CONNECTIVITY' but a different exception was thrown" />
+                    </on-error-continue>
+                </error-handler>
+            </try>
+
+            <flow-ref name="start-sftp-server" />
+        </munit:execution>
+        <munit:validation>
+            <munit-tools:assert-that expression="#[vars.sftpConnectivityExceptionThrown]" is="#[MunitTools::equalTo(true)]"/>
+        </munit:validation>
+    </munit:test>
+
+    <munit:test name="sftp-connectivity-error-namespace-list" description="Connectivity error throws SFTP:CONNECTIVITY for list operation">
+        <munit:behavior>
+            <set-variable variableName="sftpConnectivityExceptionThrown" value="#[true]" />
+        </munit:behavior>
+        <munit:execution>
+            <sftp:write config-ref="config-with-reconnection" path="/good-omens.txt" >
+                <sftp:content>In the beginning, it was a nice day.</sftp:content>
+            </sftp:write>
+
+            <munit-tools:sleep time="2000"/>
+
+            <try>
+                <flow-ref name="stop-sftp-server" />
+
+                <sftp:list config-ref="config-with-reconnection" directoryPath="." />
+                <error-handler>
+                    <on-error-continue type="SFTP:CONNECTIVITY">
+                        <set-variable variableName="sftpConnectivityExceptionThrown" value="#[true]" />
+                    </on-error-continue>
+                    <on-error-continue type="ANY">
+                        <set-variable variableName="sftpConnectivityExceptionThrown" value="#[false]" />
+                        <logger level="ERROR" message="Expected 'SFTP:CONNECTIVITY' but a different exception was thrown" />
+                    </on-error-continue>
+                </error-handler>
+            </try>
+
+            <flow-ref name="start-sftp-server" />
+        </munit:execution>
+        <munit:validation>
+            <munit-tools:assert-that expression="#[vars.sftpConnectivityExceptionThrown]" is="#[MunitTools::equalTo(true)]"/>
+        </munit:validation>
+    </munit:test>
+
+    <munit:test name="sftp-connectivity-error-namespace-move" description="Connectivity error throws SFTP:CONNECTIVITY for move operation">
+        <munit:behavior>
+            <set-variable variableName="sftpConnectivityExceptionThrown" value="#[true]" />
+        </munit:behavior>
+        <munit:execution>
+            <sftp:write config-ref="config-with-reconnection" path="/good-omens.txt" >
+                <sftp:content>In the beginning, it was a nice day.</sftp:content>
+            </sftp:write>
+
+            <munit-tools:sleep time="2000"/>
+
+            <try>
+                <flow-ref name="stop-sftp-server" />
+
+                <sftp:move config-ref="config-with-reconnection" sourcePath="/good-omens.txt" targetPath="/apocalypse" />
+                <error-handler>
+                    <on-error-continue type="SFTP:CONNECTIVITY">
+                        <set-variable variableName="sftpConnectivityExceptionThrown" value="#[true]" />
+                    </on-error-continue>
+                    <on-error-continue type="ANY">
+                        <set-variable variableName="sftpConnectivityExceptionThrown" value="#[false]" />
+                        <logger level="ERROR" message="Expected 'SFTP:CONNECTIVITY' but a different exception was thrown" />
+                    </on-error-continue>
+                </error-handler>
+            </try>
+
+            <flow-ref name="start-sftp-server" />
+        </munit:execution>
+        <munit:validation>
+            <munit-tools:assert-that expression="#[vars.sftpConnectivityExceptionThrown]" is="#[MunitTools::equalTo(true)]"/>
+        </munit:validation>
+    </munit:test>
+
+    <munit:test name="sftp-connectivity-error-namespace-copy" description="Connectivity error throws SFTP:CONNECTIVITY for copy operation">
+        <munit:behavior>
+            <set-variable variableName="sftpConnectivityExceptionThrown" value="#[true]" />
+        </munit:behavior>
+        <munit:execution>
+            <sftp:write config-ref="config-with-reconnection" path="/good-omens.txt" >
+                <sftp:content>In the beginning, it was a nice day.</sftp:content>
+            </sftp:write>
+
+            <munit-tools:sleep time="2000"/>
+
+            <try>
+                <flow-ref name="stop-sftp-server" />
+
+                <sftp:copy config-ref="config-with-reconnection" sourcePath="/good-omens.txt" targetPath="/apocalypse" />
+                <error-handler>
+                    <on-error-continue type="SFTP:CONNECTIVITY">
+                        <set-variable variableName="sftpConnectivityExceptionThrown" value="#[true]" />
+                    </on-error-continue>
+                    <on-error-continue type="ANY">
+                        <set-variable variableName="sftpConnectivityExceptionThrown" value="#[false]" />
+                        <logger level="ERROR" message="Expected 'SFTP:CONNECTIVITY' but a different exception was thrown" />
+                    </on-error-continue>
+                </error-handler>
+            </try>
+
+            <flow-ref name="start-sftp-server" />
+        </munit:execution>
+        <munit:validation>
+            <munit-tools:assert-that expression="#[vars.sftpConnectivityExceptionThrown]" is="#[MunitTools::equalTo(true)]"/>
+        </munit:validation>
+    </munit:test>
+
+    <munit:test name="sftp-connectivity-error-namespace-create-dir" description="Connectivity error throws SFTP:CONNECTIVITY for create directory operation">
+        <munit:behavior>
+            <set-variable variableName="sftpConnectivityExceptionThrown" value="#[true]" />
+        </munit:behavior>
+        <munit:execution>
+            <sftp:write config-ref="config-with-reconnection" path="/good-omens.txt" >
+                <sftp:content>In the beginning, it was a nice day.</sftp:content>
+            </sftp:write>
+
+            <munit-tools:sleep time="2000"/>
+
+            <try>
+                <flow-ref name="stop-sftp-server" />
+
+                <sftp:create-directory config-ref="config-with-reconnection" directoryPath="apocalypse"/>
+                <error-handler>
+                    <on-error-continue type="SFTP:CONNECTIVITY">
+                        <set-variable variableName="sftpConnectivityExceptionThrown" value="#[true]" />
+                    </on-error-continue>
+                    <on-error-continue type="ANY">
+                        <set-variable variableName="sftpConnectivityExceptionThrown" value="#[false]" />
+                        <logger level="ERROR" message="Expected 'SFTP:CONNECTIVITY' but a different exception was thrown" />
+                    </on-error-continue>
+                </error-handler>
+            </try>
+
+            <flow-ref name="start-sftp-server" />
+        </munit:execution>
+        <munit:validation>
+            <munit-tools:assert-that expression="#[vars.sftpConnectivityExceptionThrown]" is="#[MunitTools::equalTo(true)]"/>
+        </munit:validation>
+    </munit:test>
+
+    <flow name="start-sftp-server">
+        <java:invoke-static class="org.mule.extension.sftp.internal.lifecycle.SftpServerLifecycleManager"
+                            method="startSftpServer(String)">
+            <java:args>
+                #[{
+                arg0: ${sftp.server.port},
+                }]
+            </java:args>
+        </java:invoke-static>
+    </flow>
+
+    <flow name="stop-sftp-server">
+        <java:invoke-static class="org.mule.extension.sftp.internal.lifecycle.SftpServerLifecycleManager"
+                            method="stopSftpServer()">
+            <java:args>
+                #[{}]
+            </java:args>
+        </java:invoke-static>
+    </flow>
+</mule>

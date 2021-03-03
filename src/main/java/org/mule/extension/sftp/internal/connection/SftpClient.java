@@ -8,6 +8,7 @@ package org.mule.extension.sftp.internal.connection;
 
 import static java.util.Collections.emptyList;
 import static org.apache.commons.collections.CollectionUtils.isEmpty;
+import static org.mule.extension.file.common.api.exceptions.FileError.CONNECTIVITY;
 import static org.mule.extension.file.common.api.util.UriUtils.createUri;
 import static org.mule.extension.sftp.internal.SftpUtils.normalizePath;
 import static org.mule.extension.sftp.internal.SftpUtils.resolvePathOrResource;
@@ -404,7 +405,8 @@ public class SftpClient {
   protected RuntimeException exception(String message, Exception cause) {
     if (cause instanceof SftpException) {
       if (cause.getCause() instanceof IOException) {
-        return exception(message, new ConnectionException(cause, owner));
+        return exception(message, new SftpConnectionException("Error occurred while trying to connect to host",
+                                                              new ConnectionException(cause, owner), CONNECTIVITY, owner));
       }
     }
     return new MuleRuntimeException(createStaticMessage(message), cause);
