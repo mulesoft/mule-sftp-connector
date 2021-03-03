@@ -83,7 +83,7 @@ public abstract class CommonSftpConnectorTestCase extends AbstractSftpConnectorT
   protected void doWrite(String flow, String path, Object content, FileWriteMode mode, boolean createParent, String encoding)
       throws Exception {
     flowRunner(flow).withVariable("path", path).withVariable("createParent", createParent).withVariable("mode", mode)
-        .withVariable("encoding", encoding).withPayload(content).keepStreamsOpen().run();
+        .withVariable("encoding", encoding).withPayload(content).run();
   }
 
   private CoreEvent getPath(String path) throws Exception {
@@ -94,6 +94,7 @@ public abstract class CommonSftpConnectorTestCase extends AbstractSftpConnectorT
     return flowRunner("read")
         .withVariable("path", path)
         .withVariable("streaming", streaming)
+        .keepStreamsOpen()
         .run();
   }
 
