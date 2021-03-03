@@ -10,6 +10,7 @@ import org.mule.extension.file.common.api.exceptions.FileError;
 import org.mule.extension.sftp.internal.SftpConnector;
 import org.mule.runtime.api.connection.ConnectionException;
 import org.mule.runtime.extension.api.exception.ModuleException;
+import static org.mule.extension.file.common.api.exceptions.FileError.CONNECTIVITY;
 
 /**
  * {@link ConnectionException} implementation to declare connectivity errors in the {@link SftpConnector}
@@ -32,5 +33,9 @@ public class SftpConnectionException extends ConnectionException {
 
   public SftpConnectionException(String message, Throwable throwable, FileError fileError) {
     super(message, new ModuleException(fileError, throwable));
+  }
+
+  public SftpConnectionException(String message, Throwable throwable, FileError fileError, Object connection) {
+    super(message, new ModuleException(fileError, throwable), null, connection);
   }
 }

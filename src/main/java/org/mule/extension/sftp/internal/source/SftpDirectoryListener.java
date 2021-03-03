@@ -229,8 +229,8 @@ public class SftpDirectoryListener extends PollingSource<InputStream, SftpFileAt
       fileSystem.changeToBaseDir();
     } catch (Exception e) {
       LOGGER.debug("Exception while trying to open connection. Cause: {} . Message: {}", e.getCause(), e.getMessage());
-      if (e.getCause() instanceof ConnectionException) {
-        pollContext.onConnectionException((ConnectionException) e.getCause());
+      if (extractConnectionException(e).isPresent()) {
+        extractConnectionException(e).ifPresent((connectionException) -> pollContext.onConnectionException(connectionException));
       } else {
         fileSystemProvider.disconnect(fileSystem);
       }

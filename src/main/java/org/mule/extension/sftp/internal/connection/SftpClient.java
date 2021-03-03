@@ -406,7 +406,7 @@ public class SftpClient {
     if (cause instanceof SftpException) {
       if (cause.getCause() instanceof IOException) {
         return exception(message, new SftpConnectionException("Error occurred while trying to connect to host",
-                                                              new ConnectionException(cause, owner), CONNECTIVITY));
+                                                              new ConnectionException(cause, owner), CONNECTIVITY, owner));
       }
     }
     return new MuleRuntimeException(createStaticMessage(message), cause);
