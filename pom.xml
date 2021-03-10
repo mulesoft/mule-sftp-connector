@@ -228,6 +228,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-help-plugin</artifactId>
+                <version>${maven.helper.plugin.version}</version>
                 <executions>
                     <execution>
                         <phase>process-test-resources</phase>
