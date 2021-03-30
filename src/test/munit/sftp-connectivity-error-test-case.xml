@@ -36,7 +36,9 @@
         </java:invoke-static>
     </munit:after-suite>
 
-    <munit:test name="sftp-connectivity-error-namespace-write" description="Connectivity error throws SFTP:CONNECTIVITY for write operation">
+    <!--SFTPC-70: remove ignore test once runtime fix is ready -->
+    <munit:test name="sftp-connectivity-error-namespace-write" description="Connectivity error throws SFTP:CONNECTIVITY for write operation"
+                ignore="#[Munit::muleVersionPriorTo('4.4.0-SNAPSHOT')]">
         <munit:behavior>
             <set-variable variableName="sftpConnectivityExceptionThrown" value="#[true]" />
         </munit:behavior>
