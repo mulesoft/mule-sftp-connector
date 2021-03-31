@@ -36,7 +36,7 @@
         </java:invoke-static>
     </munit:after-suite>
 
-    <!--SFTPC-70: remove ignore test once runtime fix is ready -->
+    <!--TODO: EE-7700: remove ignore test once runtime fix is ready -->
     <munit:test name="sftp-connectivity-error-namespace-write" description="Connectivity error throws SFTP:CONNECTIVITY for write operation"
                 ignore="#[Munit::muleVersionEqualTo('4.4.0-SNAPSHOT')]">
         <munit:behavior>
@@ -75,7 +75,7 @@
         </munit:validation>
     </munit:test>
 
-    <!--SFTPC-70: remove ignore test once runtime fix is ready -->
+    <!--TODO: EE-7700: remove ignore test once runtime fix is ready -->
     <munit:test name="sftp-connectivity-error-namespace-read" description="Connectivity error throws SFTP:CONNECTIVITY for read operation" ignore="#[Munit::muleVersionEqualTo('4.4.0-SNAPSHOT')]">
         <munit:behavior>
             <set-variable variableName="sftpConnectivityExceptionThrown" value="#[false]" />
@@ -103,7 +103,7 @@
         </munit:validation>
     </munit:test>
 
-    <!--SFTPC-70: remove ignore test once runtime fix is ready -->
+    <!--TODO: EE-7700: remove ignore test once runtime fix is ready -->
     <munit:test name="sftp-connectivity-error-namespace-delete" description="Connectivity error throws SFTP:CONNECTIVITY for delete operation" ignore="#[Munit::muleVersionEqualTo('4.4.0-SNAPSHOT')]">
         <munit:behavior>
             <set-variable variableName="sftpConnectivityExceptionThrown" value="#[false]" />
@@ -131,7 +131,7 @@
         </munit:validation>
     </munit:test>
 
-    <!--SFTPC-70: remove ignore test once runtime fix is ready -->
+    <!--TODO: EE-7700: remove ignore test once runtime fix is ready -->
     <munit:test name="sftp-connectivity-error-namespace-rename" description="Connectivity error throws SFTP:CONNECTIVITY for rename operation" ignore="#[Munit::muleVersionEqualTo('4.4.0-SNAPSHOT')]">
         <munit:behavior>
             <set-variable variableName="sftpConnectivityExceptionThrown" value="#[false]" />
@@ -165,7 +165,7 @@
         </munit:validation>
     </munit:test>
 
-    <!--SFTPC-70: remove ignore test once runtime fix is ready -->
+    <!--TODO: EE-7700: remove ignore test once runtime fix is ready -->
     <munit:test name="sftp-connectivity-error-namespace-list" description="Connectivity error throws SFTP:CONNECTIVITY for list operation" ignore="#[Munit::muleVersionEqualTo('4.4.0-SNAPSHOT')]">
         <munit:behavior>
             <set-variable variableName="sftpConnectivityExceptionThrown" value="#[false]" />
@@ -199,7 +199,7 @@
         </munit:validation>
     </munit:test>
 
-    <!--SFTPC-70: remove ignore test once runtime fix is ready -->
+    <!--TODO: EE-7700: remove ignore test once runtime fix is ready -->
     <munit:test name="sftp-connectivity-error-namespace-move" description="Connectivity error throws SFTP:CONNECTIVITY for move operation" ignore="#[Munit::muleVersionEqualTo('4.4.0-SNAPSHOT')]">
         <munit:behavior>
             <set-variable variableName="sftpConnectivityExceptionThrown" value="#[false]" />
@@ -233,7 +233,7 @@
         </munit:validation>
     </munit:test>
 
-    <!--SFTPC-70: remove ignore test once runtime fix is ready -->
+    <!--TODO: EE-7700: remove ignore test once runtime fix is ready -->
     <munit:test name="sftp-connectivity-error-namespace-copy" description="Connectivity error throws SFTP:CONNECTIVITY for copy operation" ignore="#[Munit::muleVersionEqualTo('4.4.0-SNAPSHOT')]">
         <munit:behavior>
             <set-variable variableName="sftpConnectivityExceptionThrown" value="#[false]" />
@@ -267,7 +267,7 @@
         </munit:validation>
     </munit:test>
 
-    <!--SFTPC-70: remove ignore test once runtime fix is ready -->
+    <!--TODO: EE-7700: remove ignore test once runtime fix is ready -->
     <munit:test name="sftp-connectivity-error-namespace-create-dir" description="Connectivity error throws SFTP:CONNECTIVITY for create directory operation" ignore="#[Munit::muleVersionEqualTo('4.4.0-SNAPSHOT')]">
         <munit:behavior>
             <set-variable variableName="sftpConnectivityExceptionThrown" value="#[false]" />
