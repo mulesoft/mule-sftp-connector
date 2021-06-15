@@ -146,10 +146,11 @@
                     <flow-ref name="write-number-collection-until-successful"/>
                 </async>
             </foreach>
-            <munit-tools:sleep time="2" timeUnit="SECONDS"/>
-            <sftp:write config-ref="${config}" path="#[vars.fileName]" lock="true" mode="APPEND">
-                <sftp:content>7</sftp:content>
-            </sftp:write>
+            <until-successful maxRetries="10" millisBetweenRetries="1000">
+                <sftp:write config-ref="${config}" path="#[vars.fileName]" lock="true" mode="APPEND">
+                    <sftp:content>7</sftp:content>
+                </sftp:write>
+            </until-successful>
         </munit:execution>
         <munit:validation>
             <sftp:read config-ref="${config}" path='#[vars.fileName]'/>
