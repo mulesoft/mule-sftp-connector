@@ -146,10 +146,11 @@
                     <flow-ref name="write-number-collection-until-successful"/>
                 </async>
             </foreach>
-            <munit-tools:sleep time="2" timeUnit="SECONDS"/>
-            <sftp:write config-ref="${config}" path="#[vars.fileName]" lock="true" mode="APPEND">
-                <sftp:content>7</sftp:content>
-            </sftp:write>
+            <until-successful maxRetries="10" millisBetweenRetries="1000">
+                <sftp:write config-ref="${config}" path="#[vars.fileName]" lock="true" mode="APPEND">
+                    <sftp:content>7</sftp:content>
+                </sftp:write>
+            </until-successful>
         </munit:execution>
         <munit:validation>
             <sftp:read config-ref="${config}" path='#[vars.fileName]'/>
@@ -192,7 +193,7 @@
     <flow name="delete-created-files">
         <sftp:listener config-ref="${config}" directory="/">
             <scheduling-strategy>
-                <fixed-frequency startDelay="2000"/>
+                <fixed-frequency startDelay="1000"/>
             </scheduling-strategy>
         </sftp:listener>
         <sftp:delete config-ref="${config}" path="#[attributes.path]" />
