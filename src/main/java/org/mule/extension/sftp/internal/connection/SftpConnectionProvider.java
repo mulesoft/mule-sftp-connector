@@ -35,6 +35,7 @@ import org.mule.runtime.extension.api.annotation.param.ParameterGroup;
 import org.mule.runtime.extension.api.annotation.param.display.DisplayName;
 import org.mule.runtime.extension.api.annotation.param.display.Path;
 import org.mule.runtime.extension.api.annotation.param.display.Summary;
+import org.mule.sdk.api.annotation.semantics.connectivity.ExcludeFromConnectivitySchema;
 
 import com.jcraft.jsch.JSchException;
 
@@ -106,6 +107,7 @@ public class SftpConnectionProvider extends FileSystemProvider<SftpFileSystem>
   @Parameter
   @Optional
   @Path(type = FILE)
+  @ExcludeFromConnectivitySchema
   private String knownHostsFile;
 
   /**

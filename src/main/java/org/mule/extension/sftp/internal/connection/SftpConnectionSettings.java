@@ -16,6 +16,10 @@ import org.mule.runtime.extension.api.annotation.param.display.Password;
 import org.mule.runtime.extension.api.annotation.param.display.Path;
 import org.mule.runtime.extension.api.annotation.param.display.Placement;
 import org.mule.runtime.extension.api.annotation.param.display.Summary;
+import org.mule.sdk.api.annotation.semantics.connectivity.Host;
+import org.mule.sdk.api.annotation.semantics.connectivity.Port;
+import org.mule.sdk.api.annotation.semantics.security.Secret;
+import org.mule.sdk.api.annotation.semantics.security.Username;
 
 import java.util.Objects;
 
@@ -31,6 +35,7 @@ public final class SftpConnectionSettings {
    */
   @Parameter
   @Placement(order = 1)
+  @Host
   private String host;
 
   /**
@@ -39,6 +44,7 @@ public final class SftpConnectionSettings {
   @Parameter
   @Optional(defaultValue = "22")
   @Placement(order = 2)
+  @Port
   private int port = 22;
 
   /**
@@ -47,6 +53,7 @@ public final class SftpConnectionSettings {
   @Parameter
   @Optional
   @Placement(order = 3)
+  @Username
   protected String username;
 
   /**
@@ -67,6 +74,7 @@ public final class SftpConnectionSettings {
   @Password
   @Placement(order = 6)
   @Summary("The passphrase (password) for the identityFile, if configured")
+  @Secret
   private String passphrase;
 
   /**
@@ -76,6 +84,7 @@ public final class SftpConnectionSettings {
   @Optional
   @Placement(order = 5)
   @Path(type = FILE, location = EMBEDDED)
+  @Secret
   private String identityFile;
 
 
