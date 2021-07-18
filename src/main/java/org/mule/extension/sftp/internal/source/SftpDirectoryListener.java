@@ -243,6 +243,7 @@ public class SftpDirectoryListener extends PollingSource<InputStream, SftpFileAt
                               PollContext<InputStream, SftpFileAttributes> pollContext) {
     SftpFileAttributes attributes = file.getAttributes().get();
     String fullPath = attributes.getPath();
+    LOGGER.trace("Processing file {}", attributes);
     PollItemStatus status = pollContext.accept(item -> {
       final SourceCallbackContext ctx = item.getSourceCallbackContext();
       Result result = null;

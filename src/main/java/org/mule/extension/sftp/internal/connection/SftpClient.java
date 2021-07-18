@@ -116,10 +116,11 @@ public class SftpClient {
    * @param path the new working directory path
    */
   public void changeWorkingDirectory(String path) {
-    LOGGER.debug("Attempting to cwd to: {}", path);
+    String normalizedPath = normalizePath(path);
+    LOGGER.trace("Attempting to cwd to: {}", normalizedPath);
 
     try {
-      sftp.cd(normalizePath(path));
+      sftp.cd(normalizedPath);
     } catch (SftpException e) {
       throw exception("Exception occurred while trying to change working directory to " + path, e);
     }
@@ -259,6 +260,7 @@ public class SftpClient {
   public void rename(String sourcePath, String target) throws IOException {
     try {
       sftp.rename(normalizePath(sourcePath), normalizePath(target));
+      LOGGER.trace("Renamed {} to {}", sourcePath, target);
     } catch (SftpException e) {
       throw exception(format("Could not rename path '%s' to '%s'", sourcePath, target), e);
     }
@@ -273,6 +275,7 @@ public class SftpClient {
 
     try {
       sftp.rm(normalizePath(path));
+      LOGGER.trace("Deleted file {}", path);
     } catch (SftpException e) {
       throw exception("Could not delete file " + path, e);
     }
@@ -290,6 +293,7 @@ public class SftpClient {
     if (session != null && session.isConnected()) {
       session.disconnect();
     }
+    LOGGER.trace("Disconnected from {}:{}", session.getHost(), session.getPort());
   }
 
   /**
@@ -309,6 +313,7 @@ public class SftpClient {
     List<ChannelSftp.LsEntry> entries;
     try {
       entries = sftp.ls(normalizePath(path));
+      LOGGER.trace("Listed {} entries from path {}", entries.size(), path);
     } catch (SftpException e) {
       throw exception("Found exception trying to list path " + path, e);
     }
@@ -370,9 +375,7 @@ public class SftpClient {
    */
   public void mkdir(String directoryName) {
     try {
-      if (LOGGER.isDebugEnabled()) {
-        LOGGER.debug("Trying to create directory " + directoryName);
-      }
+      LOGGER.trace("Trying to create directory {}", directoryName);
       sftp.mkdir(normalizePath(directoryName));
     } catch (SftpException e) {
       throw exception("Could not create the directory " + directoryName, e);
