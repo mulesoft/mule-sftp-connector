@@ -26,7 +26,6 @@
         <commonsLangVersion>3.12.0</commonsLangVersion>
         <commonsCollectionsVersion>3.2.2</commonsCollectionsVersion>
         <jschVersion>0.1.55</jschVersion>
-        <titaVersion>4.3.0</titaVersion>
 
         <muleFileCommonsVersion>1.3.6</muleFileCommonsVersion>
         <muleTestsComponentPlugin>${mule.version}</muleTestsComponentPlugin>
@@ -118,21 +117,12 @@
             <classifier>mule-plugin</classifier>
             <scope>test</scope>
         </dependency>
-
-        <dependency>
-            <groupId>com.mulesoft.anypoint</groupId>
-            <artifactId>tita-junit-runner</artifactId>
-            <version>${titaVersion}</version>
-            <scope>test</scope>
-        </dependency>
-
         <dependency>
             <groupId>com.spotify</groupId>
             <artifactId>docker-client</artifactId>
             <version>8.16.0</version>
-            <scope>test</scope>
+            <scope>compile</scope>
         </dependency>
-        
     </dependencies>
 
     <build>
@@ -251,14 +241,30 @@
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
+                <artifactId>maven-invoker-plugin</artifactId>
+                <version>3.2.2</version>
                 <configuration>
-                    <argLine>-Dmaven.settings.local=${settingsFile}</argLine>
-                    <systemPropertyVariables>
+                    <debug>false</debug>
+                    <streamLogs>true</streamLogs>
+                    <noLog>true</noLog>
+                    <cloneProjectsTo>${project.build.directory}/it</cloneProjectsTo>
+                    <properties>
+                        <maven.settings.local>${settingsFile}</maven.settings.local>
+                    </properties>
+                    <environmentVariables>
                         <sftp.listener.port>${sftp.listener.port}</sftp.listener.port>
-                        <tita.testing>4.2.2,4.3.0</tita.testing>
-                    </systemPropertyVariables>
+                    </environmentVariables>
                 </configuration>
+                <executions>
+                    <execution>
+                        <id>tita-test</id>
+                        <!--use test phase because that's when maven surefire plugin resolves properties-->
+                        <phase>install</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
@@ -290,7 +296,7 @@
                                             <USER_NAME>mule</USER_NAME>
                                         </env>
                                         <ports>
-                                            <port>${sftp.listener.port}:2222</port>
+                                            <port>sftp.listener.port:2222</port>
                                         </ports>
                                         <log>
                                             <enabled>true</enabled>
@@ -317,7 +323,6 @@
                                 <id>start</id>
                                 <phase>test-compile</phase>
                                 <goals>
-                                    <goal>stop</goal>
                                     <goal>build</goal>
                                     <goal>start</goal>
                                 </goals>

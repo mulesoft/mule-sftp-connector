@@ -106,6 +106,7 @@ public class SftpClient {
     try {
       return sftp.pwd();
     } catch (SftpException e) {
+      LOGGER.error("Could not obtain current working directory", e);
       throw exception("Could not obtain current working directory", e);
     }
   }
@@ -121,6 +122,7 @@ public class SftpClient {
     try {
       sftp.cd(normalizePath(path));
     } catch (SftpException e) {
+      LOGGER.error("Exception occurred while trying to change working directory to " + path, e);
       throw exception("Exception occurred while trying to change working directory to " + path, e);
     }
   }
@@ -135,6 +137,7 @@ public class SftpClient {
     try {
       return new SftpFileAttributes(uri, sftp.stat(normalizePath(uri.getPath())));
     } catch (SftpException e) {
+      LOGGER.error(e.getMessage(), e);
       if (e.id == SSH_FX_NO_SUCH_FILE) {
         return null;
       }
@@ -260,6 +263,7 @@ public class SftpClient {
     try {
       sftp.rename(normalizePath(sourcePath), normalizePath(target));
     } catch (SftpException e) {
+      LOGGER.error("Could not rename path '%s' to '%s':" + e.getMessage(), e);
       throw exception(format("Could not rename path '%s' to '%s'", sourcePath, target), e);
     }
   }
@@ -274,6 +278,7 @@ public class SftpClient {
     try {
       sftp.rm(normalizePath(path));
     } catch (SftpException e) {
+      LOGGER.error("Could not delete file " + path + ":" + e.getMessage(), e);
       throw exception("Could not delete file " + path, e);
     }
   }
@@ -310,6 +315,7 @@ public class SftpClient {
     try {
       entries = sftp.ls(normalizePath(path));
     } catch (SftpException e) {
+      LOGGER.error("Found exception trying to list path " + path + ": " + e.getMessage(), e);
       throw exception("Found exception trying to list path " + path, e);
     }
 
@@ -331,6 +337,7 @@ public class SftpClient {
     try {
       return sftp.get(normalizePath(path));
     } catch (SftpException e) {
+      LOGGER.error("Exception was found trying to retrieve the contents of file " + path + ":" + e.getMessage(), e);
       throw exception("Exception was found trying to retrieve the contents of file " + path, e);
     }
   }
@@ -375,6 +382,7 @@ public class SftpClient {
       }
       sftp.mkdir(normalizePath(directoryName));
     } catch (SftpException e) {
+      LOGGER.error("Could not create the directory " + directoryName + ":" + e.getMessage(), e);
       throw exception("Could not create the directory " + directoryName, e);
     }
   }
@@ -390,6 +398,7 @@ public class SftpClient {
     try {
       sftp.rmdir(path);
     } catch (SftpException e) {
+      LOGGER.error("Could not delete directory " + path + ": " + e.getMessage(), e);
       throw exception("Could not delete directory " + path, e);
     }
   }
@@ -413,6 +422,7 @@ public class SftpClient {
   }
 
   private RuntimeException loginException(String user, Exception e) {
+    LOGGER.error("Error during login to " + host, e);
     return exception(format("Error during login to %s@%s", user, host), e);
   }
 

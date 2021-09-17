@@ -17,6 +17,7 @@
 
     <api-gateway:autodiscovery apiId="${api1}" flowRef="get-sftp-polled-files"/>
     <api-gateway:autodiscovery apiId="${api2}" flowRef="write-file-to-sftp"/>
+    <api-gateway:autodiscovery apiId="${api3}" flowRef="clear-os"/>
 
     <os:object-store name="sftp-os" persistent="false" />
 
@@ -26,16 +27,16 @@
 
 
     <sftp:config name="sftp-config">
-        <sftp:connection username="mule" password="test" host="127.0.0.1" port="${sftp.port}"
+        <sftp:connection username="mule" password="test" host="127.0.0.1" port="2222"
                          workingDir="/app" prngAlgorithm="SHA1PRNG">
-            <reconnection>
-                <reconnect frequency="1000" count="10" />
+            <reconnection >
+                <reconnect-forever />
             </reconnection>
         </sftp:connection>
     </sftp:config>
 
     <flow name="sftp-poll-flow">
-        <sftp:listener config-ref="sftp-config" directory="/app" watermarkEnabled="false">
+        <sftp:listener config-ref="sftp-config" directory="/app" watermarkEnabled="false" >
             <ee:repeatable-file-store-stream inMemorySize="1000" />
             <scheduling-strategy>
                 <fixed-frequency frequency="500" />
@@ -57,7 +58,7 @@
             <set-payload value="#[output application/json --- payload]"/>
 
             <error-handler>
-                <on-error-continue type="OS:KEY_NOT_FOUND">
+                <on-error-continue>
                     <set-payload value="#[output application/json --- {}]"/>
                 </on-error-continue>
             </error-handler>
@@ -67,9 +68,9 @@
     <flow name="write-file-to-sftp">
         <http:listener config-ref="localListenerConfig" path="/sftp/files/{fileName}" allowedMethods="POST" />
 
-        <logger level="DEBUG" message="WRITING SFTP FILE!!!" />
-        <logger level="DEBUG" message="#[payload]" />
-        <sftp:write path="#['/app/' ++ attributes.uriParams.fileName ++ '.json']" config-ref="sftp-config">
+        <logger level="INFO" message="WRITING SFTP FILE!!!" />
+        <logger level="INFO" message="#[payload]" />
+        <sftp:write path="#[attributes.uriParams.fileName ++ '.json']" config-ref="sftp-config">
             <sftp:content>#[payload]</sftp:content>
         </sftp:write>
     </flow>

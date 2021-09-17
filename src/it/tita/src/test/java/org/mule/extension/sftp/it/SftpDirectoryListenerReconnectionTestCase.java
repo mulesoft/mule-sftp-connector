@@ -4,10 +4,10 @@
  * license, a copy of which has been included with this distribution in the
  * LICENSE.txt file.
  */
-package org.mule.extension.sftp;
+package it.tita.src.test.java.org.mule.extension.sftp.it;
 
-import static org.mule.extension.sftp.internal.lifecycle.SftpServerContainerLifecycleManger.startServerContainer;
-import static org.mule.extension.sftp.internal.lifecycle.SftpServerContainerLifecycleManger.stopServerContainer;
+import static it.tita.src.test.java.org.mule.extension.sftp.it.SftpServerContainerLifecycleManger.startServerContainer;
+import static it.tita.src.test.java.org.mule.extension.sftp.it.SftpServerContainerLifecycleManger.stopServerContainer;
 import static com.mulesoft.anypoint.tita.environment.api.artifact.Identifier.identifier;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.StringContains.containsString;
@@ -26,15 +26,17 @@ import com.mulesoft.anypoint.tita.runner.ambar.annotation.Application;
 import com.mulesoft.anypoint.tita.runner.ambar.annotation.runtime.Standalone;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.apache.maven.model.Dependency;
 
 import static org.mule.tck.probe.PollingProber.probe;
 
 @RunWith(Ambar.class)
 public class SftpDirectoryListenerReconnectionTestCase {
 
-  private static final Identifier api = identifier("api1");
+  private static final Identifier api1 = identifier("api1");
   private static final Identifier api2 = identifier("api2");
+  private static final Identifier api3 = identifier("api3");
+  private static final Identifier api4 = identifier("api4");
+  private static final Identifier api5 = identifier("api5");
   private static final Identifier port = identifier("port");
   private static final String PAYLOAD = "{\"Angel\":\"Aziraphale\"}";
   private static final String PAYLOAD2 = "{\"Demon\":\"Crowley\"}";
@@ -46,73 +48,55 @@ public class SftpDirectoryListenerReconnectionTestCase {
   private static final int POLLING_PROBER_DELAY_MILLIS = 1000;
   private static final int TIME_SLEEP_MILLIS = 5000;
 
-  @Standalone
+  @Standalone(log4j = "log4j2-test.xml")
   Runtime runtime;
 
   @Application
   public static ApplicationBuilder app(ApplicationSelector runtimeBuilder) {
     return runtimeBuilder
         .custom("sftp-reconnection-app", "sftp-reconnection-app.xml")
-        .withDependency(sftpConnectorDependency())
-        .withDependency(osConnectorDependency())
-        .withProperty("sftp.port", System.getProperty("sftp.listener.port"))
-        .withApi(api, port)
-        .withApi(api2, port);
+        .withTemplatePomFile("test-pom.xml")
+        .withProperty("sftp.listener.port", System.getenv("sftp.listener.port") == null ? "2222" : System.getenv("sftp.listener.port"))
+        .withApi(api1, port)
+        .withApi(api2, port)
+        .withApi(api3, port);
   }
 
   @Test
   public void sftpReconnectionTestCase() throws Exception {
-    runtime.api(api).request(FILES_ENDPOINT + "/angel-file").withPayload(PAYLOAD)
-        .withHeader(CONTENT_TYPE, CONTENT_TYPE_HEADER_VALUE)
-        .post();
-    runtime.api(api).request(FILES_ENDPOINT + "/demon-file").withPayload(PAYLOAD2)
-        .withHeader(CONTENT_TYPE, CONTENT_TYPE_HEADER_VALUE)
-        .post();
+    // Create test files
+    runtime.api(api2).request(FILES_ENDPOINT + "/angel-file").withPayload(PAYLOAD)
+            .withHeader(CONTENT_TYPE, CONTENT_TYPE_HEADER_VALUE)
+            .post();
+    runtime.api(api2).request(FILES_ENDPOINT + "/demon-file").withPayload(PAYLOAD2)
+            .withHeader(CONTENT_TYPE, CONTENT_TYPE_HEADER_VALUE)
+            .post();
 
-    probe(POLLING_PROBER_TIMEOUT_MILLIS, POLLING_PROBER_DELAY_MILLIS, () -> {
-      return getFileAndAssertContent(FILES_ENDPOINT + "/angel-file", "Aziraphale")
-          && getFileAndAssertContent(FILES_ENDPOINT + "/demon-file", "Crowley");
-    });
+      // Poll files
+      probe(POLLING_PROBER_TIMEOUT_MILLIS, POLLING_PROBER_DELAY_MILLIS, () -> {
+        return getFileAndAssertContent(FILES_ENDPOINT + "/angel-file", "Aziraphale")
+                && getFileAndAssertContent(FILES_ENDPOINT + "/demon-file", "Crowley");
+      });
 
-    String containerId = stopServerContainer(CONTAINER_NAME, 0);
-    runtime.api(api).request(CLEAR_OS_ENDPOINT).put();
-    startServerContainer(containerId);
+      // Stop sftp server, clear os, re-start sftp server
+      String containerId = stopServerContainer(CONTAINER_NAME, 0);
+      runtime.api(api3).request(CLEAR_OS_ENDPOINT).put();
+      startServerContainer(containerId);
 
-    Thread.sleep(TIME_SLEEP_MILLIS);
+      Thread.sleep(TIME_SLEEP_MILLIS);
 
-    probe(POLLING_PROBER_TIMEOUT_MILLIS, POLLING_PROBER_DELAY_MILLIS, () -> {
-      return getFileAndAssertContent(FILES_ENDPOINT + "/angel-file", "Aziraphale")
-          && getFileAndAssertContent(FILES_ENDPOINT + "/demon-file", "Crowley");
-    });
+      // Poll files again
+      probe(POLLING_PROBER_TIMEOUT_MILLIS, POLLING_PROBER_DELAY_MILLIS, () -> {
+        return getFileAndAssertContent(FILES_ENDPOINT + "/angel-file", "Aziraphale")
+                && getFileAndAssertContent(FILES_ENDPOINT + "/demon-file", "Crowley");
+      });
   }
 
   private boolean getFileAndAssertContent(String endpoint, String fileContent) throws AssertionError {
-    HttpResponse responseApi = runtime.api(api).request(endpoint).get();
+    HttpResponse responseApi = runtime.api(api1).request(endpoint).get();
     assertThat(responseApi.statusCode(), is(SC_OK));
     assertThat(responseApi.asString(), containsString(fileContent));
     return true;
   }
-
-
-  private static Dependency sftpConnectorDependency() {
-    Dependency sftpConnector = new Dependency();
-    sftpConnector.setGroupId("org.mule.connectors");
-    sftpConnector.setArtifactId("mule-sftp-connector");
-    sftpConnector.setVersion("1.3.9");
-    sftpConnector.setClassifier("mule-plugin");
-
-    return sftpConnector;
-  }
-
-  private static Dependency osConnectorDependency() {
-    Dependency osConnector = new Dependency();
-    osConnector.setGroupId("org.mule.connectors");
-    osConnector.setArtifactId("mule-objectstore-connector");
-    osConnector.setVersion("1.1.5");
-    osConnector.setClassifier("mule-plugin");
-
-    return osConnector;
-  }
-
 
 }
