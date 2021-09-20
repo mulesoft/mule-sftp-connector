@@ -67,10 +67,14 @@ public abstract class AbstractSftpCopyDelegate implements SftpCopyDelegate {
     try {
       if (source.isDirectory()) {
         copyDirectory(config, URI.create(source.getPath()), targetUri, overwrite, writerConnection);
-        LOGGER.trace("Copied directory {} to {}", source.getPath(), targetUri);
+        if (LOGGER.isTraceEnabled()) {
+          LOGGER.trace("Copied directory {} to {}", source.getPath(), targetUri);
+        }
       } else {
         copyFile(config, source, targetUri, overwrite, writerConnection);
-        LOGGER.trace("Copied file {} to {}", source.getPath(), targetUri);
+        if (LOGGER.isTraceEnabled()) {
+          LOGGER.trace("Copied file {} to {}", source.getPath(), targetUri);
+        }
       }
     } catch (ModuleException e) {
       throw e;
