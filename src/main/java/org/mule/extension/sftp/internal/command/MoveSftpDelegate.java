@@ -30,6 +30,7 @@ public class MoveSftpDelegate implements SftpCopyDelegate {
 
   @Override
   public void doCopy(FileConnectorConfig config, FileAttributes source, URI targetUri, boolean overwrite) {
+    String path = source.getPath();
     try {
       if (command.exists(targetUri)) {
         if (overwrite) {
@@ -39,14 +40,14 @@ public class MoveSftpDelegate implements SftpCopyDelegate {
         }
       }
 
-      command.rename(source.getPath(), targetUri.getPath(), overwrite);
+      command.rename(path, targetUri.getPath(), overwrite);
       if (LOGGER.isTraceEnabled()) {
-        LOGGER.trace("Moved file {} to {}", source.getPath(), targetUri.getPath());
+        LOGGER.trace("Moved file {} to {}", path, targetUri.getPath());
       }
     } catch (ModuleException e) {
       throw e;
     } catch (Exception e) {
-      throw command.exception(format("Found exception copying file '%s' to '%s'", source.getPath(), targetUri.getPath()), e);
+      throw command.exception(format("Found exception copying file '%s' to '%s'", path, targetUri.getPath()), e);
     }
   }
 }

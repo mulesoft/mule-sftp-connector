@@ -54,6 +54,7 @@ public abstract class AbstractSftpCopyDelegate implements SftpCopyDelegate {
    */
   @Override
   public void doCopy(FileConnectorConfig config, FileAttributes source, URI targetUri, boolean overwrite) {
+    String path = source.getPath();
     ConnectionHandler<SftpFileSystem> writerConnectionHandler;
     final SftpFileSystem writerConnection;
     try {
@@ -62,18 +63,18 @@ public abstract class AbstractSftpCopyDelegate implements SftpCopyDelegate {
     } catch (ConnectionException e) {
       throw command
           .exception(format("FTP Copy operations require the use of two FTP connections. An exception was found trying to obtain second connection to"
-              + "copy the path '%s' to '%s'", source.getPath(), targetUri.getPath()), e);
+              + "copy the path '%s' to '%s'", path, targetUri.getPath()), e);
     }
     try {
       if (source.isDirectory()) {
-        copyDirectory(config, URI.create(source.getPath()), targetUri, overwrite, writerConnection);
+        copyDirectory(config, URI.create(path), targetUri, overwrite, writerConnection);
         if (LOGGER.isTraceEnabled()) {
-          LOGGER.trace("Copied directory {} to {}", source.getPath(), targetUri);
+          LOGGER.trace("Copied directory {} to {}", path, targetUri);
         }
       } else {
         copyFile(config, source, targetUri, overwrite, writerConnection);
         if (LOGGER.isTraceEnabled()) {
-          LOGGER.trace("Copied file {} to {}", source.getPath(), targetUri);
+          LOGGER.trace("Copied file {} to {}", path, targetUri);
         }
       }
     } catch (ModuleException e) {

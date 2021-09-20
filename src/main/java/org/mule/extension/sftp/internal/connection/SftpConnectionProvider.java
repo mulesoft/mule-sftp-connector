@@ -249,7 +249,7 @@ public class SftpConnectionProvider extends FileSystemProvider<SftpFileSystem>
    */
   private void handleJSchException(JSchException e) throws ConnectionException {
     String message = e.getMessage();
-    LOGGER.error(e.getMessage(), e);
+    LOGGER.error(message, e);
     if (message.equals(AUTH_FAIL_MESSAGE)) {
       throw new SftpConnectionException(getErrorMessage(connectionSettings,
                                                         format("Error during login to %s@%s", connectionSettings.getUsername(),

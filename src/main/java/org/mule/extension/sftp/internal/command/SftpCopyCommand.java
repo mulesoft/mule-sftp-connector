@@ -55,16 +55,17 @@ public class SftpCopyCommand extends SftpCommand implements CopyCommand {
     protected void copyDirectory(FileConnectorConfig config, URI sourceUri, URI target, boolean overwrite,
                                  SftpFileSystem writerConnection) {
       for (FileAttributes fileAttributes : client.list(sourceUri.getPath())) {
+        String path = fileAttributes.getPath();
         if (isVirtualDirectory(fileAttributes.getName())) {
           continue;
         }
 
         URI targetUri = createUri(target.getPath(), fileAttributes.getName());
         if (fileAttributes.isDirectory()) {
-          LOGGER.trace("Copy directory {} to {}", fileAttributes.getPath(), target);
-          copyDirectory(config, URI.create(fileAttributes.getPath()), targetUri, overwrite, writerConnection);
+          LOGGER.trace("Copy directory {} to {}", path, target);
+          copyDirectory(config, URI.create(path), targetUri, overwrite, writerConnection);
         } else {
-          LOGGER.trace("Copy file {} to {}", fileAttributes.getPath(), target);
+          LOGGER.trace("Copy file {} to {}", path, target);
           copyFile(config, fileAttributes, targetUri, overwrite, writerConnection);
         }
       }
