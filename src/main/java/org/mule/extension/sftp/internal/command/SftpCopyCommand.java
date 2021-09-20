@@ -62,10 +62,14 @@ public class SftpCopyCommand extends SftpCommand implements CopyCommand {
 
         URI targetUri = createUri(target.getPath(), fileAttributes.getName());
         if (fileAttributes.isDirectory()) {
-          LOGGER.trace("Copy directory {} to {}", path, target);
+          if (LOGGER.isTraceEnabled()) {
+            LOGGER.trace("Copy directory {} to {}", path, target);
+          }
           copyDirectory(config, URI.create(path), targetUri, overwrite, writerConnection);
         } else {
-          LOGGER.trace("Copy file {} to {}", path, target);
+          if (LOGGER.isTraceEnabled()) {
+            LOGGER.trace("Copy file {} to {}", path, target);
+          }
           copyFile(config, fileAttributes, targetUri, overwrite, writerConnection);
         }
       }

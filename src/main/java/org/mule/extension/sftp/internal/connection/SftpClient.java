@@ -116,7 +116,9 @@ public class SftpClient {
    */
   public void changeWorkingDirectory(String path) {
     String normalizedPath = normalizePath(path);
-    LOGGER.trace("Attempting to cwd to: {}", normalizedPath);
+    if (LOGGER.isTraceEnabled()) {
+      LOGGER.trace("Attempting to cwd to: {}", normalizedPath);
+    }
 
     try {
       sftp.cd(normalizedPath);
@@ -259,7 +261,9 @@ public class SftpClient {
   public void rename(String sourcePath, String target) throws IOException {
     try {
       sftp.rename(normalizePath(sourcePath), normalizePath(target));
-      LOGGER.trace("Renamed {} to {}", sourcePath, target);
+      if (LOGGER.isTraceEnabled()) {
+        LOGGER.trace("Renamed {} to {}", sourcePath, target);
+      }
     } catch (SftpException e) {
       throw exception(format("Could not rename path '%s' to '%s'", sourcePath, target), e);
     }
@@ -274,7 +278,9 @@ public class SftpClient {
 
     try {
       sftp.rm(normalizePath(path));
-      LOGGER.trace("Deleted file {}", path);
+      if (LOGGER.isTraceEnabled()) {
+        LOGGER.trace("Deleted file {}", path);
+      }
     } catch (SftpException e) {
       throw exception("Could not delete file " + path, e);
     }
@@ -292,7 +298,9 @@ public class SftpClient {
     if (session != null && session.isConnected()) {
       session.disconnect();
     }
-    LOGGER.trace("Disconnected from {}:{}", session.getHost(), session.getPort());
+    if (LOGGER.isTraceEnabled()) {
+      LOGGER.trace("Disconnected from {}:{}", session.getHost(), session.getPort());
+    }
   }
 
   /**
@@ -312,7 +320,9 @@ public class SftpClient {
     List<ChannelSftp.LsEntry> entries;
     try {
       entries = sftp.ls(normalizePath(path));
-      LOGGER.trace("Listed {} entries from path {}", entries.size(), path);
+      if (LOGGER.isTraceEnabled()) {
+        LOGGER.trace("Listed {} entries from path {}", entries.size(), path);
+      }
     } catch (SftpException e) {
       throw exception("Found exception trying to list path " + path, e);
     }
@@ -374,7 +384,9 @@ public class SftpClient {
    */
   public void mkdir(String directoryName) {
     try {
-      LOGGER.trace("Trying to create directory {}", directoryName);
+      if (LOGGER.isTraceEnabled()) {
+        LOGGER.trace("Trying to create directory {}", directoryName);
+      }
       sftp.mkdir(normalizePath(directoryName));
     } catch (SftpException e) {
       throw exception("Could not create the directory " + directoryName, e);

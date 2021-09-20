@@ -211,7 +211,9 @@ public class SftpFileSystem extends AbstractExternalFileSystem {
    */
   public ConnectionValidationResult validateConnection() {
     if (!isConnected()) {
-      LOGGER.trace("Connection validation failed.");
+      if (LOGGER.isTraceEnabled()) {
+        LOGGER.trace("Connection validation failed.");
+      }
       return failure("Connection is stale", new SftpConnectionException("Connection is stale", DISCONNECTED));
     }
     try {
