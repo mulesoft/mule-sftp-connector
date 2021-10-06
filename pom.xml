@@ -20,9 +20,9 @@
 
     <properties>
         <mule.version>4.1.2</mule.version>
-        <docker.maven.plugin.version>0.36.0</docker.maven.plugin.version>
+        <docker.maven.plugin.version>0.37.0</docker.maven.plugin.version>
         <maven.helper.plugin.version>3.2.0</maven.helper.plugin.version>
-        <commonsIoVersion>2.10.0</commonsIoVersion>
+        <commonsIoVersion>2.11.0</commonsIoVersion>
         <commonsLangVersion>3.12.0</commonsLangVersion>
         <commonsCollectionsVersion>3.2.2</commonsCollectionsVersion>
         <jschVersion>0.1.55</jschVersion>
@@ -35,7 +35,7 @@
         <munit.input.directory>src/test/munit</munit.input.directory>
         <munit.output.directory>${basedir}/target/test-mule/munit</munit.output.directory>
         <munit.extensions.maven.plugin.version>1.1.1</munit.extensions.maven.plugin.version>
-        <munit.version>2.3.4</munit.version>
+        <munit.version>2.3.6</munit.version>
         <mavenResources.version>3.2.0</mavenResources.version>
 
         <formatterConfigPath>formatter.xml</formatterConfigPath>
@@ -112,7 +112,7 @@
         <dependency>
             <groupId>org.mule.module</groupId>
             <artifactId>mule-java-module</artifactId>
-            <version>1.2.8</version>
+            <version>1.2.9</version>
             <classifier>mule-plugin</classifier>
             <scope>test</scope>
         </dependency>
@@ -305,12 +305,12 @@
                             <dependency>
                                 <groupId>org.slf4j</groupId>
                                 <artifactId>slf4j-api</artifactId>
-                                <version>1.7.31</version>
+                                <version>1.7.32</version>
                             </dependency>
                             <dependency>
                                 <groupId>org.slf4j</groupId>
                                 <artifactId>jcl-over-slf4j</artifactId>
-                                <version>1.7.31</version>
+                                <version>1.7.32</version>
                             </dependency>
                         </dependencies>
                         <executions>
