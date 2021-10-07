@@ -7,6 +7,7 @@
 package org.mule.extension.sftp.internal.source;
 
 import static java.lang.String.format;
+import static org.mule.runtime.api.i18n.I18nMessageFactory.createStaticMessage;
 import static org.mule.extension.file.common.api.FileDisplayConstants.MATCHER;
 import static org.mule.runtime.core.api.util.IOUtils.closeQuietly;
 import static org.mule.runtime.core.api.util.ExceptionUtils.extractConnectionException;
@@ -21,7 +22,7 @@ import org.mule.extension.sftp.internal.connection.SftpFileSystem;
 import org.mule.runtime.api.connection.ConnectionException;
 import org.mule.runtime.api.connection.ConnectionProvider;
 import org.mule.runtime.api.exception.MuleRuntimeException;
-import org.mule.runtime.api.i18n.I18nMessageFactory;
+import org.mule.runtime.api.i18n.I18nMessage;
 import org.mule.runtime.extension.api.annotation.Alias;
 import org.mule.runtime.extension.api.annotation.execution.OnError;
 import org.mule.runtime.extension.api.annotation.execution.OnSuccess;
@@ -304,16 +305,15 @@ public class SftpDirectoryListener extends PollingSource<InputStream, SftpFileAt
     try {
       fileSystem = fileSystemProvider.connect();
       fileSystem.changeToBaseDir();
-      return new OnNewFileCommand(fileSystem).resolveRootPath(directory);
+      URI rootPath = new OnNewFileCommand(fileSystem).resolveRootPath(directory);
+      fileSystemProvider.disconnect(fileSystem);
+      return rootPath;
     } catch (Exception e) {
-      throw new MuleRuntimeException(I18nMessageFactory.createStaticMessage(
-                                                                            format("Could not resolve path to directory '%s'. %s",
-                                                                                   directory, e.getMessage())),
-                                     e);
-    } finally {
-      if (fileSystem != null) {
-        fileSystemProvider.disconnect(fileSystem);
-      }
+      I18nMessage message = createStaticMessage(
+                                                format("Could not resolve path to directory '%s'. %s",
+                                                       directory, e.getMessage()));
+      LOGGER.error(message.getMessage(), e);
+      throw new MuleRuntimeException(message, e);
     }
   }
 }
