@@ -14,6 +14,8 @@ import org.mule.extension.file.common.api.command.CopyCommand;
 import org.mule.extension.sftp.internal.AbstractSftpCopyDelegate;
 import org.mule.extension.sftp.internal.connection.SftpClient;
 import org.mule.extension.sftp.internal.connection.SftpFileSystem;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.URI;
 
@@ -23,6 +25,8 @@ import java.net.URI;
  * @since 1.0
  */
 public class SftpCopyCommand extends SftpCommand implements CopyCommand {
+
+  private final Logger LOGGER = LoggerFactory.getLogger(SftpCopyCommand.class);
 
   /**
    * {@inheritDoc}
@@ -51,14 +55,21 @@ public class SftpCopyCommand extends SftpCommand implements CopyCommand {
     protected void copyDirectory(FileConnectorConfig config, URI sourceUri, URI target, boolean overwrite,
                                  SftpFileSystem writerConnection) {
       for (FileAttributes fileAttributes : client.list(sourceUri.getPath())) {
+        String path = fileAttributes.getPath();
         if (isVirtualDirectory(fileAttributes.getName())) {
           continue;
         }
 
         URI targetUri = createUri(target.getPath(), fileAttributes.getName());
         if (fileAttributes.isDirectory()) {
-          copyDirectory(config, URI.create(fileAttributes.getPath()), targetUri, overwrite, writerConnection);
+          if (LOGGER.isTraceEnabled()) {
+            LOGGER.trace("Copy directory {} to {}", path, target);
+          }
+          copyDirectory(config, URI.create(path), targetUri, overwrite, writerConnection);
         } else {
+          if (LOGGER.isTraceEnabled()) {
+            LOGGER.trace("Copy file {} to {}", path, target);
+          }
           copyFile(config, fileAttributes, targetUri, overwrite, writerConnection);
         }
       }
