@@ -48,7 +48,7 @@ public class SftpDirectoryListenerReconnectionTestCase {
     private static final int POLLING_PROBER_DELAY_MILLIS = 1000;
     private static final int TIME_SLEEP_MILLIS = 5000;
 
-    @Standalone(log4j = "log4j2-test.xml")
+    @Standalone(log4j = "log4j2-test.xml", testing = "4.4.0")
     Runtime runtime;
 
     @Application
