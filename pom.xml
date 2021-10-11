@@ -292,7 +292,7 @@
                                             <USER_NAME>mule</USER_NAME>
                                         </env>
                                         <ports>
-                                            <port>${sftp.listener.port}:2222</port>
+                                            <port>sftp.listener.port:2222</port>
                                         </ports>
                                         <log>
                                             <enabled>true</enabled>
