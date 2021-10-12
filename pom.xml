@@ -239,16 +239,14 @@
                 <artifactId>maven-invoker-plugin</artifactId>
                 <version>3.2.2</version>
                 <configuration>
-                    <debug>false</debug>
+                    <debug>true</debug>
                     <streamLogs>true</streamLogs>
                     <noLog>true</noLog>
                     <cloneProjectsTo>${project.build.directory}/it</cloneProjectsTo>
                     <properties>
                         <maven.settings.local>${settingsFile}</maven.settings.local>
-                    </properties>
-                    <environmentVariables>
                         <sftp.port>${sftp.listener.port}</sftp.port>
-                    </environmentVariables>
+                    </properties>
                 </configuration>
                 <executions>
                     <execution>
