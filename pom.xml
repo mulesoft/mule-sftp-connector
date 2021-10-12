@@ -245,7 +245,7 @@
                     <cloneProjectsTo>${project.build.directory}/it</cloneProjectsTo>
                     <properties>
                         <maven.settings.local>${settingsFile}</maven.settings.local>
-                        <sftp.port>${sftp.listener.port}</sftp.port>
+                        <sftp.port>sftp.listener.port</sftp.port>
                     </properties>
                 </configuration>
                 <executions>
