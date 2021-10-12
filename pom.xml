@@ -204,7 +204,7 @@
                 <executions>
                     <execution>
                         <id>reserve-network-port</id>
-                        <phase>compile</phase>
+                        <phase>generate-test-resources</phase>
                         <goals>
                             <goal>reserve-network-port</goal>
                         </goals>
@@ -254,8 +254,7 @@
                 <executions>
                     <execution>
                         <id>tita-test</id>
-                        <!--use test phase because that's when maven surefire plugin resolves properties-->
-                        <phase>install</phase>
+                        <phase>integration-test</phase>
                         <goals>
                             <goal>run</goal>
                         </goals>
@@ -317,7 +316,7 @@
                         <executions>
                             <execution>
                                 <id>start</id>
-                                <phase>test-compile</phase>
+                                <phase>generate-test-resources</phase>
                                 <goals>
                                     <goal>stop</goal>
                                     <goal>build</goal>
