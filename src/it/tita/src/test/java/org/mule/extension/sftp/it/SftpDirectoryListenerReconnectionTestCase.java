@@ -23,6 +23,7 @@ import com.mulesoft.anypoint.tita.environment.api.artifact.Identifier;
 import com.mulesoft.anypoint.tita.environment.api.runtime.Runtime;
 import com.mulesoft.anypoint.tita.runner.ambar.Ambar;
 import com.mulesoft.anypoint.tita.runner.ambar.annotation.Application;
+import com.mulesoft.anypoint.tita.runner.ambar.annotation.TestTarget;
 import com.mulesoft.anypoint.tita.runner.ambar.annotation.runtime.Standalone;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -51,6 +52,7 @@ public class SftpDirectoryListenerReconnectionTestCase {
     @Standalone(log4j = "log4j2-test.xml", testing = "4.4.0")
     Runtime runtime;
 
+    @TestTarget
     @Application
     public static ApplicationBuilder app(ApplicationSelector runtimeBuilder) {
         return runtimeBuilder
