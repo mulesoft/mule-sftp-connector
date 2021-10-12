@@ -210,7 +210,7 @@
                         </goals>
                         <configuration>
                             <portNames>
-                                <portName>sftp.listener.port</portName>
+                                <portName>${sftp.listener.port}</portName>
                             </portNames>
                         </configuration>
                     </execution>
@@ -247,8 +247,7 @@
                         <maven.settings.local>${settingsFile}</maven.settings.local>
                     </properties>
                     <environmentVariables>
-                        <sftp.listener.port>${sftp.listener.port}</sftp.listener.port>
-                        <mqtt3-connector-version>${project.version}</mqtt3-connector-version>
+                        <sftp.port>sftp.listener.port</sftp.port>
                     </environmentVariables>
                 </configuration>
                 <executions>
@@ -291,7 +290,7 @@
                                             <USER_NAME>mule</USER_NAME>
                                         </env>
                                         <ports>
-                                            <port>sftp.listener.port:2222</port>
+                                            <port>${sftp.listener.port}:2222</port>
                                         </ports>
                                         <log>
                                             <enabled>true</enabled>
@@ -318,7 +317,6 @@
                                 <id>start</id>
                                 <phase>generate-test-resources</phase>
                                 <goals>
-                                    <goal>stop</goal>
                                     <goal>build</goal>
                                     <goal>start</goal>
                                 </goals>
@@ -329,7 +327,7 @@
                             </execution>
                             <execution>
                                 <id>stop</id>
-                                <phase>clean</phase>
+                                <phase>post-integration-test</phase>
                                 <goals>
                                     <goal>stop</goal>
                                     <goal>remove</goal>
