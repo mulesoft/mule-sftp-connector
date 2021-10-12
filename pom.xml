@@ -210,7 +210,7 @@
                         </goals>
                         <configuration>
                             <portNames>
-                                <portName>${sftp.listener.port}</portName>
+                                <portName>sftp.listener.port</portName>
                             </portNames>
                         </configuration>
                     </execution>
@@ -247,7 +247,7 @@
                         <maven.settings.local>${settingsFile}</maven.settings.local>
                     </properties>
                     <environmentVariables>
-                        <sftp.port>sftp.listener.port</sftp.port>
+                        <sftp.port>${sftp.listener.port}</sftp.port>
                     </environmentVariables>
                 </configuration>
                 <executions>
