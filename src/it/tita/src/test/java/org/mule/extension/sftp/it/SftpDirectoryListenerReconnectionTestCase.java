@@ -58,7 +58,7 @@ public class SftpDirectoryListenerReconnectionTestCase {
         return runtimeBuilder
                 .custom("sftp-reconnection-app", "sftp-reconnection-app.xml")
                 .withTemplatePomFile("sftp-pom.xml")
-                .withProperty("sftp.port", System.getProperty("sftp.port","2222"))
+                .withProperty("sftp.listener.port", System.getProperty("sftp.listener.port","2222"))
                 .withApi(api1, port)
                 .withApi(api2, port)
                 .withApi(api3, port);
