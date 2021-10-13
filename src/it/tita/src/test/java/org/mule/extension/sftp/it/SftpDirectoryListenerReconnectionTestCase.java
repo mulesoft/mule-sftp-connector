@@ -23,6 +23,7 @@ import com.mulesoft.anypoint.tita.environment.api.artifact.Identifier;
 import com.mulesoft.anypoint.tita.environment.api.runtime.Runtime;
 import com.mulesoft.anypoint.tita.runner.ambar.Ambar;
 import com.mulesoft.anypoint.tita.runner.ambar.annotation.Application;
+import com.mulesoft.anypoint.tita.runner.ambar.annotation.TestTarget;
 import com.mulesoft.anypoint.tita.runner.ambar.annotation.runtime.Standalone;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -48,15 +49,16 @@ public class SftpDirectoryListenerReconnectionTestCase {
     private static final int POLLING_PROBER_DELAY_MILLIS = 1000;
     private static final int TIME_SLEEP_MILLIS = 5000;
 
-    @Standalone(log4j = "log4j2-test.xml")
+    @Standalone(log4j = "log4j2-test.xml", testing = "4.4.0")
     Runtime runtime;
 
+    @TestTarget
     @Application
     public static ApplicationBuilder app(ApplicationSelector runtimeBuilder) {
         return runtimeBuilder
                 .custom("sftp-reconnection-app", "sftp-reconnection-app.xml")
                 .withTemplatePomFile("sftp-pom.xml")
-                .withProperty("sftp.listener.port", System.getenv("sftp.listener.port") == null ? "2222" : System.getenv("sftp.listener.port"))
+                .withProperty("sftp.listener.port", System.getProperty("sftp.listener.port","2222"))
                 .withApi(api1, port)
                 .withApi(api2, port)
                 .withApi(api3, port);
