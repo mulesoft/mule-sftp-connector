@@ -203,7 +203,7 @@
                 <executions>
                     <execution>
                         <id>reserve-network-port</id>
-                        <phase>compile</phase>
+                        <phase>generate-test-resources</phase>
                         <goals>
                             <goal>reserve-network-port</goal>
                         </goals>
@@ -238,23 +238,19 @@
                 <artifactId>maven-invoker-plugin</artifactId>
                 <version>3.2.2</version>
                 <configuration>
-                    <debug>false</debug>
+                    <debug>true</debug>
                     <streamLogs>true</streamLogs>
                     <noLog>true</noLog>
                     <cloneProjectsTo>${project.build.directory}/it</cloneProjectsTo>
                     <properties>
                         <maven.settings.local>${settingsFile}</maven.settings.local>
-                    </properties>
-                    <environmentVariables>
                         <sftp.listener.port>${sftp.listener.port}</sftp.listener.port>
-                        <mqtt3-connector-version>${project.version}</mqtt3-connector-version>
-                    </environmentVariables>
+                    </properties>
                 </configuration>
                 <executions>
                     <execution>
                         <id>tita-test</id>
-                        <!--use test phase because that's when maven surefire plugin resolves properties-->
-                        <phase>install</phase>
+                        <phase>integration-test</phase>
                         <goals>
                             <goal>run</goal>
                         </goals>
@@ -291,7 +287,7 @@
                                             <USER_NAME>mule</USER_NAME>
                                         </env>
                                         <ports>
-                                            <port>${sftp.listener.port}:2222</port>
+                                            <port>sftp.listener.port:2222</port>
                                         </ports>
                                         <log>
                                             <enabled>true</enabled>
@@ -316,9 +312,8 @@
                         <executions>
                             <execution>
                                 <id>start</id>
-                                <phase>test-compile</phase>
+                                <phase>generate-test-resources</phase>
                                 <goals>
-                                    <goal>stop</goal>
                                     <goal>build</goal>
                                     <goal>start</goal>
                                 </goals>
