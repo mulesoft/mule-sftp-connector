@@ -21,7 +21,7 @@ public class MoveSftpDelegate implements SftpCopyDelegate {
 
   private SftpCommand command;
   private SftpFileSystem fileSystem;
-  private Logger LOGGER = LoggerFactory.getLogger(MoveSftpDelegate.class);
+  private final Logger LOGGER = LoggerFactory.getLogger(MoveSftpDelegate.class);
 
   public MoveSftpDelegate(SftpCommand command, SftpFileSystem fileSystem) {
     this.command = command;
@@ -45,9 +45,11 @@ public class MoveSftpDelegate implements SftpCopyDelegate {
         LOGGER.trace("Moved file {} to {}", path, targetUri.getPath());
       }
     } catch (ModuleException e) {
+      LOGGER.error("Error trying to move file {} to {}", path, targetUri.getPath(), e);
       throw e;
     } catch (Exception e) {
-      throw command.exception(format("Found exception copying file '%s' to '%s'", path, targetUri.getPath()), e);
+      LOGGER.error("Error trying to move file {} to {}", path, targetUri.getPath(), e);
+      throw command.exception(format("Found exception moving file '%s' to '%s'", path, targetUri.getPath()), e);
     }
   }
 }

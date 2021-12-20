@@ -140,6 +140,7 @@ public abstract class SftpCommand extends ExternalFileCommand<SftpFileSystem> {
       client.changeWorkingDirectory(normalizePath(path));
       return true;
     } catch (Exception e) {
+      LOGGER.error("Error trying to change working directory to {}", path, e);
       return false;
     }
   }

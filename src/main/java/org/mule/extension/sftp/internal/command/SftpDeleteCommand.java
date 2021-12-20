@@ -43,10 +43,15 @@ public final class SftpDeleteCommand extends SftpCommand implements DeleteComman
     final boolean isDirectory = fileAttributes.isDirectory();
     final String path = fileAttributes.getPath();
 
-    if (isDirectory) {
-      deleteDirectory(path);
-    } else {
-      deleteFile(path);
+    try {
+      if (isDirectory) {
+        deleteDirectory(path);
+      } else {
+        deleteFile(path);
+      }
+    } catch (Exception e) {
+      LOGGER.error("Error deleting {}", path, e);
+      throw e;
     }
   }
 
