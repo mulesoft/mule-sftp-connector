@@ -78,6 +78,7 @@ public final class SftpWriteCommand extends SftpCommand implements WriteCommand 
       client.write(uri.getPath(), content, mode);
       LOGGER.debug("Successfully wrote to path {}", uri.getPath());
     } catch (Exception e) {
+      LOGGER.error("Error writing to file {}", filePath, e);
       if (e.getCause() instanceof DeletedFileWhileReadException) {
         throw new ModuleException(e.getCause().getMessage(), FileError.FILE_DOESNT_EXIST, e.getCause());
       }

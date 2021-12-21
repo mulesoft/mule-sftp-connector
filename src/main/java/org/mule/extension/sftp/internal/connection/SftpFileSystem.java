@@ -219,7 +219,7 @@ public class SftpFileSystem extends AbstractExternalFileSystem {
     try {
       changeToBaseDir();
     } catch (Exception e) {
-      LOGGER.error("Error occurred while changing to base directory {}", e);
+      LOGGER.error("Error occurred while changing to base directory {}", getBasePath(), e);
       return failure("Configured workingDir is unavailable", e);
     }
     return success();

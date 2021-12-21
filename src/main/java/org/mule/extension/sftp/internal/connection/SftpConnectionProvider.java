@@ -140,8 +140,10 @@ public class SftpConnectionProvider extends FileSystemProvider<SftpFileSystem>
     try {
       client.login(connectionSettings.getUsername());
     } catch (JSchException e) {
+      LOGGER.error(e.getMessage(), e);
       handleJSchException(e);
     } catch (Exception e) {
+      LOGGER.error(e.getMessage(), e);
       throw new ConnectionException(getErrorMessage(connectionSettings, e.getMessage()), e);
     }
 
