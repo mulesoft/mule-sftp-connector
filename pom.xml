@@ -247,6 +247,7 @@
                         <maven.settings.local>${settingsFile}</maven.settings.local>
                         <sftp.listener.port>${sftp.listener.port}</sftp.listener.port>
                     </properties>
+                    <skipInvocation>${skipITs}</skipInvocation>
                 </configuration>
                 <executions>
                     <execution>
