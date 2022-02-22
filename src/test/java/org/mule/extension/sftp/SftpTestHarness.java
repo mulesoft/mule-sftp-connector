@@ -35,9 +35,10 @@ import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URI;
+import java.nio.file.Paths;
+import java.security.GeneralSecurityException;
 import java.util.List;
 
-import com.jcraft.jsch.JSchException;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.sshd.server.config.keys.AuthorizedKeysAuthenticator;
@@ -77,7 +78,7 @@ public class SftpTestHarness extends AbstractSftpTestHarness {
       case PUBLIC_KEY:
         clientAuthConfigurator = (sftpClient -> sftpClient.setIdentity(resolvePathOrResource("sftp-test-key"), null));
         serverAuthConfigurator = (sftpServer -> sftpServer
-            .setPublicKeyAuthenticator(new AuthorizedKeysAuthenticator(new File(resolvePathOrResource("sftp-test-key.pub")))));
+            .setPublicKeyAuthenticator(new AuthorizedKeysAuthenticator(Paths.get(resolvePathOrResource("sftp-test-key.pub")))));
     }
   }
 
@@ -113,7 +114,7 @@ public class SftpTestHarness extends AbstractSftpTestHarness {
     }
   }
 
-  private SftpClient createDefaultSftpClient() throws IOException, JSchException {
+  private SftpClient createDefaultSftpClient() throws IOException, GeneralSecurityException {
     SftpClient sftpClient = new SftpClientFactory().createInstance("localhost", sftpPort.getNumber(), SHA1PRNG);
     clientAuthConfigurator.configure(sftpClient);
     sftpClient.login(USERNAME);

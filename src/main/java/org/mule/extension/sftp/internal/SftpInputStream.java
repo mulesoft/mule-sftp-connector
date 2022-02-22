@@ -6,6 +6,8 @@
  */
 package org.mule.extension.sftp.internal;
 
+import org.apache.sshd.sftp.common.SftpConstants;
+import org.apache.sshd.sftp.common.SftpException;
 import org.mule.extension.file.common.api.AbstractConnectedFileInputStreamSupplier;
 import org.mule.extension.file.common.api.FileAttributes;
 import org.mule.extension.file.common.api.lock.UriLock;
@@ -19,10 +21,6 @@ import org.mule.runtime.core.api.connector.ConnectionManager;
 
 import java.io.IOException;
 import java.io.InputStream;
-
-import com.jcraft.jsch.SftpException;
-
-import static com.jcraft.jsch.ChannelSftp.SSH_FX_NO_SUCH_FILE;
 
 /**
  * Implementation of {@link AbstractNonFinalizableFileInputStream} for SFTP connections
@@ -114,7 +112,7 @@ public class SftpInputStream extends AbstractNonFinalizableFileInputStream {
     @Override
     protected boolean fileWasDeleted(MuleRuntimeException e) {
       if (e.getCause() instanceof SftpException) {
-        return ((SftpException) e.getCause()).id == SSH_FX_NO_SUCH_FILE;
+        return ((SftpException) e.getCause()).getStatus() == SftpConstants.SSH_FX_NO_SUCH_FILE;
       }
       return false;
     }

@@ -26,7 +26,6 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import io.qameta.allure.Description;
 import io.qameta.allure.Feature;
-import org.apache.logging.log4j.util.Strings;
 import org.junit.Test;
 
 @Feature(SFTP_EXTENSION)

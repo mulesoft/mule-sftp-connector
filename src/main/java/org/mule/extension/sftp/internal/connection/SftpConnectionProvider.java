@@ -37,8 +37,6 @@ import org.mule.runtime.extension.api.annotation.param.display.Path;
 import org.mule.runtime.extension.api.annotation.param.display.Summary;
 import org.mule.sdk.api.annotation.semantics.connectivity.ExcludeFromConnectivitySchema;
 
-import com.jcraft.jsch.JSchException;
-
 import java.net.ConnectException;
 import java.net.UnknownHostException;
 import java.util.Objects;
@@ -139,9 +137,9 @@ public class SftpConnectionProvider extends FileSystemProvider<SftpFileSystem>
     client.setProxyConfig(proxyConfig);
     try {
       client.login(connectionSettings.getUsername());
-    } catch (JSchException e) {
-      LOGGER.error(e.getMessage(), e);
-      handleJSchException(e);
+      // } catch (JSchException e) {
+      // LOGGER.error(e.getMessage(), e);
+      // handleJSchException(e);
     } catch (Exception e) {
       LOGGER.error(e.getMessage(), e);
       throw new ConnectionException(getErrorMessage(connectionSettings, e.getMessage()), e);
@@ -244,13 +242,13 @@ public class SftpConnectionProvider extends FileSystemProvider<SftpFileSystem>
     timeoutSettings.setResponseTimeoutUnit(responseTimeoutUnit);
   }
 
-  /**
-   * Handles a {@link JSchException}, introspects their cause or message to return a {@link ConnectionException} indicating with a
+  /*
+   * Handles a { @ link JSchException}, introspects their cause or message to return a {@link ConnectionException} indicating with a
    * {@link FileError} the kind of failure.
    *
    * @param e The exception to handle
    * @throws ConnectionException Indicating the kind of failure
-   */
+   *
   private void handleJSchException(JSchException e) throws ConnectionException {
     String message = e.getMessage();
     LOGGER.error(message, e);
@@ -274,6 +272,7 @@ public class SftpConnectionProvider extends FileSystemProvider<SftpFileSystem>
     }
     throw new ConnectionException(getErrorMessage(connectionSettings, e.getMessage()), e);
   }
+   */
 
   private String getErrorMessage(SftpConnectionSettings connectionSettings, String message) {
     return format(SFTP_ERROR_MESSAGE_MASK, connectionSettings.getHost(), connectionSettings.getPort(), message);
