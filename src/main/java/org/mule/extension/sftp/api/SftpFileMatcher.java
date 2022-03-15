@@ -85,6 +85,11 @@ public class SftpFileMatcher extends FileMatcher<SftpFileMatcher, SftpFileAttrib
   @Optional(defaultValue = "MILLISECONDS")
   private TimeUnit timeUnit;
 
+  public SftpFileMatcher() {
+    setCaseSensitive(true);
+    setFileSeparator("/");
+  }
+
   @Override
   protected Predicate<SftpFileAttributes> addConditions(Predicate<SftpFileAttributes> predicate) {
     if (timestampSince != null) {
