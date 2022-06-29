@@ -55,13 +55,13 @@
             <set-variable variableName="fileContent" value="File content"/>
         </munit:behavior>
         <munit:execution>
-            <foreach collection="#[1 to vars.amountOfFiles]">
+            <parallel-foreach  collection="#[1 to vars.amountOfFiles]">
                 <sftp:write config-ref="config" path="#[payload ++ '.txt']">
                     <sftp:content>#[vars.fileContent]</sftp:content>
                 </sftp:write>
                 <logger level="DEBUG" message="Waiting 100 milliseconds before writing the next file"/>
                 <munit-tools:sleep time="100"/>
-            </foreach>
+            </parallel-foreach >
         </munit:execution>
         <munit:validation>
             <until-successful maxRetries="50" millisBetweenRetries="1000">
