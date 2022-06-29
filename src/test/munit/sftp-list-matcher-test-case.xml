@@ -138,6 +138,33 @@
         </munit:execution>
     </munit:test>
 
+    <munit:test name="fileNoListedCaseSensitive"
+                description="File no listed because the matcher is case sensitive and configured *.TXT">
+        <munit:enable-flow-sources>
+            <munit:enable-flow-source value="list-filtering-txt-case-sensitive"/>
+        </munit:enable-flow-sources>
+        <munit:behavior>
+            <set-variable variableName="listFlowName" value="list-filtering-txt-case-sensitive"/>
+        </munit:behavior>
+        <munit:execution>
+            <flow-ref name="check-no-file-is-listed-over-time"/>
+        </munit:execution>
+    </munit:test>
+
+    <munit:test name="fileListedCaseInsensitive"
+                description="File no listed because the matcher is case sensitive and configured *.TXT">
+        <munit:enable-flow-sources>
+            <munit:enable-flow-source value="list-filtering-txt-case-insensitive"/>
+        </munit:enable-flow-sources>
+        <munit:behavior>
+            <set-variable variableName="listFlowName" value="list-filtering-txt-case-insensitive"/>
+        </munit:behavior>
+        <munit:execution>
+            <flow-ref name="check-until-one-file-is-listed"/>
+            <flow-ref name="check-file-is-always-listed"/>
+        </munit:execution>
+    </munit:test>
+
     <flow name="list-filtering-updated-recently">
         <sftp:list config-ref="config" directoryPath=".">
             <sftp:matcher notUpdatedInTheLast="3" timeUnit="SECONDS"/>
@@ -153,6 +180,18 @@
     <flow name="list-filtering-updated-recently-or-too-old">
         <sftp:list config-ref="config" directoryPath=".">
             <sftp:matcher updatedInTheLast="10" notUpdatedInTheLast="3" timeUnit="SECONDS"/>
+        </sftp:list>
+    </flow>
+
+    <flow name="list-filtering-txt-case-sensitive">
+        <sftp:list config-ref="config" directoryPath=".">
+            <sftp:matcher filenamePattern="*.TXT"/>
+        </sftp:list>
+    </flow>
+
+    <flow name="list-filtering-txt-case-insensitive">
+        <sftp:list config-ref="config" directoryPath=".">
+            <sftp:matcher filenamePattern="*.TXT"  caseSensitive="false"/>
         </sftp:list>
     </flow>
 
@@ -213,5 +252,5 @@
     <flow name="assert-file-was-not-listed">
         <munit-tools:assert-that expression="#[sizeOf(payload)]" is="#[MunitTools::equalTo(0)]"/>
     </flow>
-    
+
 </mule>

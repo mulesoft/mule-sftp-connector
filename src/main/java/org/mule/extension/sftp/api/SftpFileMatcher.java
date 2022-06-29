@@ -10,6 +10,7 @@ import static java.lang.String.format;
 import static java.time.LocalDateTime.now;
 import static org.slf4j.LoggerFactory.getLogger;
 
+import org.mule.extension.file.common.api.PredicateType;
 import org.mule.runtime.extension.api.annotation.Alias;
 import org.mule.runtime.extension.api.annotation.dsl.xml.TypeDsl;
 import org.mule.runtime.extension.api.annotation.param.Parameter;
@@ -85,8 +86,18 @@ public class SftpFileMatcher extends FileMatcher<SftpFileMatcher, SftpFileAttrib
   @Optional(defaultValue = "MILLISECONDS")
   private TimeUnit timeUnit;
 
+  /**
+   * Enables you to configure an external file system matcher as case sensitive or insensitive.
+   */
+  @Parameter
+  @Optional(defaultValue = "true")
+  private boolean caseSensitive;
+
   @Override
   protected Predicate<SftpFileAttributes> addConditions(Predicate<SftpFileAttributes> predicate) {
+    setPredicateType(PredicateType.EXTERNAL_FILE_SYSTEM);
+    setCaseSensitive(caseSensitive);
+
     if (timestampSince != null) {
       predicate = predicate.and(attributes -> attributes.getTimestamp() == null
           || FILE_TIME_SINCE.apply(timestampSince, attributes.getTimestamp()));
@@ -181,5 +192,9 @@ public class SftpFileMatcher extends FileMatcher<SftpFileMatcher, SftpFileAttrib
 
   public Long getNotUpdatedInTheLast() {
     return notUpdatedInTheLast;
+  }
+
+  public boolean isCaseSensitive() {
+    return this.caseSensitive;
   }
 }
