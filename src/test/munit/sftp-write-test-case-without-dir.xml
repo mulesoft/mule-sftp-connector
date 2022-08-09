@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:munit="http://www.mulesoft.org/schema/mule/munit"
+      xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools"
+      xmlns="http://www.mulesoft.org/schema/mule/core"
+      xmlns:sftp="http://www.mulesoft.org/schema/mule/sftp"
+      xmlns:java="http://www.mulesoft.org/schema/mule/java"
+      xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+      http://www.mulesoft.org/schema/mule/test http://www.mulesoft.org/schema/mule/test/current/mule-test.xsd
+		http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
+		http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd
+        http://www.mulesoft.org/schema/mule/sftp http://www.mulesoft.org/schema/mule/sftp/current/mule-sftp.xsd
+        http://www.mulesoft.org/schema/mule/java http://www.mulesoft.org/schema/mule/java/current/mule-java.xsd">
+
+    <munit:config name="sftp-write-test-case-without-dir.xml">
+        <munit:parameterizations>
+            <munit:parameterization name="config-docker">
+                <munit:parameters>
+                    <munit:parameter propertyName="config" value="config-docker"/>
+                </munit:parameters>
+            </munit:parameterization>
+        </munit:parameterizations>
+    </munit:config>
+
+    <munit:dynamic-port propertyName="sftp.server.port"/>
+    <munit:before-suite name="startSftpTestServerForWriting">
+        <java:invoke-static class="org.mule.extension.sftp.internal.lifecycle.SftpServerLifecycleManager"
+                            method="startSftpServer(String)">
+            <java:args>
+                #[{
+                arg0: ${sftp.server.port},
+                }]
+            </java:args>
+        </java:invoke-static>
+    </munit:before-suite>
+
+    <munit:after-suite name="clearSftpTestServerForWriting">
+        <java:invoke-static class="org.mule.extension.sftp.internal.lifecycle.SftpServerLifecycleManager"
+                            method="stopSftpServer()">
+            <java:args>
+                #[{}]
+            </java:args>
+        </java:invoke-static>
+    </munit:after-suite>
+
+    <munit:test name="sftp-write-on-invalid-working-directory">
+        <munit:behavior>
+            <java:invoke-static class="java.lang.System" method="setProperty(String,String)">
+                <java:args>
+                    #[{
+                    arg0: "mule.sftp.useHomeDirectory",
+                    arg1: "true"
+                    }]
+                </java:args>
+            </java:invoke-static>
+            <set-variable variableName="fileName" value="filePath.txt"/>
+            <set-variable variableName="fullPath" value="/home/mule/filePath.txt"/>
+        </munit:behavior>
+        <munit:execution>
+            <sftp:write config-ref="${config}" path='#[vars.fileName]' createParentDirectories="false">
+                <sftp:content>test content</sftp:content>
+            </sftp:write>
+            <sftp:read config-ref="${config}" path='#[vars.fullPath]'/>
+        </munit:execution>
+        <munit:validation>
+            <munit-tools:assert-that expression="#[payload]" is="#[MunitTools::equalTo('test content')]"/>
+        </munit:validation>
+    </munit:test>
+
+</mule>
