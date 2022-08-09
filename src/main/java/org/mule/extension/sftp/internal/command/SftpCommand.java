@@ -29,7 +29,6 @@ import java.net.URI;
 import java.util.Stack;
 
 import org.apache.commons.io.FilenameUtils;
-import org.mule.runtime.core.api.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -297,7 +296,7 @@ public abstract class SftpCommand extends ExternalFileCommand<SftpFileSystem> {
    */
   protected URI getBasePath(FileSystem fileSystem) {
     String basePath = fileSystem.getBasePath();
-    if (StringUtils.isEmpty(basePath) && Boolean.parseBoolean(System.getProperty(USE_HOME_DIRECTORY))) {
+    if (isEmpty(basePath) && Boolean.parseBoolean(System.getProperty(USE_HOME_DIRECTORY))) {
       basePath = ((SftpFileSystem) fileSystem).getClient().getHome();
     }
     return createUri(basePath);
