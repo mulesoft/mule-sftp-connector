@@ -41,6 +41,8 @@ public abstract class SftpCommand extends ExternalFileCommand<SftpFileSystem> {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(SftpCommand.class);
 
+  private static final String USE_HOME_DIRECTORY = "mule.sftp.useHomeDirectory";
+
   protected final SftpClient client;
 
   public SftpCommand(SftpFileSystem fileSystem) {
@@ -293,7 +295,11 @@ public abstract class SftpCommand extends ExternalFileCommand<SftpFileSystem> {
    * {@inheritDoc}
    */
   protected URI getBasePath(FileSystem fileSystem) {
-    return createUri(fileSystem.getBasePath());
+    String basePath = fileSystem.getBasePath();
+    if (isEmpty(basePath) && Boolean.parseBoolean(System.getProperty(USE_HOME_DIRECTORY))) {
+      basePath = ((SftpFileSystem) fileSystem).getClient().getHome();
+    }
+    return createUri(basePath);
   }
 
 }
