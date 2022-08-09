@@ -23,6 +23,17 @@
 
     <munit:dynamic-port propertyName="sftp.server.port"/>
 
+    <munit:before-test name="setUseHomeDirectoryFalse">
+        <java:invoke-static class="java.lang.System" method="setProperty(String,String)">
+            <java:args>
+                #[{
+                arg0: "mule.sftp.useHomeDirectory",
+                arg1: "false"
+                }]
+            </java:args>
+        </java:invoke-static>
+    </munit:before-test>
+
     <!-- Without property it tries to write to root but permission is denied. -->
     <munit:test name="sftp-write-on-home-directory-without-property" expectedErrorType="MULE:UNKNOWN">
         <munit:behavior>
@@ -57,14 +68,6 @@
             <sftp:write config-ref="${config}" path='#[vars.fileName]' createParentDirectories="false">
                 <sftp:content>test content</sftp:content>
             </sftp:write>
-            <java:invoke-static class="java.lang.System" method="setProperty(String,String)">
-                <java:args>
-                    #[{
-                    arg0: "mule.sftp.useHomeDirectory",
-                    arg1: "false"
-                    }]
-                </java:args>
-            </java:invoke-static>
             <sftp:read config-ref="${config}" path='#[vars.fullPath]'/>
         </munit:execution>
         <munit:validation>
