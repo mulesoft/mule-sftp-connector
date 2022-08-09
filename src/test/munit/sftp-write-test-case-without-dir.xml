@@ -23,27 +23,8 @@
     </munit:config>
 
     <munit:dynamic-port propertyName="sftp.server.port"/>
-    <munit:before-suite name="startSftpTestServerForWriting">
-        <java:invoke-static class="org.mule.extension.sftp.internal.lifecycle.SftpServerLifecycleManager"
-                            method="startSftpServer(String)">
-            <java:args>
-                #[{
-                arg0: ${sftp.server.port},
-                }]
-            </java:args>
-        </java:invoke-static>
-    </munit:before-suite>
 
-    <munit:after-suite name="clearSftpTestServerForWriting">
-        <java:invoke-static class="org.mule.extension.sftp.internal.lifecycle.SftpServerLifecycleManager"
-                            method="stopSftpServer()">
-            <java:args>
-                #[{}]
-            </java:args>
-        </java:invoke-static>
-    </munit:after-suite>
-
-    <munit:test name="sftp-write-on-invalid-working-directory">
+    <munit:test name="sftp-write-on-home-directory">
         <munit:behavior>
             <java:invoke-static class="java.lang.System" method="setProperty(String,String)">
                 <java:args>
@@ -54,7 +35,7 @@
                 </java:args>
             </java:invoke-static>
             <set-variable variableName="fileName" value="filePath.txt"/>
-            <set-variable variableName="fullPath" value="/home/mule/filePath.txt"/>
+            <set-variable variableName="fullPath" value="/config/filePath.txt"/>
         </munit:behavior>
         <munit:execution>
             <sftp:write config-ref="${config}" path='#[vars.fileName]' createParentDirectories="false">

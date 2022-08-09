@@ -277,12 +277,19 @@
                         <configuration>
                             <images>
                                 <image>
-                                    <name>atmoz/sftp</name>
-                                    <alias>sftpDocker</alias>
+                                    <name>linuxserver/openssh-server</name>
+                                    <alias>openssh</alias>
                                     <run>
-                                        <cmd>mule:test:::home/mule</cmd>
+                                        <env>
+                                            <PUID>1000</PUID>
+                                            <PGID>1000</PGID>
+                                            <TZ>Europe/London</TZ>
+                                            <PASSWORD_ACCESS>true</PASSWORD_ACCESS>
+                                            <USER_PASSWORD>test</USER_PASSWORD>
+                                            <USER_NAME>mule</USER_NAME>
+                                        </env>
                                         <ports>
-                                            <port>sftp.listener.port:22</port>
+                                            <port>sftp.listener.port:2222</port>
                                         </ports>
                                         <log>
                                             <enabled>true</enabled>
