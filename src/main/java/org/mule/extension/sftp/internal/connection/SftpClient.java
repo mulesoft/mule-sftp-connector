@@ -363,6 +363,20 @@ public class SftpClient {
   }
 
   /**
+   * Returns the home directory of the sftp server
+   *
+   * @return a {@link String}
+   */
+  public String getHome() {
+    try {
+      return sftp.getHome();
+    } catch (SftpException e) {
+      LOGGER.warn("Home directory could not be acquired", e);
+      return "";
+    }
+  }
+
+  /**
    * Opens an {@link OutputStream} which allows writing into the file pointed by {@code path}
    *
    * @param path the path to write into

@@ -37,6 +37,14 @@
         <sftp:connection workingDir="/" host="localhost" port="${sftp.server.port}" username="muletest1" password="muletest1" />
     </sftp:config>
 
+    <sftp:config name="config-docker">
+        <sftp:connection username="mule" password="test" host="localhost" port="${sftp.listener.port}" prngAlgorithm="SHA1PRNG">
+            <reconnection>
+                <reconnect count="20" frequency="1000"/>
+            </reconnection>
+        </sftp:connection>
+    </sftp:config>
+
     <flow name="wait-2-seconds">
         <logger level="ERROR" message="Waiting for 2 seconds"/>
         <munit-tools:sleep time="2000"/>
