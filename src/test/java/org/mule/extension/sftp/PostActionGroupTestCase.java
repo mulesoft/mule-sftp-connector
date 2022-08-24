@@ -6,6 +6,7 @@
  */
 package org.mule.extension.sftp;
 
+import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.mule.extension.sftp.AllureConstants.SftpFeature.SFTP_EXTENSION;
@@ -75,6 +76,7 @@ public class PostActionGroupTestCase extends AbstractMuleTestCase {
     ConcreteFileSystem fileSystem = new ConcreteFileSystem("");
 
     new PostActionGroupChild("someDir", null, false, false).apply(fileSystem, fileAttributes, fileConnectorConfig);
+    fail("FileAlreadyExistsException exception was not thrown");
   }
 
   @Test
