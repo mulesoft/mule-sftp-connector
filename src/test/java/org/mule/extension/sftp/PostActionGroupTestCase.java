@@ -6,10 +6,10 @@
  */
 package org.mule.extension.sftp;
 
+import static org.mule.extension.sftp.AllureConstants.SftpFeature.SFTP_EXTENSION;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.mule.extension.sftp.AllureConstants.SftpFeature.SFTP_EXTENSION;
 
 import org.mule.extension.file.common.api.AbstractFileSystem;
 import org.mule.extension.file.common.api.FileAttributes;
