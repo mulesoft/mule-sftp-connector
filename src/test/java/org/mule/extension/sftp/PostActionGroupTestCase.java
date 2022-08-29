@@ -79,7 +79,7 @@ public class PostActionGroupTestCase extends AbstractMuleTestCase {
     fail("FileAlreadyExistsException exception was not thrown");
   }
 
-  @Test
+  @Test(expected = Test.None.class /* no exception expected */)
   @Description("verifies that move file with overwrite flag set to true and no exception")
   public void testMoveWithOverwriteWhenFileExists() {
     FileAttributes fileAttributes = mock(FileAttributes.class);
