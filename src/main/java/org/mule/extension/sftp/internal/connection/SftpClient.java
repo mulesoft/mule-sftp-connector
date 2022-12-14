@@ -184,15 +184,11 @@ public class SftpClient {
       Channel channel = session.openChannel(CHANNEL_SFTP);
       channel.connect();
       sftp = (ChannelSftp) channel;
-
     } catch (JSchException ex) {
-      if (LOGGER.isDebugEnabled()) {
-        LOGGER.debug("There was an error when opening the channel");
-      }
+      LOGGER.debug("There was an error when opening the channel", ex.getCause());
       session.disconnect();
       throw ex;
     }
-
   }
 
   private void configureSession(String user) throws JSchException {
