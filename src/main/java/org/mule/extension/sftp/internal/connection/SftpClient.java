@@ -188,8 +188,9 @@ public class SftpClient {
     } catch (JSchException ex) {
       if (LOGGER.isDebugEnabled()) {
         LOGGER.debug("There was an error when opening the channel");
+        System.out.println("hi");
       }
-      session.disconnect();
+      //session.disconnect();
       throw ex;
     }
 
