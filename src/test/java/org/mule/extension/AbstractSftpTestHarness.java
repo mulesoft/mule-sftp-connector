@@ -18,7 +18,7 @@ import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
 
 /**
- * Base class for {@link FileTestHarness} implementations
+ * Base class for implementations
  *
  * @since 1.0
  */

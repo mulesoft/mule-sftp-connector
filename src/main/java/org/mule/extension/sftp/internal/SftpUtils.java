@@ -23,7 +23,8 @@ public class SftpUtils {
 
   /**
    * @param path to be normalized
-   * @return a {@link String} representing the path in the following format (using the unix path separator): "directory/subdirectory"
+   * @return a {@link String} representing the path in the following format (using the unix path separator):
+   *         "directory/subdirectory"
    */
   public static String normalizePath(String path) {
     return FilenameUtils.normalize(path, true);

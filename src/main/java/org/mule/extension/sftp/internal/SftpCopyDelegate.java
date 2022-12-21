@@ -21,8 +21,9 @@ public interface SftpCopyDelegate {
 
   /**
    * Performs the copy operation
-   * @param config the config which is parameterizing this operation
-   * @param source the attributes which describes the source file
+   * 
+   * @param config    the config which is parameterizing this operation
+   * @param source    the attributes which describes the source file
    * @param targetUri the target uri
    * @param overwrite whether to overwrite the target file if it already exists
    */

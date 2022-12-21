@@ -39,7 +39,8 @@ public class SftpFileAttributes extends AbstractFileAttributes {
 
   /**
    * Creates a new instance
-   *  @param uri the file's {@link URI}
+   * 
+   * @param uri   the file's {@link URI}
    * @param attrs the {@link SftpClient.Attributes} which represents the file on the SFTP server
    */
   public SftpFileAttributes(URI uri, SftpClient.Attributes attrs) {

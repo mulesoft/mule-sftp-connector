@@ -18,8 +18,8 @@ public class SftpClientFactory {
   /**
    * Creates a new instance which will connect to the given {@code host} and {@code port}
    *
-   * @param host the host address
-   * @param port the remote connection port
+   * @param host          the host address
+   * @param port          the remote connection port
    * @param prngAlgorithm the pseudorandom algorithm generator algorithm
    * @return a {@link SftpClient}
    */

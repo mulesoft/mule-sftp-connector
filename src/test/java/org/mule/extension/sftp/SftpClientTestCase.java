@@ -37,44 +37,30 @@ import org.mockito.runners.MockitoJUnitRunner;
 @RunWith(MockitoJUnitRunner.class)
 public class SftpClientTestCase {
   /*
-  
-  private static final String FILE_PATH = "/bla/file.txt";
-  
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
-  
-  private URI uri = createUri(FILE_PATH);
-  
-  @Mock
-  private JSch jsch;
-  
-  @Mock
-  private ChannelSftp channel;
-  
-  @InjectMocks
-  private SftpClient client = new SftpClient(EMPTY, 0, () -> jsch, NativePRNGNonBlocking);
-  
-  @Test
-  public void returnNullOnUnexistingFile() throws Exception {
-    when(channel.stat(any())).thenThrow(new SftpException(SSH_FX_NO_SUCH_FILE, "No such file"));
-    assertThat(client.getAttributes(uri), is(nullValue()));
-  }
-  
-  @Test
-  public void exceptionIsThrownOnError() throws Exception {
-    expectedException.expect(MuleRuntimeException.class);
-    expectedException.expectMessage(format("Could not obtain attributes for path %s", FILE_PATH));
-    when(channel.stat(any())).thenThrow(new SftpException(SSH_FX_PERMISSION_DENIED, EMPTY));
-    client.getAttributes(uri);
-  }
-  
-  @Test
-  public void expectConnectionExceptionWhenIOExceptionIsThrown() throws Exception {
-    expectedException.expect(MuleRuntimeException.class);
-    expectedException.expectCause(instanceOf(ConnectionException.class));
-    when(channel.stat(any())).thenThrow(new SftpException(SSH_FX_PERMISSION_DENIED, EMPTY, new IOException()));
-    client.getAttributes(uri);
-  }
-  
+   * 
+   * private static final String FILE_PATH = "/bla/file.txt";
+   * 
+   * @Rule public ExpectedException expectedException = ExpectedException.none();
+   * 
+   * private URI uri = createUri(FILE_PATH);
+   * 
+   * @Mock private JSch jsch;
+   * 
+   * @Mock private ChannelSftp channel;
+   * 
+   * @InjectMocks private SftpClient client = new SftpClient(EMPTY, 0, () -> jsch, NativePRNGNonBlocking);
+   * 
+   * @Test public void returnNullOnUnexistingFile() throws Exception { when(channel.stat(any())).thenThrow(new
+   * SftpException(SSH_FX_NO_SUCH_FILE, "No such file")); assertThat(client.getAttributes(uri), is(nullValue())); }
+   * 
+   * @Test public void exceptionIsThrownOnError() throws Exception { expectedException.expect(MuleRuntimeException.class);
+   * expectedException.expectMessage(format("Could not obtain attributes for path %s", FILE_PATH));
+   * when(channel.stat(any())).thenThrow(new SftpException(SSH_FX_PERMISSION_DENIED, EMPTY)); client.getAttributes(uri); }
+   * 
+   * @Test public void expectConnectionExceptionWhenIOExceptionIsThrown() throws Exception {
+   * expectedException.expect(MuleRuntimeException.class); expectedException.expectCause(instanceOf(ConnectionException.class));
+   * when(channel.stat(any())).thenThrow(new SftpException(SSH_FX_PERMISSION_DENIED, EMPTY, new IOException()));
+   * client.getAttributes(uri); }
+   * 
    */
 }

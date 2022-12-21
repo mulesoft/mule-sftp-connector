@@ -50,8 +50,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * An {@link FileSystemProvider} which provides instances of {@link SftpFileSystem} from instances of
- * {@link SftpConnector}
+ * An {@link FileSystemProvider} which provides instances of {@link SftpFileSystem} from instances of {@link SftpConnector}
  *
  * @since 1.0
  */
@@ -243,35 +242,23 @@ public class SftpConnectionProvider extends FileSystemProvider<SftpFileSystem>
   }
 
   /*
-   * Handles a { @ link JSchException}, introspects their cause or message to return a {@link ConnectionException} indicating with a
-   * {@link FileError} the kind of failure.
+   * Handles a { @ link JSchException}, introspects their cause or message to return a {@link ConnectionException} indicating with
+   * a {@link FileError} the kind of failure.
    *
    * @param e The exception to handle
+   * 
    * @throws ConnectionException Indicating the kind of failure
    *
-  private void handleJSchException(JSchException e) throws ConnectionException {
-    String message = e.getMessage();
-    LOGGER.error(message, e);
-    if (message.equals(AUTH_FAIL_MESSAGE)) {
-      throw new SftpConnectionException(getErrorMessage(connectionSettings,
-                                                        format("Error during login to %s@%s", connectionSettings.getUsername(),
-                                                               connectionSettings.getHost())),
-                                        e, INVALID_CREDENTIALS);
-    }
-    if (e.getMessage().startsWith(TIMEOUT)) {
-      throw new SftpConnectionException(getErrorMessage(connectionSettings, e.getMessage()), e, CONNECTION_TIMEOUT);
-    }
-    if (e.getMessage().startsWith(SSH_DISCONNECTION_MESSAGE)) {
-      throw new SftpConnectionException(getErrorMessage(connectionSettings, e.getMessage()), e, DISCONNECTED);
-    }
-    if (e.getCause() instanceof ConnectException) {
-      throw new SftpConnectionException(getErrorMessage(connectionSettings, e.getMessage()), e, CANNOT_REACH);
-    }
-    if (e.getCause() instanceof UnknownHostException) {
-      throw new SftpConnectionException(getErrorMessage(connectionSettings, e.getMessage()), e, UNKNOWN_HOST);
-    }
-    throw new ConnectionException(getErrorMessage(connectionSettings, e.getMessage()), e);
-  }
+   * private void handleJSchException(JSchException e) throws ConnectionException { String message = e.getMessage();
+   * LOGGER.error(message, e); if (message.equals(AUTH_FAIL_MESSAGE)) { throw new
+   * SftpConnectionException(getErrorMessage(connectionSettings, format("Error during login to %s@%s",
+   * connectionSettings.getUsername(), connectionSettings.getHost())), e, INVALID_CREDENTIALS); } if
+   * (e.getMessage().startsWith(TIMEOUT)) { throw new SftpConnectionException(getErrorMessage(connectionSettings, e.getMessage()),
+   * e, CONNECTION_TIMEOUT); } if (e.getMessage().startsWith(SSH_DISCONNECTION_MESSAGE)) { throw new
+   * SftpConnectionException(getErrorMessage(connectionSettings, e.getMessage()), e, DISCONNECTED); } if (e.getCause() instanceof
+   * ConnectException) { throw new SftpConnectionException(getErrorMessage(connectionSettings, e.getMessage()), e, CANNOT_REACH);
+   * } if (e.getCause() instanceof UnknownHostException) { throw new SftpConnectionException(getErrorMessage(connectionSettings,
+   * e.getMessage()), e, UNKNOWN_HOST); } throw new ConnectionException(getErrorMessage(connectionSettings, e.getMessage()), e); }
    */
 
   private String getErrorMessage(SftpConnectionSettings connectionSettings, String message) {

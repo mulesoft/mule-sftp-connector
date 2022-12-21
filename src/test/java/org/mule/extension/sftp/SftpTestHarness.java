@@ -46,7 +46,7 @@ import org.junit.rules.TemporaryFolder;
 import org.junit.rules.TestRule;
 
 /**
- * Implementation of {@link FileTestHarness} for classic SFTP connections
+ * Implementation of for classic SFTP connections
  *
  * @since 1.0
  */

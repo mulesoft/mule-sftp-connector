@@ -28,8 +28,8 @@ import java.util.function.Predicate;
 import org.slf4j.Logger;
 
 /**
- * A set of criterias used to filter files stored in a FTP server. The file's properties are to be represented on
- * an instance of {@link SftpFileAttributes}.
+ * A set of criterias used to filter files stored in a FTP server. The file's properties are to be represented on an instance of
+ * {@link SftpFileAttributes}.
  *
  * @since 1.0
  */
@@ -59,7 +59,8 @@ public class SftpFileMatcher extends FileMatcher<SftpFileMatcher, SftpFileAttrib
   private LocalDateTime timestampUntil;
 
   /**
-   * Minimum time that should have passed since a file was updated to not be rejected. This attribute works in tandem with {@link #timeUnit}.
+   * Minimum time that should have passed since a file was updated to not be rejected. This attribute works in tandem with
+   * {@link #timeUnit}.
    */
   @Parameter
   @Summary("Minimum time that should have passed since a file was updated to not be rejected. This attribute works in tandem with timeUnit.")
@@ -68,7 +69,8 @@ public class SftpFileMatcher extends FileMatcher<SftpFileMatcher, SftpFileAttrib
   private Long notUpdatedInTheLast;
 
   /**
-   * Maximum time that should have passed since a file was updated to not be rejected. This attribute works in tandem with {@link #timeUnit}.
+   * Maximum time that should have passed since a file was updated to not be rejected. This attribute works in tandem with
+   * {@link #timeUnit}.
    */
   @Parameter
   @Summary("Maximum time that should have passed since a file was updated to not be rejected. This attribute works in tandem with timeUnit.")

@@ -38,9 +38,9 @@ public class SftpInputStream extends AbstractNonFinalizableFileInputStream {
    * <p>
    * Instances returned by this method <b>MUST</b> be closed or fully consumed.
    *
-   * @param config the config which is parameterizing this operation
-   * @param attributes a {@link FileAttributes} referencing the file which contents are to be fetched
-   * @param lock the {@link UriLock} to be used
+   * @param config               the config which is parameterizing this operation
+   * @param attributes           a {@link FileAttributes} referencing the file which contents are to be fetched
+   * @param lock                 the {@link UriLock} to be used
    * @param timeBetweenSizeCheck time in milliseconds to wait between size checks to decide if a file is ready to be read
    * @return a new {@link SftpFileAttributes}
    * @throws ConnectionException if a connection could not be established
@@ -58,10 +58,10 @@ public class SftpInputStream extends AbstractNonFinalizableFileInputStream {
    * <p>
    * Instances returned by this method <b>MUST</b> be closed or fully consumed.
    *
-   * @param fileSystem            the {@link SftpFileSystem} to be used to connect to the FTP server
-   * @param attributes            a {@link FileAttributes} referencing the file which contents are to be fetched
-   * @param lock                  the {@link UriLock} to be used
-   * @param timeBetweenSizeCheck  the time to be waited between size checks if configured.
+   * @param fileSystem           the {@link SftpFileSystem} to be used to connect to the FTP server
+   * @param attributes           a {@link FileAttributes} referencing the file which contents are to be fetched
+   * @param lock                 the {@link UriLock} to be used
+   * @param timeBetweenSizeCheck the time to be waited between size checks if configured.
    * @return a mew {@link SftpInputStream}
    * @return
    */

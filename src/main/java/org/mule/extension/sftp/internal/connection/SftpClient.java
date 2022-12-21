@@ -182,12 +182,8 @@ public class SftpClient {
     session.setKeyIdentityProvider(KeyIdentityProvider.EMPTY_KEYS_PROVIDER);
 
     /*
-    Properties hash = new Properties();
-    configureHostChecking(hash);
-    setRandomPrng(hash);
-    if (!isEmpty(preferredAuthenticationMethods)) {
-      hash.put(PREFERRED_AUTHENTICATION_METHODS, preferredAuthenticationMethods);
-    }
+     * Properties hash = new Properties(); configureHostChecking(hash); setRandomPrng(hash); if
+     * (!isEmpty(preferredAuthenticationMethods)) { hash.put(PREFERRED_AUTHENTICATION_METHODS, preferredAuthenticationMethods); }
      */
     configureProxy(session);
   }
@@ -242,7 +238,7 @@ public class SftpClient {
    * Renames the file at {@code sourcePath} to {@code target}
    *
    * @param sourcePath the path to the renamed file
-   * @param target the new path
+   * @param target     the new path
    */
   public void rename(String sourcePath, String target) {
     try {
@@ -338,9 +334,9 @@ public class SftpClient {
   /**
    * Writes the contents of the {@code stream} into the file at the given {@code path}
    *
-   * @param path the path to write into
+   * @param path   the path to write into
    * @param stream the content to be written
-   * @param mode the write mode
+   * @param mode   the write mode
    */
   public void write(String path, InputStream stream, FileWriteMode mode) throws IOException {
     try (OutputStream out = getOutputStream(path, mode)) {
@@ -349,20 +345,6 @@ public class SftpClient {
       while ((n = stream.read(buf)) != -1) {
         out.write(buf, 0, n);
       }
-    }
-  }
-
-  /**
-   * Returns the home directory of the sftp server
-   *
-   * @return a {@link String}
-   */
-  public String getHome() {
-    try {
-      return sftp.getHome();
-    } catch (SftpException e) {
-      LOGGER.warn("Home directory could not be acquired", e);
-      return "";
     }
   }
 
