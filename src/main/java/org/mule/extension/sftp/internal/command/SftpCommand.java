@@ -6,14 +6,16 @@
  */
 package org.mule.extension.sftp.internal.command;
 
-import static java.lang.String.format;
-import static org.apache.commons.lang3.StringUtils.isBlank;
-import static org.apache.commons.lang3.StringUtils.isEmpty;
 import static org.mule.extension.file.common.api.util.UriUtils.createUri;
 import static org.mule.extension.file.common.api.util.UriUtils.normalizeUri;
 import static org.mule.extension.file.common.api.util.UriUtils.trimLastFragment;
 import static org.mule.extension.sftp.internal.SftpUtils.normalizePath;
 import static org.mule.extension.sftp.internal.connection.SftpFileSystem.ROOT;
+
+import static java.lang.String.format;
+
+import static org.apache.commons.lang3.StringUtils.isBlank;
+import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 import org.mule.extension.file.common.api.FileAttributes;
 import org.mule.extension.file.common.api.FileConnectorConfig;
@@ -40,8 +42,6 @@ import org.slf4j.LoggerFactory;
 public abstract class SftpCommand extends ExternalFileCommand<SftpFileSystem> {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(SftpCommand.class);
-
-  private static final String USE_HOME_DIRECTORY = "mule.sftp.useHomeDirectory";
 
   protected final SftpClient client;
 
@@ -296,7 +296,7 @@ public abstract class SftpCommand extends ExternalFileCommand<SftpFileSystem> {
    */
   protected URI getBasePath(FileSystem fileSystem) {
     String basePath = fileSystem.getBasePath();
-    if (isEmpty(basePath) && Boolean.parseBoolean(System.getProperty(USE_HOME_DIRECTORY))) {
+    if (isEmpty(basePath)) {
       basePath = ((SftpFileSystem) fileSystem).getClient().getHome();
     }
     return createUri(basePath);
