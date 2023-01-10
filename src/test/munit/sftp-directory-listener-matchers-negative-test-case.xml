@@ -12,7 +12,7 @@
         http://www.mulesoft.org/schema/mule/sftp http://www.mulesoft.org/schema/mule/sftp/current/mule-sftp.xsd
         http://www.mulesoft.org/schema/mule/java http://www.mulesoft.org/schema/mule/java/current/mule-java.xsd">
 
-    <munit:config name="sftp-directory-listener-matchers-negative-test-case.xml">
+    <munit:config name="sftp-directory-listener-matchers-negative-test-case.xml" minMuleVersion="4.2.0">
         <munit:parameterizations>
             <munit:parameterization name="txt-files">
                 <munit:parameters>
