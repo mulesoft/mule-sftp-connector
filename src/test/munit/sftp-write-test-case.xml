@@ -131,7 +131,7 @@
         </until-successful>
     </flow>
 
-    <munit:test name="consecutive-writes-from-separate-flows-succeed-with-until-successful">
+    <munit:test name="consecutive-writes-from-separate-flows-succeed-with-until-successful" ignore="#[Munit::muleVersionPriorTo('4.1.5')]">
         <munit:enable-flow-sources>
             <munit:enable-flow-source value="write-number-collection-until-successful"/>
         </munit:enable-flow-sources>
