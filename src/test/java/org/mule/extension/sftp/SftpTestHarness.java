@@ -32,7 +32,6 @@ import org.mule.tck.junit4.rule.DynamicPort;
 import org.mule.test.extension.file.common.api.FileTestHarness;
 
 import java.io.ByteArrayInputStream;
-import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URI;
@@ -40,7 +39,6 @@ import java.nio.file.Paths;
 import java.security.GeneralSecurityException;
 import java.util.List;
 
-import com.jcraft.jsch.JSchException;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.sshd.server.config.keys.AuthorizedKeysAuthenticator;
@@ -116,7 +114,7 @@ public class SftpTestHarness extends AbstractSftpTestHarness {
     }
   }
 
-  private SftpClient createDefaultSftpClient() throws IOException, JSchException, GeneralSecurityException {
+  private SftpClient createDefaultSftpClient() throws IOException, GeneralSecurityException {
     SftpClient sftpClient = new SftpClientFactory().createInstance("localhost", sftpPort.getNumber());
     clientAuthConfigurator.configure(sftpClient);
 

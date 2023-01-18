@@ -6,14 +6,12 @@
  */
 package org.mule.extension.sftp.internal.connection;
 
-import com.jcraft.jsch.Logger;
+
 import org.slf4j.LoggerFactory;
 
-public class SftpLogger implements Logger {
-
+public class SftpLogger  {
   private org.slf4j.Logger logger = LoggerFactory.getLogger("com.jcraft.jsch");
 
-  @Override
   public boolean isEnabled(int level) {
     switch (level) {
       case 0:
@@ -31,7 +29,7 @@ public class SftpLogger implements Logger {
     }
   }
 
-  @Override
+
   public void log(int level, String message) {
     this.logger.debug(message);
   }

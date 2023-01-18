@@ -11,9 +11,8 @@ import java.security.SecureRandom;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.jcraft.jsch.Random;
 
-public abstract class MulePRNGAlgorithm implements Random {
+public abstract class MulePRNGAlgorithm {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(MulePRNGAlgorithm.class);
 
