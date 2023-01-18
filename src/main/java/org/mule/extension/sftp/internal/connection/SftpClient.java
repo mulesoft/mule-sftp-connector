@@ -8,6 +8,8 @@ package org.mule.extension.sftp.internal.connection;
 
 import static java.util.Collections.emptyList;
 import static org.apache.commons.collections.CollectionUtils.isEmpty;
+import static org.apache.sshd.sftp.common.SftpConstants.SSH_FX_CONNECTION_LOST;
+import static org.apache.sshd.sftp.common.SftpConstants.SSH_FX_NO_CONNECTION;
 import static org.mule.extension.file.common.api.exceptions.FileError.CONNECTIVITY;
 import static org.mule.extension.file.common.api.util.UriUtils.createUri;
 import static org.mule.extension.sftp.internal.SftpUtils.normalizePath;
@@ -15,37 +17,38 @@ import static org.mule.extension.sftp.internal.SftpUtils.resolvePathOrResource;
 import static org.mule.runtime.api.i18n.I18nMessageFactory.createStaticMessage;
 import static org.mule.runtime.api.util.collection.Collectors.toImmutableList;
 import static org.mule.runtime.core.api.util.StringUtils.isEmpty;
-import static com.jcraft.jsch.ChannelSftp.SSH_FX_NO_SUCH_FILE;
 import static java.lang.String.format;
 
+import org.apache.sshd.client.SshClient;
+import org.apache.sshd.client.keyverifier.KnownHostsServerKeyVerifier;
+import org.apache.sshd.client.keyverifier.RejectAllServerKeyVerifier;
+import org.apache.sshd.client.session.ClientSession;
+import org.apache.sshd.common.config.keys.FilePasswordProvider;
+import org.apache.sshd.common.config.keys.loader.KeyPairResourceLoader;
+import org.apache.sshd.common.keyprovider.KeyIdentityProvider;
+import org.apache.sshd.common.util.security.SecurityUtils;
+import org.apache.sshd.sftp.client.SftpClient.OpenMode;
+import org.apache.sshd.sftp.common.SftpConstants;
+import org.apache.sshd.sftp.common.SftpException;
 import org.mule.extension.file.common.api.FileWriteMode;
 import org.mule.extension.file.common.api.exceptions.FileError;
 import org.mule.extension.sftp.api.SftpConnectionException;
 import org.mule.extension.sftp.api.SftpFileAttributes;
 import org.mule.extension.sftp.api.SftpProxyConfig;
-import org.mule.extension.sftp.random.alg.PRNGAlgorithm;
 import org.mule.runtime.api.connection.ConnectionException;
 import org.mule.runtime.api.exception.MuleRuntimeException;
-
-import com.jcraft.jsch.Channel;
-import com.jcraft.jsch.ChannelSftp;
-import com.jcraft.jsch.JSch;
-import com.jcraft.jsch.JSchException;
-import com.jcraft.jsch.Proxy;
-import com.jcraft.jsch.ProxyHTTP;
-import com.jcraft.jsch.ProxySOCKS4;
-import com.jcraft.jsch.ProxySOCKS5;
-import com.jcraft.jsch.Session;
-import com.jcraft.jsch.SftpException;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URI;
+import java.nio.file.Paths;
+import java.security.GeneralSecurityException;
+import java.security.KeyPair;
+import java.util.Collection;
 import java.util.List;
 import java.util.Properties;
-import java.util.function.Supplier;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,21 +60,11 @@ import org.slf4j.LoggerFactory;
  */
 public class SftpClient {
 
-  private static Logger LOGGER = LoggerFactory.getLogger(SftpClient.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(SftpClient.class);
 
-  private static SftpLogger JSCH_LOGGER = new SftpLogger();
-
-  public static final String CHANNEL_SFTP = "sftp";
-  public static final String STRICT_HOST_KEY_CHECKING = "StrictHostKeyChecking";
-  public static final String PREFERRED_AUTHENTICATION_METHODS = "PreferredAuthentications";
-
-  static {
-    JSch.setLogger(JSCH_LOGGER);
-  }
-
-  private ChannelSftp sftp;
-  private JSch jsch;
-  private Session session;
+  final private SshClient client = SshClient.setUpDefaultClient();
+  private org.apache.sshd.sftp.client.SftpClient sftp;
+  private ClientSession session;
   private final String host;
   private int port = 22;
   private String password;
@@ -79,35 +72,30 @@ public class SftpClient {
   private String passphrase;
   private String knownHostsFile;
   private String preferredAuthenticationMethods;
-  private long connectionTimeoutMillis = 0; // No timeout by default
+  private long connectionTimeoutMillis = Long.MAX_VALUE; // No timeout by default
   private SftpProxyConfig proxyConfig;
-  private String prngAlgorithmClassImplementation;
 
   private SftpFileSystem owner;
+
+  private String cwd = "/";
 
   /**
    * Creates a new instance which connects to a server on a given {@code host} and {@code port}
    *
    * @param host the host address
    * @param port the remote connection port
-   * @param jSchSupplier a {@link Supplier} for obtaining a {@link JSch} client
    */
-  public SftpClient(String host, int port, Supplier<JSch> jSchSupplier, PRNGAlgorithm prngAlgorithm) {
+  public SftpClient(String host, int port) {
     this.host = host;
     this.port = port;
-    this.prngAlgorithmClassImplementation = prngAlgorithm.getImplementationClassName();
-    jsch = jSchSupplier.get();
+    client.start();
   }
 
   /**
    * @return the current working directory
    */
   public String getWorkingDirectory() {
-    try {
-      return sftp.pwd();
-    } catch (SftpException e) {
-      throw exception("Could not obtain current working directory", e);
-    }
+    return cwd;
   }
 
   /**
@@ -116,16 +104,11 @@ public class SftpClient {
    * @param path the new working directory path
    */
   public void changeWorkingDirectory(String path) {
-    String normalizedPath = normalizePath(path);
+    String normalizedPath = normalizeRemotePath(path);
     if (LOGGER.isTraceEnabled()) {
       LOGGER.trace("Attempting to cwd to: {}", normalizedPath);
     }
-
-    try {
-      sftp.cd(normalizedPath);
-    } catch (SftpException e) {
-      throw exception("Exception occurred while trying to change working directory to " + path, e);
-    }
+    this.cwd = normalizedPath;
   }
 
   /**
@@ -134,14 +117,15 @@ public class SftpClient {
    * @param uri the file's uri
    * @return a {@link SftpFileAttributes} or {@code null} if the file doesn't exist.
    */
-  public SftpFileAttributes getAttributes(URI uri) {
+  public SftpFileAttributes getAttributes(URI uri) throws IOException {
+    String path = normalizeRemotePath(uri.getPath());
     try {
-      return new SftpFileAttributes(uri, sftp.stat(normalizePath(uri.getPath())));
+      return new SftpFileAttributes(uri, sftp.stat(path));
     } catch (SftpException e) {
-      if (e.id == SSH_FX_NO_SUCH_FILE) {
+      if (e.getStatus() == SftpConstants.SSH_FX_NO_SUCH_FILE) {
         return null;
       }
-      throw exception("Could not obtain attributes for path " + uri, e);
+      throw exception("Could not obtain attributes for path " + path, e);
     }
   }
 
@@ -151,24 +135,32 @@ public class SftpClient {
    *
    * @param user the authentication user
    */
-  public void login(String user) throws IOException, JSchException {
+  public void login(String user) throws IOException, GeneralSecurityException {
     configureSession(user);
     if (!isEmpty(password)) {
-      session.setPassword(password);
+      session.addPasswordIdentity(password);
     }
 
     if (!isEmpty(identityFile)) {
       setupIdentity();
     }
 
+    session.auth().verify(connectionTimeoutMillis); // FIXME shorter timeout!
+
     connect();
   }
 
-  private void setupIdentity() throws JSchException {
+  private void setupIdentity() throws GeneralSecurityException, IOException {
+    FilePasswordProvider passwordProvider;
     if (passphrase == null || "".equals(passphrase)) {
-      jsch.addIdentity(identityFile);
+      // jsch.addIdentity(identityFile);
+      passwordProvider = FilePasswordProvider.EMPTY;
     } else {
-      jsch.addIdentity(identityFile, passphrase);
+      passwordProvider = FilePasswordProvider.of(passphrase);
+    }
+    KeyPairResourceLoader loader = SecurityUtils.getKeyPairResourceParser();
+    for (KeyPair kp : loader.loadKeyPairs(session, Paths.get(identityFile), passwordProvider)) {
+      session.addPublicKeyIdentity(kp);
     }
   }
 
@@ -178,83 +170,73 @@ public class SftpClient {
     }
   }
 
-  private void connect() throws JSchException {
-    session.connect();
-    try {
-      Channel channel = session.openChannel(CHANNEL_SFTP);
-      channel.connect();
-      sftp = (ChannelSftp) channel;
-    } catch (JSchException ex) {
-      LOGGER.debug("There was an error when opening the channel", ex);
-      session.disconnect();
-      throw ex;
-    }
+  private void connect() throws IOException {
+    org.apache.sshd.sftp.client.SftpClientFactory scf = org.apache.sshd.sftp.client.SftpClientFactory.instance();
+    sftp = scf.createSftpClient(session);
   }
 
-  private void configureSession(String user) throws JSchException {
+  private void configureSession(String user) throws IOException {
+
+    session = client.connect(user, host, port)
+        .verify(connectionTimeoutMillis)
+        .getSession();
+
+    session.setKeyIdentityProvider(KeyIdentityProvider.EMPTY_KEYS_PROVIDER);
+
+    /*
     Properties hash = new Properties();
     configureHostChecking(hash);
     setRandomPrng(hash);
     if (!isEmpty(preferredAuthenticationMethods)) {
       hash.put(PREFERRED_AUTHENTICATION_METHODS, preferredAuthenticationMethods);
     }
-
-    session = jsch.getSession(user, host);
-    session.setConfig(hash);
-    session.setPort(port);
-    session.setTimeout(Long.valueOf(connectionTimeoutMillis).intValue());
+     */
     configureProxy(session);
   }
 
-  private void setRandomPrng(Properties hash) {
-    hash.put("random", prngAlgorithmClassImplementation);
-  }
-
-  private void configureHostChecking(Properties hash) throws JSchException {
-    if (knownHostsFile == null) {
-      hash.put(STRICT_HOST_KEY_CHECKING, "no");
-    } else {
+  private void configureHostChecking(Properties hash) {
+    if (knownHostsFile != null) {
       checkExists(knownHostsFile);
-      hash.put(STRICT_HOST_KEY_CHECKING, "ask");
-      jsch.setKnownHosts(knownHostsFile);
+      client
+          .setServerKeyVerifier(new KnownHostsServerKeyVerifier(RejectAllServerKeyVerifier.INSTANCE, Paths.get(knownHostsFile)));
     }
   }
 
-  private void configureProxy(Session session) {
+  private void configureProxy(ClientSession session) {
     if (proxyConfig != null) {
 
-      Proxy proxy = null;
+      // Proxy proxy = null;
       switch (proxyConfig.getProtocol()) {
         case HTTP:
-          ProxyHTTP proxyHttp = new ProxyHTTP(proxyConfig.getHost(), proxyConfig.getPort());
-          if (proxyConfig.getUsername() != null && proxyConfig.getPassword() != null) {
-            proxyHttp.setUserPasswd(proxyConfig.getUsername(), proxyConfig.getPassword());
-          }
-          proxy = proxyHttp;
+          // ProxyHTTP proxyHttp = new ProxyHTTP(proxyConfig.getHost(), proxyConfig.getPort());
+          // if (proxyConfig.getUsername() != null && proxyConfig.getPassword() != null) {
+          // proxyHttp.setUserPasswd(proxyConfig.getUsername(), proxyConfig.getPassword());
+          // }
+          // proxy = proxyHttp;
           break;
 
         case SOCKS4:
-          ProxySOCKS4 proxySocks4 = new ProxySOCKS4(proxyConfig.getHost(), proxyConfig.getPort());
-          if (proxyConfig.getUsername() != null && proxyConfig.getPassword() != null) {
-            proxySocks4.setUserPasswd(proxyConfig.getUsername(), proxyConfig.getPassword());
-          }
-          proxy = proxySocks4;
+          // ProxySOCKS4 proxySocks4 = new ProxySOCKS4(proxyConfig.getHost(), proxyConfig.getPort());
+          // if (proxyConfig.getUsername() != null && proxyConfig.getPassword() != null) {
+          // proxySocks4.setUserPasswd(proxyConfig.getUsername(), proxyConfig.getPassword());
+          // }
+          // proxy = proxySocks4;
           break;
 
         case SOCKS5:
-          ProxySOCKS5 proxySocks5 = new ProxySOCKS5(proxyConfig.getHost(), proxyConfig.getPort());
-          if (proxyConfig.getUsername() != null && proxyConfig.getPassword() != null) {
-            proxySocks5.setUserPasswd(proxyConfig.getUsername(), proxyConfig.getPassword());
-          }
-          proxy = proxySocks5;
-          break;
+          // ProxySOCKS5 proxySocks5 = new ProxySOCKS5(proxyConfig.getHost(), proxyConfig.getPort());
+          // if (proxyConfig.getUsername() != null && proxyConfig.getPassword() != null) {
+          // proxySocks5.setUserPasswd(proxyConfig.getUsername(), proxyConfig.getPassword());
+          // }
+          // proxy = proxySocks5;
+          // break;
 
         default:
           // should never get here, except a new type was added to the enum and not handled
           throw new IllegalArgumentException(format("Proxy protocol %s not recognized", proxyConfig.getProtocol()));
       }
 
-      session.setProxy(proxy);
+      // session.setProxy(proxy);
     }
   }
 
@@ -264,13 +246,13 @@ public class SftpClient {
    * @param sourcePath the path to the renamed file
    * @param target the new path
    */
-  public void rename(String sourcePath, String target) throws IOException {
+  public void rename(String sourcePath, String target) {
     try {
-      sftp.rename(normalizePath(sourcePath), normalizePath(target));
+      sftp.rename(normalizeRemotePath(sourcePath), normalizeRemotePath(target));
       if (LOGGER.isTraceEnabled()) {
         LOGGER.trace("Renamed {} to {}", sourcePath, target);
       }
-    } catch (SftpException e) {
+    } catch (IOException e) {
       throw exception(format("Could not rename path '%s' to '%s'", sourcePath, target), e);
     }
   }
@@ -283,11 +265,11 @@ public class SftpClient {
   public void deleteFile(String path) {
 
     try {
-      sftp.rm(normalizePath(path));
+      sftp.remove(normalizeRemotePath(path));
       if (LOGGER.isTraceEnabled()) {
         LOGGER.trace("Deleted file {}", path);
       }
-    } catch (SftpException e) {
+    } catch (IOException e) {
       throw exception("Could not delete file " + path, e);
     }
   }
@@ -296,16 +278,16 @@ public class SftpClient {
    * Closes the active session and severs the connection (if any of those were active)
    */
   public void disconnect() {
-    if (sftp != null && sftp.isConnected()) {
-      sftp.exit();
-      sftp.disconnect();
-    }
-
-    if (session != null && session.isConnected()) {
-      session.disconnect();
+    if (session != null) {
+      try {
+        session.close();
+        sftp.close();
+      } catch (IOException e) {
+        LOGGER.warn("Error while closing: {}", e, e);
+      }
     }
     if (LOGGER.isTraceEnabled()) {
-      LOGGER.trace("Disconnected from {}:{}", session.getHost(), session.getPort());
+      // LOGGER.trace("Disconnected from {}:{}", session., session.getPort());
     }
   }
 
@@ -313,23 +295,23 @@ public class SftpClient {
    * @return whether this client is currently connected and logged into the remote server
    */
   public boolean isConnected() {
-    return sftp != null && sftp.isConnected() && !sftp.isClosed() && session != null && session.isConnected();
+    return sftp != null && sftp.isOpen() && session != null && session.isOpen();
   }
 
   /**
    * Lists the contents of the directory at the given {@code path}
    *
    * @param path the path to list
-   * @return a immutable {@link List} of {@Link SftpFileAttributes}. Might be empty but will never be {@code null}
+   * @return a immutable {@link List} of {@link SftpFileAttributes}. Might be empty but will never be {@code null}
    */
   public List<SftpFileAttributes> list(String path) {
-    List<ChannelSftp.LsEntry> entries;
+    Collection<org.apache.sshd.sftp.client.SftpClient.DirEntry> entries;
     try {
-      entries = sftp.ls(normalizePath(path));
+      entries = sftp.readEntries(normalizeRemotePath(path));
       if (LOGGER.isTraceEnabled()) {
         LOGGER.trace("Listed {} entries from path {}", entries.size(), path);
       }
-    } catch (SftpException e) {
+    } catch (IOException e) {
       throw exception("Found exception trying to list path " + path, e);
     }
 
@@ -337,7 +319,7 @@ public class SftpClient {
       return emptyList();
     }
 
-    return entries.stream().map(entry -> new SftpFileAttributes(createUri(path, entry.getFilename()), entry.getAttrs()))
+    return entries.stream().map(entry -> new SftpFileAttributes(createUri(path, entry.getFilename()), entry.getAttributes()))
         .collect(toImmutableList());
   }
 
@@ -349,8 +331,8 @@ public class SftpClient {
    */
   public InputStream getFileContent(String path) {
     try {
-      return sftp.get(normalizePath(path));
-    } catch (SftpException e) {
+      return sftp.read(normalizeRemotePath(path));
+    } catch (IOException e) {
       throw exception("Exception was found trying to retrieve the contents of file " + path, e);
     }
   }
@@ -361,10 +343,15 @@ public class SftpClient {
    * @param path the path to write into
    * @param stream the content to be written
    * @param mode the write mode
-   * @throws Exception if anything goes wrong
    */
-  public void write(String path, InputStream stream, FileWriteMode mode) throws Exception {
-    sftp.put(stream, path, toInt(mode));
+  public void write(String path, InputStream stream, FileWriteMode mode) throws IOException {
+    try (OutputStream out = getOutputStream(path, mode)) {
+      byte[] buf = new byte[8192];
+      int n;
+      while ((n = stream.read(buf)) != -1) {
+        out.write(buf, 0, n);
+      }
+    }
   }
 
   /**
@@ -373,12 +360,7 @@ public class SftpClient {
    * @return a {@link String}
    */
   public String getHome() {
-    try {
-      return sftp.getHome();
-    } catch (SftpException e) {
-      LOGGER.warn("Home directory could not be acquired", e);
-      return "";
-    }
+    return cwd;
   }
 
   /**
@@ -388,27 +370,40 @@ public class SftpClient {
    * @param mode the write mode
    * @return an {@link OutputStream}
    */
-  public OutputStream getOutputStream(String path, FileWriteMode mode) throws Exception {
-    return sftp.put(normalizePath(path), toInt(mode));
+  public OutputStream getOutputStream(String path, FileWriteMode mode) throws IOException {
+    return sftp.write(normalizeRemotePath(path), toApacheSshdModes(mode));
   }
 
-  private int toInt(FileWriteMode mode) {
-    return mode == FileWriteMode.APPEND ? ChannelSftp.APPEND : ChannelSftp.OVERWRITE;
+  private OpenMode[] toApacheSshdModes(FileWriteMode mode) {
+    OpenMode[] modes;
+    switch (mode) {
+      case CREATE_NEW:
+        modes = new OpenMode[] {OpenMode.Write, OpenMode.Create};
+        break;
+      case APPEND:
+        modes = new OpenMode[] {OpenMode.Write, OpenMode.Append};
+        break;
+      case OVERWRITE:
+        modes = new OpenMode[] {OpenMode.Write, OpenMode.Create};
+        break;
+      default:
+        throw new IllegalArgumentException();
+    }
+    return modes;
   }
 
   /**
    * Creates a directory
    *
    * @param directoryName The directory name
-   * @throws IOException If an error occurs
    */
   public void mkdir(String directoryName) {
     try {
       if (LOGGER.isTraceEnabled()) {
         LOGGER.trace("Trying to create directory {}", directoryName);
       }
-      sftp.mkdir(normalizePath(directoryName));
-    } catch (SftpException e) {
+      sftp.mkdir(normalizeRemotePath(directoryName));
+    } catch (IOException e) {
       throw exception("Could not create the directory " + directoryName, e);
     }
   }
@@ -422,8 +417,8 @@ public class SftpClient {
    */
   public void deleteDirectory(String path) {
     try {
-      sftp.rmdir(path);
-    } catch (SftpException e) {
+      sftp.rmdir(normalizeRemotePath(path));
+    } catch (IOException e) {
       throw exception("Could not delete directory " + path, e);
     }
   }
@@ -438,7 +433,8 @@ public class SftpClient {
 
   protected RuntimeException exception(String message, Exception cause) {
     if (cause instanceof SftpException) {
-      if (cause.getCause() instanceof IOException) {
+      int status = ((SftpException) cause).getStatus();
+      if (status == SSH_FX_CONNECTION_LOST || status == SSH_FX_NO_CONNECTION) {
         return exception(message, new SftpConnectionException("Error occurred while trying to connect to host",
                                                               new ConnectionException(cause, owner), CONNECTIVITY, owner));
       }
@@ -473,7 +469,7 @@ public class SftpClient {
   }
 
   public void setConnectionTimeoutMillis(long connectionTimeoutMillis) {
-    this.connectionTimeoutMillis = connectionTimeoutMillis;
+    this.connectionTimeoutMillis = connectionTimeoutMillis == 0 ? Long.MAX_VALUE : connectionTimeoutMillis;
   }
 
   public void setProxyConfig(SftpProxyConfig proxyConfig) throws ConnectionException {
@@ -493,5 +489,9 @@ public class SftpClient {
 
   public void setOwner(SftpFileSystem owner) {
     this.owner = owner;
+  }
+
+  private String normalizeRemotePath(String path) {
+    return normalizePath(path.length() > 0 && path.charAt(0) == '/' ? path : (cwd.equals("/") ? "" : cwd) + "/" + path);
   }
 }

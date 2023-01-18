@@ -127,8 +127,7 @@ public class SftpConnectionProvider extends FileSystemProvider<SftpFileSystem>
     if (LOGGER.isDebugEnabled()) {
       LOGGER.debug(format("Connecting to host: '%s' at port: '%d'", connectionSettings.getHost(), connectionSettings.getPort()));
     }
-    SftpClient client = clientFactory.createInstance(connectionSettings.getHost(), connectionSettings.getPort(),
-                                                     connectionSettings.getPrngAlgorithm());
+    SftpClient client = clientFactory.createInstance(connectionSettings.getHost(), connectionSettings.getPort());
     client.setConnectionTimeoutMillis(getConnectionTimeoutUnit().toMillis(getConnectionTimeout()));
     client.setPassword(connectionSettings.getPassword());
     client.setIdentity(connectionSettings.getIdentityFile(), connectionSettings.getPassphrase());
@@ -139,9 +138,6 @@ public class SftpConnectionProvider extends FileSystemProvider<SftpFileSystem>
     client.setProxyConfig(proxyConfig);
     try {
       client.login(connectionSettings.getUsername());
-    } catch (JSchException e) {
-      LOGGER.error(e.getMessage(), e);
-      handleJSchException(e);
     } catch (Exception e) {
       LOGGER.error(e.getMessage(), e);
       throw new ConnectionException(getErrorMessage(connectionSettings, e.getMessage()), e);
