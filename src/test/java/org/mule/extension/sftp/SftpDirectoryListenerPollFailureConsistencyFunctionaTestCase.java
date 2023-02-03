@@ -19,14 +19,12 @@ import org.mule.runtime.core.api.processor.Processor;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import io.qameta.allure.Description;
 import io.qameta.allure.Feature;
-import org.apache.logging.log4j.util.Strings;
 import org.junit.Test;
 
 @Feature(SFTP_EXTENSION)

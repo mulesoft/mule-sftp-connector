@@ -113,7 +113,7 @@ public class SftpCopyTestCase extends CommonSftpConnectorTestCase {
     final String target = getPath(existingFileName);
 
     doExecute(target, true, false);
-    //doExecute(existingFileName, true, false);
+    // doExecute(existingFileName, true, false);
     assertCopy(target);
   }
 
@@ -239,7 +239,7 @@ public class SftpCopyTestCase extends CommonSftpConnectorTestCase {
 
   void doExecute(String flowName, String target, boolean overwrite, boolean createParentFolder, String renameTo)
       throws Exception {
-    //doExecute(flowName, SOURCE_FILE_NAME, target, overwrite, createParentFolder, renameTo);
+    // doExecute(flowName, SOURCE_FILE_NAME, target, overwrite, createParentFolder, renameTo);
     doExecute(flowName, sourcePath, target, overwrite, createParentFolder, renameTo);
   }
 

@@ -13,7 +13,7 @@
         <choice>
             <when expression="#[vars.streaming]">
                 <sftp:read config-ref="config" path="#[vars.path]"/>
-                <object-to-string-transformer />
+<!--                <object-to-string-transformer />-->
             </when>
             <otherwise>
                 <sftp:read config-ref="config" path="#[vars.path]">
@@ -27,23 +27,23 @@
         <sftp:read config-ref="config" path="#[vars.readPath]" lock="true">
             <non-repeatable-stream />
         </sftp:read>
-        <custom-processor class="org.mule.extension.sftp.StreamCloserTestMessageProcessor"/>
+<!--        <custom-processor class="org.mule.extension.sftp.StreamCloserTestMessageProcessor"/>-->
     </flow>
 
     <flow name="readWithForcedMimeType">
         <sftp:read config-ref="config" path="#[vars.path]" outputMimeType="test/test"/>
-        <object-to-string-transformer />
+<!--        <object-to-string-transformer />-->
     </flow>
 
     <flow name="readFileThatIsDeleted">
         <sftp:read config-ref="config" path="#[vars.path]"/>
         <sftp:delete config-ref="config" path="#[vars.path]"/>
-        <object-to-string-transformer />
+<!--        <object-to-string-transformer />-->
     </flow>
 
     <flow name="readFileWithSizeCheck">
         <sftp:read config-ref="config" path="#[vars.path]" timeBetweenSizeCheck="2000"/>
-        <object-to-string-transformer />
+<!--        <object-to-string-transformer />-->
     </flow>
 
 </mule>

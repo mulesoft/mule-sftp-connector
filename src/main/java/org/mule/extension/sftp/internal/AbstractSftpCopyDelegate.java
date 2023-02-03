@@ -23,8 +23,8 @@ import java.io.InputStream;
 import java.net.URI;
 
 /**
- * Abstract implementation of {@link SftpCopyDelegate} for copying operations which require to FTP connections, one for reading the
- * source file and another for writing into the target path
+ * Abstract implementation of {@link SftpCopyDelegate} for copying operations which require to FTP connections, one for reading
+ * the source file and another for writing into the target path
  *
  * @since 1.0
  */
@@ -37,7 +37,7 @@ public abstract class AbstractSftpCopyDelegate implements SftpCopyDelegate {
   /**
    * Creates new instance
    *
-   * @param command the {@link SftpCommand} which requested this operation
+   * @param command    the {@link SftpCommand} which requested this operation
    * @param fileSystem the {@link SftpFileSystem} which connects to the remote server
    */
   public AbstractSftpCopyDelegate(SftpCommand command, SftpFileSystem fileSystem) {
@@ -47,8 +47,9 @@ public abstract class AbstractSftpCopyDelegate implements SftpCopyDelegate {
 
   /**
    * Performs a recursive copy
-   *  @param config the config which is parameterizing this operation
-   * @param source the {@link FileAttributes} for the file to be copied
+   * 
+   * @param config    the config which is parameterizing this operation
+   * @param source    the {@link FileAttributes} for the file to be copied
    * @param targetUri the {@link URI} to the target destination
    * @param overwrite whether to overwrite existing target paths
    */
@@ -88,10 +89,11 @@ public abstract class AbstractSftpCopyDelegate implements SftpCopyDelegate {
 
   /**
    * Performs a recursive copy of a directory
-   *  @param config the config which is parameterizing this operation
-   * @param sourceUri the path to the directory to be copied
-   * @param target the target path
-   * @param overwrite whether to overwrite the target files if they already exists
+   * 
+   * @param config           the config which is parameterizing this operation
+   * @param sourceUri        the path to the directory to be copied
+   * @param target           the target path
+   * @param overwrite        whether to overwrite the target files if they already exists
    * @param writerConnection the {@link SftpFileSystem} which connects to the target endpoint
    */
   protected abstract void copyDirectory(FileConnectorConfig config, URI sourceUri, URI target, boolean overwrite,
@@ -99,10 +101,11 @@ public abstract class AbstractSftpCopyDelegate implements SftpCopyDelegate {
 
   /**
    * Copies one individual file
-   *  @param config the config which is parameterizing this operation
-   * @param source the {@link FileAttributes} for the file to be copied
-   * @param target the target uri
-   * @param overwrite whether to overwrite the target files if they already exists
+   * 
+   * @param config           the config which is parameterizing this operation
+   * @param source           the {@link FileAttributes} for the file to be copied
+   * @param target           the target uri
+   * @param overwrite        whether to overwrite the target files if they already exists
    * @param writerConnection the {@link SftpFileSystem} which connects to the target endpoint
    */
   protected void copyFile(FileConnectorConfig config, FileAttributes source, URI target, boolean overwrite,

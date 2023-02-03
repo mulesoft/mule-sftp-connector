@@ -40,8 +40,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * An {@link FileSystemProvider} which provides instances of {@link SftpFileSystem} from instances of
- * {@link SftpConnector}
+ * An {@link FileSystemProvider} which provides instances of {@link SftpFileSystem} from instances of {@link SftpConnector}
  *
  * @since 1.0
  */

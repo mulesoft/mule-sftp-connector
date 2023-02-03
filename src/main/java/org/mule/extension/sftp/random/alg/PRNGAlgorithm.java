@@ -15,6 +15,7 @@ import org.mule.extension.sftp.random.alg.impl.NativeNonBlockingPRNGAlgorithm;
 
 
 public enum PRNGAlgorithm {
+
   AUTOSELECT("AUTOSELECT", AutoSelectPRGNAlgorithm.class), NativePRNG("NativePRNG", NativeBlockingPRNGAlgorithm.class), SHA1PRNG(
       "SHA1PRNG", SHA1PRNGAlgorithm.class), NativePRNGBlocking("NativePRNGBlocking",
           NativePRNGAlgorithm.class), NativePRNGNonBlocking("NativePRNGNonBlocking", NativeNonBlockingPRNGAlgorithm.class);

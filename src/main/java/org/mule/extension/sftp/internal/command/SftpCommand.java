@@ -53,7 +53,7 @@ public abstract class SftpCommand extends ExternalFileCommand<SftpFileSystem> {
    * Creates a new instance
    *
    * @param fileSystem a {@link SftpFileSystem} used as the connection object
-   * @param client a {@link SftpClient}
+   * @param client     a {@link SftpClient}
    */
   public SftpCommand(SftpFileSystem fileSystem, SftpClient client) {
     super(fileSystem);
@@ -61,8 +61,7 @@ public abstract class SftpCommand extends ExternalFileCommand<SftpFileSystem> {
   }
 
   /**
-   * Similar to {@link #getFile(String)} but throwing an {@link IllegalArgumentException} if the
-   * {@code filePath} doesn't exist
+   * Similar to {@link #getFile(String)} but throwing an {@link IllegalArgumentException} if the {@code filePath} doesn't exist
    *
    * @param filePath the path to the file you want
    * @return a {@link SftpFileAttributes}
@@ -153,8 +152,8 @@ public abstract class SftpCommand extends ExternalFileCommand<SftpFileSystem> {
    * This method performs path resolution and validation and eventually delegates into {@link #doRename(String, String)}, in which
    * the actual renaming implementation is.
    *
-   * @param filePath the path of the file to be renamed
-   * @param newName the new name
+   * @param filePath  the path of the file to be renamed
+   * @param newName   the new name
    * @param overwrite whether to overwrite the target file if it already exists
    */
   protected void rename(String filePath, String newName, boolean overwrite) {
@@ -190,7 +189,7 @@ public abstract class SftpCommand extends ExternalFileCommand<SftpFileSystem> {
    * Implementations are to perform the actual renaming logic here
    *
    * @param filePath the path of the file to be renamed
-   * @param newName the new name
+   * @param newName  the new name
    * @throws Exception if anything goes wrong
    */
   protected void doRename(String filePath, String newName) throws Exception {
@@ -210,13 +209,13 @@ public abstract class SftpCommand extends ExternalFileCommand<SftpFileSystem> {
   }
 
   /**
-   * Performs the base logic and delegates into
-   * {@link SftpCopyDelegate#doCopy(FileConnectorConfig, FileAttributes, URI, boolean)} to perform the actual
-   * copying logic
-   *  @param config the config that is parameterizing this operation
-   * @param source the path to be copied
-   * @param target the path to the target destination
-   * @param overwrite whether to overwrite existing target paths
+   * Performs the base logic and delegates into {@link SftpCopyDelegate#doCopy(FileConnectorConfig, FileAttributes, URI, boolean)}
+   * to perform the actual copying logic
+   * 
+   * @param config                the config that is parameterizing this operation
+   * @param source                the path to be copied
+   * @param target                the path to the target destination
+   * @param overwrite             whether to overwrite existing target paths
    * @param createParentDirectory whether to create the target's parent directory if it doesn't exist
    */
   protected final void copy(FileConnectorConfig config, String source, String target, boolean overwrite,

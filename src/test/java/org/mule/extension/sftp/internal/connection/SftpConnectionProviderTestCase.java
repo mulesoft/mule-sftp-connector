@@ -106,11 +106,11 @@ public class SftpConnectionProviderTestCase extends AbstractMuleTestCase {
 
     ConnectFuture connectFuture = Mockito.mock(ConnectFuture.class);
 
-    //when(channel.pwd()).thenReturn("/");
+    // when(channel.pwd()).thenReturn("/");
     when(sshClient.connect(USERNAME, HOST, 22)).thenReturn(connectFuture);
     when(connectFuture.verify(new Long(SECONDS.toMillis(TIMEOUT)))).thenReturn(connectFuture);
     when(connectFuture.getSession()).thenReturn(session);
-    //when(session.openChannel("sftp")).thenReturn(channel);
+    // when(session.openChannel("sftp")).thenReturn(channel);
   }
 
   @Test
@@ -123,82 +123,82 @@ public class SftpConnectionProviderTestCase extends AbstractMuleTestCase {
     verify(session).addPublicKeyIdentity(any());
   }
 
-//  @Test
-//  public void whenSHA1PRNGlgorithmIsSetSetThenLogginPropertiesAreSet() throws Exception {
-//    assertPropertyCorrectWith(SHA1PRNG);
-//  }
-//
-//  @Test
-//  public void whenAUTOSELECTlgorithmIsSetSetThenLogginPropertiesAreSet() throws Exception {
-//    assertPropertyCorrectWith(AUTOSELECT);
-//  }
-//
-//  @Test
-//  public void whenNativePRNGBlockinglgorithmIsSetSetThenLogginPropertiesAreSet() throws Exception {
-//    assertPropertyCorrectWith(NativePRNGBlocking);
-//  }
-//
-//  @Test
-//  public void whenNativePRNGlgorithmIsSetSetThenLogginPropertiesAreSet() throws Exception {
-//    assertPropertyCorrectWith(NativePRNG);
-//  }
-//
-//  @Test
-//  public void whenNativePRNGNonBlockinglgorithmIsSetSetThenLogginPropertiesAreSet() throws Exception {
-//    assertPropertyCorrectWith(NativePRNGNonBlocking);
-//  }
-//
-//  @Test
-//  public void identityFileWithoutPassPhrase() throws Exception {
-//    provider.setIdentityFile(identityFile.getAbsolutePath());
-//
-//    login();
-//
-//    assertSimpleIdentity();
-//  }
-//
-//  private void assertPropertyCorrectWith(PRNGAlgorithm algorithm) throws Exception {
-//    provider.setPrngAlgorithm(algorithm);
-//    provider.connect();
-//    Properties properties = captureLoginProperties();
-//    assertThat(properties.get("random"), equalTo(algorithm.getImplementationClassName()));
-//  }
-//
-//  private void assertSimpleIdentity() throws JSchException {
-//    verify(jsch).addIdentity(identityFile.getAbsolutePath());
-//  }
-//
-//  @Test
-//  public void simpleCredentials() throws Exception {
-//    provider.setPassword(PASSWORD);
-//    login();
-//
-//    assertPassword();
-//  }
-//
-//  @Test
-//  public void simpleCredentialsPlusIdentity() throws Exception {
-//    provider.setIdentityFile(identityFile.getAbsolutePath());
-//    provider.setPassword(PASSWORD);
-//
-//    login();
-//
-//    assertPassword();
-//    assertSimpleIdentity();
-//  }
-//
-//  @Test
-//  public void noKnownHosts() throws Exception {
-//    provider.setKnownHostsFile(null);
-//    provider.connect();
-//
-//    Properties properties = captureLoginProperties();
-//    //assertThat(properties.getProperty(STRICT_HOST_KEY_CHECKING), equalTo("no"));
-//  }
-//
-//  private void assertPassword() {
-//    verify(session).addPasswordIdentity(PASSWORD);
-//  }
+  // @Test
+  // public void whenSHA1PRNGlgorithmIsSetSetThenLogginPropertiesAreSet() throws Exception {
+  // assertPropertyCorrectWith(SHA1PRNG);
+  // }
+  //
+  // @Test
+  // public void whenAUTOSELECTlgorithmIsSetSetThenLogginPropertiesAreSet() throws Exception {
+  // assertPropertyCorrectWith(AUTOSELECT);
+  // }
+  //
+  // @Test
+  // public void whenNativePRNGBlockinglgorithmIsSetSetThenLogginPropertiesAreSet() throws Exception {
+  // assertPropertyCorrectWith(NativePRNGBlocking);
+  // }
+  //
+  // @Test
+  // public void whenNativePRNGlgorithmIsSetSetThenLogginPropertiesAreSet() throws Exception {
+  // assertPropertyCorrectWith(NativePRNG);
+  // }
+  //
+  // @Test
+  // public void whenNativePRNGNonBlockinglgorithmIsSetSetThenLogginPropertiesAreSet() throws Exception {
+  // assertPropertyCorrectWith(NativePRNGNonBlocking);
+  // }
+  //
+  // @Test
+  // public void identityFileWithoutPassPhrase() throws Exception {
+  // provider.setIdentityFile(identityFile.getAbsolutePath());
+  //
+  // login();
+  //
+  // assertSimpleIdentity();
+  // }
+  //
+  // private void assertPropertyCorrectWith(PRNGAlgorithm algorithm) throws Exception {
+  // provider.setPrngAlgorithm(algorithm);
+  // provider.connect();
+  // Properties properties = captureLoginProperties();
+  // assertThat(properties.get("random"), equalTo(algorithm.getImplementationClassName()));
+  // }
+  //
+  // private void assertSimpleIdentity() throws JSchException {
+  // verify(jsch).addIdentity(identityFile.getAbsolutePath());
+  // }
+  //
+  // @Test
+  // public void simpleCredentials() throws Exception {
+  // provider.setPassword(PASSWORD);
+  // login();
+  //
+  // assertPassword();
+  // }
+  //
+  // @Test
+  // public void simpleCredentialsPlusIdentity() throws Exception {
+  // provider.setIdentityFile(identityFile.getAbsolutePath());
+  // provider.setPassword(PASSWORD);
+  //
+  // login();
+  //
+  // assertPassword();
+  // assertSimpleIdentity();
+  // }
+  //
+  // @Test
+  // public void noKnownHosts() throws Exception {
+  // provider.setKnownHostsFile(null);
+  // provider.connect();
+  //
+  // Properties properties = captureLoginProperties();
+  // //assertThat(properties.getProperty(STRICT_HOST_KEY_CHECKING), equalTo("no"));
+  // }
+  //
+  // private void assertPassword() {
+  // verify(session).addPasswordIdentity(PASSWORD);
+  // }
 
   private void login() throws Exception {
     SftpFileSystem fileSystem = provider.connect();
@@ -206,18 +206,18 @@ public class SftpConnectionProviderTestCase extends AbstractMuleTestCase {
     assertThat(fileSystem.getBasePath(), is(""));
     verify(sshClient).connect(USERNAME, HOST, 22).verify(new Long(SECONDS.toMillis(TIMEOUT)).intValue());
     verify(sshClient).setKeyIdentityProvider(KeyIdentityProvider.EMPTY_KEYS_PROVIDER);
-//    verify(session).connect();
-//    verify(channel).connect();
+    // verify(session).connect();
+    // verify(channel).connect();
 
     Properties properties = captureLoginProperties();
-    //    assertThat(properties.getProperty(PREFERRED_AUTHENTICATION_METHODS), equalTo(GSSAPI_WITH_MIC.toString()));
-    //    assertThat(properties.getProperty(STRICT_HOST_KEY_CHECKING), equalTo("ask"));
+    // assertThat(properties.getProperty(PREFERRED_AUTHENTICATION_METHODS), equalTo(GSSAPI_WITH_MIC.toString()));
+    // assertThat(properties.getProperty(STRICT_HOST_KEY_CHECKING), equalTo("ask"));
     verify(client, never()).changeWorkingDirectory(anyString());
   }
 
   private Properties captureLoginProperties() {
     ArgumentCaptor<Properties> propertiesCaptor = forClass(Properties.class);
-    //verify(session).setConfig(propertiesCaptor.capture());
+    // verify(session).setConfig(propertiesCaptor.capture());
 
     return propertiesCaptor.getValue();
   }

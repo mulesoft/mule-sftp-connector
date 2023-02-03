@@ -190,7 +190,7 @@ public class SftpCreateDirectoryTestCase extends CommonSftpConnectorTestCase {
 
   @Test
   public void createDirectoryWithColon() throws Exception {
-    //TODO: This assumption must stay as long as the test server runs in the same OS as the tests. It could be
+    // TODO: This assumption must stay as long as the test server runs in the same OS as the tests. It could be
     // removed when the test server always runs in an external Linux container.
     assumeTrue(!IS_OS_WINDOWS);
     final String path = "pathWith:Colon";
@@ -200,7 +200,7 @@ public class SftpCreateDirectoryTestCase extends CommonSftpConnectorTestCase {
 
   @Test
   public void createDirectoryWithGreaterThan() throws Exception {
-    //TODO: This assumption must stay as long as the test server runs in the same OS as the tests. It could be
+    // TODO: This assumption must stay as long as the test server runs in the same OS as the tests. It could be
     // removed when the test server always runs in an external Linux container.
     assumeTrue(!IS_OS_WINDOWS);
     final String path = "pathWith>";

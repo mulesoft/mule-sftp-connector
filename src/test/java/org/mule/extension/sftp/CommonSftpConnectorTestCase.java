@@ -50,7 +50,7 @@ public abstract class CommonSftpConnectorTestCase extends AbstractSftpConnectorT
   @Parameters(name = "{0}")
   public static Collection<Object[]> data() {
     return Arrays.asList(new Object[][] {
-        //{"sftp-user-password", new org.mule.extension.sftp.SftpTestHarness(USER_PASSWORD), SFTP_CONNECTION_XML},
+        {"sftp-user-password", new org.mule.extension.sftp.SftpTestHarness(USER_PASSWORD), SFTP_CONNECTION_XML},
         {"sftp-public-key", new org.mule.extension.sftp.SftpTestHarness(PUBLIC_KEY), SFTP_CONNECTION_XML_WITH_IDENTITY_FILE}});
   }
 

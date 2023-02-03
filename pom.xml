@@ -6,7 +6,7 @@
     <parent>
         <groupId>org.mule.extensions</groupId>
         <artifactId>mule-core-modules-parent</artifactId>
-        <version>1.1.9</version>
+        <version>1.4.2</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -19,7 +19,6 @@
     <description>A Mule extension that provides functionality to manage files in an SFTP server</description>
 
     <properties>
-        <mule.version>4.1.2</mule.version>
         <docker.maven.plugin.version>0.40.3</docker.maven.plugin.version>
         <maven.helper.plugin.version>3.3.0</maven.helper.plugin.version>
         <commonsIoVersion>2.11.0</commonsIoVersion>
@@ -124,12 +123,6 @@
             <scope>test</scope>
         </dependency>
 
-        <dependency>
-            <groupId>org.mule.tests</groupId>
-            <artifactId>mule-tests-runner</artifactId>
-            <version>${muleTestsRunnerVersion}</version>
-            <scope>test</scope>
-        </dependency>
 
         <dependency>
             <groupId>org.bouncycastle</groupId>
@@ -218,6 +211,24 @@
                         <version>1.0.0</version>
                         <classifier>mule-plugin</classifier>
                     </dependency>
+                    <dependency>
+                        <groupId>org.apache.sshd</groupId>
+                        <artifactId>sshd-core</artifactId>
+                        <version>${sshdVersion}</version>
+                    </dependency>
+
+                    <dependency>
+                        <groupId>org.apache.sshd</groupId>
+                        <artifactId>sshd-sftp</artifactId>
+                        <version>${sshdVersion}</version>
+                    </dependency>
+
+                    <dependency>
+                        <groupId>org.apache.sshd</groupId>
+                        <artifactId>sshd-common</artifactId>
+                        <version>${sshdVersion}</version>
+                    </dependency>
+
                 </dependencies>
             </plugin>
             <plugin>

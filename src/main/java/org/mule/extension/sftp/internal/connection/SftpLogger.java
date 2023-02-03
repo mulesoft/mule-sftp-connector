@@ -9,7 +9,8 @@ package org.mule.extension.sftp.internal.connection;
 
 import org.slf4j.LoggerFactory;
 
-public class SftpLogger  {
+public class SftpLogger {
+
   private org.slf4j.Logger logger = LoggerFactory.getLogger("com.jcraft.jsch");
 
   public boolean isEnabled(int level) {

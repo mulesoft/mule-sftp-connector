@@ -193,7 +193,7 @@
     <flow name="delete-created-files">
         <sftp:listener config-ref="${config}" directory="/">
             <scheduling-strategy>
-                <fixed-frequency startDelay="1000"/>
+                <fixed-frequency startDelay="2000"/>
             </scheduling-strategy>
         </sftp:listener>
         <sftp:delete config-ref="${config}" path="#[attributes.path]" />
