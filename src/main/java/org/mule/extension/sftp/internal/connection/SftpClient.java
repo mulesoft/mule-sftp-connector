@@ -126,6 +126,8 @@ public class SftpClient {
         return null;
       }
       throw exception("Could not obtain attributes for path " + path, e);
+    } catch (IOException e) {
+      throw exception("Could not obtain attributes for path " + path, e);
     }
   }
 
@@ -431,6 +433,11 @@ public class SftpClient {
     if (cause instanceof SftpException) {
       int status = ((SftpException) cause).getStatus();
       if (status == SSH_FX_CONNECTION_LOST || status == SSH_FX_NO_CONNECTION) {
+        return exception(message, new SftpConnectionException("Error occurred while trying to connect to host",
+                                                              new ConnectionException(cause, owner), CONNECTIVITY, owner));
+      }
+    } else if (cause instanceof IOException) {
+      if (!sftp.isOpen()) {
         return exception(message, new SftpConnectionException("Error occurred while trying to connect to host",
                                                               new ConnectionException(cause, owner), CONNECTIVITY, owner));
       }
