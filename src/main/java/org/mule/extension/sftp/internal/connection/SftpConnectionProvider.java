@@ -8,18 +8,18 @@ package org.mule.extension.sftp.internal.connection;
 
 import static java.lang.String.format;
 import static org.apache.commons.lang3.StringUtils.join;
-import static org.mule.extension.file.common.api.exceptions.FileError.CANNOT_REACH;
-import static org.mule.extension.file.common.api.exceptions.FileError.CONNECTION_TIMEOUT;
-import static org.mule.extension.file.common.api.exceptions.FileError.DISCONNECTED;
-import static org.mule.extension.file.common.api.exceptions.FileError.INVALID_CREDENTIALS;
-import static org.mule.extension.file.common.api.exceptions.FileError.UNKNOWN_HOST;
 import static org.mule.runtime.api.meta.model.display.PathModel.Type.FILE;
 import static org.mule.runtime.extension.api.annotation.param.ParameterGroup.CONNECTION;
 
+import java.util.Objects;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+
+import javax.inject.Inject;
+
 import org.mule.extension.file.common.api.FileSystemProvider;
-import org.mule.extension.file.common.api.exceptions.FileError;
 import org.mule.extension.sftp.api.SftpAuthenticationMethod;
-import org.mule.extension.sftp.api.SftpConnectionException;
 import org.mule.extension.sftp.api.SftpProxyConfig;
 import org.mule.extension.sftp.internal.SftpConnector;
 import org.mule.extension.sftp.internal.TimeoutSettings;
@@ -36,16 +36,6 @@ import org.mule.runtime.extension.api.annotation.param.display.DisplayName;
 import org.mule.runtime.extension.api.annotation.param.display.Path;
 import org.mule.runtime.extension.api.annotation.param.display.Summary;
 import org.mule.sdk.api.annotation.semantics.connectivity.ExcludeFromConnectivitySchema;
-
-import java.net.ConnectException;
-import java.net.UnknownHostException;
-import java.util.Objects;
-import java.util.Set;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
-
-import javax.inject.Inject;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -124,8 +114,7 @@ public class SftpConnectionProvider extends FileSystemProvider<SftpFileSystem>
     if (LOGGER.isDebugEnabled()) {
       LOGGER.debug(format("Connecting to host: '%s' at port: '%d'", connectionSettings.getHost(), connectionSettings.getPort()));
     }
-    SftpClient client = clientFactory.createInstance(connectionSettings.getHost(), connectionSettings.getPort(),
-                                                     connectionSettings.getPrngAlgorithm());
+    SftpClient client = clientFactory.createInstance(connectionSettings.getHost(), connectionSettings.getPort());
     client.setConnectionTimeoutMillis(getConnectionTimeoutUnit().toMillis(getConnectionTimeout()));
     client.setPassword(connectionSettings.getPassword());
     client.setIdentity(connectionSettings.getIdentityFile(), connectionSettings.getPassphrase());
@@ -136,9 +125,6 @@ public class SftpConnectionProvider extends FileSystemProvider<SftpFileSystem>
     client.setProxyConfig(proxyConfig);
     try {
       client.login(connectionSettings.getUsername());
-      // } catch (JSchException e) {
-      // LOGGER.error(e.getMessage(), e);
-      // handleJSchException(e);
     } catch (Exception e) {
       LOGGER.error(e.getMessage(), e);
       throw new ConnectionException(getErrorMessage(connectionSettings, e.getMessage()), e);
@@ -240,26 +226,6 @@ public class SftpConnectionProvider extends FileSystemProvider<SftpFileSystem>
   public void setResponseTimeoutUnit(TimeUnit responseTimeoutUnit) {
     timeoutSettings.setResponseTimeoutUnit(responseTimeoutUnit);
   }
-
-  /*
-   * Handles a { @ link JSchException}, introspects their cause or message to return a {@link ConnectionException} indicating with
-   * a {@link FileError} the kind of failure.
-   *
-   * @param e The exception to handle
-   * 
-   * @throws ConnectionException Indicating the kind of failure
-   *
-   * private void handleJSchException(JSchException e) throws ConnectionException { String message = e.getMessage();
-   * LOGGER.error(message, e); if (message.equals(AUTH_FAIL_MESSAGE)) { throw new
-   * SftpConnectionException(getErrorMessage(connectionSettings, format("Error during login to %s@%s",
-   * connectionSettings.getUsername(), connectionSettings.getHost())), e, INVALID_CREDENTIALS); } if
-   * (e.getMessage().startsWith(TIMEOUT)) { throw new SftpConnectionException(getErrorMessage(connectionSettings, e.getMessage()),
-   * e, CONNECTION_TIMEOUT); } if (e.getMessage().startsWith(SSH_DISCONNECTION_MESSAGE)) { throw new
-   * SftpConnectionException(getErrorMessage(connectionSettings, e.getMessage()), e, DISCONNECTED); } if (e.getCause() instanceof
-   * ConnectException) { throw new SftpConnectionException(getErrorMessage(connectionSettings, e.getMessage()), e, CANNOT_REACH);
-   * } if (e.getCause() instanceof UnknownHostException) { throw new SftpConnectionException(getErrorMessage(connectionSettings,
-   * e.getMessage()), e, UNKNOWN_HOST); } throw new ConnectionException(getErrorMessage(connectionSettings, e.getMessage()), e); }
-   */
 
   private String getErrorMessage(SftpConnectionSettings connectionSettings, String message) {
     return format(SFTP_ERROR_MESSAGE_MASK, connectionSettings.getHost(), connectionSettings.getPort(), message);

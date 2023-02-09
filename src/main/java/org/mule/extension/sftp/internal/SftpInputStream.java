@@ -6,8 +6,6 @@
  */
 package org.mule.extension.sftp.internal;
 
-import org.apache.sshd.sftp.common.SftpConstants;
-import org.apache.sshd.sftp.common.SftpException;
 import org.mule.extension.file.common.api.AbstractConnectedFileInputStreamSupplier;
 import org.mule.extension.file.common.api.FileAttributes;
 import org.mule.extension.file.common.api.lock.UriLock;
@@ -21,6 +19,9 @@ import org.mule.runtime.core.api.connector.ConnectionManager;
 
 import java.io.IOException;
 import java.io.InputStream;
+
+import org.apache.sshd.sftp.common.SftpConstants;
+import org.apache.sshd.sftp.common.SftpException;
 
 /**
  * Implementation of {@link AbstractNonFinalizableFileInputStream} for SFTP connections

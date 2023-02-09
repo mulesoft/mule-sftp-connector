@@ -11,7 +11,7 @@ import java.security.SecureRandom;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-// FIXME
+
 public abstract class MulePRNGAlgorithm {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(MulePRNGAlgorithm.class);

@@ -6,14 +6,16 @@
  */
 package org.mule.extension.sftp.internal.command;
 
-import static java.lang.String.format;
-import static org.apache.commons.lang3.StringUtils.isBlank;
-import static org.apache.commons.lang3.StringUtils.isEmpty;
 import static org.mule.extension.file.common.api.util.UriUtils.createUri;
 import static org.mule.extension.file.common.api.util.UriUtils.normalizeUri;
 import static org.mule.extension.file.common.api.util.UriUtils.trimLastFragment;
 import static org.mule.extension.sftp.internal.SftpUtils.normalizePath;
 import static org.mule.extension.sftp.internal.connection.SftpFileSystem.ROOT;
+
+import static java.lang.String.format;
+
+import static org.apache.commons.lang3.StringUtils.isBlank;
+import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 import org.mule.extension.file.common.api.FileAttributes;
 import org.mule.extension.file.common.api.FileConnectorConfig;
@@ -292,7 +294,11 @@ public abstract class SftpCommand extends ExternalFileCommand<SftpFileSystem> {
    * {@inheritDoc}
    */
   protected URI getBasePath(FileSystem fileSystem) {
-    return createUri(fileSystem.getBasePath());
+    String basePath = fileSystem.getBasePath();
+    if (isEmpty(basePath)) {
+      basePath = ((SftpFileSystem) fileSystem).getClient().getHome();
+    }
+    return createUri(basePath);
   }
 
 }

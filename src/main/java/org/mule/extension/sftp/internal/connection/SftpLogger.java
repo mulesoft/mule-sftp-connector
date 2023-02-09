@@ -6,9 +6,9 @@
  */
 package org.mule.extension.sftp.internal.connection;
 
+
 import org.slf4j.LoggerFactory;
 
-// FIXME
 public class SftpLogger {
 
   private org.slf4j.Logger logger = LoggerFactory.getLogger("com.jcraft.jsch");
@@ -29,6 +29,7 @@ public class SftpLogger {
         return false;
     }
   }
+
 
   public void log(int level, String message) {
     this.logger.debug(message);

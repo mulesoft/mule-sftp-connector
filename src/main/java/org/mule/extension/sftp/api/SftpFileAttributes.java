@@ -6,14 +6,15 @@
  */
 package org.mule.extension.sftp.api;
 
+import static org.apache.sshd.sftp.client.SftpClient.Attributes;
 import static org.mule.extension.sftp.internal.SftpUtils.normalizePath;
-
-import org.apache.sshd.sftp.client.SftpClient;
-import org.mule.extension.file.common.api.AbstractFileAttributes;
-import org.mule.runtime.extension.api.annotation.param.Parameter;
 
 import java.net.URI;
 import java.time.LocalDateTime;
+import java.util.Date;
+
+import org.mule.extension.file.common.api.AbstractFileAttributes;
+import org.mule.runtime.extension.api.annotation.param.Parameter;
 
 /**
  * Metadata about a file in a SFTP server
@@ -39,11 +40,11 @@ public class SftpFileAttributes extends AbstractFileAttributes {
 
   /**
    * Creates a new instance
-   * 
+   *
    * @param uri   the file's {@link URI}
-   * @param attrs the {@link SftpClient.Attributes} which represents the file on the SFTP server
+   * @param attrs the {@link Attributes} which represents the file on the SFTP server
    */
-  public SftpFileAttributes(URI uri, SftpClient.Attributes attrs) {
+  public SftpFileAttributes(URI uri, Attributes attrs) {
     super(uri);
 
     this.timestamp = asDateTime(attrs.getModifyTime().toInstant());

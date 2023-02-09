@@ -6,28 +6,32 @@
  */
 package org.mule.extension.sftp;
 
-import org.apache.sshd.scp.server.ScpCommandFactory;
-import org.apache.sshd.sftp.server.SftpSubsystemFactory;
+import static java.util.Arrays.asList;
+
 import org.mule.runtime.api.exception.MuleRuntimeException;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Collections;
+import java.security.Security;
 
+import org.apache.sshd.scp.server.ScpCommandFactory;
+import org.apache.sshd.sftp.server.SftpSubsystemFactory;
 import org.apache.sshd.common.file.virtualfs.VirtualFileSystemFactory;
 import org.apache.sshd.server.SshServer;
 import org.apache.sshd.server.auth.password.PasswordAuthenticator;
 import org.apache.sshd.server.auth.pubkey.PublickeyAuthenticator;
 import org.apache.sshd.server.keyprovider.SimpleGeneratorHostKeyProvider;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 public class SftpServer {
 
   public static final String USERNAME = "muletest1";
   public static final String PASSWORD = "muletest1";
   private SshServer sshdServer;
-  private final Integer port;
-  private final Path path;
+  private Integer port;
+  private Path path;
 
   public SftpServer(int port, Path path) {
     this.port = port;
@@ -53,7 +57,7 @@ public class SftpServer {
   private void configureSshdServer(SftpSubsystemFactory factory) {
     sshdServer.setPort(port);
     sshdServer.setKeyPairProvider(new SimpleGeneratorHostKeyProvider(Paths.get("hostkey.ser")));
-    sshdServer.setSubsystemFactories(Collections.singletonList(factory));
+    sshdServer.setSubsystemFactories(asList(factory));
     sshdServer.setCommandFactory(new ScpCommandFactory());
     sshdServer.setFileSystemFactory(new VirtualFileSystemFactory(path));
   }
@@ -63,7 +67,7 @@ public class SftpServer {
   }
 
   private void configureSecurityProvider() {
-    // Security.addProvider(new BouncyCastleProvider());
+    Security.addProvider(new BouncyCastleProvider());
   }
 
   private static PasswordAuthenticator passwordAuthenticator() {

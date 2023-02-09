@@ -8,6 +8,8 @@ package org.mule.extension.sftp.internal.connection;
 
 import static java.util.Collections.emptyList;
 import static org.apache.commons.collections.CollectionUtils.isEmpty;
+import static org.apache.sshd.sftp.common.SftpConstants.SSH_FX_CONNECTION_LOST;
+import static org.apache.sshd.sftp.common.SftpConstants.SSH_FX_NO_CONNECTION;
 import static org.mule.extension.file.common.api.exceptions.FileError.CONNECTIVITY;
 import static org.mule.extension.file.common.api.util.UriUtils.createUri;
 import static org.mule.extension.sftp.internal.SftpUtils.normalizePath;
@@ -33,8 +35,6 @@ import org.mule.extension.file.common.api.exceptions.FileError;
 import org.mule.extension.sftp.api.SftpConnectionException;
 import org.mule.extension.sftp.api.SftpFileAttributes;
 import org.mule.extension.sftp.api.SftpProxyConfig;
-import org.mule.extension.sftp.internal.proxy.http.HttpClientConnector;
-import org.mule.extension.sftp.internal.proxy.socks5.Socks5ClientConnector;
 import org.mule.runtime.api.connection.ConnectionException;
 import org.mule.runtime.api.exception.MuleRuntimeException;
 
@@ -42,7 +42,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.InetSocketAddress;
 import java.net.URI;
 import java.nio.file.Paths;
 import java.security.GeneralSecurityException;
@@ -109,7 +108,7 @@ public class SftpClient {
     if (LOGGER.isTraceEnabled()) {
       LOGGER.trace("Attempting to cwd to: {}", normalizedPath);
     }
-    this.cwd = path;
+    this.cwd = normalizedPath;
   }
 
   /**
@@ -126,6 +125,8 @@ public class SftpClient {
       if (e.getStatus() == SftpConstants.SSH_FX_NO_SUCH_FILE) {
         return null;
       }
+      throw exception("Could not obtain attributes for path " + path, e);
+    } catch (IOException e) {
       throw exception("Could not obtain attributes for path " + path, e);
     }
   }
@@ -188,41 +189,52 @@ public class SftpClient {
      * Properties hash = new Properties(); configureHostChecking(hash); setRandomPrng(hash); if
      * (!isEmpty(preferredAuthenticationMethods)) { hash.put(PREFERRED_AUTHENTICATION_METHODS, preferredAuthenticationMethods); }
      */
-    try {
-      configureProxy(session);
-    } catch (Exception e) {
-      throw new RuntimeException(e);
-    }
+    configureProxy(session);
   }
 
   private void configureHostChecking(Properties hash) {
     if (knownHostsFile != null) {
       checkExists(knownHostsFile);
       client
-          .setServerKeyVerifier(
-                                new KnownHostsServerKeyVerifier(RejectAllServerKeyVerifier.INSTANCE, Paths.get(knownHostsFile)));
+          .setServerKeyVerifier(new KnownHostsServerKeyVerifier(RejectAllServerKeyVerifier.INSTANCE, Paths.get(knownHostsFile)));
     }
   }
 
-  private void configureProxy(ClientSession session) throws Exception {
+  private void configureProxy(ClientSession session) {
     if (proxyConfig != null) {
 
       // Proxy proxy = null;
-      InetSocketAddress proxyAddress = new InetSocketAddress(proxyConfig.getHost(), proxyConfig.getPort());
-      InetSocketAddress remoteAddress = new InetSocketAddress(this.host, this.port);
       switch (proxyConfig.getProtocol()) {
         case HTTP:
-          session.setClientProxyConnector(new HttpClientConnector(proxyAddress, remoteAddress,
-                                                                  proxyConfig.getUsername(),
-                                                                  proxyConfig.getPassword().toCharArray()));
+          // ProxyHTTP proxyHttp = new ProxyHTTP(proxyConfig.getHost(), proxyConfig.getPort());
+          // if (proxyConfig.getUsername() != null && proxyConfig.getPassword() != null) {
+          // proxyHttp.setUserPasswd(proxyConfig.getUsername(), proxyConfig.getPassword());
+          // }
+          // proxy = proxyHttp;
+          break;
+
+        case SOCKS4:
+          // ProxySOCKS4 proxySocks4 = new ProxySOCKS4(proxyConfig.getHost(), proxyConfig.getPort());
+          // if (proxyConfig.getUsername() != null && proxyConfig.getPassword() != null) {
+          // proxySocks4.setUserPasswd(proxyConfig.getUsername(), proxyConfig.getPassword());
+          // }
+          // proxy = proxySocks4;
+          break;
+
         case SOCKS5:
-          session.setClientProxyConnector(new Socks5ClientConnector(proxyAddress, remoteAddress,
-                                                                    proxyConfig.getUsername(),
-                                                                    proxyConfig.getPassword().toCharArray()));
+          // ProxySOCKS5 proxySocks5 = new ProxySOCKS5(proxyConfig.getHost(), proxyConfig.getPort());
+          // if (proxyConfig.getUsername() != null && proxyConfig.getPassword() != null) {
+          // proxySocks5.setUserPasswd(proxyConfig.getUsername(), proxyConfig.getPassword());
+          // }
+          // proxy = proxySocks5;
+          // break;
+
         default:
           // should never get here, except a new type was added to the enum and not handled
           throw new IllegalArgumentException(format("Proxy protocol %s not recognized", proxyConfig.getProtocol()));
       }
+
+      // session.setProxy(proxy);
     }
   }
 
@@ -341,6 +353,15 @@ public class SftpClient {
   }
 
   /**
+   * Returns the home directory of the sftp server
+   *
+   * @return a {@link String}
+   */
+  public String getHome() {
+    return cwd;
+  }
+
+  /**
    * Opens an {@link OutputStream} which allows writing into the file pointed by {@code path}
    *
    * @param path the path to write into
@@ -361,7 +382,7 @@ public class SftpClient {
         modes = new OpenMode[] {OpenMode.Write, OpenMode.Append};
         break;
       case OVERWRITE:
-        modes = new OpenMode[] {OpenMode.Write};
+        modes = new OpenMode[] {OpenMode.Write, OpenMode.Create};
         break;
       default:
         throw new IllegalArgumentException();
@@ -410,11 +431,15 @@ public class SftpClient {
 
   protected RuntimeException exception(String message, Exception cause) {
     if (cause instanceof SftpException) {
-      // FIXME: Apache SSHD SftpException is never constructed with a cause. The following code will never run.
-      if (cause.getCause() instanceof IOException) {
+      int status = ((SftpException) cause).getStatus();
+      if (status == SSH_FX_CONNECTION_LOST || status == SSH_FX_NO_CONNECTION) {
         return exception(message, new SftpConnectionException("Error occurred while trying to connect to host",
-                                                              new ConnectionException(cause, owner), CONNECTIVITY,
-                                                              owner));
+                                                              new ConnectionException(cause, owner), CONNECTIVITY, owner));
+      }
+    } else if (cause instanceof IOException) {
+      if (!sftp.isOpen()) {
+        return exception(message, new SftpConnectionException("Error occurred while trying to connect to host",
+                                                              new ConnectionException(cause, owner), CONNECTIVITY, owner));
       }
     }
     return new MuleRuntimeException(createStaticMessage(message), cause);
@@ -457,8 +482,7 @@ public class SftpClient {
       }
 
       if ((proxyConfig.getUsername() == null) != (proxyConfig.getPassword() == null)) {
-        throw new SftpConnectionException(
-                                          "SFTP Proxy requires both \"username\" and \"password\" if configured with authentication (otherwise none)",
+        throw new SftpConnectionException("SFTP Proxy requires both \"username\" and \"password\" if configured with authentication (otherwise none)",
                                           FileError.INVALID_CREDENTIALS);
       }
 
