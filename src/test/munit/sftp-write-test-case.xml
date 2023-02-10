@@ -14,14 +14,14 @@
 
     <munit:config name="sftp-write-test-case.xml">
         <munit:parameterizations>
-            <munit:parameterization name="config">
+            <munit:parameterization name="config-docker-with-home-directory">
                 <munit:parameters>
-                    <munit:parameter propertyName="config" value="config"/>
+                    <munit:parameter propertyName="config" value="config-docker-with-home-directory"/>
                 </munit:parameters>
             </munit:parameterization>
-            <munit:parameterization name="config-without-working-dir">
+            <munit:parameterization name="config-docker-without-home-directory">
                 <munit:parameters>
-                    <munit:parameter propertyName="config" value="config-without-working-dir"/>
+                    <munit:parameter propertyName="config" value="config-docker-without-home-directory"/>
                 </munit:parameters>
             </munit:parameterization>
         </munit:parameterizations>
@@ -172,26 +172,25 @@
             <munit:enable-flow-source value="delete-created-files"/>
         </munit:enable-flow-sources>
         <munit:behavior>
-            <set-variable variableName="fileName" value="/will-be-deleted.txt"/>
+            <set-variable variableName="fileName" value="test/will-be-deleted.txt"/>
             <sftp:write config-ref="${config}" path='#[vars.fileName]' >
                 <sftp:content>test content</sftp:content>
             </sftp:write>
         </munit:behavior>
         <munit:execution>
-            <sftp:list config-ref="${config}" directoryPath="/">
+            <sftp:list config-ref="${config}" directoryPath="test">
             </sftp:list>
             <flow-ref name="wait-2-seconds"/>
             <foreach collection="#[payload]">
-                <sftp:write config-ref="${config}" path="/copy-of-will-be-deleted.txt" createParentDirectories="false" >
+                <sftp:write config-ref="${config}" path="test/copy-of-will-be-deleted.txt" createParentDirectories="false" >
                 </sftp:write>
             </foreach>
         </munit:execution>
     </munit:test>
 
 
-
     <flow name="delete-created-files">
-        <sftp:listener config-ref="${config}" directory="/">
+        <sftp:listener config-ref="${config}" directory="test">
             <scheduling-strategy>
                 <fixed-frequency startDelay="2000"/>
             </scheduling-strategy>

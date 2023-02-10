@@ -340,6 +340,11 @@
                                         <log>
                                             <enabled>true</enabled>
                                         </log>
+                                        <volumes>
+                                            <bind>
+                                                <volume>/config/test</volume>
+                                            </bind>
+                                        </volumes>
                                     </run>
                                 </image>
                             </images>

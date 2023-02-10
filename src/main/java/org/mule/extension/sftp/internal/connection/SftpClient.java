@@ -6,6 +6,7 @@
  */
 package org.mule.extension.sftp.internal.connection;
 
+import static java.lang.String.format;
 import static java.util.Collections.emptyList;
 import static org.apache.commons.collections.CollectionUtils.isEmpty;
 import static org.apache.sshd.sftp.common.SftpConstants.SSH_FX_CONNECTION_LOST;
@@ -17,7 +18,18 @@ import static org.mule.extension.sftp.internal.SftpUtils.resolvePathOrResource;
 import static org.mule.runtime.api.i18n.I18nMessageFactory.createStaticMessage;
 import static org.mule.runtime.api.util.collection.Collectors.toImmutableList;
 import static org.mule.runtime.core.api.util.StringUtils.isEmpty;
-import static java.lang.String.format;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.URI;
+import java.nio.file.Paths;
+import java.security.GeneralSecurityException;
+import java.security.KeyPair;
+import java.util.Collection;
+import java.util.List;
+import java.util.Properties;
 
 import org.apache.sshd.client.SshClient;
 import org.apache.sshd.client.keyverifier.KnownHostsServerKeyVerifier;
@@ -37,19 +49,6 @@ import org.mule.extension.sftp.api.SftpFileAttributes;
 import org.mule.extension.sftp.api.SftpProxyConfig;
 import org.mule.runtime.api.connection.ConnectionException;
 import org.mule.runtime.api.exception.MuleRuntimeException;
-
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.URI;
-import java.nio.file.Paths;
-import java.security.GeneralSecurityException;
-import java.security.KeyPair;
-import java.util.Collection;
-import java.util.List;
-import java.util.Properties;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -358,7 +357,11 @@ public class SftpClient {
    * @return a {@link String}
    */
   public String getHome() {
-    return cwd;
+    try {
+      return session.executeRemoteCommand("pwd").trim();
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
   }
 
   /**

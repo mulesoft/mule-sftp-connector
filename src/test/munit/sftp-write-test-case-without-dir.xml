@@ -23,8 +23,8 @@
 
     <munit:test name="sftp-write-on-home-directory">
         <munit:behavior>
-            <set-variable variableName="fileName" value="filePath.txt"/>
-            <set-variable variableName="fullPath" value="/config/filePath.txt"/>
+            <set-variable variableName="fileName" value="test/filePath.txt"/>
+            <set-variable variableName="fullPath" value="test/filePath.txt"/>
         </munit:behavior>
         <munit:execution>
             <sftp:write config-ref="${config}" path='#[vars.fileName]' createParentDirectories="false">

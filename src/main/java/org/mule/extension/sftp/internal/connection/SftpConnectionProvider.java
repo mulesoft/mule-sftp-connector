@@ -19,7 +19,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import javax.inject.Inject;
 
 import org.mule.extension.file.common.api.FileSystemProvider;
+import org.mule.extension.file.common.api.exceptions.FileError;
 import org.mule.extension.sftp.api.SftpAuthenticationMethod;
+import org.mule.extension.sftp.api.SftpConnectionException;
 import org.mule.extension.sftp.api.SftpProxyConfig;
 import org.mule.extension.sftp.internal.SftpConnector;
 import org.mule.extension.sftp.internal.TimeoutSettings;
@@ -127,7 +129,7 @@ public class SftpConnectionProvider extends FileSystemProvider<SftpFileSystem>
       client.login(connectionSettings.getUsername());
     } catch (Exception e) {
       LOGGER.error(e.getMessage(), e);
-      throw new ConnectionException(getErrorMessage(connectionSettings, e.getMessage()), e);
+      throw new SftpConnectionException(getErrorMessage(connectionSettings, e.getMessage()), e, FileError.CONNECTIVITY);
     }
 
     return new SftpFileSystem(client, getWorkingDir(), lockFactory);
