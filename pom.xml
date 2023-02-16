@@ -92,6 +92,8 @@
             <version>${sshdVersion}</version>
         </dependency>
 
+
+
         <dependency>
             <groupId>org.apache.sshd</groupId>
             <artifactId>sshd-scp</artifactId>
@@ -144,23 +146,7 @@
             <classifier>mule-plugin</classifier>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>org.apache.sshd</groupId>
-            <artifactId>sshd-core</artifactId>
-            <version>${sshdVersion}</version>
-        </dependency>
 
-        <dependency>
-            <groupId>org.apache.sshd</groupId>
-            <artifactId>sshd-sftp</artifactId>
-            <version>${sshdVersion}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.sshd</groupId>
-            <artifactId>sshd-common</artifactId>
-            <version>${sshdVersion}</version>
-        </dependency>
     </dependencies>
 
     <build>
@@ -199,14 +185,14 @@
                         <phase>integration-test</phase>
                     </execution>
                 </executions>
-                <configuration>
-                    <runtimeConfiguration>
-                        <discoverRuntimes>
-                            <product>ALL</product>
-                            <includeSnapshots>true</includeSnapshots>
-                        </discoverRuntimes>
-                    </runtimeConfiguration>
-                </configuration>
+<!--                <configuration>-->
+<!--                    <runtimeConfiguration>-->
+<!--                        <discoverRuntimes>-->
+<!--                            <product>ALL</product>-->
+<!--                            <includeSnapshots>true</includeSnapshots>-->
+<!--                        </discoverRuntimes>-->
+<!--                    </runtimeConfiguration>-->
+<!--                </configuration>-->
                 <dependencies>
                     <dependency>
                         <groupId>com.mulesoft.munit</groupId>
@@ -226,6 +212,24 @@
                         <version>1.0.0</version>
                         <classifier>mule-plugin</classifier>
                     </dependency>
+                    <dependency>
+                        <groupId>org.apache.sshd</groupId>
+                        <artifactId>sshd-core</artifactId>
+                        <version>${sshdVersion}</version>
+                    </dependency>
+
+                    <dependency>
+                        <groupId>org.apache.sshd</groupId>
+                        <artifactId>sshd-sftp</artifactId>
+                        <version>${sshdVersion}</version>
+                    </dependency>
+
+                    <dependency>
+                        <groupId>org.apache.sshd</groupId>
+                        <artifactId>sshd-common</artifactId>
+                        <version>${sshdVersion}</version>
+                    </dependency>
+
                 </dependencies>
             </plugin>
             <plugin>

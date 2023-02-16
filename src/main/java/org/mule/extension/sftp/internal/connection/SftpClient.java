@@ -35,6 +35,8 @@ import org.mule.extension.file.common.api.exceptions.FileError;
 import org.mule.extension.sftp.api.SftpConnectionException;
 import org.mule.extension.sftp.api.SftpFileAttributes;
 import org.mule.extension.sftp.api.SftpProxyConfig;
+import org.mule.extension.sftp.internal.proxy.http.HttpClientConnector;
+import org.mule.extension.sftp.internal.proxy.socks5.Socks5ClientConnector;
 import org.mule.runtime.api.connection.ConnectionException;
 import org.mule.runtime.api.exception.MuleRuntimeException;
 
@@ -42,6 +44,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.InetSocketAddress;
 import java.net.URI;
 import java.nio.file.Paths;
 import java.security.GeneralSecurityException;
@@ -204,37 +207,21 @@ public class SftpClient {
     if (proxyConfig != null) {
 
       // Proxy proxy = null;
+      InetSocketAddress proxyAddress = new InetSocketAddress(proxyConfig.getHost(), proxyConfig.getPort());
+      InetSocketAddress remoteAddress = new InetSocketAddress(this.host, this.port);
       switch (proxyConfig.getProtocol()) {
         case HTTP:
-          // ProxyHTTP proxyHttp = new ProxyHTTP(proxyConfig.getHost(), proxyConfig.getPort());
-          // if (proxyConfig.getUsername() != null && proxyConfig.getPassword() != null) {
-          // proxyHttp.setUserPasswd(proxyConfig.getUsername(), proxyConfig.getPassword());
-          // }
-          // proxy = proxyHttp;
-          break;
-
-        case SOCKS4:
-          // ProxySOCKS4 proxySocks4 = new ProxySOCKS4(proxyConfig.getHost(), proxyConfig.getPort());
-          // if (proxyConfig.getUsername() != null && proxyConfig.getPassword() != null) {
-          // proxySocks4.setUserPasswd(proxyConfig.getUsername(), proxyConfig.getPassword());
-          // }
-          // proxy = proxySocks4;
-          break;
-
+          session.setClientProxyConnector(new HttpClientConnector(proxyAddress, remoteAddress,
+                                                                  proxyConfig.getUsername(),
+                                                                  proxyConfig.getPassword().toCharArray()));
         case SOCKS5:
-          // ProxySOCKS5 proxySocks5 = new ProxySOCKS5(proxyConfig.getHost(), proxyConfig.getPort());
-          // if (proxyConfig.getUsername() != null && proxyConfig.getPassword() != null) {
-          // proxySocks5.setUserPasswd(proxyConfig.getUsername(), proxyConfig.getPassword());
-          // }
-          // proxy = proxySocks5;
-          // break;
-
+          session.setClientProxyConnector(new Socks5ClientConnector(proxyAddress, remoteAddress,
+                                                                    proxyConfig.getUsername(),
+                                                                    proxyConfig.getPassword().toCharArray()));
         default:
           // should never get here, except a new type was added to the enum and not handled
           throw new IllegalArgumentException(format("Proxy protocol %s not recognized", proxyConfig.getProtocol()));
       }
-
-      // session.setProxy(proxy);
     }
   }
 

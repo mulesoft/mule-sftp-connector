@@ -14,6 +14,5 @@
 
     <flow name="sftpRead">
         <sftp:read config-ref="sftp" path="#[vars.readPath]"/>
-        <object-to-string-transformer/>
     </flow>
 </mule>
