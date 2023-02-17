@@ -214,10 +214,12 @@ public class SftpClient {
           session.setClientProxyConnector(new HttpClientConnector(proxyAddress, remoteAddress,
                                                                   proxyConfig.getUsername(),
                                                                   proxyConfig.getPassword().toCharArray()));
+          break;
         case SOCKS5:
           session.setClientProxyConnector(new Socks5ClientConnector(proxyAddress, remoteAddress,
                                                                     proxyConfig.getUsername(),
                                                                     proxyConfig.getPassword().toCharArray()));
+          break;
         default:
           // should never get here, except a new type was added to the enum and not handled
           throw new IllegalArgumentException(format("Proxy protocol %s not recognized", proxyConfig.getProtocol()));

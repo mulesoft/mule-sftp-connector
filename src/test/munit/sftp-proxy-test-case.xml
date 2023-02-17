@@ -14,7 +14,20 @@
         http://www.mulesoft.org/schema/mule/sftp http://www.mulesoft.org/schema/mule/sftp/current/mule-sftp.xsd
         http://www.mulesoft.org/schema/mule/java http://www.mulesoft.org/schema/mule/java/current/mule-java.xsd">
 
-    <munit:config name="sftp-proxy-test-case.xml"/>
+    <munit:config name="sftp-proxy-test-case.xml">
+        <munit:parameterizations>
+            <munit:parameterization name="HTTP">
+                <munit:parameters>
+                    <munit:parameter propertyName="proxyProtocol" value="HTTP"/>
+                </munit:parameters>
+            </munit:parameterization>
+            <munit:parameterization name="SOCKS5">
+                <munit:parameters>
+                    <munit:parameter propertyName="proxyProtocol" value="SOCKS5"/>
+                </munit:parameters>
+            </munit:parameterization>
+        </munit:parameterizations>
+    </munit:config>
 
     <munit:dynamic-port propertyName="sftp.server.port"/>
     <munit:dynamic-port propertyName="proxy.server.port"/>
@@ -22,13 +35,16 @@
     <sftp:config name="proxy-config">
         <sftp:connection username="muletest1"
                          password="muletest1"
-                         host="127.0.0.100"
-                         port="5050"
+                         host="localhost"
+                         port="${sftp.server.port}"
                          workingDir="/"
-                         prngAlgorithm="SHA1PRNG">
+                         prngAlgorithm="SHA1PRNG"
+                         connectionTimeout="200">
             <sftp:sftp-proxy-config host="localhost"
                                     port="${proxy.server.port}"
-                                    protocol="SOCKS5"/>
+                                    protocol="${proxyProtocol}"
+                                    username="proxyUser"
+                                    password="proxyPassword"/>
         </sftp:connection>
     </sftp:config>
 

@@ -14,31 +14,17 @@ public class ProxyServerLifecycleManager {
 
 
   private static TemporaryFolder temporaryFolder = new TemporaryFolder();
-  private static SftpServer sftpServer;
 
   private static TestProxyServer proxyServer;
-
-
-  public enum AuthType {
-    USER_PASSWORD, PUBLIC_KEY
-  }
 
   public static void startProxyServer(String proxyPort, String serverPort) throws Exception {
     createAndStartServer(Integer.valueOf(proxyPort), Integer.valueOf(serverPort));
   }
 
   private static void createAndStartServer(int proxyPort, int serverPort) throws Exception {
-    // temporaryFolder.create();
-    // setUpServer(port);
     proxyServer = new TestProxyServer(proxyPort, serverPort);
     proxyServer.start();
   }
-
-  // private static void setUpServer(int port) {
-  // sftpServer = new SftpServer(port, temporaryFolder.getRoot().toPath());
-  // sftpServer.setPasswordAuthenticator();
-  // sftpServer.start();
-  // }
 
   public static void stopProxyServer() throws Exception {
     try {

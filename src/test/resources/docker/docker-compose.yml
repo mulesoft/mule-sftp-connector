@@ -1,0 +1,9 @@
+version: '3'
+services:
+  sftp:
+    image: "emberstack/sftp"
+    ports:
+      - "33:33"
+    volumes:
+      - ../config-samples/sample.sftp.json:/app/config/sftp.json:ro
+# docker-compose -p sftp -f docker-compose.yaml up -d
