@@ -8,6 +8,7 @@ package org.mule.extension.sftp.internal.connection;
 
 import static java.lang.String.format;
 import static org.apache.commons.lang3.StringUtils.join;
+import static org.apache.sshd.common.SshConstants.SSH2_DISCONNECT_NO_MORE_AUTH_METHODS_AVAILABLE;
 import static org.mule.runtime.api.meta.model.display.PathModel.Type.FILE;
 import static org.mule.runtime.extension.api.annotation.param.ParameterGroup.CONNECTION;
 
@@ -18,6 +19,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.inject.Inject;
 
+import org.apache.sshd.common.SshConstants;
+import org.apache.sshd.common.SshException;
 import org.mule.extension.file.common.api.FileSystemProvider;
 import org.mule.extension.file.common.api.exceptions.FileError;
 import org.mule.extension.sftp.api.SftpAuthenticationMethod;
@@ -127,6 +130,21 @@ public class SftpConnectionProvider extends FileSystemProvider<SftpFileSystem>
     client.setProxyConfig(proxyConfig);
     try {
       client.login(connectionSettings.getUsername());
+    } catch (final SshException e) {
+      if (e.getDisconnectCode() == SSH2_DISCONNECT_NO_MORE_AUTH_METHODS_AVAILABLE) {
+        throw new SftpConnectionException(getErrorMessage(connectionSettings, e.getMessage()), e, FileError.INVALID_CREDENTIALS);
+      }
+      if (e.getDisconnectCode() == 0) {
+        if (e.getMessage().contains("timeout")) {
+          throw new SftpConnectionException(getErrorMessage(connectionSettings, e.getMessage()), e, FileError.CONNECTION_TIMEOUT);
+        } else if (e.getMessage().contains("Connection refused")) {
+          throw new SftpConnectionException(getErrorMessage(connectionSettings, e.getMessage()), e, FileError.CANNOT_REACH);
+        } else if (e.getMessage().contains("UnresolvedAddressException")) {
+          throw new SftpConnectionException(getErrorMessage(connectionSettings, e.getMessage()), e, FileError.UNKNOWN_HOST);
+        }
+      }
+    } catch (final IllegalStateException e) {
+      throw new SftpConnectionException(getErrorMessage(connectionSettings, e.getMessage()), e, FileError.INVALID_CREDENTIALS);
     } catch (Exception e) {
       LOGGER.error(e.getMessage(), e);
       throw new SftpConnectionException(getErrorMessage(connectionSettings, e.getMessage()), e, FileError.CONNECTIVITY);
