@@ -166,33 +166,33 @@
     </munit:test>
 
     <flow name="list-filtering-updated-recently">
-        <sftp:list config-ref="config" directoryPath=".">
+        <sftp:list-and-get config-ref="config" directoryPath=".">
             <sftp:matcher notUpdatedInTheLast="3" timeUnit="SECONDS"/>
-        </sftp:list>
+        </sftp:list-and-get>
     </flow>
 
     <flow name="list-filtering-not-updated-recently">
-        <sftp:list config-ref="config" directoryPath=".">
+        <sftp:list-and-get config-ref="config" directoryPath=".">
             <sftp:matcher updatedInTheLast="3" timeUnit="SECONDS"/>
-        </sftp:list>
+        </sftp:list-and-get>
     </flow>
 
     <flow name="list-filtering-updated-recently-or-too-old">
-        <sftp:list config-ref="config" directoryPath=".">
+        <sftp:list-and-get config-ref="config" directoryPath=".">
             <sftp:matcher updatedInTheLast="10" notUpdatedInTheLast="3" timeUnit="SECONDS"/>
-        </sftp:list>
+        </sftp:list-and-get>
     </flow>
 
     <flow name="list-filtering-txt-case-sensitive">
-        <sftp:list config-ref="config" directoryPath=".">
+        <sftp:list-and-get config-ref="config" directoryPath=".">
             <sftp:matcher filenamePattern="*.TXT"/>
-        </sftp:list>
+        </sftp:list-and-get>
     </flow>
 
     <flow name="list-filtering-txt-case-insensitive">
-        <sftp:list config-ref="config" directoryPath=".">
+        <sftp:list-and-get config-ref="config" directoryPath=".">
             <sftp:matcher filenamePattern="*.TXT"  caseSensitive="false"/>
-        </sftp:list>
+        </sftp:list-and-get>
     </flow>
 
     <flow name="check-one-file-is-listed">
