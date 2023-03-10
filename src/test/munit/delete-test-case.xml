@@ -27,7 +27,6 @@
         </munit:parameterizations>
     </munit:config>
 
-
     <munit:test name="sftp-write-deleted-file" description="Use the list operation to get the file content and try to write it but it was deleted before and should expect exception"
                 expectedErrorType="SFTP:FILE_DOESNT_EXIST">
         <munit:enable-flow-sources>

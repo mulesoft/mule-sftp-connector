@@ -74,7 +74,7 @@ public class SftpClient {
   private String passphrase;
   private String knownHostsFile;
   private String preferredAuthenticationMethods;
-  private long connectionTimeoutMillis = Long.MAX_VALUE; // No timeout by default
+  private long connectionTimeoutMillis = Long.MAX_VALUE;
   private SftpProxyConfig proxyConfig;
 
   private SftpFileSystem owner;
@@ -149,7 +149,7 @@ public class SftpClient {
       setupIdentity();
     }
 
-    session.auth().verify(connectionTimeoutMillis); // FIXME shorter timeout!
+    session.auth().verify(connectionTimeoutMillis);
 
     connect();
   }
@@ -157,7 +157,6 @@ public class SftpClient {
   private void setupIdentity() throws GeneralSecurityException, IOException {
     FilePasswordProvider passwordProvider;
     if (passphrase == null || "".equals(passphrase)) {
-      // jsch.addIdentity(identityFile);
       passwordProvider = FilePasswordProvider.EMPTY;
     } else {
       passwordProvider = FilePasswordProvider.of(passphrase);
@@ -187,10 +186,6 @@ public class SftpClient {
 
     session.setKeyIdentityProvider(KeyIdentityProvider.EMPTY_KEYS_PROVIDER);
 
-    /*
-     * Properties hash = new Properties(); configureHostChecking(hash); setRandomPrng(hash); if
-     * (!isEmpty(preferredAuthenticationMethods)) { hash.put(PREFERRED_AUTHENTICATION_METHODS, preferredAuthenticationMethods); }
-     */
     configureProxy(session);
   }
 

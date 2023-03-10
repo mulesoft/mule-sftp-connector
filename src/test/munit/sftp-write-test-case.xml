@@ -49,6 +49,45 @@
         </java:invoke-static>
     </munit:after-suite>
 
+    <munit:before-test name="create-new-file-to-append">
+        <flow-ref name="write-file-append"/>
+    </munit:before-test>
+
+    <munit:test name="sftp-write">
+        <munit:behavior>
+            <set-variable variableName="fileName" value="write-file.txt"/>
+            <set-variable variableName="mode" value="OVERWRITE"/>
+            <set-variable variableName="createParent" value="true"/>
+        </munit:behavior>
+        <munit:execution>
+            <sftp:write config-ref="${config}" path="#[vars.fileName]" mode="#[vars.mode]" createParentDirectories="#[vars.createParent]" />
+        </munit:execution>
+    </munit:test>
+
+    <munit:test name="sftp-read-write">
+        <munit:behavior>
+            <set-variable variableName="fileName" value="write-file.txt"/>
+            <set-variable variableName="mode" value="OVERWRITE"/>
+            <set-variable variableName="createParent" value="true"/>
+        </munit:behavior>
+        <munit:execution>
+            <sftp:read config-ref="${config}" path="#[vars.fileName]" />
+            <set-payload value="Hello World!" />
+            <sftp:write config-ref="${config}" path="#[vars.fileName]" mode="#[vars.mode]" createParentDirectories="#[vars.createParent]" />
+        </munit:execution>
+    </munit:test>
+
+    <munit:test name="sftp-write-lock">
+        <munit:behavior>
+            <set-variable variableName="fileName" value="write-file.txt"/>
+            <set-variable variableName="mode" value="OVERWRITE"/>
+            <set-variable variableName="createParent" value="true"/>
+        </munit:behavior>
+        <munit:execution>
+            <sftp:write config-ref="${config}" path="#[vars.fileName]" lock="true" mode="#[vars.mode]" createParentDirectories="#[vars.createParent]" />
+        </munit:execution>
+    </munit:test>
+
     <munit:test name="sftp-write-big-file"
                 description="Perform a write operation with a big content" ignore="#[Munit::muleVersionPriorTo('4.2.0')]">
         <munit:behavior>
@@ -126,13 +165,11 @@
 
     <flow name="write-file-append">
         <sftp:write config-ref="${config}" path="test/filePath.txt"/>
+        <sftp:write config-ref="${config}" path="write-file.txt"/>
     </flow>
 
-    <munit:before-test name="create-new-file-to-append">
-        <flow-ref name="write-file-append"/>
-    </munit:before-test>
 
-    <munit:test name="consecutive-writes-from-separate-flows-succeed-with-until-successful">
+    <munit:test name="consecutive-writes-from-separate-flows-succeed-with-until-successful"  ignore="#[Munit::muleVersionPriorTo('4.1.5')]">
         <munit:enable-flow-sources>
             <munit:enable-flow-source value="write-number-collection-until-successful"/>
         </munit:enable-flow-sources>
