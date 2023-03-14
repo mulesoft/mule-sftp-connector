@@ -279,7 +279,7 @@ public class SftpClient {
       }
     }
     if (LOGGER.isTraceEnabled()) {
-      // LOGGER.trace("Disconnected from {}:{}", session., session.getPort());
+      LOGGER.trace("Disconnected from {}:{}", host, port);
     }
   }
 
