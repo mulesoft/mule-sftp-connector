@@ -13,6 +13,7 @@ import org.mule.runtime.core.api.util.Base64;
 import java.io.IOException;
 import java.util.Arrays;
 
+import static java.lang.String.format;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 /**
@@ -48,7 +49,8 @@ class HttpBasicAuthentication extends BasicAuthentication<AuthenticationChalleng
   @Override
   public String getToken() throws Exception {
     if (user.indexOf(':') >= 0) {
-      throw new IOException("format(SshdText.get().proxyHttpInvalidUserName, proxy, user)");
+      throw new IOException(format("HTTP proxy connection %s with invalid user name; must not contain colons: %s", proxy,
+                                   user));
     }
     byte[] rawUser = user.getBytes(UTF_8);
     byte[] toEncode = new byte[rawUser.length + 1 + password.length];

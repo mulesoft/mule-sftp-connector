@@ -12,6 +12,8 @@ import org.mule.extension.sftp.internal.proxy.GssApiMechanisms;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 
+import static java.lang.String.format;
+
 /**
  * An abstract implementation of a GSS-API multi-round authentication.
  *
@@ -60,7 +62,7 @@ public abstract class GssApiAuthentication<ParameterType, TokenType>
   @Override
   public final void process() throws Exception {
     if (context == null) {
-      throw new IOException("format(SshdText.get().proxyCannotAuthenticate, proxy)");
+      throw new IOException(format("Cannot authenticate to proxy %s", proxy));
     }
     try {
       byte[] received = extractToken(params);

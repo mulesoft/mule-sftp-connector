@@ -161,12 +161,12 @@ public class Socks5ClientConnector extends AbstractClientProxyConnector {
     if (rawAddress == null) {
       remoteName = remoteAddress.getHostString().getBytes(US_ASCII);
       if (remoteName == null || remoteName.length == 0) {
-        throw new IOException("format(SshdText.get().proxySocksNoRemoteHostName, remoteAddress)");
+        throw new IOException(format("Could not send remote address %s", remoteAddress));
       } else if (remoteName.length > 255) {
         // Should not occur; host names must not be longer than 255
         // US_ASCII characters. Internal error, no translation.
         throw new IOException(format(
-                                     "Proxy host name too long for SOCKS (at most 255 characters): {0}", //$NON-NLS-1$
+                                     "Proxy host name too long for SOCKS (at most 255 characters): %s", //$NON-NLS-1$
                                      remoteAddress.getHostString()));
       }
       type = SOCKS_ADDRESS_FQDN;
@@ -265,27 +265,23 @@ public class Socks5ClientConnector extends AbstractClientProxyConnector {
         setDone(true);
         return;
       case SOCKS_REPLY_FAILURE:
-        throw new IOException("format(SshdText.get().proxySocksFailureGeneral, proxyAddress)");
+        throw new IOException(format("SOCKS5 proxy %s: general failure", proxyAddress));
       case SOCKS_REPLY_FORBIDDEN:
-        throw new IOException(
-                              "format(SshdText.get().proxySocksFailureForbidden,proxyAddress, remoteAddress)");
+        throw new IOException(format("SOCKS5 proxy %s: connection to %s not allowed by ruleset", proxyAddress, remoteAddress));
       case SOCKS_REPLY_NETWORK_UNREACHABLE:
-        throw new IOException(
-                              "format(SshdText.get().proxySocksFailureNetworkUnreachable,proxyAddress, remoteAddress)");
+        throw new IOException(format("SOCKS5 proxy %s: network unreachable %s", proxyAddress, remoteAddress));
       case SOCKS_REPLY_HOST_UNREACHABLE:
-        throw new IOException(
-                              "format(SshdText.get().proxySocksFailureHostUnreachable,proxyAddress, remoteAddress)");
+        throw new IOException(format("SOCKS5 proxy %s: host unreachable %s", proxyAddress, remoteAddress));
       case SOCKS_REPLY_CONNECTION_REFUSED:
-        throw new IOException(
-                              "format(SshdText.get().proxySocksFailureRefused,proxyAddress, remoteAddress)");
+        throw new IOException(format("SOCKS5 proxy %s: connection refused %s", proxyAddress, remoteAddress));
       case SOCKS_REPLY_TTL_EXPIRED:
-        throw new IOException("format(SshdText.getproxySocksFailureTTL, proxyAddress)");
+        throw new IOException(format("TTL expired in SOCKS5 proxy connection %s", proxyAddress));
       case SOCKS_REPLY_COMMAND_UNSUPPORTED:
-        throw new IOException("format(SshdText.get(,proxyAddress)");
+        throw new IOException(format("SOCKS5 proxy %s does not support CONNECT command", proxyAddress));
       case SOCKS_REPLY_ADDRESS_UNSUPPORTED:
-        throw new IOException("format(SshdText.get(proxyAddress)");
+        throw new IOException(format("SOCKS5 proxy %s does not support address type", proxyAddress));
       default:
-        throw new IOException("format(SshdText.get().proxySocksFailureUnspecified, proxyAddress)");
+        throw new IOException(format("Unspecified failure in SOCKS5 proxy connection %s", proxyAddress));
     }
   }
 
@@ -315,8 +311,7 @@ public class Socks5ClientConnector extends AbstractClientProxyConnector {
 
   public void versionCheck(byte version) throws Exception {
     if (version != SOCKS_VERSION_5) {
-      throw new IOException(
-                            "format(SshdText.get().proxySocksUnexpectedVersion, Integer.toString(version & 0xFF))");
+      throw new IOException(format("Expected SOCKS version 5, got %s", Integer.toString(version & 0xFF)));
     }
   }
 

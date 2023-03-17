@@ -40,7 +40,7 @@ class SocksBasicAuthentication
     socks5ClientConnector.setDone(true);
     if (params.getByte() != SOCKS_BASIC_PROTOCOL_VERSION
         || params.getByte() != SOCKS_BASIC_AUTH_SUCCESS) {
-      throw new IOException("format(SshdText.get().proxySocksAuthenticationFailed, proxy)");
+      throw new IOException(format("Authentication to SOCKS5 proxy %s failed", proxy));
     }
   }
 
@@ -58,12 +58,13 @@ class SocksBasicAuthentication
     try {
       byte[] rawUser = user.getBytes(UTF_8);
       if (rawUser.length > 255) {
-        throw new IOException("format( SshdText.get().proxySocksUsernameTooLong, proxy, Integer.toString(rawUser.length), user)");
+        throw new IOException(format("User name for proxy %s must be at most 255 bytes long, is %s bytes: %s", proxy,
+                                     Integer.toString(rawUser.length), user));
       }
 
       if (password.length > 255) {
-        throw new IOException(
-                              "format(SshdText.get().proxySocksPasswordTooLong, proxy, Integer.toString(password.length))");
+        throw new IOException(format("Password for proxy %s must be at most 255 bytes long, is %s bytes", proxy,
+                                     Integer.toString(password.length)));
       }
       ByteArrayBuffer buffer = new ByteArrayBuffer(
                                                    3 + rawUser.length + password.length, false);

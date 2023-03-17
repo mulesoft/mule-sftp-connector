@@ -106,12 +106,12 @@ public abstract class BasicAuthentication<ParameterType, TokenType>
                                                                                                    proxy.getAddress(),
                                                                                                    proxy.getPort(),
                                                                                                    SSH_SCHEME,
-                                                                                                   "SshdText.get().proxyPasswordPrompt",
+                                                                                                   "Proxy password",
                                                                                                    "Basic", //$NON-NLS-1$
                                                                                                    null, RequestorType.PROXY));
     if (auth == null) {
       user = ""; //$NON-NLS-1$
-      throw new CancellationException("SshdText.get().authenticationCanceled");
+      throw new CancellationException("Authentication canceled: no password");
     }
     user = auth.getUserName();
     password = convert(auth.getPassword());

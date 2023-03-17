@@ -40,7 +40,7 @@ public enum ProtocolState {
           connector.doGssApiAuth(session);
           break;
         default:
-          throw new IOException("format(SshdText.get().proxyCannotAuthenticate, connector.proxyAddress)");
+          throw new IOException(format("Cannot authenticate to proxy", connector.proxyAddress));
       }
     }
   },
@@ -87,7 +87,7 @@ public enum ProtocolState {
   public void handleMessage(Socks5ClientConnector connector,
                             @SuppressWarnings("unused") IoSession session, Buffer data)
       throws Exception {
-    throw new IOException(
-                          "format(SshdText.get().proxySocksUnexpectedMessage, connector.proxyAddress, this, BufferUtils.toHex(data.array())) ");
+    throw new IOException(format("Unexpected message received from SOCKS5 proxy %s; client state %s: %s", connector.proxyAddress,
+                                 this, BufferUtils.toHex(data.array())));
   }
 }

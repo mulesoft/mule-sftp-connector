@@ -60,13 +60,16 @@ class SocksGssApiAuthentication
     }
     int version = input.getUByte();
     if (version != SOCKS5_GSSAPI_VERSION) {
-      throw new IOException("format(SshdText.get().proxySocksGssApiVersionMismatch, socks5ClientConnector.remoteAddress, Integer.toString(version))");
+      throw new IOException(format("SOCKS5 proxy %s sent wrong GSS-API version number, expected 1, got %s",
+                                   socks5ClientConnector.getProxyAddress(), Integer.toString(version)));
     }
     int msgType = input.getUByte();
     if (msgType == SOCKS5_GSSAPI_FAILURE) {
-      throw new IOException("format(SshdText.get().proxySocksGssApiFailure, socks5ClientConnector.remoteAddress)");
+      throw new IOException(format("Cannot authenticate with GSS-API to SOCKS5 proxy %s",
+                                   socks5ClientConnector.getProxyAddress()));
     } else if (msgType != SOCKS5_GSSAPI_TOKEN) {
-      throw new IOException("format( SshdText.get().proxySocksGssApiUnknownMessage, socks5ClientConnector.remoteAddress, Integer.toHexString(msgType & 0xFF))");
+      throw new IOException(format("SOCKS5 proxy %s sent unexpected GSS-API message type, expected 1, got %s",
+                                   socks5ClientConnector.getProxyAddress(), Integer.toHexString(msgType & 0xFF)));
     }
     if (input.available() >= 2) {
       int length = (input.getUByte() << 8) + input.getUByte();
@@ -78,6 +81,6 @@ class SocksGssApiAuthentication
         return value;
       }
     }
-    throw new IOException("format(SshdText.get().proxySocksGssApiMessageTooShort, socks5ClientConnector.remoteAddress)");
+    throw new IOException(format("SOCKS5 proxy %s sent too short message", socks5ClientConnector.getProxyAddress()));
   }
 }

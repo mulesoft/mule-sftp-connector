@@ -167,13 +167,13 @@ public class HttpClientConnector extends AbstractClientProxyConnector {
   private void handleMessage(IoSession session, List<String> reply)
       throws Exception {
     if (reply.isEmpty() || reply.get(0).isEmpty()) {
-      throw new IOException(
-                            "format(SshdText.get().proxyHttpUnexpectedReply, proxyAddress, \"<empty>\")"); //$NON-NLS-1$
+      throw new IOException(format("Unexpected HTTP proxy response from %s: %s", proxyAddress)); //$NON-NLS-1$
     }
     try {
       StatusLine status = HttpParser.parseStatusLine(reply.get(0));
       if (!ongoing) {
-        throw new IOException("format( SshdText.get().proxyHttpUnexpectedReply, proxyAddress, Integer.toString(status.getResultCode()), status.getReason())");
+        throw new IOException(format("Unexpected HTTP proxy response from %s: %s", proxyAddress,
+                                     Integer.toString(status.getResultCode()), status.getReason()));
       }
       switch (status.getResultCode()) {
         case HttpURLConnection.HTTP_OK:
@@ -185,24 +185,23 @@ public class HttpClientConnector extends AbstractClientProxyConnector {
           setDone(true);
           break;
         case HttpURLConnection.HTTP_PROXY_AUTH:
-          // List<AuthenticationChallenge> challenges = HttpParser
-          // .getAuthenticationHeaders(reply,
-          // HTTP_HEADER_PROXY_AUTHENTICATION);
-          // authenticator = selectProtocol(challenges, authenticator);
-          // if (authenticator == null) {
-          // throw new IOException("format(SshdText.get().proxyCannotAuthenticate, proxyAddress)");
-          // }
-          // String token = authenticator.getToken();
-          // if (token == null) {
-          // throw new IOException("format(SshdText.get().proxyCannotAuthenticate, proxyAddress)");
-          // }
-          // send(authenticate(connect(), token), session);
-          // break;
+          List<AuthenticationChallenge> challenges = HttpParser.getAuthenticationHeaders(reply, HTTP_HEADER_PROXY_AUTHENTICATION);
+          authenticator = selectProtocol(challenges, authenticator);
+          if (authenticator == null) {
+            throw new IOException(format("Cannot authenticate to proxy %s", proxyAddress));
+          }
+          String token = authenticator.getToken();
+          if (token == null) {
+            throw new IOException(format("Cannot authenticate to proxy %s", proxyAddress));
+          }
+          send(authenticate(connect(), token), session);
+          break;
         default:
-          throw new IOException("format(SshdText.get().proxyHttpFailure, proxyAddress, Integer.toString(status.getResultCode()), status.getReason())");
+          throw new IOException(format("HTTP Proxy connection to %s failed with code %s: %s", proxyAddress,
+                                       Integer.toString(status.getResultCode()), status.getReason()));
       }
     } catch (HttpParser.ParseException e) {
-      throw new IOException("format(SshdText.get().proxyHttpUnexpectedReply, proxyAddress, reply.get(0)), e");
+      throw new IOException(format("Unexpected HTTP proxy response from %s: %s", proxyAddress, reply.get(0)), e);
     }
   }
 
