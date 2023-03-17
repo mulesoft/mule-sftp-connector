@@ -184,14 +184,14 @@
                         <phase>integration-test</phase>
                     </execution>
                 </executions>
-<!--                <configuration>-->
-<!--                    <runtimeConfiguration>-->
-<!--                        <discoverRuntimes>-->
-<!--                            <product>ALL</product>-->
-<!--                            <includeSnapshots>true</includeSnapshots>-->
-<!--                        </discoverRuntimes>-->
-<!--                    </runtimeConfiguration>-->
-<!--                </configuration>-->
+                <configuration>
+                    <runtimeConfiguration>
+                        <discoverRuntimes>
+                            <product>ALL</product>
+                            <includeSnapshots>true</includeSnapshots>
+                        </discoverRuntimes>
+                    </runtimeConfiguration>
+                </configuration>
                 <dependencies>
                     <dependency>
                         <groupId>com.mulesoft.munit</groupId>
