@@ -6,18 +6,29 @@
  */
 package org.mule.extension.sftp.internal.connection;
 
-import static java.lang.String.format;
-import static java.util.Collections.emptyList;
-import static org.apache.commons.collections.CollectionUtils.isEmpty;
-import static org.apache.sshd.sftp.common.SftpConstants.SSH_FX_CONNECTION_LOST;
-import static org.apache.sshd.sftp.common.SftpConstants.SSH_FX_NO_CONNECTION;
-import static org.mule.extension.file.common.api.exceptions.FileError.CONNECTIVITY;
+
 import static org.mule.extension.file.common.api.util.UriUtils.createUri;
 import static org.mule.extension.sftp.internal.SftpUtils.normalizePath;
 import static org.mule.extension.sftp.internal.SftpUtils.resolvePathOrResource;
 import static org.mule.runtime.api.i18n.I18nMessageFactory.createStaticMessage;
 import static org.mule.runtime.api.util.collection.Collectors.toImmutableList;
 import static org.mule.runtime.core.api.util.StringUtils.isEmpty;
+import static java.lang.String.format;
+import static java.util.Collections.emptyList;
+import static org.apache.commons.collections.CollectionUtils.isEmpty;
+import static org.apache.sshd.sftp.common.SftpConstants.SSH_FX_CONNECTION_LOST;
+import static org.apache.sshd.sftp.common.SftpConstants.SSH_FX_NO_CONNECTION;
+import static org.mule.extension.file.common.api.exceptions.FileError.CONNECTIVITY;
+
+import org.mule.extension.file.common.api.FileWriteMode;
+import org.mule.extension.file.common.api.exceptions.FileError;
+import org.mule.extension.sftp.api.SftpConnectionException;
+import org.mule.extension.sftp.api.SftpFileAttributes;
+import org.mule.extension.sftp.api.SftpProxyConfig;
+import org.mule.runtime.api.connection.ConnectionException;
+import org.mule.runtime.api.exception.MuleRuntimeException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -63,6 +74,8 @@ import org.slf4j.LoggerFactory;
 public class SftpClient {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(SftpClient.class);
+  public static final OpenMode[] CREATE_MODES = {OpenMode.Write, OpenMode.Create};
+  public static final OpenMode[] APPEND_MODES = {OpenMode.Write, OpenMode.Append};
 
   final private SshClient client = SshClient.setUpDefaultClient();
   private org.apache.sshd.sftp.client.SftpClient sftp;
@@ -268,7 +281,7 @@ public class SftpClient {
       }
     }
     if (LOGGER.isTraceEnabled()) {
-      // LOGGER.trace("Disconnected from {}:{}", session., session.getPort());
+      LOGGER.trace("Disconnected from {}:{}", host, port);
     }
   }
 
@@ -363,13 +376,11 @@ public class SftpClient {
     OpenMode[] modes;
     switch (mode) {
       case CREATE_NEW:
-        modes = new OpenMode[] {OpenMode.Write, OpenMode.Create};
+      case OVERWRITE:
+        modes = CREATE_MODES;
         break;
       case APPEND:
-        modes = new OpenMode[] {OpenMode.Write, OpenMode.Append};
-        break;
-      case OVERWRITE:
-        modes = new OpenMode[] {OpenMode.Write, OpenMode.Create};
+        modes = APPEND_MODES;
         break;
       default:
         throw new IllegalArgumentException();
