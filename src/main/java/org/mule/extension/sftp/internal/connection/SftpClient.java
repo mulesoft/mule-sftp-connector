@@ -6,29 +6,18 @@
  */
 package org.mule.extension.sftp.internal.connection;
 
-
-import static org.mule.extension.file.common.api.util.UriUtils.createUri;
-import static org.mule.extension.sftp.internal.SftpUtils.normalizePath;
-import static org.mule.extension.sftp.internal.SftpUtils.resolvePathOrResource;
-import static org.mule.runtime.api.i18n.I18nMessageFactory.createStaticMessage;
-import static org.mule.runtime.api.util.collection.Collectors.toImmutableList;
-import static org.mule.runtime.core.api.util.StringUtils.isEmpty;
 import static java.lang.String.format;
 import static java.util.Collections.emptyList;
 import static org.apache.commons.collections.CollectionUtils.isEmpty;
 import static org.apache.sshd.sftp.common.SftpConstants.SSH_FX_CONNECTION_LOST;
 import static org.apache.sshd.sftp.common.SftpConstants.SSH_FX_NO_CONNECTION;
 import static org.mule.extension.file.common.api.exceptions.FileError.CONNECTIVITY;
-
-import org.mule.extension.file.common.api.FileWriteMode;
-import org.mule.extension.file.common.api.exceptions.FileError;
-import org.mule.extension.sftp.api.SftpConnectionException;
-import org.mule.extension.sftp.api.SftpFileAttributes;
-import org.mule.extension.sftp.api.SftpProxyConfig;
-import org.mule.runtime.api.connection.ConnectionException;
-import org.mule.runtime.api.exception.MuleRuntimeException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static org.mule.extension.file.common.api.util.UriUtils.createUri;
+import static org.mule.extension.sftp.internal.SftpUtils.normalizePath;
+import static org.mule.extension.sftp.internal.SftpUtils.resolvePathOrResource;
+import static org.mule.runtime.api.i18n.I18nMessageFactory.createStaticMessage;
+import static org.mule.runtime.api.util.collection.Collectors.toImmutableList;
+import static org.mule.runtime.core.api.util.StringUtils.isEmpty;
 
 import java.io.File;
 import java.io.IOException;
@@ -74,8 +63,6 @@ import org.slf4j.LoggerFactory;
 public class SftpClient {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(SftpClient.class);
-  public static final OpenMode[] CREATE_MODES = {OpenMode.Write, OpenMode.Create};
-  public static final OpenMode[] APPEND_MODES = {OpenMode.Write, OpenMode.Append};
 
   final private SshClient client = SshClient.setUpDefaultClient();
   private org.apache.sshd.sftp.client.SftpClient sftp;
@@ -212,20 +199,20 @@ public class SftpClient {
 
   private void configureProxy(ClientSession session) {
     if (proxyConfig != null) {
-
-      // Proxy proxy = null;
       InetSocketAddress proxyAddress = new InetSocketAddress(proxyConfig.getHost(), proxyConfig.getPort());
       InetSocketAddress remoteAddress = new InetSocketAddress(this.host, this.port);
       switch (proxyConfig.getProtocol()) {
         case HTTP:
-          session.setClientProxyConnector(new HttpClientConnector(proxyAddress, remoteAddress,
-                                                                  proxyConfig.getUsername(),
-                                                                  proxyConfig.getPassword().toCharArray()));
+          session.setClientProxyConnector(proxyConfig.getUsername() != null && proxyConfig.getPassword() != null
+              ? new HttpClientConnector(proxyAddress, remoteAddress, proxyConfig.getUsername(),
+                                        proxyConfig.getPassword().toCharArray())
+              : new HttpClientConnector(proxyAddress, remoteAddress));
           break;
         case SOCKS5:
-          session.setClientProxyConnector(new Socks5ClientConnector(proxyAddress, remoteAddress,
-                                                                    proxyConfig.getUsername(),
-                                                                    proxyConfig.getPassword().toCharArray()));
+          session.setClientProxyConnector(proxyConfig.getUsername() != null && proxyConfig.getPassword() != null
+              ? new Socks5ClientConnector(proxyAddress, remoteAddress, proxyConfig.getUsername(),
+                                          proxyConfig.getPassword().toCharArray())
+              : new Socks5ClientConnector(proxyAddress, remoteAddress));
           break;
         default:
           // should never get here, except a new type was added to the enum and not handled
@@ -281,7 +268,7 @@ public class SftpClient {
       }
     }
     if (LOGGER.isTraceEnabled()) {
-      LOGGER.trace("Disconnected from {}:{}", host, port);
+      // LOGGER.trace("Disconnected from {}:{}", session., session.getPort());
     }
   }
 
@@ -376,11 +363,13 @@ public class SftpClient {
     OpenMode[] modes;
     switch (mode) {
       case CREATE_NEW:
-      case OVERWRITE:
-        modes = CREATE_MODES;
+        modes = new OpenMode[] {OpenMode.Write, OpenMode.Create};
         break;
       case APPEND:
-        modes = APPEND_MODES;
+        modes = new OpenMode[] {OpenMode.Write, OpenMode.Append};
+        break;
+      case OVERWRITE:
+        modes = new OpenMode[] {OpenMode.Write, OpenMode.Create};
         break;
       default:
         throw new IllegalArgumentException();

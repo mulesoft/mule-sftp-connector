@@ -94,7 +94,6 @@ public final class SftpListCommand extends SftpCommand implements ListCommand<Sf
                       Predicate<SftpFileAttributes> matcher,
                       Long timeBetweenSizeCheck) {
 
-
     LOGGER.debug("Listing directory {}", path);
     for (SftpFileAttributes file : client.list(path)) {
 
