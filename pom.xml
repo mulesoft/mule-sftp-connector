@@ -7,6 +7,7 @@
         <groupId>org.mule.extensions</groupId>
         <artifactId>mule-core-modules-parent</artifactId>
         <version>1.4.2</version>
+        <relativePath></relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -26,7 +27,6 @@
         <commonsCollectionsVersion>3.2.2</commonsCollectionsVersion>
         <jschVersion>0.1.55</jschVersion>
 
-        <muleFileCommonsVersion>1.5.0-SNAPSHOT</muleFileCommonsVersion>
         <muleTestsComponentPlugin>${mule.version}</muleTestsComponentPlugin>
         <muleTestsRunnerVersion>4.1.5</muleTestsRunnerVersion>
         <muleSdkApiVersion>0.3.0</muleSdkApiVersion>
@@ -43,12 +43,6 @@
     </properties>
 
     <dependencies>
-        <dependency>
-            <groupId>org.mule.modules</groupId>
-            <artifactId>mule-module-file-extension-common</artifactId>
-            <version>${muleFileCommonsVersion}</version>
-            <classifier>mule-plugin</classifier>
-        </dependency>
         <dependency>
             <groupId>org.mule.sdk</groupId>
             <artifactId>mule-sdk-api</artifactId>
@@ -97,14 +91,6 @@
             <groupId>org.apache.sshd</groupId>
             <artifactId>sshd-scp</artifactId>
             <version>${sshdVersion}</version>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.mule.modules</groupId>
-            <artifactId>mule-module-file-extension-common</artifactId>
-            <version>${muleFileCommonsVersion}</version>
-            <type>test-jar</type>
             <scope>test</scope>
         </dependency>
 

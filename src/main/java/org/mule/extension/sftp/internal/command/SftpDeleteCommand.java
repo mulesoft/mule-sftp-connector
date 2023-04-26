@@ -6,10 +6,10 @@
  */
 package org.mule.extension.sftp.internal.command;
 
-import static org.mule.extension.file.common.api.util.UriUtils.createUri;
+import static org.mule.extension.sftp.api.util.UriUtils.createUri;
 import static org.slf4j.LoggerFactory.getLogger;
-import org.mule.extension.file.common.api.FileAttributes;
-import org.mule.extension.file.common.api.command.DeleteCommand;
+import org.mule.extension.sftp.api.FileAttributes;
+import org.mule.extension.sftp.api.command.DeleteCommand;
 import org.mule.extension.sftp.internal.connection.SftpClient;
 import org.mule.extension.sftp.internal.connection.SftpFileSystem;
 

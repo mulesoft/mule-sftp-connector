@@ -8,8 +8,8 @@ package org.mule.extension.sftp.internal;
 
 import static org.mule.runtime.extension.api.annotation.param.display.Placement.ADVANCED_TAB;
 
-import org.mule.extension.file.common.api.FileConnectorConfig;
-import org.mule.extension.file.common.api.exceptions.FileError;
+import org.mule.extension.sftp.api.FileConnectorConfig;
+import org.mule.extension.sftp.api.exceptions.FileError;
 import org.mule.extension.sftp.internal.connection.SftpConnectionProvider;
 import org.mule.extension.sftp.internal.source.SftpDirectoryListener;
 import org.mule.runtime.core.api.connector.ConnectionManager;

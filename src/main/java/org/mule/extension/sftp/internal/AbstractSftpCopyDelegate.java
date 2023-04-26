@@ -7,9 +7,9 @@
 package org.mule.extension.sftp.internal;
 
 import static java.lang.String.format;
-import org.mule.extension.file.common.api.FileAttributes;
-import org.mule.extension.file.common.api.FileConnectorConfig;
-import org.mule.extension.file.common.api.FileWriteMode;
+import org.mule.extension.sftp.api.FileAttributes;
+import org.mule.extension.sftp.api.FileConnectorConfig;
+import org.mule.extension.sftp.api.FileWriteMode;
 import org.mule.extension.sftp.internal.command.SftpCommand;
 import org.mule.extension.sftp.internal.connection.SftpFileSystem;
 import org.mule.runtime.api.connection.ConnectionException;

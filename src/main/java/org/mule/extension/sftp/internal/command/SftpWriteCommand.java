@@ -9,14 +9,14 @@ package org.mule.extension.sftp.internal.command;
 import static java.lang.String.format;
 import static org.slf4j.LoggerFactory.getLogger;
 
-import org.mule.extension.file.common.api.FileAttributes;
-import org.mule.extension.file.common.api.FileWriteMode;
-import org.mule.extension.file.common.api.command.WriteCommand;
-import org.mule.extension.file.common.api.exceptions.DeletedFileWhileReadException;
-import org.mule.extension.file.common.api.exceptions.FileAlreadyExistsException;
-import org.mule.extension.file.common.api.exceptions.FileError;
-import org.mule.extension.file.common.api.lock.NullUriLock;
-import org.mule.extension.file.common.api.lock.UriLock;
+import org.mule.extension.sftp.api.FileAttributes;
+import org.mule.extension.sftp.api.FileWriteMode;
+import org.mule.extension.sftp.api.command.WriteCommand;
+import org.mule.extension.sftp.api.exceptions.DeletedFileWhileReadException;
+import org.mule.extension.sftp.api.exceptions.FileAlreadyExistsException;
+import org.mule.extension.sftp.api.exceptions.FileError;
+import org.mule.extension.sftp.api.lock.NullUriLock;
+import org.mule.extension.sftp.api.lock.UriLock;
 import org.mule.extension.sftp.internal.connection.SftpClient;
 import org.mule.extension.sftp.internal.connection.SftpFileSystem;
 

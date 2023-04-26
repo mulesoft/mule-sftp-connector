@@ -8,13 +8,13 @@ package org.mule.extension.sftp.internal.source;
 
 import static java.lang.String.format;
 import static org.mule.runtime.api.i18n.I18nMessageFactory.createStaticMessage;
-import static org.mule.extension.file.common.api.FileDisplayConstants.MATCHER;
+import static org.mule.extension.sftp.api.FileDisplayConstants.MATCHER;
 import static org.mule.runtime.core.api.util.IOUtils.closeQuietly;
 import static org.mule.runtime.core.api.util.ExceptionUtils.extractConnectionException;
 import static org.mule.runtime.extension.api.annotation.param.MediaType.ANY;
 import static org.mule.runtime.extension.api.runtime.source.PollContext.PollItemStatus.SOURCE_STOPPING;
 
-import org.mule.extension.file.common.api.matcher.NullFilePayloadPredicate;
+import org.mule.extension.sftp.api.matcher.NullFilePayloadPredicate;
 import org.mule.extension.sftp.api.SftpFileAttributes;
 import org.mule.extension.sftp.api.SftpFileMatcher;
 import org.mule.extension.sftp.internal.SftpConnector;

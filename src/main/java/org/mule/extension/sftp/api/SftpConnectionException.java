@@ -6,7 +6,7 @@
  */
 package org.mule.extension.sftp.api;
 
-import org.mule.extension.file.common.api.exceptions.FileError;
+import org.mule.extension.sftp.api.exceptions.FileError;
 import org.mule.extension.sftp.internal.SftpConnector;
 import org.mule.runtime.api.connection.ConnectionException;
 import org.mule.runtime.extension.api.exception.ModuleException;

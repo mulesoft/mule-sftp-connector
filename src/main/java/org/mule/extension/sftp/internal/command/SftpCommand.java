@@ -6,9 +6,9 @@
  */
 package org.mule.extension.sftp.internal.command;
 
-import static org.mule.extension.file.common.api.util.UriUtils.createUri;
-import static org.mule.extension.file.common.api.util.UriUtils.normalizeUri;
-import static org.mule.extension.file.common.api.util.UriUtils.trimLastFragment;
+import static org.mule.extension.sftp.api.util.UriUtils.createUri;
+import static org.mule.extension.sftp.api.util.UriUtils.normalizeUri;
+import static org.mule.extension.sftp.api.util.UriUtils.trimLastFragment;
 import static org.mule.extension.sftp.internal.SftpUtils.normalizePath;
 import static org.mule.extension.sftp.internal.connection.SftpFileSystem.ROOT;
 
@@ -17,11 +17,11 @@ import static java.lang.String.format;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
 
-import org.mule.extension.file.common.api.FileAttributes;
-import org.mule.extension.file.common.api.FileConnectorConfig;
-import org.mule.extension.file.common.api.FileSystem;
-import org.mule.extension.file.common.api.command.ExternalFileCommand;
-import org.mule.extension.file.common.api.exceptions.FileAlreadyExistsException;
+import org.mule.extension.sftp.api.FileAttributes;
+import org.mule.extension.sftp.api.FileConnectorConfig;
+import org.mule.extension.sftp.api.FileSystem;
+import org.mule.extension.sftp.api.command.ExternalFileCommand;
+import org.mule.extension.sftp.api.exceptions.FileAlreadyExistsException;
 import org.mule.extension.sftp.api.SftpFileAttributes;
 import org.mule.extension.sftp.internal.SftpCopyDelegate;
 import org.mule.extension.sftp.internal.connection.SftpClient;
