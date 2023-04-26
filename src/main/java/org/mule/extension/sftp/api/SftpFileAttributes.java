@@ -13,7 +13,7 @@ import java.net.URI;
 import java.time.LocalDateTime;
 import java.util.Date;
 
-import org.mule.extension.file.common.api.AbstractFileAttributes;
+import org.mule.extension.sftp.api.AbstractFileAttributes;
 import org.mule.runtime.extension.api.annotation.param.Parameter;
 
 /**

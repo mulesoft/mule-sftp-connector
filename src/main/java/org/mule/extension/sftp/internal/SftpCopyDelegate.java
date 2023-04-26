@@ -6,8 +6,8 @@
  */
 package org.mule.extension.sftp.internal;
 
-import org.mule.extension.file.common.api.FileAttributes;
-import org.mule.extension.file.common.api.FileConnectorConfig;
+import org.mule.extension.sftp.api.FileAttributes;
+import org.mule.extension.sftp.api.FileConnectorConfig;
 
 import java.net.URI;
 

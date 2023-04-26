@@ -12,8 +12,8 @@ import static org.mule.extension.sftp.SftpTestHarness.AuthType.USER_PASSWORD;
 import static org.mule.runtime.core.api.util.IOUtils.closeQuietly;
 import static org.mule.test.extension.file.common.api.FileTestHarness.HELLO_PATH;
 
-import org.mule.extension.file.common.api.FileWriteMode;
-import org.mule.extension.file.common.api.stream.AbstractNonFinalizableFileInputStream;
+import org.mule.extension.sftp.api.FileWriteMode;
+import org.mule.extension.sftp.api.stream.AbstractNonFinalizableFileInputStream;
 import org.mule.runtime.api.message.Message;
 import org.mule.runtime.api.streaming.bytes.CursorStreamProvider;
 import org.mule.runtime.core.api.event.CoreEvent;

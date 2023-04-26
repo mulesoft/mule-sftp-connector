@@ -6,10 +6,10 @@
  */
 package org.mule.extension.sftp;
 
-import static org.mule.extension.file.common.api.exceptions.FileError.CANNOT_REACH;
-import static org.mule.extension.file.common.api.exceptions.FileError.CONNECTION_TIMEOUT;
-import static org.mule.extension.file.common.api.exceptions.FileError.INVALID_CREDENTIALS;
-import static org.mule.extension.file.common.api.exceptions.FileError.UNKNOWN_HOST;
+import static org.mule.extension.sftp.api.exceptions.FileError.CANNOT_REACH;
+import static org.mule.extension.sftp.api.exceptions.FileError.CONNECTION_TIMEOUT;
+import static org.mule.extension.sftp.api.exceptions.FileError.INVALID_CREDENTIALS;
+import static org.mule.extension.sftp.api.exceptions.FileError.UNKNOWN_HOST;
 import static org.mule.extension.sftp.AllureConstants.SftpFeature.SFTP_EXTENSION;
 import static org.mule.functional.junit4.matchers.ThrowableCauseMatcher.hasCause;
 import static org.mule.tck.junit4.matcher.ErrorTypeMatcher.errorType;

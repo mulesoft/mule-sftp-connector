@@ -21,8 +21,8 @@ import javax.inject.Inject;
 
 import org.apache.sshd.common.SshConstants;
 import org.apache.sshd.common.SshException;
-import org.mule.extension.file.common.api.FileSystemProvider;
-import org.mule.extension.file.common.api.exceptions.FileError;
+import org.mule.extension.sftp.api.FileSystemProvider;
+import org.mule.extension.sftp.api.exceptions.FileError;
 import org.mule.extension.sftp.api.SftpAuthenticationMethod;
 import org.mule.extension.sftp.api.SftpConnectionException;
 import org.mule.extension.sftp.api.SftpProxyConfig;

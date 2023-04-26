@@ -14,7 +14,7 @@ import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.when;
-import static org.mule.extension.file.common.api.util.UriUtils.createUri;
+import static org.mule.extension.sftp.api.util.UriUtils.createUri;
 
 import java.io.IOException;
 import java.net.URI;
