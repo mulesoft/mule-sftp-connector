@@ -6,9 +6,6 @@
  */
 package org.mule.extension.sftp.internal.command;
 
-import static java.lang.String.format;
-import static org.slf4j.LoggerFactory.getLogger;
-
 import org.mule.extension.sftp.api.FileAttributes;
 import org.mule.extension.sftp.api.FileWriteMode;
 import org.mule.extension.sftp.api.command.WriteCommand;
@@ -19,12 +16,14 @@ import org.mule.extension.sftp.api.lock.NullUriLock;
 import org.mule.extension.sftp.api.lock.UriLock;
 import org.mule.extension.sftp.internal.connection.SftpClient;
 import org.mule.extension.sftp.internal.connection.SftpFileSystem;
+import org.mule.runtime.extension.api.exception.ModuleException;
+import org.slf4j.Logger;
 
 import java.io.InputStream;
 import java.net.URI;
 
-import org.mule.runtime.extension.api.exception.ModuleException;
-import org.slf4j.Logger;
+import static java.lang.String.format;
+import static org.slf4j.LoggerFactory.getLogger;
 
 /**
  * A {@link SftpCommand} which implements the {@link WriteCommand} contract
@@ -40,16 +39,6 @@ public final class SftpWriteCommand extends SftpCommand implements WriteCommand 
    */
   public SftpWriteCommand(SftpFileSystem fileSystem, SftpClient client) {
     super(fileSystem, client);
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Deprecated
-  @Override
-  public void write(String filePath, InputStream content, FileWriteMode mode,
-                    boolean lock, boolean createParentDirectory, String encoding) {
-    write(filePath, content, mode, lock, createParentDirectory);
   }
 
   /**

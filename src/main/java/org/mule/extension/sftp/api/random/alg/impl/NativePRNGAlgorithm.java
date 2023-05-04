@@ -4,16 +4,16 @@
  * license, a copy of which has been included with this distribution in the
  * LICENSE.txt file.
  */
-package org.mule.extension.sftp.random.alg.impl;
+package org.mule.extension.sftp.api.random.alg.impl;
 
-import static org.mule.extension.sftp.random.alg.PRNGAlgorithm.NativePRNGBlocking;
+import org.mule.extension.sftp.api.random.alg.MulePRNGAlgorithm;
 
-import org.mule.extension.sftp.random.alg.MulePRNGAlgorithm;
+import static org.mule.extension.sftp.api.random.alg.PRNGAlgorithm.NativePRNG;
 
-public class NativeBlockingPRNGAlgorithm extends MulePRNGAlgorithm {
+public class NativePRNGAlgorithm extends MulePRNGAlgorithm {
 
   @Override
   protected String getAlgorithmName() {
-    return NativePRNGBlocking.getName();
+    return NativePRNG.getName();
   }
 }

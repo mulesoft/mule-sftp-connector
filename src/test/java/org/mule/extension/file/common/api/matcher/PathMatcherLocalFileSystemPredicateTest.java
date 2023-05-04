@@ -8,7 +8,6 @@
 package org.mule.extension.sftp.api.matcher;
 
 import org.junit.Test;
-import org.mule.extension.sftp.api.matcher.PathMatcherPredicate;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;

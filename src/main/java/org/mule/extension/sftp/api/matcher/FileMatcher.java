@@ -8,8 +8,6 @@ package org.mule.extension.sftp.api.matcher;
 
 import org.mule.extension.sftp.api.FileAttributes;
 import org.mule.extension.sftp.api.PredicateType;
-import org.mule.extension.sftp.api.matcher.MatchPolicy;
-import org.mule.extension.sftp.api.matcher.PathMatcherPredicate;
 import org.mule.extension.sftp.api.util.TimeSinceFunction;
 import org.mule.extension.sftp.api.util.TimeUntilFunction;
 import org.mule.runtime.extension.api.annotation.param.Optional;

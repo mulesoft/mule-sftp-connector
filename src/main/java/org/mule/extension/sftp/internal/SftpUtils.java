@@ -6,11 +6,11 @@
  */
 package org.mule.extension.sftp.internal;
 
-import static java.lang.Thread.currentThread;
+import org.apache.commons.io.FilenameUtils;
 
 import java.net.URL;
 
-import org.apache.commons.io.FilenameUtils;
+import static java.lang.Thread.currentThread;
 
 /**
  * Utility class for normalizing FTP paths

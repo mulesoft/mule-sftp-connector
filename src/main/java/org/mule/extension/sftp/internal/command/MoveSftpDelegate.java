@@ -6,7 +6,6 @@
  */
 package org.mule.extension.sftp.internal.command;
 
-import static java.lang.String.format;
 import org.mule.extension.sftp.api.FileAttributes;
 import org.mule.extension.sftp.api.FileConnectorConfig;
 import org.mule.extension.sftp.internal.SftpCopyDelegate;
@@ -16,6 +15,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.URI;
+
+import static java.lang.String.format;
 
 public class MoveSftpDelegate implements SftpCopyDelegate {
 

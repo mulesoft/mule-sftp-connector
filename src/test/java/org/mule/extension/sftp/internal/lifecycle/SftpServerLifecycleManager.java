@@ -6,13 +6,10 @@
  */
 package org.mule.extension.sftp.internal.lifecycle;
 
-import static org.mule.test.extension.file.common.api.FileTestHarness.WORKING_DIR_SYSTEM_PROPERTY;
-
+import org.junit.rules.TemporaryFolder;
 import org.mule.extension.sftp.SftpServer;
 
 import java.io.IOException;
-
-import org.junit.rules.TemporaryFolder;
 
 public class SftpServerLifecycleManager {
 

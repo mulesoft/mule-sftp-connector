@@ -7,7 +7,6 @@
 package org.mule.extension.sftp.api.command;
 
 import org.mule.extension.sftp.api.FileSystem;
-import org.mule.extension.sftp.api.command.AbstractFileCommand;
 import org.mule.extension.sftp.api.exceptions.FileAlreadyExistsException;
 import org.mule.extension.sftp.api.exceptions.IllegalPathException;
 import org.slf4j.Logger;

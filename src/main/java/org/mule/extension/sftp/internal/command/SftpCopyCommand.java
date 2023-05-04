@@ -6,8 +6,6 @@
  */
 package org.mule.extension.sftp.internal.command;
 
-import static org.mule.extension.sftp.api.util.UriUtils.createUri;
-
 import org.mule.extension.sftp.api.FileAttributes;
 import org.mule.extension.sftp.api.FileConnectorConfig;
 import org.mule.extension.sftp.api.command.CopyCommand;
@@ -18,6 +16,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.URI;
+
+import static org.mule.extension.sftp.api.util.UriUtils.createUri;
 
 /**
  * A {@link SftpCommand} which implements the {@link CopyCommand} contract

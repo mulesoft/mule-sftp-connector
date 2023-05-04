@@ -6,7 +6,6 @@
  */
 package org.mule.extension.sftp.api;
 
-import org.mule.extension.sftp.api.FileSystem;
 import org.mule.runtime.api.connection.ConnectionProvider;
 import org.mule.runtime.extension.api.annotation.param.RefName;
 

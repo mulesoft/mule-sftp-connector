@@ -4,12 +4,13 @@
  * license, a copy of which has been included with this distribution in the
  * LICENSE.txt file.
  */
-package org.mule.extension.sftp.random.alg;
+package org.mule.extension.sftp.api.random.alg;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 public abstract class MulePRNGAlgorithm {

@@ -6,7 +6,6 @@
  */
 package org.mule.extension.sftp.api;
 
-import org.mule.extension.sftp.api.FileAttributes;
 import org.mule.extension.sftp.api.exceptions.DeletedFileWhileReadException;
 import org.mule.extension.sftp.api.exceptions.FileBeingModifiedException;
 import org.mule.extension.sftp.api.stream.ExceptionInputStream;

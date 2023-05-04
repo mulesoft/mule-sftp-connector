@@ -6,13 +6,13 @@
  */
 package org.mule.extension.sftp.internal.source;
 
-import static org.mule.runtime.api.meta.model.display.PathModel.Location.EXTERNAL;
-import static org.mule.runtime.api.meta.model.display.PathModel.Type.DIRECTORY;
-
 import org.mule.extension.sftp.api.source.AbstractPostActionGroup;
 import org.mule.runtime.extension.api.annotation.param.Optional;
 import org.mule.runtime.extension.api.annotation.param.Parameter;
 import org.mule.runtime.extension.api.annotation.param.display.Path;
+
+import static org.mule.runtime.api.meta.model.display.PathModel.Location.EXTERNAL;
+import static org.mule.runtime.api.meta.model.display.PathModel.Type.DIRECTORY;
 
 /**
  * Groups post processing action parameters

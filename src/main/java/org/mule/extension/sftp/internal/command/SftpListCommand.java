@@ -6,24 +6,23 @@
  */
 package org.mule.extension.sftp.internal.command;
 
-import static org.mule.extension.sftp.api.util.UriUtils.createUri;
-import static org.slf4j.LoggerFactory.getLogger;
 import org.mule.extension.sftp.api.FileAttributes;
 import org.mule.extension.sftp.api.FileConnectorConfig;
-import org.mule.extension.sftp.api.command.ListCommand;
 import org.mule.extension.sftp.api.SftpFileAttributes;
+import org.mule.extension.sftp.api.command.ListCommand;
 import org.mule.extension.sftp.internal.connection.SftpClient;
 import org.mule.extension.sftp.internal.connection.SftpFileSystem;
 import org.mule.runtime.extension.api.runtime.operation.Result;
+import org.slf4j.Logger;
 
 import java.io.InputStream;
 import java.net.URI;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
 
-import org.slf4j.Logger;
+import static org.mule.extension.sftp.api.util.UriUtils.createUri;
+import static org.slf4j.LoggerFactory.getLogger;
 
 /**
  * A {@link SftpCommand} which implements the {@link ListCommand} contract
@@ -46,28 +45,6 @@ public final class SftpListCommand extends SftpCommand implements ListCommand<Sf
   /**
    * {@inheritDoc}
    */
-  @Override
-  @Deprecated
-  public List<Result<InputStream, SftpFileAttributes>> list(FileConnectorConfig config,
-                                                            String directoryPath,
-                                                            boolean recursive,
-                                                            Predicate<SftpFileAttributes> matcher) {
-
-    return list(config, directoryPath, recursive, matcher, null);
-  }
-
-  @Deprecated
-  public List<Result<InputStream, SftpFileAttributes>> list(FileConnectorConfig config,
-                                                            String directoryPath,
-                                                            boolean recursive,
-                                                            Predicate<SftpFileAttributes> matcher,
-                                                            Long timeBetweenSizeCheck,
-                                                            TimeUnit timeBetweenSizeCheckUnit) {
-
-    return list(config, directoryPath, recursive, matcher,
-                config.getTimeBetweenSizeCheckInMillis(timeBetweenSizeCheck, timeBetweenSizeCheckUnit).orElse(null));
-  }
-
   public List<Result<InputStream, SftpFileAttributes>> list(FileConnectorConfig config,
                                                             String directoryPath,
                                                             boolean recursive,
