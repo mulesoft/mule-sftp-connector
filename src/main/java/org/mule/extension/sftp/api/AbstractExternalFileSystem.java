@@ -6,8 +6,6 @@
  */
 package org.mule.extension.sftp.api;
 
-import org.mule.extension.sftp.api.AbstractFileSystem;
-import org.mule.extension.sftp.api.ExternalFileSystem;
 import org.mule.extension.sftp.api.exceptions.FileLockedException;
 import org.mule.extension.sftp.api.lock.PathLock;
 import org.mule.extension.sftp.api.lock.UriLock;

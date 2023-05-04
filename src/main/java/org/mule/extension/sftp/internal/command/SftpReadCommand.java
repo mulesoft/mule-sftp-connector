@@ -6,14 +6,12 @@
  */
 package org.mule.extension.sftp.internal.command;
 
-import static org.mule.extension.sftp.api.util.UriUtils.createUri;
-
 import org.mule.extension.sftp.api.FileConnectorConfig;
+import org.mule.extension.sftp.api.SftpFileAttributes;
 import org.mule.extension.sftp.api.command.ReadCommand;
 import org.mule.extension.sftp.api.lock.NullUriLock;
 import org.mule.extension.sftp.api.lock.UriLock;
 import org.mule.extension.sftp.api.util.UriUtils;
-import org.mule.extension.sftp.api.SftpFileAttributes;
 import org.mule.extension.sftp.internal.SftpConnector;
 import org.mule.extension.sftp.internal.SftpInputStream;
 import org.mule.extension.sftp.internal.connection.SftpClient;
@@ -25,7 +23,8 @@ import org.mule.runtime.extension.api.runtime.operation.Result;
 
 import java.io.InputStream;
 import java.net.URI;
-import java.util.concurrent.TimeUnit;
+
+import static org.mule.extension.sftp.api.util.UriUtils.createUri;
 
 /**
  * A {@link SftpCommand} which implements the {@link ReadCommand} contract
@@ -39,15 +38,6 @@ public final class SftpReadCommand extends SftpCommand implements ReadCommand<Sf
    */
   public SftpReadCommand(SftpFileSystem fileSystem, SftpClient client) {
     super(fileSystem, client);
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  @Deprecated
-  public Result<InputStream, SftpFileAttributes> read(FileConnectorConfig config, String filePath, boolean lock) {
-    return read(config, filePath, lock, null);
   }
 
   @Override
@@ -68,13 +58,6 @@ public final class SftpReadCommand extends SftpCommand implements ReadCommand<Sf
   public Result<InputStream, SftpFileAttributes> read(FileConnectorConfig config, SftpFileAttributes attributes, boolean lock,
                                                       Long timeBetweenSizeCheck) {
     return read(config, attributes, lock, timeBetweenSizeCheck, false);
-  }
-
-  @Deprecated
-  public Result<InputStream, SftpFileAttributes> read(FileConnectorConfig config, String filePath, boolean lock,
-                                                      Long timeBetweenSizeCheck, TimeUnit timeBetweenSizeCheckUnit) {
-    return read(config, filePath, lock,
-                config.getTimeBetweenSizeCheckInMillis(timeBetweenSizeCheck, timeBetweenSizeCheckUnit).orElse(null));
   }
 
   public SftpFileAttributes readAttributes(String filePath) {

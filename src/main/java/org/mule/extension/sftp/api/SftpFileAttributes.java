@@ -6,15 +6,13 @@
  */
 package org.mule.extension.sftp.api;
 
-import static org.apache.sshd.sftp.client.SftpClient.Attributes;
-import static org.mule.extension.sftp.internal.SftpUtils.normalizePath;
+import org.mule.runtime.extension.api.annotation.param.Parameter;
 
 import java.net.URI;
 import java.time.LocalDateTime;
-import java.util.Date;
 
-import org.mule.extension.sftp.api.AbstractFileAttributes;
-import org.mule.runtime.extension.api.annotation.param.Parameter;
+import static org.apache.sshd.sftp.client.SftpClient.Attributes;
+import static org.mule.extension.sftp.internal.SftpUtils.normalizePath;
 
 /**
  * Metadata about a file in a SFTP server

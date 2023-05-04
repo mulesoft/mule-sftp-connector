@@ -15,7 +15,6 @@ import org.mule.extension.sftp.api.FileConnectorConfig;
 import org.mule.extension.sftp.api.FileSystem;
 import org.mule.extension.sftp.api.lock.Lock;
 import org.mule.extension.sftp.api.lock.PathLock;
-import org.mule.extension.sftp.api.stream.LazyStreamSupplier;
 
 import java.io.IOException;
 import java.io.InputStream;

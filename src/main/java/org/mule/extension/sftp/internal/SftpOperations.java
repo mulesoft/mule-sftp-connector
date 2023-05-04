@@ -6,38 +6,14 @@
  */
 package org.mule.extension.sftp.internal;
 
-import static org.mule.runtime.api.meta.model.display.PathModel.Location.EXTERNAL;
-import static org.mule.runtime.api.meta.model.display.PathModel.Type.DIRECTORY;
-import static org.mule.runtime.api.meta.model.display.PathModel.Type.FILE;
-import static org.mule.runtime.core.api.util.StringUtils.isBlank;
-import static org.mule.runtime.extension.api.annotation.param.MediaType.ANY;
-import static org.mule.runtime.extension.api.annotation.param.display.Placement.ADVANCED_TAB;
-import org.mule.extension.sftp.api.BaseFileSystemOperations;
-import org.mule.extension.sftp.api.FileAttributes;
-import org.mule.extension.sftp.api.FileConnectorConfig;
-import org.mule.extension.sftp.api.FileSystem;
-import org.mule.extension.sftp.api.FileWriteMode;
-import org.mule.extension.sftp.api.exceptions.FileCopyErrorTypeProvider;
-import org.mule.extension.sftp.api.exceptions.FileDeleteErrorTypeProvider;
-import org.mule.extension.sftp.api.exceptions.FileListErrorTypeProvider;
-import org.mule.extension.sftp.api.exceptions.FileReadErrorTypeProvider;
-import org.mule.extension.sftp.api.exceptions.FileRenameErrorTypeProvider;
-import org.mule.extension.sftp.api.exceptions.FileWriteErrorTypeProvider;
-import org.mule.extension.sftp.api.exceptions.IllegalContentException;
-import org.mule.extension.sftp.api.exceptions.IllegalPathException;
+import org.mule.extension.sftp.api.*;
+import org.mule.extension.sftp.api.exceptions.*;
 import org.mule.extension.sftp.api.matcher.FileMatcher;
 import org.mule.extension.sftp.api.matcher.NullFilePayloadPredicate;
-import org.mule.extension.sftp.api.SftpFileAttributes;
-import org.mule.extension.sftp.api.SftpFileMatcher;
 import org.mule.extension.sftp.internal.connection.SftpFileSystem;
 import org.mule.runtime.api.message.Message;
 import org.mule.runtime.extension.api.annotation.error.Throws;
-import org.mule.runtime.extension.api.annotation.param.Config;
-import org.mule.runtime.extension.api.annotation.param.ConfigOverride;
-import org.mule.runtime.extension.api.annotation.param.Connection;
-import org.mule.runtime.extension.api.annotation.param.Content;
-import org.mule.runtime.extension.api.annotation.param.MediaType;
-import org.mule.runtime.extension.api.annotation.param.Optional;
+import org.mule.runtime.extension.api.annotation.param.*;
 import org.mule.runtime.extension.api.annotation.param.display.DisplayName;
 import org.mule.runtime.extension.api.annotation.param.display.Path;
 import org.mule.runtime.extension.api.annotation.param.display.Placement;
@@ -50,6 +26,13 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
+
+import static org.mule.runtime.api.meta.model.display.PathModel.Location.EXTERNAL;
+import static org.mule.runtime.api.meta.model.display.PathModel.Type.DIRECTORY;
+import static org.mule.runtime.api.meta.model.display.PathModel.Type.FILE;
+import static org.mule.runtime.core.api.util.StringUtils.isBlank;
+import static org.mule.runtime.extension.api.annotation.param.MediaType.ANY;
+import static org.mule.runtime.extension.api.annotation.param.display.Placement.ADVANCED_TAB;
 
 /**
  * Ftp connector operations

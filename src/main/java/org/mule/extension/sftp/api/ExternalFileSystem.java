@@ -6,7 +6,6 @@
  */
 package org.mule.extension.sftp.api;
 
-import org.mule.extension.sftp.api.FileSystem;
 import org.mule.extension.sftp.api.lock.UriLock;
 
 import java.net.URI;

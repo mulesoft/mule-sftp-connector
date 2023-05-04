@@ -6,10 +6,6 @@
  */
 package org.mule.extension.sftp.api;
 
-import org.mule.extension.sftp.api.AbstractFileInputStreamSupplier;
-import org.mule.extension.sftp.api.FileAttributes;
-import org.mule.extension.sftp.api.FileConnectorConfig;
-import org.mule.extension.sftp.api.FileSystem;
 import org.mule.extension.sftp.api.connection.ConnectionSource;
 import org.mule.extension.sftp.api.connection.ManagerBasedConnectionSource;
 import org.mule.extension.sftp.api.connection.StaticConnectionSource;

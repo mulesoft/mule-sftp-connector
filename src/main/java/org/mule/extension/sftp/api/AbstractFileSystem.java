@@ -6,10 +6,6 @@
  */
 package org.mule.extension.sftp.api;
 
-import org.mule.extension.sftp.api.FileAttributes;
-import org.mule.extension.sftp.api.FileConnectorConfig;
-import org.mule.extension.sftp.api.FileSystem;
-import org.mule.extension.sftp.api.FileWriteMode;
 import org.mule.extension.sftp.api.command.*;
 import org.mule.extension.sftp.api.exceptions.FileLockedException;
 import org.mule.extension.sftp.api.lock.PathLock;
@@ -90,18 +86,6 @@ public abstract class AbstractFileSystem<A extends org.mule.extension.sftp.api.F
    * {@inheritDoc}
    */
   @Override
-  @Deprecated
-  public List<Result<InputStream, A>> list(org.mule.extension.sftp.api.FileConnectorConfig config,
-                                           String directoryPath,
-                                           boolean recursive,
-                                           Predicate<A> matcher) {
-    return getListCommand().list(config, directoryPath, recursive, matcher);
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
   public List<Result<InputStream, A>> list(org.mule.extension.sftp.api.FileConnectorConfig config,
                                            String directoryPath,
                                            boolean recursive,
@@ -126,31 +110,10 @@ public abstract class AbstractFileSystem<A extends org.mule.extension.sftp.api.F
   /**
    * {@inheritDoc}
    */
-  @Deprecated
-  @Override
-  public Result<InputStream, A> read(org.mule.extension.sftp.api.FileConnectorConfig config, String filePath,
-                                     boolean lock) {
-    return getReadCommand().read(config, filePath, lock);
-  }
-
-  /**
-   * {@inheritDoc}
-   */
   @Override
   public Result<InputStream, A> read(org.mule.extension.sftp.api.FileConnectorConfig config, String filePath,
                                      boolean lock, Long timeBetweenSizeCheck) {
     return getReadCommand().read(config, filePath, lock, timeBetweenSizeCheck);
-  }
-
-  /**
-   * @deprecated {@link #write(String, InputStream, org.mule.extension.sftp.api.FileWriteMode, boolean, boolean)} must be used
-   *             instead. {@inheritDoc}
-   */
-  @Deprecated
-  @Override
-  public void write(String filePath, InputStream content, org.mule.extension.sftp.api.FileWriteMode mode,
-                    boolean lock, boolean createParentDirectories, String encoding) {
-    getWriteCommand().write(filePath, content, mode, lock, createParentDirectories, encoding);
   }
 
   /**

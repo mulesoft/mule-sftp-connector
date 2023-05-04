@@ -6,17 +6,17 @@
  */
 package org.mule.extension.sftp.internal.command;
 
-import static org.mule.extension.sftp.api.util.UriUtils.createUri;
-import static org.slf4j.LoggerFactory.getLogger;
+import org.apache.commons.io.FilenameUtils;
 import org.mule.extension.sftp.api.FileAttributes;
 import org.mule.extension.sftp.api.command.DeleteCommand;
 import org.mule.extension.sftp.internal.connection.SftpClient;
 import org.mule.extension.sftp.internal.connection.SftpFileSystem;
+import org.slf4j.Logger;
 
 import java.net.URI;
 
-import org.apache.commons.io.FilenameUtils;
-import org.slf4j.Logger;
+import static org.mule.extension.sftp.api.util.UriUtils.createUri;
+import static org.slf4j.LoggerFactory.getLogger;
 
 /**
  * A {@link SftpCommand} which implements the {@link DeleteCommand} contract

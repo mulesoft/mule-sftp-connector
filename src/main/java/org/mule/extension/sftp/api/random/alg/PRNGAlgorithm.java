@@ -4,14 +4,9 @@
  * license, a copy of which has been included with this distribution in the
  * LICENSE.txt file.
  */
-package org.mule.extension.sftp.random.alg;
+package org.mule.extension.sftp.api.random.alg;
 
-import org.mule.extension.sftp.random.alg.impl.AutoSelectPRGNAlgorithm;
-import org.mule.extension.sftp.random.alg.impl.NativeBlockingPRNGAlgorithm;
-import org.mule.extension.sftp.random.alg.impl.NativePRNGAlgorithm;
-import org.mule.extension.sftp.random.alg.impl.SHA1PRNGAlgorithm;
-import org.mule.extension.sftp.random.alg.impl.NativeNonBlockingPRNGAlgorithm;
-
+import org.mule.extension.sftp.api.random.alg.impl.*;
 
 
 public enum PRNGAlgorithm {

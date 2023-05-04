@@ -7,7 +7,6 @@
 package org.mule.extension.sftp.api.command;
 
 import org.mule.extension.sftp.api.ExternalFileSystem;
-import org.mule.extension.sftp.api.command.AbstractFileCommand;
 import org.slf4j.Logger;
 
 import java.net.URI;

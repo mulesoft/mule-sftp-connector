@@ -34,24 +34,10 @@ public abstract class FileConnectorConfig {
   private String muleEncoding;
 
   /**
-   * Deprecated parameter
-   */
-  @Parameter
-  @Summary("This parameter is deprecated and will not be taken into account")
-  @DisplayName("Default write encoding(DEPRECATED)")
-  @Optional
-  @Placement(tab = ADVANCED_TAB)
-  private String defaultWriteEncoding;
-
-  /**
    * @return the name that this config has on the mule registry
    */
   protected String getConfigName() {
     return configName;
-  }
-
-  public String getDefaultWriteEncoding() {
-    return defaultWriteEncoding == null ? muleEncoding : defaultWriteEncoding;
   }
 
   /**

@@ -7,7 +7,6 @@
 package org.mule.extension.sftp.api.connection;
 
 import org.mule.extension.sftp.api.FileSystem;
-import org.mule.extension.sftp.api.connection.ConnectionSource;
 import org.mule.runtime.api.connection.ConnectionException;
 
 /**

@@ -6,9 +6,6 @@
  */
 package org.mule.extension.sftp.api.lock;
 
-import org.mule.extension.sftp.api.lock.AbstractNullLock;
-import org.mule.extension.sftp.api.lock.PathLock;
-
 import java.nio.file.Path;
 
 /**

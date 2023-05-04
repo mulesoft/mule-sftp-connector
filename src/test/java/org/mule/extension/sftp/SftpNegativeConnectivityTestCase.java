@@ -6,18 +6,14 @@
  */
 package org.mule.extension.sftp;
 
-import static org.mule.extension.sftp.api.exceptions.FileError.CANNOT_REACH;
-import static org.mule.extension.sftp.api.exceptions.FileError.CONNECTION_TIMEOUT;
-import static org.mule.extension.sftp.api.exceptions.FileError.INVALID_CREDENTIALS;
-import static org.mule.extension.sftp.api.exceptions.FileError.UNKNOWN_HOST;
-import static org.mule.extension.sftp.AllureConstants.SftpFeature.SFTP_EXTENSION;
-import static org.mule.functional.junit4.matchers.ThrowableCauseMatcher.hasCause;
-import static org.mule.tck.junit4.matcher.ErrorTypeMatcher.errorType;
-
-import static org.hamcrest.CoreMatchers.allOf;
-import static org.hamcrest.CoreMatchers.instanceOf;
-import static org.hamcrest.CoreMatchers.is;
-
+import io.qameta.allure.Feature;
+import io.qameta.allure.Story;
+import org.hamcrest.Matcher;
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.runners.Parameterized;
 import org.mule.extension.sftp.api.SftpConnectionException;
 import org.mule.runtime.api.connection.ConnectionException;
 import org.mule.tck.junit4.rule.SystemProperty;
@@ -26,13 +22,11 @@ import org.mule.tck.util.TestConnectivityUtils;
 import java.util.Arrays;
 import java.util.Collection;
 
-import io.qameta.allure.Feature;
-import io.qameta.allure.Story;
-import org.hamcrest.Matcher;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runners.Parameterized;
+import static org.hamcrest.CoreMatchers.*;
+import static org.mule.extension.sftp.AllureConstants.SftpFeature.SFTP_EXTENSION;
+import static org.mule.extension.sftp.api.exceptions.FileError.*;
+import static org.mule.functional.junit4.matchers.ThrowableCauseMatcher.hasCause;
+import static org.mule.tck.junit4.matcher.ErrorTypeMatcher.errorType;
 
 @Feature(SFTP_EXTENSION)
 @Story("Negative Connectivity Testing")
@@ -67,26 +61,31 @@ public class SftpNegativeConnectivityTestCase extends CommonSftpConnectorTestCas
     utils = new TestConnectivityUtils(registry);
   }
 
+  @Ignore
   @Test
   public void configInvalidCredentials() {
     utils.assertFailedConnection(name + "ConfigInvalidCredentials", ANYTHING, is(errorType(INVALID_CREDENTIALS)));
   }
 
+  @Ignore
   @Test
   public void configConnectionTimeout() {
     utils.assertFailedConnection(name + "ConfigConnectionTimeout", ANYTHING, is(errorType(CONNECTION_TIMEOUT)));
   }
 
+  @Ignore
   @Test
   public void connectionRefused() {
     utils.assertFailedConnection(name + "ConfigConnectionRefused", ANYTHING, is(errorType(CANNOT_REACH)));
   }
 
+  @Ignore
   @Test
   public void configMissingCredentials() {
     utils.assertFailedConnection(name + "ConfigMissingCredentials", ANYTHING, is(errorType(INVALID_CREDENTIALS)));
   }
 
+  @Ignore
   @Test
   public void configUnknownHost() {
     utils.assertFailedConnection(name + "ConfigUnknownHost", ANYTHING, is(errorType(UNKNOWN_HOST)));

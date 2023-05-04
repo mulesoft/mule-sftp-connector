@@ -6,19 +6,6 @@
  */
 package org.mule.extension.sftp;
 
-import static java.lang.String.format;
-import static org.apache.commons.lang3.StringUtils.EMPTY;
-import static org.hamcrest.Matchers.instanceOf;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.when;
-import static org.mule.extension.sftp.api.util.UriUtils.createUri;
-
-import java.io.IOException;
-import java.net.URI;
-
 import org.apache.sshd.client.SshClient;
 import org.apache.sshd.client.session.ClientSession;
 import org.apache.sshd.sftp.common.SftpConstants;
@@ -34,6 +21,16 @@ import org.mule.extension.sftp.internal.connection.SftpClient;
 import org.mule.runtime.api.connection.ConnectionException;
 import org.mule.runtime.api.exception.MuleRuntimeException;
 import org.mule.tck.size.SmallTest;
+
+import java.net.URI;
+
+import static java.lang.String.format;
+import static org.apache.commons.lang3.StringUtils.EMPTY;
+import static org.hamcrest.Matchers.*;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.when;
+import static org.mule.extension.sftp.api.util.UriUtils.createUri;
 
 @SmallTest
 @RunWith(MockitoJUnitRunner.class)

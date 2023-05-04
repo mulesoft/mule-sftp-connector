@@ -6,8 +6,6 @@
  */
 package org.mule.extension.sftp.api.lock;
 
-import org.mule.extension.sftp.api.lock.Lock;
-
 /**
  * Implementation of the Null Object design pattern for the {@link NullLock} interface
  *

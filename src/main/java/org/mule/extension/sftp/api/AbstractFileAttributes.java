@@ -8,7 +8,6 @@ package org.mule.extension.sftp.api;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
-import org.mule.extension.sftp.api.FileAttributes;
 import org.mule.runtime.extension.api.annotation.param.Parameter;
 
 import java.io.Serializable;

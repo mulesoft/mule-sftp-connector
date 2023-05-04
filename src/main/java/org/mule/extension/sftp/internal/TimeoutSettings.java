@@ -6,7 +6,6 @@
  */
 package org.mule.extension.sftp.internal;
 
-import static org.mule.runtime.extension.api.annotation.param.display.Placement.ADVANCED_TAB;
 import org.mule.runtime.extension.api.annotation.param.Optional;
 import org.mule.runtime.extension.api.annotation.param.Parameter;
 import org.mule.runtime.extension.api.annotation.param.display.Placement;
@@ -14,6 +13,8 @@ import org.mule.runtime.extension.api.annotation.param.display.Summary;
 
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
+
+import static org.mule.runtime.extension.api.annotation.param.display.Placement.ADVANCED_TAB;
 
 /**
  * Groups timeout related parameters
