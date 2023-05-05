@@ -6,11 +6,10 @@
  */
 package org.mule.extension.sftp.internal.command;
 
-import org.mule.extension.sftp.api.FileConnectorConfig;
+import org.mule.extension.sftp.internal.FileConnectorConfig;
 import org.mule.extension.sftp.api.SftpFileAttributes;
-import org.mule.extension.sftp.api.command.ReadCommand;
-import org.mule.extension.sftp.api.lock.NullUriLock;
-import org.mule.extension.sftp.api.lock.UriLock;
+import org.mule.extension.sftp.internal.lock.NullUriLock;
+import org.mule.extension.sftp.internal.lock.UriLock;
 import org.mule.extension.sftp.api.util.UriUtils;
 import org.mule.extension.sftp.internal.SftpConnector;
 import org.mule.extension.sftp.internal.SftpInputStream;

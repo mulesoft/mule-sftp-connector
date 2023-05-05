@@ -11,7 +11,7 @@ import org.junit.Rule;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 import org.mule.extension.sftp.api.FileWriteMode;
-import org.mule.extension.sftp.api.stream.AbstractNonFinalizableFileInputStream;
+import org.mule.extension.sftp.internal.stream.AbstractNonFinalizableFileInputStream;
 import org.mule.runtime.api.message.Message;
 import org.mule.runtime.api.streaming.bytes.CursorStreamProvider;
 import org.mule.runtime.core.api.event.CoreEvent;

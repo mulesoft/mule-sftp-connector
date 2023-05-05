@@ -6,7 +6,6 @@
  */
 package org.mule.extension.sftp.internal.command;
 
-import org.mule.extension.sftp.api.command.RenameCommand;
 import org.mule.extension.sftp.internal.connection.SftpClient;
 import org.mule.extension.sftp.internal.connection.SftpFileSystem;
 

@@ -8,12 +8,11 @@ package org.mule.extension.sftp.internal;
 
 import org.apache.sshd.sftp.common.SftpConstants;
 import org.apache.sshd.sftp.common.SftpException;
-import org.mule.extension.sftp.api.AbstractConnectedFileInputStreamSupplier;
 import org.mule.extension.sftp.api.FileAttributes;
 import org.mule.extension.sftp.api.SftpFileAttributes;
-import org.mule.extension.sftp.api.lock.UriLock;
-import org.mule.extension.sftp.api.stream.AbstractNonFinalizableFileInputStream;
-import org.mule.extension.sftp.api.stream.LazyStreamSupplier;
+import org.mule.extension.sftp.internal.lock.UriLock;
+import org.mule.extension.sftp.internal.stream.AbstractNonFinalizableFileInputStream;
+import org.mule.extension.sftp.internal.stream.LazyStreamSupplier;
 import org.mule.extension.sftp.internal.connection.SftpFileSystem;
 import org.mule.runtime.api.connection.ConnectionException;
 import org.mule.runtime.api.exception.MuleRuntimeException;

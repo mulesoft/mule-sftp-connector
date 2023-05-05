@@ -6,7 +6,6 @@
  */
 package org.mule.extension.sftp.internal;
 
-import org.mule.extension.sftp.api.FileConnectorConfig;
 import org.mule.extension.sftp.api.exceptions.FileError;
 import org.mule.extension.sftp.internal.connection.SftpConnectionProvider;
 import org.mule.extension.sftp.internal.source.SftpDirectoryListener;

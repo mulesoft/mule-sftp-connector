@@ -8,9 +8,9 @@ package org.mule.test.extension.file.common.connection;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.mule.extension.sftp.api.FileConnectorConfig;
-import org.mule.extension.sftp.api.FileSystem;
-import org.mule.extension.sftp.api.connection.ManagerBasedConnectionSource;
+import org.mule.extension.sftp.internal.FileConnectorConfig;
+import org.mule.extension.sftp.internal.connection.FileSystem;
+import org.mule.extension.sftp.internal.connection.ManagerBasedConnectionSource;
 import org.mule.runtime.api.connection.ConnectionException;
 import org.mule.runtime.api.connection.ConnectionHandler;
 import org.mule.runtime.core.api.connector.ConnectionManager;

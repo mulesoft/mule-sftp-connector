@@ -6,7 +6,7 @@
  */
 package org.mule.extension.sftp;
 
-import org.mule.extension.sftp.api.stream.AbstractNonFinalizableFileInputStream;
+import org.mule.extension.sftp.internal.stream.AbstractNonFinalizableFileInputStream;
 import org.mule.runtime.api.exception.MuleException;
 import org.mule.runtime.api.exception.MuleRuntimeException;
 import org.mule.runtime.core.api.event.CoreEvent;

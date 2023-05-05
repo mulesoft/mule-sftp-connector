@@ -7,9 +7,9 @@
 package org.mule.extension.sftp.internal.connection;
 
 import org.mule.extension.sftp.api.*;
-import org.mule.extension.sftp.api.command.*;
-import org.mule.extension.sftp.api.lock.URLPathLock;
-import org.mule.extension.sftp.api.lock.UriLock;
+import org.mule.extension.sftp.api.SftpConnectionException;
+import org.mule.extension.sftp.internal.lock.URLPathLock;
+import org.mule.extension.sftp.internal.lock.UriLock;
 import org.mule.extension.sftp.internal.command.*;
 import org.mule.runtime.api.connection.ConnectionValidationResult;
 import org.mule.runtime.api.exception.MuleRuntimeException;

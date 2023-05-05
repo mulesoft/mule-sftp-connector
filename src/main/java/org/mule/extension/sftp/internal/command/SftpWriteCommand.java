@@ -8,12 +8,11 @@ package org.mule.extension.sftp.internal.command;
 
 import org.mule.extension.sftp.api.FileAttributes;
 import org.mule.extension.sftp.api.FileWriteMode;
-import org.mule.extension.sftp.api.command.WriteCommand;
 import org.mule.extension.sftp.api.exceptions.DeletedFileWhileReadException;
 import org.mule.extension.sftp.api.exceptions.FileAlreadyExistsException;
 import org.mule.extension.sftp.api.exceptions.FileError;
-import org.mule.extension.sftp.api.lock.NullUriLock;
-import org.mule.extension.sftp.api.lock.UriLock;
+import org.mule.extension.sftp.internal.lock.NullUriLock;
+import org.mule.extension.sftp.internal.lock.UriLock;
 import org.mule.extension.sftp.internal.connection.SftpClient;
 import org.mule.extension.sftp.internal.connection.SftpFileSystem;
 import org.mule.runtime.extension.api.exception.ModuleException;
