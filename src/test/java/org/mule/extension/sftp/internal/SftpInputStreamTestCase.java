@@ -12,7 +12,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.mule.extension.sftp.api.lock.UriLock;
+import org.mule.extension.sftp.internal.lock.UriLock;
 import org.mule.runtime.api.connection.ConnectionHandler;
 
 import java.io.ByteArrayInputStream;

@@ -12,13 +12,13 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.mule.extension.sftp.api.AbstractFileSystem;
+import org.mule.extension.sftp.internal.connection.AbstractFileSystem;
 import org.mule.extension.sftp.api.FileAttributes;
-import org.mule.extension.sftp.api.FileConnectorConfig;
-import org.mule.extension.sftp.api.command.*;
+import org.mule.extension.sftp.internal.FileConnectorConfig;
 import org.mule.extension.sftp.api.exceptions.FileAlreadyExistsException;
-import org.mule.extension.sftp.api.lock.PathLock;
-import org.mule.extension.sftp.api.source.AbstractPostActionGroup;
+import org.mule.extension.sftp.internal.lock.PathLock;
+import org.mule.extension.sftp.internal.source.AbstractPostActionGroup;
+import org.mule.extension.sftp.internal.command.*;
 
 import java.nio.file.Path;
 import java.util.LinkedList;

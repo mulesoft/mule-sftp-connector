@@ -8,8 +8,8 @@ package org.mule.extension.sftp.common.connection;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.mule.extension.sftp.api.FileSystem;
-import org.mule.extension.sftp.api.connection.StaticConnectionSource;
+import org.mule.extension.sftp.internal.connection.FileSystem;
+import org.mule.extension.sftp.internal.connection.StaticConnectionSource;
 import org.mule.runtime.api.connection.ConnectionException;
 
 import static org.hamcrest.CoreMatchers.is;

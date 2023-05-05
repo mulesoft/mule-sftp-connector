@@ -6,7 +6,6 @@
  */
 package org.mule.extension.sftp.internal.source;
 
-import org.mule.extension.sftp.api.source.AbstractPostActionGroup;
 import org.mule.runtime.extension.api.annotation.param.Optional;
 import org.mule.runtime.extension.api.annotation.param.Parameter;
 import org.mule.runtime.extension.api.annotation.param.display.Path;

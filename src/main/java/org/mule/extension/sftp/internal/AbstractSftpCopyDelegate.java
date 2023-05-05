@@ -7,7 +7,6 @@
 package org.mule.extension.sftp.internal;
 
 import org.mule.extension.sftp.api.FileAttributes;
-import org.mule.extension.sftp.api.FileConnectorConfig;
 import org.mule.extension.sftp.api.FileWriteMode;
 import org.mule.extension.sftp.internal.command.SftpCommand;
 import org.mule.extension.sftp.internal.connection.SftpFileSystem;

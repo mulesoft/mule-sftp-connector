@@ -8,10 +8,9 @@ package org.mule.extension.sftp.internal.command;
 
 import org.apache.commons.io.FilenameUtils;
 import org.mule.extension.sftp.api.FileAttributes;
-import org.mule.extension.sftp.api.FileConnectorConfig;
-import org.mule.extension.sftp.api.FileSystem;
+import org.mule.extension.sftp.internal.FileConnectorConfig;
+import org.mule.extension.sftp.internal.connection.FileSystem;
 import org.mule.extension.sftp.api.SftpFileAttributes;
-import org.mule.extension.sftp.api.command.ExternalFileCommand;
 import org.mule.extension.sftp.api.exceptions.FileAlreadyExistsException;
 import org.mule.extension.sftp.internal.SftpCopyDelegate;
 import org.mule.extension.sftp.internal.connection.SftpClient;

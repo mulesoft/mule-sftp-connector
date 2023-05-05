@@ -6,8 +6,8 @@
  */
 package org.mule.extension.sftp.api.exceptions;
 
-import org.mule.extension.sftp.api.BaseFileSystemOperations;
-import org.mule.extension.sftp.api.FileSystem;
+import org.mule.extension.sftp.internal.BaseFileSystemOperations;
+import org.mule.extension.sftp.internal.connection.FileSystem;
 import org.mule.runtime.extension.api.annotation.error.ErrorTypeProvider;
 import org.mule.runtime.extension.api.error.ErrorTypeDefinition;
 

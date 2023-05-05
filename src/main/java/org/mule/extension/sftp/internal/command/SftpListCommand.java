@@ -7,9 +7,8 @@
 package org.mule.extension.sftp.internal.command;
 
 import org.mule.extension.sftp.api.FileAttributes;
-import org.mule.extension.sftp.api.FileConnectorConfig;
+import org.mule.extension.sftp.internal.FileConnectorConfig;
 import org.mule.extension.sftp.api.SftpFileAttributes;
-import org.mule.extension.sftp.api.command.ListCommand;
 import org.mule.extension.sftp.internal.connection.SftpClient;
 import org.mule.extension.sftp.internal.connection.SftpFileSystem;
 import org.mule.runtime.extension.api.runtime.operation.Result;

@@ -8,7 +8,6 @@ package org.mule.extension.sftp.internal.command;
 
 import org.apache.commons.io.FilenameUtils;
 import org.mule.extension.sftp.api.FileAttributes;
-import org.mule.extension.sftp.api.command.DeleteCommand;
 import org.mule.extension.sftp.internal.connection.SftpClient;
 import org.mule.extension.sftp.internal.connection.SftpFileSystem;
 import org.slf4j.Logger;

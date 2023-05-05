@@ -10,11 +10,11 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.mule.extension.sftp.api.AbstractFileSystem;
-import org.mule.extension.sftp.api.ExternalFileSystem;
-import org.mule.extension.sftp.api.command.*;
+import org.mule.extension.sftp.internal.command.*;
+import org.mule.extension.sftp.internal.connection.AbstractFileSystem;
+import org.mule.extension.sftp.internal.connection.ExternalFileSystem;
 import org.mule.extension.sftp.api.exceptions.FileLockedException;
-import org.mule.extension.sftp.api.lock.*;
+import org.mule.extension.sftp.internal.lock.*;
 import org.mule.runtime.api.util.concurrent.Latch;
 import org.mule.tck.size.SmallTest;
 

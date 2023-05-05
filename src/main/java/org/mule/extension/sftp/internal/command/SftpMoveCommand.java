@@ -6,8 +6,7 @@
  */
 package org.mule.extension.sftp.internal.command;
 
-import org.mule.extension.sftp.api.FileConnectorConfig;
-import org.mule.extension.sftp.api.command.MoveCommand;
+import org.mule.extension.sftp.internal.FileConnectorConfig;
 import org.mule.extension.sftp.internal.connection.SftpClient;
 import org.mule.extension.sftp.internal.connection.SftpFileSystem;
 import org.slf4j.Logger;
