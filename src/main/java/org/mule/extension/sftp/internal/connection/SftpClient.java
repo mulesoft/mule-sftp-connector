@@ -20,6 +20,7 @@ import static java.util.Collections.emptyList;
 import static org.apache.commons.collections.CollectionUtils.isEmpty;
 import static org.apache.sshd.sftp.common.SftpConstants.SSH_FX_CONNECTION_LOST;
 import static org.apache.sshd.sftp.common.SftpConstants.SSH_FX_NO_CONNECTION;
+import static org.slf4j.LoggerFactory.getLogger;
 
 import org.mule.extension.sftp.api.FileWriteMode;
 import org.mule.extension.sftp.api.SftpConnectionException;
@@ -53,7 +54,6 @@ import org.apache.sshd.sftp.client.SftpClient.OpenMode;
 import org.apache.sshd.sftp.common.SftpConstants;
 import org.apache.sshd.sftp.common.SftpException;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Wrapper around jsch sftp library which provides access to basic sftp commands.
@@ -62,7 +62,7 @@ import org.slf4j.LoggerFactory;
  */
 public class SftpClient {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(SftpClient.class);
+  private static final Logger LOGGER = getLogger(SftpClient.class);
   public static final OpenMode[] CREATE_MODES = {OpenMode.Write, OpenMode.Create};
   public static final OpenMode[] APPEND_MODES = {OpenMode.Write, OpenMode.Append};
 

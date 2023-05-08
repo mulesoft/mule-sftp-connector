@@ -13,6 +13,7 @@ import static java.lang.String.format;
 
 import static org.apache.commons.lang3.StringUtils.join;
 import static org.apache.sshd.common.SshConstants.SSH2_DISCONNECT_NO_MORE_AUTH_METHODS_AVAILABLE;
+import static org.slf4j.LoggerFactory.getLogger;
 
 import org.mule.extension.sftp.api.SftpAuthenticationMethod;
 import org.mule.extension.sftp.api.SftpConnectionException;
@@ -43,7 +44,6 @@ import javax.inject.Inject;
 
 import org.apache.sshd.common.SshException;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * An {@link FileSystemProvider} which provides instances of {@link SftpFileSystem} from instances of {@link SftpConnector}
@@ -54,7 +54,7 @@ import org.slf4j.LoggerFactory;
 public class SftpConnectionProvider extends FileSystemProvider<SftpFileSystem>
     implements PoolingConnectionProvider<SftpFileSystem> {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(SftpConnectionProvider.class);
+  private static final Logger LOGGER = getLogger(SftpConnectionProvider.class);
 
   private static final String TIMEOUT_CONFIGURATION = "Timeout Configuration";
   private static final String SFTP_ERROR_MESSAGE_MASK =
