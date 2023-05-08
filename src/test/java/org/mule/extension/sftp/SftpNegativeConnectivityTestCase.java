@@ -6,14 +6,18 @@
  */
 package org.mule.extension.sftp;
 
-import io.qameta.allure.Feature;
-import io.qameta.allure.Story;
-import org.hamcrest.Matcher;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runners.Parameterized;
+import static org.mule.extension.sftp.AllureConstants.SftpFeature.SFTP_EXTENSION;
+import static org.mule.extension.sftp.api.exceptions.FileError.CANNOT_REACH;
+import static org.mule.extension.sftp.api.exceptions.FileError.CONNECTION_TIMEOUT;
+import static org.mule.extension.sftp.api.exceptions.FileError.INVALID_CREDENTIALS;
+import static org.mule.extension.sftp.api.exceptions.FileError.UNKNOWN_HOST;
+import static org.mule.functional.junit4.matchers.ThrowableCauseMatcher.hasCause;
+import static org.mule.tck.junit4.matcher.ErrorTypeMatcher.errorType;
+
+import static org.hamcrest.CoreMatchers.allOf;
+import static org.hamcrest.CoreMatchers.instanceOf;
+import static org.hamcrest.CoreMatchers.is;
+
 import org.mule.extension.sftp.api.SftpConnectionException;
 import org.mule.runtime.api.connection.ConnectionException;
 import org.mule.tck.junit4.rule.SystemProperty;
@@ -22,11 +26,14 @@ import org.mule.tck.util.TestConnectivityUtils;
 import java.util.Arrays;
 import java.util.Collection;
 
-import static org.hamcrest.CoreMatchers.*;
-import static org.mule.extension.sftp.AllureConstants.SftpFeature.SFTP_EXTENSION;
-import static org.mule.extension.sftp.api.exceptions.FileError.*;
-import static org.mule.functional.junit4.matchers.ThrowableCauseMatcher.hasCause;
-import static org.mule.tck.junit4.matcher.ErrorTypeMatcher.errorType;
+import io.qameta.allure.Feature;
+import io.qameta.allure.Story;
+import org.hamcrest.Matcher;
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.runners.Parameterized;
 
 @Feature(SFTP_EXTENSION)
 @Story("Negative Connectivity Testing")

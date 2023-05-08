@@ -6,6 +6,9 @@
  */
 package org.mule.extension.sftp;
 
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
+
 import org.mule.extension.sftp.internal.stream.AbstractNonFinalizableFileInputStream;
 import org.mule.runtime.api.exception.MuleException;
 import org.mule.runtime.api.exception.MuleRuntimeException;
@@ -14,9 +17,6 @@ import org.mule.runtime.core.api.processor.Processor;
 
 import java.io.IOException;
 import java.io.InputStream;
-
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
 
 public class StreamCloserTestMessageProcessor implements Processor {
 

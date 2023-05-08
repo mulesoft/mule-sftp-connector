@@ -6,15 +6,15 @@
  */
 package org.mule.extension.sftp.api.matcher;
 
+import static org.mule.extension.sftp.api.PredicateType.LOCAL_FILE_SYSTEM;
+import static org.mule.extension.sftp.api.matcher.FileMatcher.DEFAULT_CASE_SENSITIVE;
+import static org.mule.runtime.api.util.Preconditions.checkArgument;
+
 import org.mule.extension.sftp.api.PredicateType;
 import org.mule.runtime.core.api.util.StringUtils;
 
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
-
-import static org.mule.extension.sftp.api.PredicateType.LOCAL_FILE_SYSTEM;
-import static org.mule.extension.sftp.api.matcher.FileMatcher.DEFAULT_CASE_SENSITIVE;
-import static org.mule.runtime.api.util.Preconditions.checkArgument;
 
 /**
  * A {@link Predicate} which tests random paths in {@link String} representation to match a specific pattern.

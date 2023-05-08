@@ -6,18 +6,21 @@
  */
 package org.mule.extension.sftp.internal.connection;
 
+import static org.mule.extension.sftp.api.exceptions.FileError.CONNECTIVITY;
+import static org.mule.extension.sftp.api.util.UriUtils.createUri;
+import static org.mule.extension.sftp.internal.SftpUtils.normalizePath;
+import static org.mule.extension.sftp.internal.SftpUtils.resolvePathOrResource;
+import static org.mule.runtime.api.i18n.I18nMessageFactory.createStaticMessage;
+import static org.mule.runtime.api.util.collection.Collectors.toImmutableList;
+import static org.mule.runtime.core.api.util.StringUtils.isEmpty;
 
-import org.apache.sshd.client.SshClient;
-import org.apache.sshd.client.keyverifier.KnownHostsServerKeyVerifier;
-import org.apache.sshd.client.keyverifier.RejectAllServerKeyVerifier;
-import org.apache.sshd.client.session.ClientSession;
-import org.apache.sshd.common.config.keys.FilePasswordProvider;
-import org.apache.sshd.common.config.keys.loader.KeyPairResourceLoader;
-import org.apache.sshd.common.keyprovider.KeyIdentityProvider;
-import org.apache.sshd.common.util.security.SecurityUtils;
-import org.apache.sshd.sftp.client.SftpClient.OpenMode;
-import org.apache.sshd.sftp.common.SftpConstants;
-import org.apache.sshd.sftp.common.SftpException;
+import static java.lang.String.format;
+import static java.util.Collections.emptyList;
+
+import static org.apache.commons.collections.CollectionUtils.isEmpty;
+import static org.apache.sshd.sftp.common.SftpConstants.SSH_FX_CONNECTION_LOST;
+import static org.apache.sshd.sftp.common.SftpConstants.SSH_FX_NO_CONNECTION;
+
 import org.mule.extension.sftp.api.FileWriteMode;
 import org.mule.extension.sftp.api.SftpConnectionException;
 import org.mule.extension.sftp.api.SftpFileAttributes;
@@ -25,8 +28,6 @@ import org.mule.extension.sftp.api.SftpProxyConfig;
 import org.mule.extension.sftp.api.exceptions.FileError;
 import org.mule.runtime.api.connection.ConnectionException;
 import org.mule.runtime.api.exception.MuleRuntimeException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -40,18 +41,19 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Properties;
 
-import static java.lang.String.format;
-import static java.util.Collections.emptyList;
-import static org.apache.commons.collections.CollectionUtils.isEmpty;
-import static org.apache.sshd.sftp.common.SftpConstants.SSH_FX_CONNECTION_LOST;
-import static org.apache.sshd.sftp.common.SftpConstants.SSH_FX_NO_CONNECTION;
-import static org.mule.extension.sftp.api.exceptions.FileError.CONNECTIVITY;
-import static org.mule.extension.sftp.api.util.UriUtils.createUri;
-import static org.mule.extension.sftp.internal.SftpUtils.normalizePath;
-import static org.mule.extension.sftp.internal.SftpUtils.resolvePathOrResource;
-import static org.mule.runtime.api.i18n.I18nMessageFactory.createStaticMessage;
-import static org.mule.runtime.api.util.collection.Collectors.toImmutableList;
-import static org.mule.runtime.core.api.util.StringUtils.isEmpty;
+import org.apache.sshd.client.SshClient;
+import org.apache.sshd.client.keyverifier.KnownHostsServerKeyVerifier;
+import org.apache.sshd.client.keyverifier.RejectAllServerKeyVerifier;
+import org.apache.sshd.client.session.ClientSession;
+import org.apache.sshd.common.config.keys.FilePasswordProvider;
+import org.apache.sshd.common.config.keys.loader.KeyPairResourceLoader;
+import org.apache.sshd.common.keyprovider.KeyIdentityProvider;
+import org.apache.sshd.common.util.security.SecurityUtils;
+import org.apache.sshd.sftp.client.SftpClient.OpenMode;
+import org.apache.sshd.sftp.common.SftpConstants;
+import org.apache.sshd.sftp.common.SftpException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Wrapper around jsch sftp library which provides access to basic sftp commands.

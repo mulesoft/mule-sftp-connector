@@ -8,22 +8,23 @@ package org.mule.extension.sftp.internal.connection;
 
 import org.mule.extension.sftp.api.FileAttributes;
 import org.mule.extension.sftp.api.FileWriteMode;
+import org.mule.extension.sftp.internal.FileConnectorConfig;
 import org.mule.extension.sftp.internal.lock.PathLock;
 import org.mule.extension.sftp.internal.subset.SubsetList;
-import org.mule.extension.sftp.internal.FileConnectorConfig;
 import org.mule.runtime.api.message.Message;
 import org.mule.runtime.api.metadata.DataType;
 import org.mule.runtime.api.metadata.MediaType;
 import org.mule.runtime.core.api.message.OutputHandler;
 import org.mule.runtime.extension.api.runtime.operation.Result;
 
-import javax.activation.MimetypesFileTypeMap;
 import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.locks.Lock;
 import java.util.function.Predicate;
+
+import javax.activation.MimetypesFileTypeMap;
 
 /**
  * Represents an abstract file system and the operations which can be performed on it.

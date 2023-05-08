@@ -6,10 +6,10 @@
  */
 package org.mule.extension.sftp.api.matcher;
 
-import java.util.Optional;
-
 import static java.util.Optional.empty;
 import static java.util.Optional.of;
+
+import java.util.Optional;
 
 /**
  * Criterias used to accept or reject a matcher filter.

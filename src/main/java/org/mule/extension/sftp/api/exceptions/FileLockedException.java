@@ -6,9 +6,9 @@
  */
 package org.mule.extension.sftp.api.exceptions;
 
-import org.mule.runtime.extension.api.exception.ModuleException;
-
 import static org.mule.extension.sftp.api.exceptions.FileError.FILE_LOCK;
+
+import org.mule.runtime.extension.api.exception.ModuleException;
 
 /**
  * {@link ModuleException} for the cases in which a lock cannot be acquired over a file.

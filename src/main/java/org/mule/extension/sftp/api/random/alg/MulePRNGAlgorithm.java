@@ -6,12 +6,11 @@
  */
 package org.mule.extension.sftp.api.random.alg;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public abstract class MulePRNGAlgorithm {
 

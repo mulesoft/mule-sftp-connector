@@ -6,14 +6,14 @@
  */
 package org.mule.extension.sftp.internal;
 
+import static java.util.Optional.empty;
+import static java.util.Optional.of;
+
 import org.mule.extension.sftp.internal.connection.FileSystem;
 import org.mule.runtime.extension.api.annotation.param.DefaultEncoding;
 import org.mule.runtime.extension.api.annotation.param.RefName;
 
 import java.util.concurrent.TimeUnit;
-
-import static java.util.Optional.empty;
-import static java.util.Optional.of;
 
 /**
  * Generic contract for a config of a connector which operates over a {@link FileSystem}

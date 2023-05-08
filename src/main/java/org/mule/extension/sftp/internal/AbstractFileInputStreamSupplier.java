@@ -6,21 +6,24 @@
  */
 package org.mule.extension.sftp.internal;
 
+import static org.mule.runtime.api.i18n.I18nMessageFactory.createStaticMessage;
+
+import static java.lang.String.format;
+import static java.lang.Thread.sleep;
+
+import static org.slf4j.LoggerFactory.getLogger;
+
 import org.mule.extension.sftp.api.FileAttributes;
 import org.mule.extension.sftp.api.exceptions.DeletedFileWhileReadException;
 import org.mule.extension.sftp.api.exceptions.FileBeingModifiedException;
 import org.mule.extension.sftp.internal.stream.ExceptionInputStream;
 import org.mule.runtime.api.exception.MuleRuntimeException;
-import org.slf4j.Logger;
 
 import java.io.InputStream;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
 
-import static java.lang.String.format;
-import static java.lang.Thread.sleep;
-import static org.mule.runtime.api.i18n.I18nMessageFactory.createStaticMessage;
-import static org.slf4j.LoggerFactory.getLogger;
+import org.slf4j.Logger;
 
 /**
  * This is an abstract class that implements {@link Supplier<InputStream>} adding the logic to check that the file size is stable.

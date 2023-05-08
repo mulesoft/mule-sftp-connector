@@ -6,6 +6,13 @@
  */
 package org.mule.extension.sftp.api.exceptions;
 
+import static org.mule.extension.sftp.api.exceptions.FileError.ACCESS_DENIED;
+import static org.mule.extension.sftp.api.exceptions.FileError.FILE_LOCK;
+import static org.mule.extension.sftp.api.exceptions.FileError.ILLEGAL_PATH;
+
+import static java.util.Arrays.asList;
+import static java.util.Collections.unmodifiableSet;
+
 import org.mule.extension.sftp.internal.BaseFileSystemOperations;
 import org.mule.extension.sftp.internal.FileConnectorConfig;
 import org.mule.extension.sftp.internal.connection.FileSystem;
@@ -15,10 +22,6 @@ import org.mule.runtime.extension.api.error.ErrorTypeDefinition;
 
 import java.util.HashSet;
 import java.util.Set;
-
-import static java.util.Arrays.asList;
-import static java.util.Collections.unmodifiableSet;
-import static org.mule.extension.sftp.api.exceptions.FileError.*;
 
 /**
  * Errors that can be thrown in the

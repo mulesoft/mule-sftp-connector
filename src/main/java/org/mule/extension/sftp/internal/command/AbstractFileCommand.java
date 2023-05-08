@@ -6,19 +6,22 @@
  */
 package org.mule.extension.sftp.internal.command;
 
-import org.mule.extension.sftp.internal.FileConnectorConfig;
-import org.mule.extension.sftp.internal.connection.FileSystem;
+import static org.mule.runtime.api.i18n.I18nMessageFactory.createStaticMessage;
+
+import static java.lang.String.format;
+
+import static org.slf4j.LoggerFactory.getLogger;
+
 import org.mule.extension.sftp.api.exceptions.FileAlreadyExistsException;
 import org.mule.extension.sftp.api.exceptions.IllegalPathException;
+import org.mule.extension.sftp.internal.FileConnectorConfig;
+import org.mule.extension.sftp.internal.connection.FileSystem;
 import org.mule.runtime.api.exception.MuleRuntimeException;
-import org.slf4j.Logger;
 
 import java.util.concurrent.locks.Lock;
 import java.util.function.Predicate;
 
-import static java.lang.String.format;
-import static org.mule.runtime.api.i18n.I18nMessageFactory.createStaticMessage;
-import static org.slf4j.LoggerFactory.getLogger;
+import org.slf4j.Logger;
 
 /**
  * Base class for implementations of the Command design pattern which performs operations on a file system

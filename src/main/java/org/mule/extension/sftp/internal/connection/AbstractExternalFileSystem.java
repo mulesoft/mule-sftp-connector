@@ -6,14 +6,14 @@
  */
 package org.mule.extension.sftp.internal.connection;
 
+import static java.lang.String.format;
+
 import org.mule.extension.sftp.api.exceptions.FileLockedException;
 import org.mule.extension.sftp.internal.lock.PathLock;
 import org.mule.extension.sftp.internal.lock.UriLock;
 
 import java.net.URI;
 import java.nio.file.Path;
-
-import static java.lang.String.format;
 
 /**
  * Interface that allows to obtain a {@link UriLock} on a uri given as a {@link URI}.

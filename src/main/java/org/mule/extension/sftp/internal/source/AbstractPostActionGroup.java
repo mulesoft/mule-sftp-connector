@@ -6,16 +6,17 @@
  */
 package org.mule.extension.sftp.internal.source;
 
-import org.mule.extension.sftp.internal.connection.AbstractFileSystem;
+import static java.lang.String.format;
+
 import org.mule.extension.sftp.api.FileAttributes;
-import org.mule.extension.sftp.internal.FileConnectorConfig;
 import org.mule.extension.sftp.api.exceptions.FileAlreadyExistsException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.mule.extension.sftp.internal.FileConnectorConfig;
+import org.mule.extension.sftp.internal.connection.AbstractFileSystem;
 
 import java.nio.file.Paths;
 
-import static java.lang.String.format;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Groups post processing action parameters

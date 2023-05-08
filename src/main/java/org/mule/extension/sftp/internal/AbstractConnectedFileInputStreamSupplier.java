@@ -6,23 +6,26 @@
  */
 package org.mule.extension.sftp.internal;
 
+import static org.mule.runtime.api.i18n.I18nMessageFactory.createStaticMessage;
+
+import static java.util.Optional.empty;
+import static java.util.Optional.of;
+
+import static org.slf4j.LoggerFactory.getLogger;
+
 import org.mule.extension.sftp.api.FileAttributes;
-import org.mule.extension.sftp.internal.connection.FileSystem;
 import org.mule.extension.sftp.internal.connection.ConnectionSource;
+import org.mule.extension.sftp.internal.connection.FileSystem;
 import org.mule.extension.sftp.internal.connection.ManagerBasedConnectionSource;
 import org.mule.extension.sftp.internal.connection.StaticConnectionSource;
 import org.mule.runtime.api.connection.ConnectionException;
 import org.mule.runtime.api.exception.MuleRuntimeException;
 import org.mule.runtime.core.api.connector.ConnectionManager;
-import org.slf4j.Logger;
 
 import java.io.InputStream;
 import java.util.Optional;
 
-import static java.util.Optional.empty;
-import static java.util.Optional.of;
-import static org.mule.runtime.api.i18n.I18nMessageFactory.createStaticMessage;
-import static org.slf4j.LoggerFactory.getLogger;
+import org.slf4j.Logger;
 
 /**
  * Abstraction that extends from {@link AbstractFileInputStreamSupplier}, this supplier can be used when you need a

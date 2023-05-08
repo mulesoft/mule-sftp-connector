@@ -6,14 +6,16 @@
  */
 package org.mule.extension.sftp.internal.command;
 
+import static org.mule.extension.sftp.api.util.UriUtils.createUri;
+import static org.mule.extension.sftp.api.util.UriUtils.trimLastFragment;
+
+import static org.slf4j.LoggerFactory.getLogger;
+
 import org.mule.extension.sftp.internal.connection.ExternalFileSystem;
-import org.slf4j.Logger;
 
 import java.net.URI;
 
-import static org.mule.extension.sftp.api.util.UriUtils.createUri;
-import static org.mule.extension.sftp.api.util.UriUtils.trimLastFragment;
-import static org.slf4j.LoggerFactory.getLogger;
+import org.slf4j.Logger;
 
 /**
  * Extension of {@link AbstractFileCommand} for local file systems which use {@link URI} to identify and manage files and

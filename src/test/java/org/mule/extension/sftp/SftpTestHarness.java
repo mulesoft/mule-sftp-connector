@@ -6,11 +6,22 @@
  */
 package org.mule.extension.sftp;
 
-import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.io.IOUtils;
-import org.apache.sshd.server.config.keys.AuthorizedKeysAuthenticator;
-import org.junit.rules.TemporaryFolder;
-import org.junit.rules.TestRule;
+import static org.mule.extension.sftp.SftpServer.PASSWORD;
+import static org.mule.extension.sftp.SftpServer.USERNAME;
+import static org.mule.extension.sftp.api.FileWriteMode.CREATE_NEW;
+import static org.mule.extension.sftp.api.FileWriteMode.OVERWRITE;
+import static org.mule.extension.sftp.api.util.UriUtils.createUri;
+import static org.mule.extension.sftp.api.util.UriUtils.trimLastFragment;
+import static org.mule.extension.sftp.internal.SftpUtils.normalizePath;
+import static org.mule.extension.sftp.internal.SftpUtils.resolvePathOrResource;
+
+import static java.util.stream.Collectors.toList;
+
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
+
 import org.mule.extension.AbstractSftpTestHarness;
 import org.mule.extension.sftp.api.FileAttributes;
 import org.mule.extension.sftp.api.SftpFileAttributes;
@@ -27,19 +38,11 @@ import java.nio.file.Paths;
 import java.security.GeneralSecurityException;
 import java.util.List;
 
-import static java.util.stream.Collectors.toList;
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
-import static org.mule.extension.sftp.SftpServer.PASSWORD;
-import static org.mule.extension.sftp.SftpServer.USERNAME;
-import static org.mule.extension.sftp.api.FileWriteMode.CREATE_NEW;
-import static org.mule.extension.sftp.api.FileWriteMode.OVERWRITE;
-import static org.mule.extension.sftp.api.util.UriUtils.createUri;
-import static org.mule.extension.sftp.api.util.UriUtils.trimLastFragment;
-import static org.mule.extension.sftp.internal.SftpUtils.normalizePath;
-import static org.mule.extension.sftp.internal.SftpUtils.resolvePathOrResource;
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.IOUtils;
+import org.apache.sshd.server.config.keys.AuthorizedKeysAuthenticator;
+import org.junit.rules.TemporaryFolder;
+import org.junit.rules.TestRule;
 
 /**
  * Implementation of {@link FileTestHarness} for classic SFTP connections

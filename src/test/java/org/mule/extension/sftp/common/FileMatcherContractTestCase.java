@@ -6,22 +6,24 @@
  */
 package org.mule.extension.sftp.common;
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
-import org.mule.extension.sftp.api.FileAttributes;
-import org.mule.extension.sftp.api.matcher.FileMatcher;
-import org.mule.tck.junit4.AbstractMuleTestCase;
-import org.mule.tck.size.SmallTest;
+import static org.mule.extension.sftp.api.matcher.MatchPolicy.EXCLUDE;
+import static org.mule.extension.sftp.api.matcher.MatchPolicy.REQUIRE;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.rules.ExpectedException.none;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.mule.extension.sftp.api.matcher.MatchPolicy.EXCLUDE;
-import static org.mule.extension.sftp.api.matcher.MatchPolicy.REQUIRE;
+
+import org.mule.extension.sftp.api.FileAttributes;
+import org.mule.extension.sftp.api.matcher.FileMatcher;
+import org.mule.tck.junit4.AbstractMuleTestCase;
+import org.mule.tck.size.SmallTest;
+
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 @SmallTest
 public class FileMatcherContractTestCase<T extends FileMatcher, A extends FileAttributes>

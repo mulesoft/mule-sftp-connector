@@ -6,19 +6,23 @@
  */
 package org.mule.extension.sftp.internal.connection;
 
+import static org.mule.runtime.api.meta.model.display.PathModel.Location.EMBEDDED;
+import static org.mule.runtime.api.meta.model.display.PathModel.Type.FILE;
+
 import org.mule.extension.sftp.api.random.alg.PRNGAlgorithm;
 import org.mule.runtime.extension.api.annotation.param.Optional;
 import org.mule.runtime.extension.api.annotation.param.Parameter;
-import org.mule.runtime.extension.api.annotation.param.display.*;
+import org.mule.runtime.extension.api.annotation.param.display.DisplayName;
+import org.mule.runtime.extension.api.annotation.param.display.Password;
+import org.mule.runtime.extension.api.annotation.param.display.Path;
+import org.mule.runtime.extension.api.annotation.param.display.Placement;
+import org.mule.runtime.extension.api.annotation.param.display.Summary;
 import org.mule.sdk.api.annotation.semantics.connectivity.Host;
 import org.mule.sdk.api.annotation.semantics.connectivity.Port;
 import org.mule.sdk.api.annotation.semantics.security.Secret;
 import org.mule.sdk.api.annotation.semantics.security.Username;
 
 import java.util.Objects;
-
-import static org.mule.runtime.api.meta.model.display.PathModel.Location.EMBEDDED;
-import static org.mule.runtime.api.meta.model.display.PathModel.Type.FILE;
 
 /**
  * Groups SFTP connection settings

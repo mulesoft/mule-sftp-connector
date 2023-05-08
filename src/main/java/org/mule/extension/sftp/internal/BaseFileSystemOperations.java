@@ -6,13 +6,19 @@
  */
 package org.mule.extension.sftp.internal;
 
+import static org.mule.runtime.core.api.util.StringUtils.isBlank;
+import static org.mule.runtime.extension.api.annotation.param.display.Placement.ADVANCED_TAB;
+
+import static java.lang.String.format;
+import static java.nio.file.Paths.get;
+
 import org.mule.extension.sftp.api.FileAttributes;
-import org.mule.extension.sftp.internal.connection.FileSystem;
 import org.mule.extension.sftp.api.FileWriteMode;
 import org.mule.extension.sftp.api.exceptions.IllegalContentException;
 import org.mule.extension.sftp.api.exceptions.IllegalPathException;
 import org.mule.extension.sftp.api.matcher.FileMatcher;
 import org.mule.extension.sftp.api.matcher.NullFilePayloadPredicate;
+import org.mule.extension.sftp.internal.connection.FileSystem;
 import org.mule.extension.sftp.internal.subset.SubsetList;
 import org.mule.runtime.api.exception.MuleException;
 import org.mule.runtime.api.message.Message;
@@ -26,7 +32,6 @@ import org.mule.runtime.extension.api.runtime.operation.Result;
 import org.mule.runtime.extension.api.runtime.streaming.PagingProvider;
 import org.mule.runtime.extension.api.runtime.streaming.StreamingHelper;
 
-import javax.activation.MimetypesFileTypeMap;
 import java.io.InputStream;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -34,10 +39,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Predicate;
 
-import static java.lang.String.format;
-import static java.nio.file.Paths.get;
-import static org.mule.runtime.core.api.util.StringUtils.isBlank;
-import static org.mule.runtime.extension.api.annotation.param.display.Placement.ADVANCED_TAB;
+import javax.activation.MimetypesFileTypeMap;
 
 /**
  * Basic set of operations and templates for extensions which perform operations over a generic file system

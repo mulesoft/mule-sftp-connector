@@ -6,15 +6,32 @@
  */
 package org.mule.test.extension.file.common;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.runners.MockitoJUnitRunner;
-import org.mule.extension.sftp.internal.command.*;
+import static org.mule.extension.sftp.api.util.UriUtils.createUri;
+
+import static java.lang.String.format;
+import static java.util.concurrent.TimeUnit.SECONDS;
+
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import org.mule.extension.sftp.api.exceptions.FileLockedException;
+import org.mule.extension.sftp.internal.command.CopyCommand;
+import org.mule.extension.sftp.internal.command.CreateDirectoryCommand;
+import org.mule.extension.sftp.internal.command.DeleteCommand;
+import org.mule.extension.sftp.internal.command.ListCommand;
+import org.mule.extension.sftp.internal.command.MoveCommand;
+import org.mule.extension.sftp.internal.command.ReadCommand;
+import org.mule.extension.sftp.internal.command.RenameCommand;
+import org.mule.extension.sftp.internal.command.WriteCommand;
 import org.mule.extension.sftp.internal.connection.AbstractFileSystem;
 import org.mule.extension.sftp.internal.connection.ExternalFileSystem;
-import org.mule.extension.sftp.api.exceptions.FileLockedException;
-import org.mule.extension.sftp.internal.lock.*;
+import org.mule.extension.sftp.internal.lock.Lock;
+import org.mule.extension.sftp.internal.lock.NullPathLock;
+import org.mule.extension.sftp.internal.lock.NullUriLock;
+import org.mule.extension.sftp.internal.lock.PathLock;
+import org.mule.extension.sftp.internal.lock.UriLock;
 import org.mule.runtime.api.util.concurrent.Latch;
 import org.mule.tck.size.SmallTest;
 
@@ -26,13 +43,10 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
 
-import static java.lang.String.format;
-import static java.util.concurrent.TimeUnit.SECONDS;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-import static org.mule.extension.sftp.api.util.UriUtils.createUri;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.runners.MockitoJUnitRunner;
 
 @SmallTest
 @RunWith(MockitoJUnitRunner.class)
