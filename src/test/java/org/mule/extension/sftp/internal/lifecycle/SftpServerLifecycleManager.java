@@ -6,10 +6,11 @@
  */
 package org.mule.extension.sftp.internal.lifecycle;
 
-import org.junit.rules.TemporaryFolder;
 import org.mule.extension.sftp.SftpServer;
 
 import java.io.IOException;
+
+import org.junit.rules.TemporaryFolder;
 
 public class SftpServerLifecycleManager {
 

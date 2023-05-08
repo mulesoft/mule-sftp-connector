@@ -40,6 +40,10 @@
         <cglib.version>3.3.0</cglib.version>
         <formatterConfigPath>formatter.xml</formatterConfigPath>
         <settingsFile>${java.io.tmpdir}/effective-settings.xml</settingsFile>
+
+        <maven.impsort.plugin.version>1.6.2</maven.impsort.plugin.version>
+        <maven.checkstyle.plugin.version>3.1.2</maven.checkstyle.plugin.version>
+        <importGoal>check</importGoal>
     </properties>
 
     <dependencies>
@@ -303,6 +307,53 @@
                         </configuration>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>net.revelc.code</groupId>
+                <artifactId>impsort-maven-plugin</artifactId>
+                <version>${maven.impsort.plugin.version}</version>
+                <configuration>
+                    <staticGroups>org.mule.,com.mulesoft.,java.,javax.</staticGroups>
+                    <groups>org.mule.,com.mulesoft.,java.,javax.</groups>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>validate-imports</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>${importGoal}</goal>
+                        </goals>
+                        <configuration>
+                            <skip>${skipVerifications}</skip>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-checkstyle-plugin</artifactId>
+                <version>${maven.checkstyle.plugin.version}</version>
+                <executions>
+                    <execution>
+                        <id>verify-style</id>
+                        <phase>process-classes</phase>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <skip>${skipVerifications}</skip>
+                    <logViolationsToConsole>true</logViolationsToConsole>
+                    <checkstyleRules>
+                        <module name="Checker">
+                            <module name="TreeWalker">
+                                <module name="AvoidStarImport"/>
+                                <module name="UnusedImports" />
+                            </module>
+                        </module>
+                    </checkstyleRules>
+                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

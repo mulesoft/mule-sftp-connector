@@ -6,8 +6,8 @@
  */
 package org.mule.extension.sftp.internal.command;
 
-import org.mule.extension.sftp.internal.connection.FileSystem;
 import org.mule.extension.sftp.api.FileWriteMode;
+import org.mule.extension.sftp.internal.connection.FileSystem;
 
 import java.io.InputStream;
 

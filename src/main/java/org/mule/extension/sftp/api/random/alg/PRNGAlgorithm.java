@@ -6,8 +6,11 @@
  */
 package org.mule.extension.sftp.api.random.alg;
 
-import org.mule.extension.sftp.api.random.alg.impl.*;
-
+import org.mule.extension.sftp.api.random.alg.impl.AutoSelectPRGNAlgorithm;
+import org.mule.extension.sftp.api.random.alg.impl.NativeBlockingPRNGAlgorithm;
+import org.mule.extension.sftp.api.random.alg.impl.NativeNonBlockingPRNGAlgorithm;
+import org.mule.extension.sftp.api.random.alg.impl.NativePRNGAlgorithm;
+import org.mule.extension.sftp.api.random.alg.impl.SHA1PRNGAlgorithm;
 
 public enum PRNGAlgorithm {
 

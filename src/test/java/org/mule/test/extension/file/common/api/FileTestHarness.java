@@ -6,9 +6,10 @@
  */
 package org.mule.test.extension.file.common.api;
 
+import org.mule.functional.api.exception.ExpectedError;
+
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TestRule;
-import org.mule.functional.api.exception.ExpectedError;
 
 /**
  * A {@link TestRule} which provides tools and environment for reusing the same test regardless of the remote server type (FTP,

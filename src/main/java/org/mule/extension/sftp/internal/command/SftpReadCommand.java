@@ -6,15 +6,17 @@
  */
 package org.mule.extension.sftp.internal.command;
 
-import org.mule.extension.sftp.internal.FileConnectorConfig;
+import static org.mule.extension.sftp.api.util.UriUtils.createUri;
+
 import org.mule.extension.sftp.api.SftpFileAttributes;
-import org.mule.extension.sftp.internal.lock.NullUriLock;
-import org.mule.extension.sftp.internal.lock.UriLock;
 import org.mule.extension.sftp.api.util.UriUtils;
+import org.mule.extension.sftp.internal.FileConnectorConfig;
 import org.mule.extension.sftp.internal.SftpConnector;
 import org.mule.extension.sftp.internal.SftpInputStream;
 import org.mule.extension.sftp.internal.connection.SftpClient;
 import org.mule.extension.sftp.internal.connection.SftpFileSystem;
+import org.mule.extension.sftp.internal.lock.NullUriLock;
+import org.mule.extension.sftp.internal.lock.UriLock;
 import org.mule.runtime.api.connection.ConnectionException;
 import org.mule.runtime.api.metadata.MediaType;
 import org.mule.runtime.core.api.util.IOUtils;
@@ -22,8 +24,6 @@ import org.mule.runtime.extension.api.runtime.operation.Result;
 
 import java.io.InputStream;
 import java.net.URI;
-
-import static org.mule.extension.sftp.api.util.UriUtils.createUri;
 
 /**
  * A {@link SftpCommand} which implements the {@link ReadCommand} contract

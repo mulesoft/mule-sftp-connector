@@ -6,13 +6,12 @@
  */
 package org.mule.extension.sftp.api.exceptions;
 
+import static java.util.Optional.ofNullable;
 
 import org.mule.runtime.extension.api.error.ErrorTypeDefinition;
 import org.mule.runtime.extension.api.error.MuleErrors;
 
 import java.util.Optional;
-
-import static java.util.Optional.ofNullable;
 
 /**
  * Errors for the file family extensions

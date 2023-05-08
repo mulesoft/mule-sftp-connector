@@ -6,11 +6,8 @@
  */
 package org.mule.extension.sftp.internal.stream;
 
-import net.sf.cglib.proxy.Enhancer;
-import net.sf.cglib.proxy.MethodInterceptor;
-import org.apache.commons.io.input.AutoCloseInputStream;
-import org.apache.commons.io.input.ClosedInputStream;
-import org.apache.commons.io.input.ProxyInputStream;
+import static org.apache.commons.io.IOUtils.EOF;
+
 import org.mule.extension.sftp.internal.FileConnectorConfig;
 import org.mule.extension.sftp.internal.connection.FileSystem;
 import org.mule.extension.sftp.internal.lock.Lock;
@@ -21,7 +18,11 @@ import java.io.InputStream;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Predicate;
 
-import static org.apache.commons.io.IOUtils.EOF;
+import net.sf.cglib.proxy.Enhancer;
+import net.sf.cglib.proxy.MethodInterceptor;
+import org.apache.commons.io.input.AutoCloseInputStream;
+import org.apache.commons.io.input.ClosedInputStream;
+import org.apache.commons.io.input.ProxyInputStream;
 
 /**
  * Base class for {@link InputStream} instances returned by connectors which operate over a {@link FileSystem}.

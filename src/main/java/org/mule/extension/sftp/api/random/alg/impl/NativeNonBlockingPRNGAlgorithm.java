@@ -6,9 +6,9 @@
  */
 package org.mule.extension.sftp.api.random.alg.impl;
 
-import org.mule.extension.sftp.api.random.alg.MulePRNGAlgorithm;
-
 import static org.mule.extension.sftp.api.random.alg.PRNGAlgorithm.NativePRNGNonBlocking;
+
+import org.mule.extension.sftp.api.random.alg.MulePRNGAlgorithm;
 
 public class NativeNonBlockingPRNGAlgorithm extends MulePRNGAlgorithm {
 

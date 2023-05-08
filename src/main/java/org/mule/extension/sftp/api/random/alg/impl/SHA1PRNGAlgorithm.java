@@ -6,9 +6,9 @@
  */
 package org.mule.extension.sftp.api.random.alg.impl;
 
-import org.mule.extension.sftp.api.random.alg.MulePRNGAlgorithm;
-
 import static org.mule.extension.sftp.api.random.alg.PRNGAlgorithm.SHA1PRNG;
+
+import org.mule.extension.sftp.api.random.alg.MulePRNGAlgorithm;
 
 public class SHA1PRNGAlgorithm extends MulePRNGAlgorithm {
 

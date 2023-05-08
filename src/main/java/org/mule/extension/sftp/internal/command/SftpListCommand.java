@@ -6,13 +6,16 @@
  */
 package org.mule.extension.sftp.internal.command;
 
+import static org.mule.extension.sftp.api.util.UriUtils.createUri;
+
+import static org.slf4j.LoggerFactory.getLogger;
+
 import org.mule.extension.sftp.api.FileAttributes;
-import org.mule.extension.sftp.internal.FileConnectorConfig;
 import org.mule.extension.sftp.api.SftpFileAttributes;
+import org.mule.extension.sftp.internal.FileConnectorConfig;
 import org.mule.extension.sftp.internal.connection.SftpClient;
 import org.mule.extension.sftp.internal.connection.SftpFileSystem;
 import org.mule.runtime.extension.api.runtime.operation.Result;
-import org.slf4j.Logger;
 
 import java.io.InputStream;
 import java.net.URI;
@@ -20,8 +23,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Predicate;
 
-import static org.mule.extension.sftp.api.util.UriUtils.createUri;
-import static org.slf4j.LoggerFactory.getLogger;
+import org.slf4j.Logger;
 
 /**
  * A {@link SftpCommand} which implements the {@link ListCommand} contract

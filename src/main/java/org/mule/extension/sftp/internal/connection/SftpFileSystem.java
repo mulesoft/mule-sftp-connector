@@ -6,30 +6,46 @@
  */
 package org.mule.extension.sftp.internal.connection;
 
-import org.mule.extension.sftp.api.*;
-import org.mule.extension.sftp.api.SftpConnectionException;
-import org.mule.extension.sftp.internal.lock.URLPathLock;
-import org.mule.extension.sftp.internal.lock.UriLock;
-import org.mule.extension.sftp.internal.command.*;
-import org.mule.runtime.api.connection.ConnectionValidationResult;
-import org.mule.runtime.api.exception.MuleRuntimeException;
-import org.mule.runtime.api.lock.LockFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.io.InputStream;
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URL;
-
-import static org.apache.commons.lang3.StringUtils.EMPTY;
-import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.mule.extension.sftp.api.exceptions.FileError.DISCONNECTED;
 import static org.mule.extension.sftp.api.util.UriUtils.createUri;
 import static org.mule.extension.sftp.internal.SftpUtils.normalizePath;
 import static org.mule.runtime.api.connection.ConnectionValidationResult.failure;
 import static org.mule.runtime.api.connection.ConnectionValidationResult.success;
 import static org.mule.runtime.api.i18n.I18nMessageFactory.createStaticMessage;
+
+import static org.apache.commons.lang3.StringUtils.EMPTY;
+import static org.apache.commons.lang3.StringUtils.isBlank;
+
+import org.mule.extension.sftp.api.FileAttributes;
+import org.mule.extension.sftp.api.SftpConnectionException;
+import org.mule.extension.sftp.api.SftpFileAttributes;
+import org.mule.extension.sftp.internal.command.CopyCommand;
+import org.mule.extension.sftp.internal.command.CreateDirectoryCommand;
+import org.mule.extension.sftp.internal.command.DeleteCommand;
+import org.mule.extension.sftp.internal.command.MoveCommand;
+import org.mule.extension.sftp.internal.command.RenameCommand;
+import org.mule.extension.sftp.internal.command.SftpCopyCommand;
+import org.mule.extension.sftp.internal.command.SftpCreateDirectoryCommand;
+import org.mule.extension.sftp.internal.command.SftpDeleteCommand;
+import org.mule.extension.sftp.internal.command.SftpListCommand;
+import org.mule.extension.sftp.internal.command.SftpMoveCommand;
+import org.mule.extension.sftp.internal.command.SftpReadCommand;
+import org.mule.extension.sftp.internal.command.SftpRenameCommand;
+import org.mule.extension.sftp.internal.command.SftpWriteCommand;
+import org.mule.extension.sftp.internal.command.WriteCommand;
+import org.mule.extension.sftp.internal.lock.URLPathLock;
+import org.mule.extension.sftp.internal.lock.UriLock;
+import org.mule.runtime.api.connection.ConnectionValidationResult;
+import org.mule.runtime.api.exception.MuleRuntimeException;
+import org.mule.runtime.api.lock.LockFactory;
+
+import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URL;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Implementation of {@link AbstractFileSystem} for files residing on a SFTP server

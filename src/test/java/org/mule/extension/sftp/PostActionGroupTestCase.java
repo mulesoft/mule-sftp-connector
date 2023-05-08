@@ -6,16 +6,26 @@
  */
 package org.mule.extension.sftp;
 
-import io.qameta.allure.Description;
-import io.qameta.allure.Feature;
-import org.junit.Test;
-import org.mule.extension.sftp.internal.connection.AbstractFileSystem;
+import static org.mule.extension.sftp.AllureConstants.SftpFeature.SFTP_EXTENSION;
+
+import static org.junit.Assert.fail;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
 import org.mule.extension.sftp.api.FileAttributes;
-import org.mule.extension.sftp.internal.FileConnectorConfig;
 import org.mule.extension.sftp.api.exceptions.FileAlreadyExistsException;
+import org.mule.extension.sftp.internal.FileConnectorConfig;
+import org.mule.extension.sftp.internal.command.CopyCommand;
+import org.mule.extension.sftp.internal.command.CreateDirectoryCommand;
+import org.mule.extension.sftp.internal.command.DeleteCommand;
+import org.mule.extension.sftp.internal.command.ListCommand;
+import org.mule.extension.sftp.internal.command.MoveCommand;
+import org.mule.extension.sftp.internal.command.ReadCommand;
+import org.mule.extension.sftp.internal.command.RenameCommand;
+import org.mule.extension.sftp.internal.command.WriteCommand;
+import org.mule.extension.sftp.internal.connection.AbstractFileSystem;
 import org.mule.extension.sftp.internal.lock.PathLock;
 import org.mule.extension.sftp.internal.source.AbstractPostActionGroup;
-import org.mule.extension.sftp.internal.command.*;
 import org.mule.extension.sftp.internal.source.PostActionGroup;
 import org.mule.tck.junit4.AbstractMuleTestCase;
 import org.mule.tck.size.SmallTest;
@@ -24,10 +34,9 @@ import java.nio.file.Path;
 import java.util.LinkedList;
 import java.util.Queue;
 
-import static org.junit.Assert.fail;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-import static org.mule.extension.sftp.AllureConstants.SftpFeature.SFTP_EXTENSION;
+import io.qameta.allure.Description;
+import io.qameta.allure.Feature;
+import org.junit.Test;
 
 @SmallTest
 @Feature(SFTP_EXTENSION)

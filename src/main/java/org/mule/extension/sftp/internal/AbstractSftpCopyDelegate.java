@@ -6,6 +6,8 @@
  */
 package org.mule.extension.sftp.internal;
 
+import static java.lang.String.format;
+
 import org.mule.extension.sftp.api.FileAttributes;
 import org.mule.extension.sftp.api.FileWriteMode;
 import org.mule.extension.sftp.internal.command.SftpCommand;
@@ -13,14 +15,13 @@ import org.mule.extension.sftp.internal.connection.SftpFileSystem;
 import org.mule.runtime.api.connection.ConnectionException;
 import org.mule.runtime.api.connection.ConnectionHandler;
 import org.mule.runtime.extension.api.exception.ModuleException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 
-import static java.lang.String.format;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Abstract implementation of {@link SftpCopyDelegate} for copying operations which require to FTP connections, one for reading

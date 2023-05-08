@@ -6,28 +6,36 @@
  */
 package org.mule.extension.sftp.common;
 
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import org.mule.extension.sftp.api.FileAttributes;
+import org.mule.extension.sftp.api.exceptions.FileAlreadyExistsException;
+import org.mule.extension.sftp.internal.FileConnectorConfig;
+import org.mule.extension.sftp.internal.command.CopyCommand;
+import org.mule.extension.sftp.internal.command.CreateDirectoryCommand;
+import org.mule.extension.sftp.internal.command.DeleteCommand;
+import org.mule.extension.sftp.internal.command.ListCommand;
+import org.mule.extension.sftp.internal.command.MoveCommand;
+import org.mule.extension.sftp.internal.command.ReadCommand;
+import org.mule.extension.sftp.internal.command.RenameCommand;
+import org.mule.extension.sftp.internal.command.WriteCommand;
+import org.mule.extension.sftp.internal.connection.AbstractFileSystem;
+import org.mule.extension.sftp.internal.lock.PathLock;
+import org.mule.extension.sftp.internal.source.AbstractPostActionGroup;
+
+import java.nio.file.Path;
+import java.util.LinkedList;
+import java.util.Queue;
+
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.mule.extension.sftp.internal.connection.AbstractFileSystem;
-import org.mule.extension.sftp.api.FileAttributes;
-import org.mule.extension.sftp.internal.FileConnectorConfig;
-import org.mule.extension.sftp.api.exceptions.FileAlreadyExistsException;
-import org.mule.extension.sftp.internal.lock.PathLock;
-import org.mule.extension.sftp.internal.source.AbstractPostActionGroup;
-import org.mule.extension.sftp.internal.command.*;
-
-import java.nio.file.Path;
-import java.util.LinkedList;
-import java.util.Queue;
-
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class AbstractPostActionGroupTestCase {

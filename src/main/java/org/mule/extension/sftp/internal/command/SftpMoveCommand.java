@@ -9,6 +9,7 @@ package org.mule.extension.sftp.internal.command;
 import org.mule.extension.sftp.internal.FileConnectorConfig;
 import org.mule.extension.sftp.internal.connection.SftpClient;
 import org.mule.extension.sftp.internal.connection.SftpFileSystem;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -6,26 +6,34 @@
  */
 package org.mule.extension.sftp.internal.connection;
 
+import static java.lang.String.format;
+
 import org.mule.extension.sftp.api.FileAttributes;
 import org.mule.extension.sftp.api.FileWriteMode;
 import org.mule.extension.sftp.api.exceptions.FileLockedException;
+import org.mule.extension.sftp.internal.FileConnectorConfig;
+import org.mule.extension.sftp.internal.command.CopyCommand;
+import org.mule.extension.sftp.internal.command.CreateDirectoryCommand;
+import org.mule.extension.sftp.internal.command.DeleteCommand;
+import org.mule.extension.sftp.internal.command.ListCommand;
+import org.mule.extension.sftp.internal.command.MoveCommand;
+import org.mule.extension.sftp.internal.command.ReadCommand;
+import org.mule.extension.sftp.internal.command.RenameCommand;
+import org.mule.extension.sftp.internal.command.WriteCommand;
 import org.mule.extension.sftp.internal.lock.PathLock;
 import org.mule.extension.sftp.internal.subset.SubsetList;
-import org.mule.extension.sftp.internal.FileConnectorConfig;
-import org.mule.extension.sftp.internal.command.*;
 import org.mule.runtime.api.lock.LockFactory;
 import org.mule.runtime.api.metadata.MediaType;
 import org.mule.runtime.extension.api.runtime.operation.Result;
 
-import javax.activation.MimetypesFileTypeMap;
-import javax.inject.Inject;
 import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.concurrent.locks.Lock;
 import java.util.function.Predicate;
 
-import static java.lang.String.format;
+import javax.activation.MimetypesFileTypeMap;
+import javax.inject.Inject;
 
 /**
  * Base class for implementations of {@link FileSystem}

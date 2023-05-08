@@ -6,18 +6,20 @@
  */
 package org.mule.extension.sftp.common;
 
-import org.junit.Test;
+import static org.mule.extension.sftp.api.util.UriUtils.createUri;
+
+import static org.apache.commons.lang3.SystemUtils.IS_OS_WINDOWS;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assume.assumeTrue;
+
 import org.mule.extension.sftp.api.AbstractFileAttributes;
 
 import java.net.URI;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import static org.apache.commons.lang3.SystemUtils.IS_OS_WINDOWS;
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assume.assumeTrue;
-import static org.mule.extension.sftp.api.util.UriUtils.createUri;
+import org.junit.Test;
 
 public class AbstractFileAttributesTestCase {
 

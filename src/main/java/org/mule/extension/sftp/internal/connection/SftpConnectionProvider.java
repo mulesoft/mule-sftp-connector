@@ -6,7 +6,14 @@
  */
 package org.mule.extension.sftp.internal.connection;
 
-import org.apache.sshd.common.SshException;
+import static org.mule.runtime.api.meta.model.display.PathModel.Type.FILE;
+import static org.mule.runtime.extension.api.annotation.param.ParameterGroup.CONNECTION;
+
+import static java.lang.String.format;
+
+import static org.apache.commons.lang3.StringUtils.join;
+import static org.apache.sshd.common.SshConstants.SSH2_DISCONNECT_NO_MORE_AUTH_METHODS_AVAILABLE;
+
 import org.mule.extension.sftp.api.SftpAuthenticationMethod;
 import org.mule.extension.sftp.api.SftpConnectionException;
 import org.mule.extension.sftp.api.SftpProxyConfig;
@@ -26,20 +33,17 @@ import org.mule.runtime.extension.api.annotation.param.display.DisplayName;
 import org.mule.runtime.extension.api.annotation.param.display.Path;
 import org.mule.runtime.extension.api.annotation.param.display.Summary;
 import org.mule.sdk.api.annotation.semantics.connectivity.ExcludeFromConnectivitySchema;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import javax.inject.Inject;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import static java.lang.String.format;
-import static org.apache.commons.lang3.StringUtils.join;
-import static org.apache.sshd.common.SshConstants.SSH2_DISCONNECT_NO_MORE_AUTH_METHODS_AVAILABLE;
-import static org.mule.runtime.api.meta.model.display.PathModel.Type.FILE;
-import static org.mule.runtime.extension.api.annotation.param.ParameterGroup.CONNECTION;
+import javax.inject.Inject;
+
+import org.apache.sshd.common.SshException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * An {@link FileSystemProvider} which provides instances of {@link SftpFileSystem} from instances of {@link SftpConnector}
