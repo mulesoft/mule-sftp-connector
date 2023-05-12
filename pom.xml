@@ -41,7 +41,7 @@
         <cglib.version>3.3.0</cglib.version>
         <formatterConfigPath>formatter.xml</formatterConfigPath>
         <settingsFile>${java.io.tmpdir}/effective-settings.xml</settingsFile>
-
+        <mtf.tools.version>1.0.0</mtf.tools.version>
         <maven.impsort.plugin.version>1.6.2</maven.impsort.plugin.version>
         <maven.checkstyle.plugin.version>3.1.2</maven.checkstyle.plugin.version>
         <importGoal>check</importGoal>
@@ -238,6 +238,12 @@
                         <groupId>com.mulesoft.munit</groupId>
                         <artifactId>munit-tools</artifactId>
                         <version>${munit.version}</version>
+                        <classifier>mule-plugin</classifier>
+                    </dependency>
+                    <dependency>
+                        <groupId>com.mulesoft.munit</groupId>
+                        <artifactId>mtf-tools</artifactId>
+                        <version>${mtf.tools.version}</version>
                         <classifier>mule-plugin</classifier>
                     </dependency>
                     <dependency>

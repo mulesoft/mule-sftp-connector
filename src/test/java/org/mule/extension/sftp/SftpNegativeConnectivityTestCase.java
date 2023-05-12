@@ -68,32 +68,32 @@ public class SftpNegativeConnectivityTestCase extends CommonSftpConnectorTestCas
     utils = new TestConnectivityUtils(registry);
   }
 
-  @Ignore
   @Test
+  @Ignore
   public void configInvalidCredentials() {
     utils.assertFailedConnection(name + "ConfigInvalidCredentials", ANYTHING, is(errorType(INVALID_CREDENTIALS)));
   }
 
-  @Ignore
   @Test
+  @Ignore
   public void configConnectionTimeout() {
     utils.assertFailedConnection(name + "ConfigConnectionTimeout", ANYTHING, is(errorType(CONNECTION_TIMEOUT)));
   }
 
-  @Ignore
   @Test
+  @Ignore
   public void connectionRefused() {
     utils.assertFailedConnection(name + "ConfigConnectionRefused", ANYTHING, is(errorType(CANNOT_REACH)));
   }
 
-  @Ignore
   @Test
+  @Ignore
   public void configMissingCredentials() {
     utils.assertFailedConnection(name + "ConfigMissingCredentials", ANYTHING, is(errorType(INVALID_CREDENTIALS)));
   }
 
-  @Ignore
   @Test
+  @Ignore
   public void configUnknownHost() {
     utils.assertFailedConnection(name + "ConfigUnknownHost", ANYTHING, is(errorType(UNKNOWN_HOST)));
   }

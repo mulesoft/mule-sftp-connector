@@ -18,6 +18,7 @@ public class SftpClientFactory {
    *
    * @param host the host address
    * @param port the remote connection port
+   * @param port the remote connection port
    * @return a {@link SftpClient}
    */
   public SftpClient createInstance(String host, int port) {
