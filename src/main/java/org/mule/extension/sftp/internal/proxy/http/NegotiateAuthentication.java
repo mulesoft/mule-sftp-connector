@@ -28,7 +28,7 @@ class NegotiateAuthentication
 
   @Override
   public String getName() {
-    return "Negotiate"; //$NON-NLS-1$
+    return "Negotiate";
   }
 
   @Override

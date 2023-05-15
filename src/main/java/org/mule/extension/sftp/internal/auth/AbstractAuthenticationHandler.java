@@ -24,7 +24,7 @@ public abstract class AbstractAuthenticationHandler<ParameterType, TokenType>
   protected ParameterType params;
 
   /** A flag telling whether this authentication is done. */
-  protected boolean done;
+  private boolean done;
 
   /**
    * Creates a new {@link AbstractAuthenticationHandler} to authenticate with the given {@code proxy}.
@@ -45,4 +45,8 @@ public abstract class AbstractAuthenticationHandler<ParameterType, TokenType>
     return done;
   }
 
+  @Override
+  public final void setDone(boolean done) {
+    this.done = done;
+  }
 }

@@ -32,9 +32,9 @@ import static java.text.MessageFormat.format;
  */
 public class HttpClientConnector extends AbstractClientProxyConnector {
 
-  private static final String HTTP_HEADER_PROXY_AUTHENTICATION = "Proxy-Authentication:"; //$NON-NLS-1$
+  private static final String HTTP_HEADER_PROXY_AUTHENTICATION = "Proxy-Authentication:";
 
-  private static final String HTTP_HEADER_PROXY_AUTHORIZATION = "Proxy-Authorization:"; //$NON-NLS-1$
+  private static final String HTTP_HEADER_PROXY_AUTHORIZATION = "Proxy-Authorization:";
 
   private HttpAuthenticationHandler basic;
 
@@ -47,18 +47,6 @@ public class HttpClientConnector extends AbstractClientProxyConnector {
   private HttpAuthenticationHandler authenticator;
 
   private boolean ongoing;
-
-  /**
-   * Creates a new {@link HttpClientConnector}. The connector supports anonymous proxy connections as well as Basic and Negotiate
-   * authentication.
-   *
-   * @param proxyAddress  of the proxy server we're connecting to
-   * @param remoteAddress of the target server to connect to
-   */
-  public HttpClientConnector(InetSocketAddress proxyAddress,
-                             InetSocketAddress remoteAddress) {
-    this(proxyAddress, remoteAddress, null, null);
-  }
 
   /**
    * Creates a new {@link HttpClientConnector}. The connector supports anonymous proxy connections as well as Basic and Negotiate
@@ -147,7 +135,7 @@ public class HttpClientConnector extends AbstractClientProxyConnector {
       byte[] data = new byte[length];
       buffer.getRawBytes(data, 0, length);
       String[] reply = new String(data, US_ASCII)
-          .split("\r\n"); //$NON-NLS-1$
+          .split("\r\n");
       handleMessage(session, Arrays.asList(reply));
     } catch (Exception e) {
       if (authenticator != null) {
@@ -156,7 +144,7 @@ public class HttpClientConnector extends AbstractClientProxyConnector {
       }
       ongoing = false;
       try {
-        setDone(false);
+        setCompleted(false);
       } catch (Exception inner) {
         e.addSuppressed(inner);
       }
@@ -167,7 +155,7 @@ public class HttpClientConnector extends AbstractClientProxyConnector {
   private void handleMessage(IoSession session, List<String> reply)
       throws Exception {
     if (reply.isEmpty() || reply.get(0).isEmpty()) {
-      throw new IOException(format("Unexpected HTTP proxy response from %s: %s", proxyAddress)); //$NON-NLS-1$
+      throw new IOException(format("Unexpected HTTP proxy response from %s: %s", proxyAddress));
     }
     try {
       StatusLine status = HttpParser.parseStatusLine(reply.get(0));
@@ -182,7 +170,7 @@ public class HttpClientConnector extends AbstractClientProxyConnector {
           }
           authenticator = null;
           ongoing = false;
-          setDone(true);
+          setCompleted(true);
           break;
         case HttpURLConnection.HTTP_PROXY_AUTH:
           List<AuthenticationChallenge> challenges = HttpParser.getAuthenticationHeaders(reply, HTTP_HEADER_PROXY_AUTHENTICATION);

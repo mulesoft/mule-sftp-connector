@@ -7,8 +7,6 @@
 package org.mule.extension.sftp.internal.proxy;
 
 import org.apache.sshd.client.session.ClientSession;
-import org.apache.sshd.common.io.IoSession;
-import org.apache.sshd.common.util.Readable;
 
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
@@ -27,10 +25,10 @@ public abstract class AbstractClientProxyConnector implements StatefulProxyConne
       .toMillis(30L);
 
   /**
-   * Guards {@link #done} and {@link #bufferedCommands}.
+   * Guards {@link #completed} and {@link #bufferedCommands}.
    */
-  private final Object lock = new Object();
-  private boolean done;
+  private static final Object LOCK = new Object();
+  private boolean completed;
 
   private List<Callable<Void>> bufferedCommands = new ArrayList<>();
 
@@ -102,15 +100,6 @@ public abstract class AbstractClientProxyConnector implements StatefulProxyConne
     if (remainingProxyProtocolTime <= 0L) {
       remainingProxyProtocolTime = DEFAULT_PROXY_TIMEOUT_MILLIS;
     }
-    // if (session instanceof JGitClientSession) {
-    // JGitClientSession s = (JGitClientSession) session;
-    // unregister.set(() -> s.setProxyHandler(null));
-    // s.setProxyHandler(this);
-    // } else {
-    // Internal error, no translation
-    // throw new IllegalStateException(
-    // "Not a JGit session: " + session.getClass().getName()); //$NON-NLS-1$
-    // }
   }
 
   /**
@@ -148,14 +137,14 @@ public abstract class AbstractClientProxyConnector implements StatefulProxyConne
    * @param success whether the connector terminated successfully.
    * @throws Exception if starting ssh fails
    */
-  public void setDone(boolean success) throws Exception {
+  public void setCompleted(boolean success) throws Exception {
     List<Callable<Void>> buffered;
     Runnable unset = unregister.getAndSet(null);
     if (unset != null) {
       unset.run();
     }
-    synchronized (lock) {
-      done = true;
+    synchronized (LOCK) {
+      completed = true;
       buffered = bufferedCommands;
       bufferedCommands = null;
     }
@@ -167,9 +156,9 @@ public abstract class AbstractClientProxyConnector implements StatefulProxyConne
   }
 
   @Override
-  public void runWhenDone(Callable<Void> starter) throws Exception {
-    synchronized (lock) {
-      if (!done) {
+  public void runWhenCompleted(Callable<Void> starter) throws Exception {
+    synchronized (LOCK) {
+      if (!completed) {
         bufferedCommands.add(starter);
         return;
       }
@@ -180,12 +169,12 @@ public abstract class AbstractClientProxyConnector implements StatefulProxyConne
   /**
    * Clears the proxy password.
    */
-  public void clearPassword() {
+  public synchronized void clearPassword() {
     Arrays.fill(proxyPassword, '\000');
     proxyPassword = new char[0];
   }
 
-  public boolean isDone() {
-    return done;
+  public boolean isCompleted() {
+    return completed;
   }
 }

@@ -41,7 +41,7 @@ public abstract class GssApiAuthentication<ParameterType, TokenType>
   public void close() {
     GssApiMechanisms.closeContextSilently(context);
     context = null;
-    done = true;
+    setDone(true);
   }
 
   @Override
@@ -66,22 +66,17 @@ public abstract class GssApiAuthentication<ParameterType, TokenType>
     }
     try {
       byte[] received = extractToken(params);
-      token = context.initSecContext(received, 0, received.length);
-      checkDone();
+      this.token = context.initSecContext(received, 0, received.length);
+      if (context.isEstablished()) {
+        this.context.dispose();
+        context = null;
+        setDone(true);
+      }
     } catch (Exception e) {
       close();
       throw e;
     }
   }
-
-  private void checkDone() throws Exception {
-    done = context.isEstablished();
-    if (done) {
-      context.dispose();
-      context = null;
-    }
-  }
-
   /**
    * Creates the {@link GSSContext} to use.
    *

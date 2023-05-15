@@ -68,7 +68,7 @@ public abstract class BasicAuthentication<ParameterType, TokenType>
   /**
    * Clears the {@link #password}.
    */
-  protected void clearPassword() {
+  protected synchronized void clearPassword() {
     if (password != null) {
       Arrays.fill(password, (byte) 0);
     }
@@ -78,7 +78,7 @@ public abstract class BasicAuthentication<ParameterType, TokenType>
   @Override
   public final void close() {
     clearPassword();
-    done = true;
+    setDone(true);
   }
 
   @Override
@@ -107,10 +107,10 @@ public abstract class BasicAuthentication<ParameterType, TokenType>
                                                                                                    proxy.getPort(),
                                                                                                    SSH_SCHEME,
                                                                                                    "Proxy password",
-                                                                                                   "Basic", //$NON-NLS-1$
+                                                                                                   "Basic",
                                                                                                    null, RequestorType.PROXY));
     if (auth == null) {
-      user = ""; //$NON-NLS-1$
+      user = "";
       throw new CancellationException("Authentication canceled: no password");
     }
     user = auth.getUserName();

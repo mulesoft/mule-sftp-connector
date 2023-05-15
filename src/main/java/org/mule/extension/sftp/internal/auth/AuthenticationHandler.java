@@ -71,4 +71,6 @@ public interface AuthenticationHandler<ParameterType, TokenType>
 
   @Override
   void close();
+
+  void setDone(boolean done);
 }

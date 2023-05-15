@@ -61,20 +61,20 @@ public class AuthenticationChallenge {
     return arguments == null ? Collections.emptyMap() : arguments;
   }
 
-  void addArgument(String key, String value) {
+  public void addArgument(String key, String value) {
     if (arguments == null) {
       arguments = new LinkedHashMap<>();
     }
     arguments.put(key, value);
   }
 
-  void setToken(String token) {
+  public void setToken(String token) {
     this.token = token;
   }
 
   @Override
   public String toString() {
-    return "AuthenticationChallenge[" + mechanism + ',' + token + ',' //$NON-NLS-1$
-        + (arguments == null ? "<none>" : arguments.toString()) + ']'; //$NON-NLS-1$
+    return "AuthenticationChallenge[" + mechanism + ',' + token + ','
+        + (arguments == null ? "<none>" : arguments.toString()) + ']';
   }
 }

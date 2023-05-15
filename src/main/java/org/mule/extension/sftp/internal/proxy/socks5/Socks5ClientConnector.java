@@ -16,12 +16,18 @@ import org.ietf.jgss.GSSContext;
 
 import org.mule.extension.sftp.internal.auth.AuthenticationHandler;
 import org.mule.extension.sftp.internal.proxy.AbstractClientProxyConnector;
+import org.mule.extension.sftp.internal.proxy.authenticationStrategy.AnonymousAuthenticationStrategy;
+import org.mule.extension.sftp.internal.proxy.authenticationStrategy.AuthenticationStrategy;
+import org.mule.extension.sftp.internal.proxy.authenticationStrategy.GssApiAuthenticationStrategy;
 import org.mule.extension.sftp.internal.proxy.GssApiMechanisms;
+import org.mule.extension.sftp.internal.proxy.authenticationStrategy.PasswordAuthenticationStrategy;
 import org.mule.extension.sftp.internal.proxy.ProtocolState;
 
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.util.HashMap;
+import java.util.Map;
 
 import static java.nio.charset.StandardCharsets.US_ASCII;
 import static java.text.MessageFormat.format;
@@ -90,17 +96,8 @@ public class Socks5ClientConnector extends AbstractClientProxyConnector {
 
   private byte[] authenticationProposals;
 
-  /**
-   * Creates a new {@link Socks5ClientConnector}. The connector supports anonymous connections as well as username-password or
-   * Kerberos5 (GSS-API) authentication.
-   *
-   * @param proxyAddress  of the proxy server we're connecting to
-   * @param remoteAddress of the target server to connect to
-   */
-  public Socks5ClientConnector(InetSocketAddress proxyAddress,
-                               InetSocketAddress remoteAddress) {
-    this(proxyAddress, remoteAddress, null, null);
-  }
+  private AuthenticationStrategy currentStrategy;
+  private final Map<SocksAuthenticationMethod, AuthenticationStrategy> authenticationStrategies = new HashMap<>();
 
   /**
    * Creates a new {@link Socks5ClientConnector}. The connector supports anonymous connections as well as username-password or
@@ -115,6 +112,10 @@ public class Socks5ClientConnector extends AbstractClientProxyConnector {
                                InetSocketAddress remoteAddress,
                                String proxyUser, char[] proxyPassword) {
     super(proxyAddress, remoteAddress, proxyUser, proxyPassword);
+    this.authenticationStrategies.put(SocksAuthenticationMethod.ANONYMOUS, new AnonymousAuthenticationStrategy());
+    this.authenticationStrategies.put(SocksAuthenticationMethod.PASSWORD, new PasswordAuthenticationStrategy());
+    this.authenticationStrategies.put(SocksAuthenticationMethod.GSSAPI, new GssApiAuthenticationStrategy());
+    this.currentStrategy = this.authenticationStrategies.get(SocksAuthenticationMethod.ANONYMOUS);
     this.state = ProtocolState.NONE;
   }
 
@@ -160,13 +161,13 @@ public class Socks5ClientConnector extends AbstractClientProxyConnector {
     int length = 0;
     if (rawAddress == null) {
       remoteName = remoteAddress.getHostString().getBytes(US_ASCII);
-      if (remoteName == null || remoteName.length == 0) {
+      if (remoteName.length == 0) {
         throw new IOException(format("Could not send remote address %s", remoteAddress));
       } else if (remoteName.length > 255) {
         // Should not occur; host names must not be longer than 255
         // US_ASCII characters. Internal error, no translation.
         throw new IOException(format(
-                                     "Proxy host name too long for SOCKS (at most 255 characters): %s", //$NON-NLS-1$
+                                     "Proxy host name too long for SOCKS (at most 255 characters): %s",
                                      remoteAddress.getHostString()));
       }
       type = SOCKS_ADDRESS_FQDN;
@@ -227,7 +228,7 @@ public class Socks5ClientConnector extends AbstractClientProxyConnector {
       if (buffer == null) {
         // Internal error; no translation
         throw new IOException(
-                              "No data for proxy authentication with " //$NON-NLS-1$
+                              "No data for proxy authentication with "
                                   + proxyAddress);
       }
       session.writeBuffer(buffer).verify(getTimeout());
@@ -262,7 +263,7 @@ public class Socks5ClientConnector extends AbstractClientProxyConnector {
     switch (reply) {
       case SOCKS_REPLY_SUCCESS:
         state = ProtocolState.CONNECTED;
-        setDone(true);
+        setCompleted(true);
         return;
       case SOCKS_REPLY_FAILURE:
         throw new IOException(format("SOCKS5 proxy %s: general failure", proxyAddress));
@@ -301,7 +302,7 @@ public class Socks5ClientConnector extends AbstractClientProxyConnector {
         authenticator = null;
       }
       try {
-        setDone(false);
+        setCompleted(false);
       } catch (Exception inner) {
         e.addSuppressed(inner);
       }
@@ -347,4 +348,19 @@ public class Socks5ClientConnector extends AbstractClientProxyConnector {
                                           GssApiMechanisms.getCanonicalName(address));
   }
 
+  public void setAuthenticationStrategy(SocksAuthenticationMethod method) {
+    this.currentStrategy = this.authenticationStrategies.get(method);
+  }
+
+  public AuthenticationStrategy getCurrentStrategy() {
+    return this.currentStrategy;
+  }
+
+  public void changeState(ProtocolState newState) {
+    this.state = newState;
+  }
+
+  public void authenticate(IoSession session, Buffer data) throws Exception {
+    this.currentStrategy.authenticate(session, this, data);
+  }
 }

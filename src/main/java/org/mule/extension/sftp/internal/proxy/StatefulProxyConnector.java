@@ -24,8 +24,8 @@ public interface StatefulProxyConnector extends ClientProxyConnector {
   /**
    * A property key for a session property defining the timeout for setting up the proxy connection.
    */
-  static final String TIMEOUT_PROPERTY = StatefulProxyConnector.class
-      .getName() + "-timeout"; //$NON-NLS-1$
+  String TIMEOUT_PROPERTY = StatefulProxyConnector.class
+      .getName() + "-timeout";
 
   /**
    * Handle a received message.
@@ -43,5 +43,5 @@ public interface StatefulProxyConnector extends ClientProxyConnector {
    * @param command operation to run
    * @throws Exception if the operation is run synchronously and throws an exception
    */
-  void runWhenDone(Callable<Void> command) throws Exception;
+  void runWhenCompleted(Callable<Void> command) throws Exception;
 }

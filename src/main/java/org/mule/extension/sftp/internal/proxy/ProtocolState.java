@@ -10,13 +10,13 @@ import org.apache.sshd.common.io.IoSession;
 import org.apache.sshd.common.util.buffer.Buffer;
 import org.apache.sshd.common.util.buffer.BufferUtils;
 import org.mule.extension.sftp.internal.proxy.socks5.Socks5ClientConnector;
-import org.mule.extension.sftp.internal.proxy.socks5.SocksAuthenticationMethod;
 
 import java.io.IOException;
 
 import static java.text.MessageFormat.format;
 
 public enum ProtocolState {
+
 
   NONE,
 
@@ -27,21 +27,8 @@ public enum ProtocolState {
                               IoSession session, Buffer data)
         throws Exception {
       connector.versionCheck(data.getByte());
-      SocksAuthenticationMethod authMethod = connector.getAuthMethod(
-                                                                     data.getByte());
-      switch (authMethod) {
-        case ANONYMOUS:
-          connector.sendConnectInfo(session);
-          break;
-        case PASSWORD:
-          connector.doPasswordAuth(session);
-          break;
-        case GSSAPI:
-          connector.doGssApiAuth(session);
-          break;
-        default:
-          throw new IOException(format("Cannot authenticate to proxy", connector.proxyAddress));
-      }
+      connector.setAuthenticationStrategy(connector.getAuthMethod(data.getByte()));
+      connector.authenticate(session, data);
     }
   },
 
