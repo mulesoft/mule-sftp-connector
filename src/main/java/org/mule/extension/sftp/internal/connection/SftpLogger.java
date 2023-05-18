@@ -10,7 +10,7 @@ import org.slf4j.LoggerFactory;
 
 public class SftpLogger {
 
-  private org.slf4j.Logger logger = LoggerFactory.getLogger("com.jcraft.jsch");
+  private org.slf4j.Logger logger = LoggerFactory.getLogger(SftpLogger.class);
 
   public boolean isEnabled(int level) {
     switch (level) {
