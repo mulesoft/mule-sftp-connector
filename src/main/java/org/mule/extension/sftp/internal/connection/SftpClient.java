@@ -59,7 +59,7 @@ import org.apache.sshd.sftp.common.SftpException;
 import org.slf4j.Logger;
 
 /**
- * Wrapper around jsch sftp library which provides access to basic sftp commands.
+ * Wrapper around apache sshd library which provides access to basic sftp commands.
  *
  * @since 1.0
  */
