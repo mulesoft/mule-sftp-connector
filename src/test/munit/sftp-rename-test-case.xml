@@ -36,7 +36,7 @@
         </java:invoke-static>
     </munit:after-suite>
 
-    <munit:after-test name="new-test-suiteAfter_Test">
+    <munit:after-test>
         <try>
             <sftp:delete config-ref="config" path="source"/>
             <error-handler >
