@@ -36,7 +36,7 @@
         </java:invoke-static>
     </munit:after-suite>
 
-    <munit:after-test>
+    <munit:after-test name="execute after each tests">
         <try>
             <sftp:delete config-ref="config" path="test/created-to-eliminate"/>
             <error-handler >
