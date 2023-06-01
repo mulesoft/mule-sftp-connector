@@ -174,12 +174,8 @@ public abstract class SftpCommand extends ExternalFileCommand<SftpFileSystem> {
       }
     }
 
-    try {
-      doRename(sourceUri.getPath(), targetUri.getPath());
-      LOGGER.debug("{} renamed to {}", filePath, newName);
-    } catch (Exception e) {
-      throw exception(format("Exception was found renaming '%s' to '%s'", sourceUri.getPath(), newName), e);
-    }
+    doRename(sourceUri.getPath(), targetUri.getPath());
+    LOGGER.debug("{} renamed to {}", filePath, newName);
   }
 
   /**
@@ -189,9 +185,8 @@ public abstract class SftpCommand extends ExternalFileCommand<SftpFileSystem> {
    *
    * @param filePath the path of the file to be renamed
    * @param newName  the new name
-   * @throws Exception if anything goes wrong
    */
-  protected void doRename(String filePath, String newName) throws Exception {
+  protected void doRename(String filePath, String newName) {
     client.rename(normalizePath(filePath), newName);
   }
 
