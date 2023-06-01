@@ -26,6 +26,7 @@ import org.mule.extension.sftp.api.FileWriteMode;
 import org.mule.extension.sftp.api.SftpConnectionException;
 import org.mule.extension.sftp.api.SftpFileAttributes;
 import org.mule.extension.sftp.api.SftpProxyConfig;
+import org.mule.extension.sftp.api.exceptions.FileAccessDeniedException;
 import org.mule.extension.sftp.api.exceptions.FileError;
 import org.mule.extension.sftp.internal.proxy.http.HttpClientConnector;
 import org.mule.extension.sftp.internal.proxy.socks5.Socks5ClientConnector;
@@ -420,17 +421,33 @@ public class SftpClient {
   }
 
   protected RuntimeException exception(String message, Exception cause) {
-    if (cause instanceof SftpException) {
-      int status = ((SftpException) cause).getStatus();
-      if (status == SSH_FX_CONNECTION_LOST || status == SSH_FX_NO_CONNECTION) {
-        return exception(message, new SftpConnectionException("Error occurred while trying to connect to host",
-                                                              new ConnectionException(cause, owner), CONNECTIVITY, owner));
+    try {
+      if (cause instanceof SftpException) {
+        return handleSftpException(message, (SftpException) cause);
+      } else if (cause instanceof IOException) {
+        return handleIOException(message, (IOException) cause);
       }
-    } else if (cause instanceof IOException) {
-      if (!sftp.isOpen()) {
-        return exception(message, new SftpConnectionException("Error occurred while trying to connect to host",
-                                                              new ConnectionException(cause, owner), CONNECTIVITY, owner));
-      }
+    } catch (Exception ex) {
+      return new MuleRuntimeException(createStaticMessage(message), cause);
+    }
+    return new MuleRuntimeException(createStaticMessage(message), cause);
+  }
+
+  private RuntimeException handleSftpException(String message, SftpException cause) {
+    int status = cause.getStatus();
+    if (status == SSH_FX_CONNECTION_LOST || status == SSH_FX_NO_CONNECTION) {
+      return exception(message, new SftpConnectionException("Error occurred while trying to connect to host",
+                                                            new ConnectionException(cause, owner), CONNECTIVITY, owner));
+    } else if (status == SftpConstants.SSH_FX_PERMISSION_DENIED) {
+      return new FileAccessDeniedException(message, cause);
+    }
+    return new MuleRuntimeException(createStaticMessage(message), cause);
+  }
+
+  private RuntimeException handleIOException(String message, IOException cause) {
+    if (!sftp.isOpen()) {
+      return exception(message, new SftpConnectionException("Error occurred while trying to connect to host",
+                                                            new ConnectionException(cause, owner), CONNECTIVITY, owner));
     }
     return new MuleRuntimeException(createStaticMessage(message), cause);
   }
