@@ -6,7 +6,6 @@
  */
 package org.mule.extension.sftp.internal.connection;
 
-import org.apache.tika.Tika;
 import org.mule.extension.sftp.api.FileAttributes;
 import org.mule.extension.sftp.api.FileWriteMode;
 import org.mule.extension.sftp.internal.FileConnectorConfig;
@@ -24,6 +23,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.locks.Lock;
 import java.util.function.Predicate;
+
+import org.apache.tika.Tika;
 
 /**
  * Represents an abstract file system and the operations which can be performed on it.
@@ -95,8 +96,8 @@ public interface FileSystem<A extends FileAttributes> {
    * of {@code this} instance or even mule. For some other file systems that might be simply not possible and no extra assumptions
    * are to be taken.
    * <p>
-   * This method also makes a best effort to determine the mime type of the file being read. A {@link Tika} instance will
-   * be used to make an educated guess on the file's mime type
+   * This method also makes a best effort to determine the mime type of the file being read. A {@link Tika} instance will be used
+   * to make an educated guess on the file's mime type
    *
    * @param config               the config that is parameterizing this operation
    * @param filePath             the path of the file you want to read
@@ -131,7 +132,8 @@ public interface FileSystem<A extends FileAttributes> {
    * If the file itself already exists, then the behavior depends on the supplied {@code mode}.
    * <p>
    * This method also supports locking support depending on the value of the {@code lock} argument, but following the same rules
-   * and considerations as described in the {@link #read(FileConnectorConfig, String, boolean, Long)} (FileConnectorConfig, String, boolean)} method
+   * and considerations as described in the {@link #read(FileConnectorConfig, String, boolean, Long)} (FileConnectorConfig,
+   * String, boolean)} method
    *
    * @param filePath                the path of the file to be written
    * @param content                 the content to be written into the file
