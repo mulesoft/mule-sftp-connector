@@ -18,8 +18,16 @@ import org.mule.extension.sftp.api.SftpFileAttributes;
 import org.mule.runtime.api.lock.LockFactory;
 import org.mule.runtime.api.metadata.MediaType;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URI;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -55,7 +63,6 @@ public class FileMessageMediaTypeTestCase {
     String fileName = "file.txt";
     String fullPath = getFullPath(fileName);
     testHarness.write(fullPath, fileContent);
-    testHarness.getFileList("/");
 
     when(sftpFileAttributesMock.getPath()).thenReturn(fileName);
 
@@ -71,7 +78,6 @@ public class FileMessageMediaTypeTestCase {
     String fileName = "file.xml";
     String fullPath = getFullPath(fileName);
     testHarness.write(fullPath, fileContent);
-    testHarness.getFileList("/");
 
     when(sftpFileAttributesMock.getPath()).thenReturn(fileName);
 
@@ -87,7 +93,6 @@ public class FileMessageMediaTypeTestCase {
     String fileName = "file.json";
     String fullPath = getFullPath(fileName);
     testHarness.write(fullPath, fileContent);
-    testHarness.getFileList("/");
 
     when(sftpFileAttributesMock.getPath()).thenReturn(fileName);
 
@@ -136,9 +141,7 @@ public class FileMessageMediaTypeTestCase {
     assertEquals(expectedMediaType, actualMediaType.toString());
   }
 
-  @Test(
-  // expected = NullPointerException.class
-  )
+  @Test()
   public void testWithNullFilePath() {
     String expectedMediaType = "application/octet-stream";
     String fileName = null;
@@ -154,6 +157,55 @@ public class FileMessageMediaTypeTestCase {
   public void testWithNoExtension() {
     String expectedMediaType = "application/octet-stream";
     String fileName = "file";
+
+    when(sftpFileAttributesMock.getPath()).thenReturn(fileName);
+
+    MediaType actualMediaType = fileSystem.getFileMessageMediaType(sftpFileAttributesMock);
+
+    assertEquals(expectedMediaType, actualMediaType.toString());
+  }
+  @Test
+  public void testFileWithJpgExtension() throws Exception {
+    String expectedMediaType = "image/jpeg";
+    String fileName = "file.jpg";
+    String fullPath = getFullPath(fileName);
+    testHarness.write(fullPath, fileContent);
+
+    when(sftpFileAttributesMock.getPath()).thenReturn(fileName);
+
+    MediaType actualMediaType = fileSystem.getFileMessageMediaType(sftpFileAttributesMock);
+
+    assertEquals(expectedMediaType, actualMediaType.toString());
+  }
+  @Test
+  public void testFileWithJpgContent() throws Exception {
+    Path filePath = Paths.get("src/test/resources/sample.jpg");
+    byte[] fileBytes = Files.readAllBytes(filePath);
+
+    // Convert the byte array to a string
+    String fileContent = new String(fileBytes);
+    String expectedMediaType = "image/jpeg";
+    String fileName = "fileContent.jpg";
+    String fullPath = getFullPath(fileName);
+    testHarness.write(fullPath, fileContent);
+
+    when(sftpFileAttributesMock.getPath()).thenReturn(fileName);
+
+    MediaType actualMediaType = fileSystem.getFileMessageMediaType(sftpFileAttributesMock);
+
+    assertEquals(expectedMediaType, actualMediaType.toString());
+  }
+
+  @Test
+  public void testFilePPTWithJpgContent() throws Exception {
+    Path filePath = Paths.get("src/test/resources/sample.ppt");
+    byte[] fileBytes = Files.readAllBytes(filePath);
+    String fileContent = new String(fileBytes);
+
+    String expectedMediaType = "application/vnd.ms-powerpoint";
+    String fileName = "fileContent.ppt";
+    String fullPath = getFullPath(fileName);
+    testHarness.write(fullPath, fileContent);
 
     when(sftpFileAttributesMock.getPath()).thenReturn(fileName);
 
