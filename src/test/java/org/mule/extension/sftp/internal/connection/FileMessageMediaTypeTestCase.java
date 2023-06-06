@@ -164,6 +164,7 @@ public class FileMessageMediaTypeTestCase {
 
     assertEquals(expectedMediaType, actualMediaType.toString());
   }
+
   @Test
   public void testFileWithJpgExtension() throws Exception {
     String expectedMediaType = "image/jpeg";
@@ -177,6 +178,7 @@ public class FileMessageMediaTypeTestCase {
 
     assertEquals(expectedMediaType, actualMediaType.toString());
   }
+
   @Test
   public void testFileWithJpgContent() throws Exception {
     Path filePath = Paths.get("src/test/resources/sample.jpg");
