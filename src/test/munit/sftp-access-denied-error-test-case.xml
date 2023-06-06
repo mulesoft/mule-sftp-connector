@@ -3,9 +3,11 @@
 <mule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:munit="http://www.mulesoft.org/schema/mule/munit"
       xmlns="http://www.mulesoft.org/schema/mule/core"
       xmlns:sftp="http://www.mulesoft.org/schema/mule/sftp"
+      xmlns:scripting="http://www.mulesoft.org/schema/mule/scripting"
       xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
 		http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
-        http://www.mulesoft.org/schema/mule/sftp http://www.mulesoft.org/schema/mule/sftp/current/mule-sftp.xsd">
+        http://www.mulesoft.org/schema/mule/sftp http://www.mulesoft.org/schema/mule/sftp/current/mule-sftp.xsd
+        http://www.mulesoft.org/schema/mule/scripting http://www.mulesoft.org/schema/mule/scripting/current/mule-scripting.xsd">
 
     <munit:config name="sftp-access-denied-error-test-case.xml">
         <munit:parameterizations>
@@ -18,6 +20,34 @@
         </munit:parameterizations>
     </munit:config>
 
+    <flow name="runScript" doc:id="37cf6c23-b3ae-49ce-98d3-41d26fa5d7aa">
+        <scripting:execute engine="python" doc:name="Execute" doc:id="bec885b2-935c-45c0-a9bd-fdffc2b0aa3d">
+            <scripting:code><![CDATA[import subprocess
+
+# Get container ID of the "openssh" container
+container_id_cmd = ["docker", "ps", "-qf", "name=openssh"]
+container_id_output = subprocess.check_output(container_id_cmd).strip()
+container_id = container_id_output.decode('utf-8')
+
+# Create a directory inside the container
+mkdir_cmd = ["docker", "exec", container_id, "mkdir", "/config/privateDirectory"]
+subprocess.run(mkdir_cmd)
+
+# Create a file inside the created directory
+touch_cmd = ["docker", "exec", container_id, "touch", "/config/privateDirectory/file-to-renamed.txt"]
+subprocess.run(touch_cmd)
+
+# Change ownership of the directory to root
+chown_cmd = ["docker", "exec", container_id, "sudo", "chown", "-R", "root:root", "/config/privateDirectory"]
+subprocess.run(chown_cmd)]]></scripting:code>
+            <scripting:parameters><![CDATA[#[true]]]></scripting:parameters>
+        </scripting:execute>
+    </flow>
+
+    <munit:before-suite name="start-script">
+        <flow-ref name="runScript"/>
+    </munit:before-suite>
+
     <munit:test name="sftp-write-on-private-directory" expectedErrorType="SFTP:ACCESS_DENIED">
         <munit:execution>
             <sftp:write config-ref="${config}" path="${path_file}" createParentDirectories="true">
@@ -27,7 +57,7 @@
     </munit:test>
 
     <munit:test name="sftp-copy-into-private-directory" expectedErrorType="SFTP:ACCESS_DENIED">
-        <munit:behavior >
+        <munit:behavior>
             <sftp:write config-ref="${config}" path="test/copy-file-to-private-folder"/>
         </munit:behavior>
         <munit:execution>
@@ -35,18 +65,17 @@
         </munit:execution>
     </munit:test>
 
-    <munit:test name="sftp-create-to-private-directory"  expectedErrorType="SFTP:ACCESS_DENIED">
+    <munit:test name="sftp-create-to-private-directory" expectedErrorType="SFTP:ACCESS_DENIED">
         <munit:execution>
             <sftp:create-directory config-ref="${config}" directoryPath="/privateDirectory/otherDirectory"/>
         </munit:execution>
     </munit:test>
 
-    <munit:test name="sftp-rename-private-file"  expectedErrorType="SFTP:ACCESS_DENIED">
+    <munit:test name="sftp-rename-private-file" expectedErrorType="SFTP:ACCESS_DENIED">
         <munit:execution>
-            <sftp:rename  config-ref="${config}" path="privateDirectory/file-to-renamed.txt" to="file-renamed.txt"/>
+            <sftp:rename config-ref="${config}" path="privateDirectory/file-to-renamed.txt" to="file-renamed.txt"/>
         </munit:execution>
     </munit:test>
-
 
 
 </mule>
