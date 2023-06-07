@@ -4,6 +4,7 @@
       xmlns="http://www.mulesoft.org/schema/mule/core"
       xmlns:sftp="http://www.mulesoft.org/schema/mule/sftp"
       xmlns:scripting="http://www.mulesoft.org/schema/mule/scripting"
+      xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
       xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
 		http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
         http://www.mulesoft.org/schema/mule/sftp http://www.mulesoft.org/schema/mule/sftp/current/mule-sftp.xsd
@@ -21,26 +22,30 @@
     </munit:config>
 
     <flow name="runScript" doc:id="37cf6c23-b3ae-49ce-98d3-41d26fa5d7aa">
-        <scripting:execute engine="python" doc:name="Execute" doc:id="bec885b2-935c-45c0-a9bd-fdffc2b0aa3d">
+        <scripting:execute engine="jython">
             <scripting:code><![CDATA[import subprocess
 
 # Get container ID of the "openssh" container
 container_id_cmd = ["docker", "ps", "-qf", "name=openssh"]
 container_id_output = subprocess.check_output(container_id_cmd).strip()
 container_id = container_id_output.decode('utf-8')
+print "Open SSH container =", container_id
 
 # Create a directory inside the container
 mkdir_cmd = ["docker", "exec", container_id, "mkdir", "/config/privateDirectory"]
-subprocess.run(mkdir_cmd)
+mkdir = subprocess.call(mkdir_cmd)
+print "Created directory =", mkdir
 
 # Create a file inside the created directory
 touch_cmd = ["docker", "exec", container_id, "touch", "/config/privateDirectory/file-to-renamed.txt"]
-subprocess.run(touch_cmd)
+touch = subprocess.call(touch_cmd)
+print "Created file =", touch
 
 # Change ownership of the directory to root
 chown_cmd = ["docker", "exec", container_id, "sudo", "chown", "-R", "root:root", "/config/privateDirectory"]
-subprocess.run(chown_cmd)]]></scripting:code>
-            <scripting:parameters><![CDATA[#[true]]]></scripting:parameters>
+chown = subprocess.call(chown_cmd)
+print "Changed ownership of directory to root =", chown
+]]></scripting:code>
         </scripting:execute>
     </flow>
 
