@@ -6,7 +6,7 @@
       xmlns:scripting="http://www.mulesoft.org/schema/mule/scripting"
       xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
       xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
-		http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
+		    http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
         http://www.mulesoft.org/schema/mule/sftp http://www.mulesoft.org/schema/mule/sftp/current/mule-sftp.xsd
         http://www.mulesoft.org/schema/mule/scripting http://www.mulesoft.org/schema/mule/scripting/current/mule-scripting.xsd">
 
@@ -70,17 +70,16 @@ print "Changed ownership of directory to root =", chown
         </munit:execution>
     </munit:test>
 
-    <munit:test name="sftp-create-to-private-directory" expectedErrorType="SFTP:ACCESS_DENIED">
+    <munit:test name="sftp-create-to-private-directory"  expectedErrorType="SFTP:ACCESS_DENIED">
         <munit:execution>
             <sftp:create-directory config-ref="${config}" directoryPath="/privateDirectory/otherDirectory"/>
         </munit:execution>
     </munit:test>
 
-    <munit:test name="sftp-rename-private-file" expectedErrorType="SFTP:ACCESS_DENIED">
+    <munit:test name="sftp-rename-private-file"  expectedErrorType="SFTP:ACCESS_DENIED">
         <munit:execution>
-            <sftp:rename config-ref="${config}" path="privateDirectory/file-to-renamed.txt" to="file-renamed.txt"/>
+            <sftp:rename  config-ref="${config}" path="privateDirectory/file-to-renamed.txt" to="file-renamed.txt"/>
         </munit:execution>
     </munit:test>
-
 
 </mule>
