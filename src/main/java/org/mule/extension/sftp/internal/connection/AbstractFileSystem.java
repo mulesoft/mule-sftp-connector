@@ -32,8 +32,9 @@ import java.util.List;
 import java.util.concurrent.locks.Lock;
 import java.util.function.Predicate;
 
-import javax.activation.MimetypesFileTypeMap;
 import javax.inject.Inject;
+
+import org.apache.tika.Tika;
 
 /**
  * Base class for implementations of {@link FileSystem}
@@ -42,7 +43,8 @@ import javax.inject.Inject;
  */
 public abstract class AbstractFileSystem<A extends org.mule.extension.sftp.api.FileAttributes> implements FileSystem<A> {
 
-  private final MimetypesFileTypeMap mimetypesFileTypeMap = new MimetypesFileTypeMap();
+  private final Tika tika = new Tika();
+
 
   @Inject
   private LockFactory lockFactory;
@@ -209,7 +211,7 @@ public abstract class AbstractFileSystem<A extends org.mule.extension.sftp.api.F
    */
   @Override
   public MediaType getFileMessageMediaType(FileAttributes attributes) {
-    return MediaType.parse(mimetypesFileTypeMap.getContentType(attributes.getPath()));
+    return MediaType.parse(tika.detect(attributes.getPath()));
   }
 
   /**
