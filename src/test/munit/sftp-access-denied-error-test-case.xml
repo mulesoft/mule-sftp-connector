@@ -21,7 +21,7 @@
         </munit:parameterizations>
     </munit:config>
 
-    <flow name="runScript" doc:id="37cf6c23-b3ae-49ce-98d3-41d26fa5d7aa">
+    <flow name="makeFileAsRootScript" doc:id="37cf6c23-b3ae-49ce-98d3-41d26fa5d7aa">
         <scripting:execute engine="jython">
             <scripting:code><![CDATA[import subprocess
 
@@ -48,10 +48,33 @@ print "Changed ownership of directory to root =", chown
 ]]></scripting:code>
         </scripting:execute>
     </flow>
+    <flow name="revertChangesScript" doc:id="37cf6c23-b3ae-49ce-98d3-41d26fa5d7aa">
+        <scripting:execute engine="jython">
+            <scripting:code><![CDATA[import subprocess
+
+# Get container ID of the "openssh" container
+container_id_cmd = ["docker", "ps", "-qf", "name=openssh"]
+container_id_output = subprocess.check_output(container_id_cmd).strip()
+container_id = container_id_output.decode('utf-8')
+print "Open SSH container =", container_id
+
+# Revert the changes
+rm_file_cmd = ["docker", "exec", container_id, "rm", "/config/privateDirectory/file-to-renamed.txt"]
+rm_dir_cmd = ["docker", "exec", container_id, "rmdir", "/config/privateDirectory"]
+rm_file = subprocess.call(rm_file_cmd)
+rm_dir = subprocess.call(rm_dir_cmd)
+print "Reverted changes. Removed file =", rm_file, "Removed directory =", rm_dir
+]]></scripting:code>
+        </scripting:execute>
+    </flow>
 
     <munit:before-suite name="start-script">
-        <flow-ref name="runScript"/>
+        <flow-ref name="makeFileAsRootScript"/>
     </munit:before-suite>
+
+    <munit:after-suite name="finish-script">
+        <flow-ref name="revertChangesScript"/>
+    </munit:after-suite>
 
     <munit:test name="sftp-write-on-private-directory" expectedErrorType="SFTP:ACCESS_DENIED">
         <munit:execution>
