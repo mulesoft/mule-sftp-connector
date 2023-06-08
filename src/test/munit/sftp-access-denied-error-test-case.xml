@@ -29,22 +29,24 @@
 container_id_cmd = ["docker", "ps", "-qf", "name=openssh"]
 container_id_output = subprocess.check_output(container_id_cmd).strip()
 container_id = container_id_output.decode('utf-8')
-print "Open SSH container =", container_id
+print "Open SSH container"
 
 # Create a directory inside the container
 mkdir_cmd = ["docker", "exec", container_id, "mkdir", "/config/privateDirectory"]
 mkdir = subprocess.call(mkdir_cmd)
-print "Created directory =", mkdir
+print "Created directory"
 
-# Create a file inside the created directory
-touch_cmd = ["docker", "exec", container_id, "touch", "/config/privateDirectory/file-to-renamed.txt"]
-touch = subprocess.call(touch_cmd)
-print "Created file =", touch
+# Create a file with content inside the created directory
+file_path = "/config/privateDirectory/file-to-be-renamed.txt"
+file_content = "This is the content of the file."
+create_file_cmd = ["docker", "exec", container_id, "bash", "-c", "echo '{}' > {}".format(file_content, file_path)]
+create_file = subprocess.call(create_file_cmd)
+print "Created file with content"
 
 # Change ownership of the directory to root
 chown_cmd = ["docker", "exec", container_id, "sudo", "chown", "-R", "root:root", "/config/privateDirectory"]
 chown = subprocess.call(chown_cmd)
-print "Changed ownership of directory to root =", chown
+print "Changed ownership of directory to root"
 ]]></scripting:code>
         </scripting:execute>
     </flow>
@@ -59,11 +61,11 @@ container_id = container_id_output.decode('utf-8')
 print "Open SSH container =", container_id
 
 # Revert the changes
-rm_file_cmd = ["docker", "exec", container_id, "rm", "/config/privateDirectory/file-to-renamed.txt"]
+rm_file_cmd = ["docker", "exec", container_id, "rm", "/config/privateDirectory/file-to-be-renamed.txt"]
 rm_dir_cmd = ["docker", "exec", container_id, "rmdir", "/config/privateDirectory"]
 rm_file = subprocess.call(rm_file_cmd)
 rm_dir = subprocess.call(rm_dir_cmd)
-print "Reverted changes. Removed file =", rm_file, "Removed directory =", rm_dir
+print "Reverted changes. Removed file, Removed directory"
 ]]></scripting:code>
         </scripting:execute>
     </flow>
@@ -101,9 +103,28 @@ print "Reverted changes. Removed file =", rm_file, "Removed directory =", rm_dir
 
     <munit:test name="sftp-rename-private-file" expectedErrorType="SFTP:ACCESS_DENIED">
         <munit:execution>
-            <sftp:rename config-ref="${config}" path="privateDirectory/file-to-renamed.txt" to="file-renamed.txt"/>
+            <sftp:rename config-ref="${config}" path="privateDirectory/file-to-be-renamed.txt" to="file-renamed.txt"/>
         </munit:execution>
     </munit:test>
 
+    <munit:test name="sftp-list-and-rename-private-file" expectedErrorType="SFTP:ACCESS_DENIED">
+        <munit:execution>
+            <sftp:list-and-get config-ref="${config}" directoryPath="./privateDirectory"/>
+            <logger level="INFO" message="list and get output = #[payload]"/>
+            <sftp:rename config-ref="${config}" path="privateDirectory/file-to-be-renamed.txt" to="file-renamed.txt"/>
+        </munit:execution>
+    </munit:test>
+
+    <munit:test name="sftp-read-private-file">
+        <munit:execution>
+            <sftp:read config-ref="${config}" path="privateDirectory/file-to-be-renamed.txt"/>
+        </munit:execution>
+    </munit:test>
+
+    <munit:test name="sftp-delete-private-file" expectedErrorType="SFTP:ACCESS_DENIED">
+        <munit:execution>
+            <sftp:delete config-ref="${config}" path="privateDirectory/file-to-be-renamed.txt"/>
+        </munit:execution>
+    </munit:test>
 
 </mule>

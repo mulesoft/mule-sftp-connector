@@ -25,6 +25,9 @@
         <AsyncLogger name="org.apache.sshd" level="WARN"/>
         <AsyncLogger name="com.mulesoft.anypoint.tita" level="TRACE"/>
 
+        <AsyncLogger name="org.mule.extension.sftp" level="INFO"/>
+
+
         <AsyncRoot level="INFO">
             <AppenderRef ref="Console"/>
         </AsyncRoot>
