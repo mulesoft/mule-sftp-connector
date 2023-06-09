@@ -5,10 +5,13 @@
       xmlns:sftp="http://www.mulesoft.org/schema/mule/sftp"
       xmlns:scripting="http://www.mulesoft.org/schema/mule/scripting"
       xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+      xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools"
       xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
 		http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
         http://www.mulesoft.org/schema/mule/sftp http://www.mulesoft.org/schema/mule/sftp/current/mule-sftp.xsd
-        http://www.mulesoft.org/schema/mule/scripting http://www.mulesoft.org/schema/mule/scripting/current/mule-scripting.xsd">
+        http://www.mulesoft.org/schema/mule/scripting http://www.mulesoft.org/schema/mule/scripting/current/mule-scripting.xsd
+		http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd
+">
 
     <munit:config name="sftp-access-denied-error-test-case.xml">
         <munit:parameterizations>
@@ -102,17 +105,27 @@ print "Reverted changes. Removed file, Removed directory"
     </munit:test>
 
     <munit:test name="sftp-rename-private-file" expectedErrorType="SFTP:ACCESS_DENIED">
+        <munit:behavior>
+            <sftp:write config-ref="${config}" path="${path_file}"/>
+        </munit:behavior>
         <munit:execution>
-            <sftp:rename config-ref="${config}" path="privateDirectory/file-to-be-renamed.txt" to="file-renamed.txt"/>
+            <sftp:rename config-ref="${config}" path="${path_file}" to="file-renamed.txt"/>
         </munit:execution>
     </munit:test>
 
-    <munit:test name="sftp-list-and-rename-private-file" expectedErrorType="SFTP:ACCESS_DENIED">
+    <munit:test name="sftp-list-and-get-private-file">
         <munit:execution>
             <sftp:list-and-get config-ref="${config}" directoryPath="./privateDirectory"/>
-            <logger level="INFO" message="list and get output = #[payload]"/>
-            <sftp:rename config-ref="${config}" path="privateDirectory/file-to-be-renamed.txt" to="file-renamed.txt"/>
         </munit:execution>
+        <munit:validation>
+            <munit-tools:assert>
+                <munit-tools:that><![CDATA[#[import * from dw::test::Asserts
+                                     ---
+                                    payload[0].attributes.name must equalTo("file-to-be-renamed.txt")
+                                    ]]]>
+                </munit-tools:that>
+            </munit-tools:assert>
+        </munit:validation>
     </munit:test>
 
     <munit:test name="sftp-read-private-file">
