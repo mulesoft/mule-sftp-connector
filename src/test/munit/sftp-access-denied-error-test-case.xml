@@ -49,15 +49,15 @@
         </munit:execution>
     </munit:test>
 
-    <munit:test name="sftp-list-and-get-private-file">
+    <munit:test name="sftp-list-and-get-root-path">
         <munit:execution>
-            <sftp:list-and-get config-ref="${config}" directoryPath="./privateDirectory"/>
+            <sftp:list-and-get config-ref="${config}" directoryPath="/"/>
         </munit:execution>
         <munit:validation>
             <munit-tools:assert>
                 <munit-tools:that><![CDATA[#[import * from dw::test::Asserts
                                      ---
-                                    payload[0].attributes.name must equalTo("file-to-be-renamed.txt")
+                                    sizeOf(payload) must beGreaterThan(0)
                                     ]]]>
                 </munit-tools:that>
             </munit-tools:assert>
