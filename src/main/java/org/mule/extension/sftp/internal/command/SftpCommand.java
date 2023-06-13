@@ -89,7 +89,7 @@ public abstract class SftpCommand extends ExternalFileCommand<SftpFileSystem> {
     try {
       attributes = client.getAttributes(uri);
     } catch (Exception e) {
-      throw exception("Found exception trying to obtain path " + uri.getPath(), e);
+      throw client.handleException("Found exception trying to obtain path " + uri.getPath(), e);
     }
 
     if (LOGGER.isTraceEnabled()) {
@@ -168,9 +168,9 @@ public abstract class SftpCommand extends ExternalFileCommand<SftpFileSystem> {
       try {
         fileSystem.delete(targetUri.getPath());
       } catch (Exception e) {
-        throw exception(format("Exception was found deleting '%s' as part of renaming '%s'", targetUri.getPath(),
-                               sourceUri.getPath()),
-                        e);
+        throw client.handleException(format("Exception was found deleting '%s' as part of renaming '%s'", targetUri.getPath(),
+                                            sourceUri.getPath()),
+                                     e);
       }
     }
 
@@ -280,7 +280,7 @@ public abstract class SftpCommand extends ExternalFileCommand<SftpFileSystem> {
     try {
       return normalizePath(client.getWorkingDirectory());
     } catch (Exception e) {
-      throw exception("Failed to determine current working directory");
+      throw client.handleException("Failed to determine current working directory", e);
     }
   }
 

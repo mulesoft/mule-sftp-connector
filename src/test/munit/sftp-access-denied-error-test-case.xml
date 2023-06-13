@@ -13,8 +13,8 @@
         <munit:parameterizations>
             <munit:parameterization name="config-docker-with-home-directory">
                 <munit:parameters>
-                    <munit:parameter propertyName="config" value="config-docker-with-home-directory"/>
-                    <munit:parameter propertyName="path_file" value="/privateDirectory/privateFile.txt"/>
+                    <munit:parameter propertyName="config" value="config-docker-with-private-directory"/>
+                    <munit:parameter propertyName="path_file" value="/privateFile.txt"/>
                 </munit:parameters>
             </munit:parameterization>
         </munit:parameterizations>
@@ -39,13 +39,13 @@
 
     <munit:test name="sftp-create-to-private-directory"  expectedErrorType="SFTP:ACCESS_DENIED">
         <munit:execution>
-            <sftp:create-directory config-ref="${config}" directoryPath="/privateDirectory/otherDirectory"/>
+            <sftp:create-directory config-ref="${config}" directoryPath="/otherDirectory"/>
         </munit:execution>
     </munit:test>
 
     <munit:test name="sftp-rename-private-file"  expectedErrorType="SFTP:ACCESS_DENIED">
         <munit:execution>
-            <sftp:rename  config-ref="${config}" path="privateDirectory/file-to-be-renamed.txt" to="file-renamed.txt"/>
+            <sftp:rename config-ref="${config}" path="/keygen.sh" to="/keygenRenamed.sh"/>
         </munit:execution>
     </munit:test>
 
@@ -62,6 +62,18 @@
                 </munit-tools:that>
             </munit-tools:assert>
         </munit:validation>
+    </munit:test>
+
+    <munit:test name="sftp-read-private-file">
+        <munit:execution>
+            <sftp:read config-ref="${config}" path="/keygen.sh"/>
+        </munit:execution>
+    </munit:test>
+
+    <munit:test name="sftp-delete-private-file" expectedErrorType="SFTP:ACCESS_DENIED">
+        <munit:execution>
+            <sftp:delete config-ref="${config}" path="/keygen.sh"/>
+        </munit:execution>
     </munit:test>
 
 </mule>
