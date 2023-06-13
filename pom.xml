@@ -29,7 +29,6 @@
         <muleTestsComponentPlugin>${mule.version}</muleTestsComponentPlugin>
         <muleTestsRunnerVersion>4.1.5</muleTestsRunnerVersion>
         <muleSdkApiVersion>0.3.0</muleSdkApiVersion>
-        <exec.maven.plugin.version>1.6.0</exec.maven.plugin.version>
 
         <!-- Remove when a new parent version with MTF is available -->
         <munit.input.directory>src/test/munit</munit.input.directory>
@@ -304,24 +303,6 @@
                 </executions>
             </plugin>
             <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>exec-maven-plugin</artifactId>
-                <version>${exec.maven.plugin.version}</version>
-                <executions>
-                    <execution>
-                        <id>setup-sftp-container</id>
-                        <phase>process-test-resources</phase>
-                        <goals>
-                            <goal>exec</goal>
-                        </goals>
-                        <configuration>
-                            <executable>bash</executable>
-                            <commandlineArgs>src/test/resources/setup-sftp-container.sh</commandlineArgs>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-help-plugin</artifactId>
                 <version>3.3.0</version>
@@ -430,27 +411,13 @@
                             <images>
                                 <image>
                                     <name>linuxserver/openssh-server</name>
-                                    <alias>openssh</alias>
+                                    <build>
+                                        <dockerFile>${project.basedir}/src/test/resources/Dockerfile</dockerFile>
+                                    </build>
                                     <run>
-                                        <env>
-                                            <PUID>1000</PUID>
-                                            <PGID>1000</PGID>
-                                            <TZ>Europe/London</TZ>
-                                            <PASSWORD_ACCESS>true</PASSWORD_ACCESS>
-                                            <USER_PASSWORD>test</USER_PASSWORD>
-                                            <USER_NAME>mule</USER_NAME>
-                                        </env>
                                         <ports>
                                             <port>sftp.listener.port:2222</port>
                                         </ports>
-                                        <log>
-                                            <enabled>true</enabled>
-                                        </log>
-                                        <volumes>
-                                            <bind>
-                                                <volume>/config/test</volume>
-                                            </bind>
-                                        </volumes>
                                     </run>
                                 </image>
                             </images>
