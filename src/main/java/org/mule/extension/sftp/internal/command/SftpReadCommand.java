@@ -76,7 +76,7 @@ public final class SftpReadCommand extends SftpCommand implements ReadCommand<Sf
           .build();
     } catch (Exception e) {
       IOUtils.closeQuietly(payload);
-      throw exception("Could not fetch file " + uri.getPath(), e);
+      throw client.handleException("Could not fetch file " + uri.getPath(), e);
     } finally {
       pathLock.release();
     }

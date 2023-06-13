@@ -417,13 +417,27 @@
                             <images>
                                 <image>
                                     <name>linuxserver/openssh-server</name>
-                                    <build>
-                                        <dockerFile>${project.basedir}/src/test/resources/Dockerfile</dockerFile>
-                                    </build>
+                                    <alias>openssh</alias>
                                     <run>
+                                        <env>
+                                            <PUID>1000</PUID>
+                                            <PGID>1000</PGID>
+                                            <TZ>Europe/London</TZ>
+                                            <PASSWORD_ACCESS>true</PASSWORD_ACCESS>
+                                            <USER_PASSWORD>test</USER_PASSWORD>
+                                            <USER_NAME>mule</USER_NAME>
+                                        </env>
                                         <ports>
                                             <port>sftp.listener.port:2222</port>
                                         </ports>
+                                        <log>
+                                            <enabled>true</enabled>
+                                        </log>
+                                        <volumes>
+                                            <bind>
+                                                <volume>/config/test</volume>
+                                            </bind>
+                                        </volumes>
                                     </run>
                                 </image>
                             </images>
