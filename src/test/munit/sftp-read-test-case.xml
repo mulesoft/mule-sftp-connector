@@ -32,9 +32,11 @@
                 }]
             </java:args>
         </java:invoke-static>
+        <sftp:create-directory  config-ref="config" directoryPath="source"/>
     </munit:before-suite>
 
     <munit:after-suite name="clearSftpTestServer">
+        <sftp:delete config-ref="config" path="source"/>
         <java:invoke-static class="org.mule.extension.sftp.internal.lifecycle.SftpServerLifecycleManager"
                             method="stopSftpServer()">
             <java:args>
@@ -46,7 +48,7 @@
     <munit:test name="sftp-read-file-using-single-connection"
                 description="Perform a read operation with a pooling profile which allows only 1 active connection">
         <munit:behavior>
-            <set-variable variableName="fileName" value="filePath.txt"/>
+            <set-variable variableName="fileName" value="source/filePath.txt"/>
             <set-variable variableName="fileContent" value="I just want to impress Mr. Stark"/>
             <sftp:write config-ref="config-with-limited-pool" path="#[vars.fileName]">
                 <sftp:content>#[vars.fileContent]</sftp:content>
@@ -65,4 +67,42 @@
             </munit-tools:assert>
         </munit:validation>
     </munit:test>
+
+    <munit:test name="sftp-read-non-exists-file" description="Attempting to read a non-existent file."
+                expectedErrorType="SFTP:ILLEGAL_PATH">
+        <munit:behavior>
+            <set-variable variableName="fileName" value="source/filePath.txt"/>
+            <set-variable variableName="fileContent" value="I just want to impress Mr. Stark"/>
+            <sftp:write config-ref="config-with-limited-pool" path="#[vars.fileName]">
+                <sftp:content>#[vars.fileContent]</sftp:content>
+            </sftp:write>
+        </munit:behavior>
+        <munit:execution>
+            <sftp:read config-ref="config" path="non-exists-file.txt"/>
+        </munit:execution>
+    </munit:test>
+
+    <munit:test name="sftp-read-file-with-mimeType" description="A file is read and assigned an outputMimeType">
+        <munit:behavior>
+            <sftp:write config-ref="config" path="source/jsonDocument.json">
+                <sftp:content ><![CDATA[{
+  "name": "Document Json",
+  "purpose": ReadTests
+}]]></sftp:content>
+            </sftp:write>
+            <sftp:write config-ref="config" path="source/xmlDocument.xml" >
+                <sftp:content ><![CDATA[<root>
+  <name>Document Json</name>
+  <purpose>ReadTests</purpose>
+</root>]]></sftp:content>
+            </sftp:write>
+        </munit:behavior>
+        <munit:validation >
+            <sftp:read config-ref="config" path="source/jsonDocument.json" outputMimeType="application/json"/>
+            <munit-tools:assert-that expression="#[payload]" is="#[MunitTools::withMediaType('application/json')]"/>
+            <sftp:read config-ref="config" path="source/xmlDocument.xml" outputMimeType="application/xml"/>
+            <munit-tools:assert-that expression="#[payload]" is="#[MunitTools::withMediaType('application/xml')]" />
+        </munit:validation>
+    </munit:test>
+
 </mule>
