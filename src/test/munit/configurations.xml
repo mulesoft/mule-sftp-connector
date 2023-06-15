@@ -81,14 +81,4 @@
         </sftp:connection>
     </sftp:config>
 
-    <sftp:config name="config-with-toxiproxy">
-        <sftp:connection username="muletest1" password="muletest1" host="localhost" port="${connection.lost.port}"
-                         workingDir="/" prngAlgorithm="SHA1PRNG">
-            <reconnection >
-                <reconnect-forever frequency="3000"/>
-            </reconnection>
-            <pooling-profile exhaustedAction="WHEN_EXHAUSTED_WAIT" maxActive="7" maxIdle="3" maxWait="5000"/>
-        </sftp:connection>
-    </sftp:config>
-
 </mule>
