@@ -20,14 +20,15 @@
     <sftp:config name="config-with-toxiproxy">
         <sftp:connection username="mule" password="test" host="localhost" port="${connection.lost.port}"
                          workingDir="/config" prngAlgorithm="SHA1PRNG">
-            <pooling-profile exhaustedAction="WHEN_EXHAUSTED_WAIT" maxActive="7" maxIdle="3" maxWait="5000"/>
+            <reconnection >
+                <reconnect-forever />
+            </reconnection>
         </sftp:connection>
     </sftp:config>
 
     <munit:before-suite name="before-suite-reconnection">
         <connection-test:define-proxy-server-port serverPort="${toxiproxy.port}"/>
-        <connection-test:create-proxy realPort="2222" realHost="openssh" proxyPort="${connection.lost.port}"/>
-        <flow-ref name="wait-2-seconds"/>
+        <connection-test:create-proxy proxyPort="${connection.lost.port}" realHost="openssh" realPort="2222"/>
     </munit:before-suite>
 
     <munit:test name="sftp-copy-directories-with-reconnection" description="Perform a copy operation that copies a whole directory with reconnection">
@@ -49,12 +50,11 @@
             </sftp:write>
         </munit:behavior>
         <munit:execution>
-<!--            <connection-test:disconnect-proxy proxyPort="${connection.lost.port}"/>-->
-<!--            <async>-->
-<!--                <connection-test:reconnect-proxy proxyPort="${connection.lost.port}" />-->
-<!--                <logger level="ERROR" message="Reconnected proxy!" />-->
-<!--                <munit-tools:sleep time="10000" />-->
-<!--            </async>-->
+            <connection-test:disconnect-proxy proxyPort="${connection.lost.port}"/>
+            <async>
+                <connection-test:reconnect-proxy proxyPort="${connection.lost.port}" />
+                <logger level="ERROR" message="Reconnected proxy!" />
+            </async>
             <sftp:copy config-ref="config-with-toxiproxy" sourcePath="copy-dir-test/folder-to-copy/"
                        targetPath="copy-dir-test/folder-copied" overwrite="false"
                        createParentDirectories="true"/>
