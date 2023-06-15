@@ -61,6 +61,5 @@ public class SftpClientHandleExceptionTestCase {
     RuntimeException exception = sftpMuleClient.handleException(errorMessage, new SftpException(sftpErrorCode, EMPTY));
 
     Assert.assertEquals(expectedException, exception.getCause().getClass());
-    Assert.assertEquals(expectedException, exception.getCause().getClass());
   }
 }
