@@ -23,46 +23,38 @@
         </sftp:connection>
     </sftp:config>
 
-    <munit:before-suite name="startSftpTestServer">
-        <java:invoke-static class="org.mule.extension.sftp.internal.lifecycle.SftpServerLifecycleManager"
-                            method="startSftpServer(String)">
-            <java:args>
-                #[{
-                arg0: ${sftp.server.port},
-                }]
-            </java:args>
-        </java:invoke-static>
-    </munit:before-suite>
-
-    <munit:after-suite name="clearSftpTestServer">
-        <java:invoke-static class="org.mule.extension.sftp.internal.lifecycle.SftpServerLifecycleManager"
-                            method="stopSftpServer()">
-            <java:args>
-                #[{}]
-            </java:args>
-        </java:invoke-static>
-    </munit:after-suite>
-
-    <munit:test name="sftp-read-file-using-single-connection"
-                description="Perform a read operation with a pooling profile which allows only 1 active connection">
+    <munit:test name="sftp-read-on-locked-file" description="Perform a read operation with lock when the connector is writing with a big content" ignore="#[Munit::muleVersionPriorTo('4.2.0')]" expectedErrorType="SFTP:FILE_LOCK">
         <munit:behavior>
             <set-variable variableName="fileName" value="filePath.txt"/>
-            <set-variable variableName="fileContent" value="I just want to impress Mr. Stark"/>
-            <sftp:write config-ref="config-with-limited-pool" path="#[vars.fileName]">
-                <sftp:content>#[vars.fileContent]</sftp:content>
-            </sftp:write>
+            <set-variable variableName="loopSize" value="2500000"/>
+            <set-variable variableName="singleLineSize" value="30"/>
+            <set-variable variableName="overheadSize" value="2"/>
+            <set-variable variableName="line" value="#[%dw 2.0 output application/json --- {'big' : 'payload'}]"/>
+            <set-variable variableName="fileSize" value="#[vars.loopSize * vars.singleLineSize + vars.overheadSize]"/>
         </munit:behavior>
         <munit:execution>
-            <sftp:read config-ref="config-with-limited-pool" path='#[vars.fileName]'/>
-        </munit:execution>
-        <munit:validation>
+            <async>
+                <sftp:write config-ref="${config}" path='#[vars.fileName]' lock="#[true]">
+                    <sftp:content>
+                        #[
+                        %dw 2.0
+                        output application/json
+                        ---
+                        1 to vars.loopSize map vars.line
+                        ]
+                    </sftp:content>
+                </sftp:write>
+            </async>
+            <flow-ref name="wait-2-seconds"/>
+            <sftp:read config-ref="${config}" path='#[vars.fileName]' lock="#[true]"/>
             <munit-tools:assert>
-                <munit-tools:that><![CDATA[#[import * from dw::test::Asserts
-                                     ---
-                                    payload must equalTo(vars.fileContent)
-                                    ]]]>
+                <munit-tools:that><![CDATA[
+                    #[import * from dw::test::Asserts
+                        ---
+                        payload must notBeNull()]
+                ]]>
                 </munit-tools:that>
             </munit-tools:assert>
-        </munit:validation>
+        </munit:execution>
     </munit:test>
 </mule>
