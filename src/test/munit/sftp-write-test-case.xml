@@ -64,6 +64,57 @@
         </munit:execution>
     </munit:test>
 
+    <munit:test name="sftp-write-void-file">
+        <munit:behavior>
+            <set-variable variableName="fileName" value="write-void.txt"/>
+            <set-variable variableName="mode" value="OVERWRITE"/>
+            <set-variable variableName="createParent" value="true"/>
+        </munit:behavior>
+        <munit:execution>
+            <sftp:write config-ref="${config}" path="#[vars.fileName]" mode="#[vars.mode]" createParentDirectories="#[vars.createParent]" />
+        </munit:execution>
+        <munit:validation >
+            <sftp:read config-ref="${config}" path="#[vars.fileName]" />
+            <munit-tools:assert-that expression="#[payload]" is="#[MunitTools::isEmptyString()]"/>
+        </munit:validation>
+    </munit:test>
+
+    <munit:test name="sftp-write-file-exists-with-createNewMode" description="It tries to create a new file when one with the same name already exists."
+                expectedErrorType="SFTP:FILE_ALREADY_EXISTS">
+        <munit:behavior >
+            <set-variable variableName="fileName" value="createNewFail.txt"/>
+            <set-variable variableName="mode" value="CREATE_NEW"/>
+            <sftp:write config-ref="${config}" path="#[vars.fileName]">
+            </sftp:write>
+        </munit:behavior>
+        <munit:execution>
+            <sftp:write config-ref="${config}" path="#[vars.fileName]" mode="#[vars.mode]">
+            </sftp:write>
+        </munit:execution>
+    </munit:test>
+
+    <munit:test name="sftp-write-with-createNewMode" description="Will create a new file with the CreateNew setting.">
+        <munit:behavior >
+            <set-variable variableName="fileName" value="newFileToTest.txt"/>
+            <set-variable variableName="mode" value="CREATE_NEW"/>
+            <try>
+                <sftp:delete config-ref="${config}" path="#[vars.fileName]"/>
+                <error-handler >
+                    <on-error-continue enableNotifications="false" logException="false" type="SFTP:ILLEGAL_PATH"/>
+                </error-handler>
+            </try>
+        </munit:behavior>
+        <munit:execution>
+            <set-payload value="Hello World!"/>
+            <sftp:write config-ref="${config}" path="#[vars.fileName]" mode="#[vars.mode]">
+            </sftp:write>
+        </munit:execution>
+        <munit:validation >
+            <sftp:read config-ref="${config}" path="#[vars.fileName]" />
+            <munit-tools:assert-that expression="#[payload]" is="#[MunitTools::equalTo('Hello World!')]"/>
+        </munit:validation>
+    </munit:test>
+
     <munit:test name="sftp-read-write">
         <munit:behavior>
             <set-variable variableName="fileName" value="write-file.txt"/>

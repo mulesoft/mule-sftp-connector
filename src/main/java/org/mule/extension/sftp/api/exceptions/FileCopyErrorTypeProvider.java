@@ -6,6 +6,7 @@
  */
 package org.mule.extension.sftp.api.exceptions;
 
+import static org.mule.extension.sftp.api.exceptions.FileError.ACCESS_DENIED;
 import static org.mule.extension.sftp.api.exceptions.FileError.FILE_ALREADY_EXISTS;
 import static org.mule.extension.sftp.api.exceptions.FileError.ILLEGAL_PATH;
 
@@ -32,7 +33,7 @@ public class FileCopyErrorTypeProvider implements ErrorTypeProvider {
 
   @Override
   public Set<ErrorTypeDefinition> getErrorTypes() {
-    return unmodifiableSet(new HashSet<>(asList(ILLEGAL_PATH, FILE_ALREADY_EXISTS)));
+    return unmodifiableSet(new HashSet<>(asList(ILLEGAL_PATH, FILE_ALREADY_EXISTS, ACCESS_DENIED)));
   }
 }
 
