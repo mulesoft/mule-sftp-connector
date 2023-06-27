@@ -303,6 +303,9 @@
                         <configuration>
                             <portNames>
                                 <portName>sftp.listener.port</portName>
+                                <portName>connection.lost.port</portName>
+                                <portName>connection.broken.port</portName>
+                                <portName>toxiproxy.port</portName>
                             </portNames>
                         </configuration>
                     </execution>
@@ -438,6 +441,20 @@
                                                 <volume>/config/test</volume>
                                             </bind>
                                         </volumes>
+                                    </run>
+                                </image>
+                                <image>
+                                    <name>shopify/toxiproxy</name>
+                                    <alias>toxiproxy</alias>
+                                    <run>
+                                        <ports>
+                                            <port>${toxiproxy.port}:8474</port>
+                                            <port>${connection.lost.port}:${connection.lost.port}</port>
+                                            <port>${connection.broken.port}:${connection.broken.port}</port>
+                                        </ports>
+                                        <links>
+                                            <link>openssh</link>
+                                        </links>
                                     </run>
                                 </image>
                             </images>

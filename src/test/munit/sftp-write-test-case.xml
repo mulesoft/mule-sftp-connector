@@ -254,6 +254,40 @@
         </munit:validation>
     </munit:test>
 
+    <munit:test name="sftp-write-new-mode-should-fail-if-file-exists" expectedErrorType="SFTP:FILE_ALREADY_EXISTS">
+        <munit:behavior>
+            <set-variable variableName="fileName" value="write-file.txt"/>
+            <set-variable variableName="mode" value="CREATE_NEW"/>
+            <set-variable variableName="createParent" value="true"/>
+        </munit:behavior>
+        <munit:execution>
+            <sftp:write config-ref="${config}" path="#[vars.fileName]" mode="#[vars.mode]" createParentDirectories="#[vars.createParent]" />
+        </munit:execution>
+    </munit:test>
+
+    <munit:test name="sftp-write-new-mode">
+        <munit:behavior>
+            <set-variable variableName="fileName" value="write-file.txt"/>
+            <set-variable variableName="mode" value="OVERWRITE"/>
+            <set-variable variableName="createParent" value="true"/>
+        </munit:behavior>
+        <munit:execution>
+            <sftp:write config-ref="${config}" path="#[vars.fileName]" mode="#[vars.mode]" createParentDirectories="#[vars.createParent]">
+                <sftp:content>test content</sftp:content>
+            </sftp:write>
+            <sftp:read config-ref="${config}" path='#[vars.fileName]'/>
+            <logger level="INFO" message="#[payload]" />
+            <munit-tools:assert>
+                <munit-tools:that><![CDATA[
+                    #[import * from dw::test::Asserts
+                        ---
+                        payload must equalTo("test content")]
+                ]]>
+                </munit-tools:that>
+            </munit-tools:assert>
+        </munit:execution>
+    </munit:test>
+
     <munit:after-test  name="delete-file-append" description="A description">
         <sftp:delete config-ref="${config}" path="test/filePath.txt"/>
     </munit:after-test>

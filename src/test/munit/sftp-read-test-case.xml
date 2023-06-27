@@ -105,4 +105,72 @@
         </munit:validation>
     </munit:test>
 
+    <munit:test name="sftp-read-on-locked-file" description="Perform a read operation with lock when the connector is writing with a big content" ignore="#[Munit::muleVersionPriorTo('4.2.0')]" expectedErrorType="SFTP:FILE_LOCK">
+        <munit:behavior>
+            <set-variable variableName="fileName" value="filePath.txt"/>
+            <set-variable variableName="loopSize" value="2500000"/>
+            <set-variable variableName="singleLineSize" value="30"/>
+            <set-variable variableName="overheadSize" value="2"/>
+            <set-variable variableName="line" value="#[%dw 2.0 output application/json --- {'big' : 'payload'}]"/>
+            <set-variable variableName="fileSize" value="#[vars.loopSize * vars.singleLineSize + vars.overheadSize]"/>
+        </munit:behavior>
+        <munit:execution>
+            <async>
+                <sftp:write config-ref="${config}" path='#[vars.fileName]' lock="#[true]">
+                    <sftp:content>
+                        #[
+                        %dw 2.0
+                        output application/json
+                        ---
+                        1 to vars.loopSize map vars.line
+                        ]
+                    </sftp:content>
+                </sftp:write>
+            </async>
+            <flow-ref name="wait-2-seconds"/>
+            <sftp:read config-ref="${config}" path='#[vars.fileName]' lock="#[true]"/>
+            <munit-tools:assert>
+                <munit-tools:that><![CDATA[
+                    #[import * from dw::test::Asserts
+                        ---
+                        payload must notBeNull()]
+                ]]>
+                </munit-tools:that>
+            </munit-tools:assert>
+        </munit:execution>
+    </munit:test>
+
+    <munit:test name="sftp-read-while-writing-file" description="Perform a read operation with lock when the connector is writing with a big content" ignore="#[Munit::muleVersionPriorTo('4.2.0')]">
+        <munit:behavior>
+            <set-variable variableName="fileName" value="filePath.txt"/>
+            <set-variable variableName="loopSize" value="2500000"/>
+            <set-variable variableName="singleLineSize" value="30"/>
+            <set-variable variableName="overheadSize" value="2"/>
+            <set-variable variableName="line" value="#[%dw 2.0 output application/json --- {'big' : 'payload'}]"/>
+            <set-variable variableName="fileSize" value="#[vars.loopSize * vars.singleLineSize + vars.overheadSize]"/>
+        </munit:behavior>
+        <munit:execution>
+            <async>
+                <sftp:write config-ref="${config}" path='#[vars.fileName]'>
+                    <sftp:content>
+                        #[
+                        %dw 2.0
+                        output application/json
+                        ---
+                        1 to vars.loopSize map vars.line
+                        ]
+                    </sftp:content>
+                </sftp:write>
+            </async>
+            <sftp:read config-ref="${config}" path='#[vars.fileName]'/>
+            <munit-tools:assert>
+                <munit-tools:that><![CDATA[
+                    #[import * from dw::test::Asserts
+                        ---
+                        attributes.size must [beGreaterThan(0), beLowerThan(vars.fileSize)]]
+                ]]>
+                </munit-tools:that>
+            </munit-tools:assert>
+        </munit:execution>
+    </munit:test>
 </mule>
