@@ -17,14 +17,6 @@
         http://www.mulesoft.org/schema/mule/connection-test http://www.mulesoft.org/schema/mule/connection-test/current/mule-connection-test.xsd">
 
     <munit:config name="sftp-copy-with-reconnection-test-case.xml"/>
-    <sftp:config name="config-with-toxiproxy">
-        <sftp:connection username="mule" password="test" host="localhost" port="${connection.lost.port}"
-                         workingDir="/config" prngAlgorithm="SHA1PRNG">
-            <reconnection >
-                <reconnect-forever />
-            </reconnection>
-        </sftp:connection>
-    </sftp:config>
 
     <munit:before-suite name="before-suite-reconnection">
         <connection-test:define-proxy-server-port serverPort="${toxiproxy.port}"/>

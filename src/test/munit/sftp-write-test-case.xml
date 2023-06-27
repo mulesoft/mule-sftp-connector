@@ -272,14 +272,16 @@
             <set-variable variableName="createParent" value="true"/>
         </munit:behavior>
         <munit:execution>
-            <sftp:write config-ref="${config}" path="#[vars.fileName]" mode="#[vars.mode]" createParentDirectories="#[vars.createParent]" />
+            <sftp:write config-ref="${config}" path="#[vars.fileName]" mode="#[vars.mode]" createParentDirectories="#[vars.createParent]">
+                <sftp:content>test content</sftp:content>
+            </sftp:write>
             <sftp:read config-ref="${config}" path='#[vars.fileName]'/>
             <logger level="INFO" message="#[payload]" />
             <munit-tools:assert>
                 <munit-tools:that><![CDATA[
                     #[import * from dw::test::Asserts
                         ---
-                        payload must notBeNull()]
+                        payload must equalTo("test content")]
                 ]]>
                 </munit-tools:that>
             </munit-tools:assert>
