@@ -20,7 +20,7 @@
     <description>A Mule extension that provides functionality to manage files in an SFTP server</description>
 
     <properties>
-        <docker.maven.plugin.version>0.41.0</docker.maven.plugin.version>
+        <docker.maven.plugin.version>0.42.0</docker.maven.plugin.version>
         <maven.helper.plugin.version>3.3.0</maven.helper.plugin.version>
         <commonsIoVersion>2.11.0</commonsIoVersion>
         <commonsLangVersion>3.12.0</commonsLangVersion>
