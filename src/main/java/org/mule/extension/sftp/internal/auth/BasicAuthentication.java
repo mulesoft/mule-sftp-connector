@@ -24,11 +24,11 @@ import java.util.concurrent.CancellationException;
  * so, this will be tried first. Subsequent rounds will then try to obtain a user name and password via the global
  * {@link Authenticator}.
  *
- * @param <ParameterType> defining the parameter type for the authentication
- * @param <TokenType>     defining the token type for the authentication
+ * @param <P> defining the parameter type for the authentication
+ * @param <T> defining the token type for the authentication
  */
-public abstract class BasicAuthentication<ParameterType, TokenType>
-    extends AbstractAuthenticationHandler<ParameterType, TokenType> {
+public abstract class BasicAuthentication<P, T>
+    extends AbstractAuthenticationHandler<P, T> {
 
   private static final String SSH_SCHEME = "\"ssh:\" hier-part";
   /** The current user name. */
@@ -44,8 +44,8 @@ public abstract class BasicAuthentication<ParameterType, TokenType>
    * @param initialUser     initial user name to try; may be {@code null}
    * @param initialPassword initial password to try, may be {@code null}
    */
-  public BasicAuthentication(InetSocketAddress proxy, String initialUser,
-                             char[] initialPassword) {
+  protected BasicAuthentication(InetSocketAddress proxy, String initialUser,
+                                char[] initialPassword) {
     super(proxy);
     this.user = initialUser;
     this.password = convert(initialPassword);

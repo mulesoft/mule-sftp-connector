@@ -14,8 +14,8 @@ import static java.lang.String.format;
 
 import org.mule.extension.sftp.api.FileAttributes;
 import org.mule.extension.sftp.api.PredicateType;
-import org.mule.extension.sftp.api.util.TimeSinceFunction;
-import org.mule.extension.sftp.api.util.TimeUntilFunction;
+import org.mule.extension.sftp.internal.util.TimeSinceFunction;
+import org.mule.extension.sftp.internal.util.TimeUntilFunction;
 import org.mule.runtime.extension.api.annotation.param.Optional;
 import org.mule.runtime.extension.api.annotation.param.Parameter;
 import org.mule.runtime.extension.api.annotation.param.display.Summary;
@@ -45,9 +45,10 @@ public abstract class FileMatcher<T extends FileMatcher, A extends FileAttribute
 
   private static final String SIZE_MUST_BE_GREATER_THAN_ZERO_MESSAGE =
       "Matcher attribute '%s' must be greater than zero but '%d' was received";
-  protected static final TimeUntilFunction FILE_TIME_UNTIL = new TimeUntilFunction();
-  protected static final TimeSinceFunction FILE_TIME_SINCE = new TimeSinceFunction();
   public static final boolean DEFAULT_CASE_SENSITIVE = true;
+  protected final TimeUntilFunction FILE_TIME_UNTIL = new TimeUntilFunction();
+  protected final TimeSinceFunction FILE_TIME_SINCE = new TimeSinceFunction();
+
   /**
    * A matching pattern to be applied on the file name. This pattern needs to be consistent with the rules of
    * {@link org.mule.extension.sftp.api.matcher.PathMatcherPredicate}

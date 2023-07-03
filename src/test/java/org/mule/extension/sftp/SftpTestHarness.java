@@ -10,10 +10,10 @@ import static org.mule.extension.sftp.SftpServer.PASSWORD;
 import static org.mule.extension.sftp.SftpServer.USERNAME;
 import static org.mule.extension.sftp.api.FileWriteMode.CREATE_NEW;
 import static org.mule.extension.sftp.api.FileWriteMode.OVERWRITE;
-import static org.mule.extension.sftp.api.util.UriUtils.createUri;
-import static org.mule.extension.sftp.api.util.UriUtils.trimLastFragment;
-import static org.mule.extension.sftp.internal.SftpUtils.normalizePath;
-import static org.mule.extension.sftp.internal.SftpUtils.resolvePathOrResource;
+import static org.mule.extension.sftp.internal.util.UriUtils.createUri;
+import static org.mule.extension.sftp.internal.util.UriUtils.trimLastFragment;
+import static org.mule.extension.sftp.internal.util.SftpUtils.normalizePath;
+import static org.mule.extension.sftp.internal.util.SftpUtils.resolvePathOrResource;
 
 import static java.util.stream.Collectors.toList;
 

@@ -6,7 +6,7 @@
  */
 package org.mule.extension.sftp.internal.proxy.socks5;
 
-import static java.text.MessageFormat.format;
+import static java.lang.String.format;
 
 import org.mule.extension.sftp.internal.auth.GssApiAuthentication;
 
@@ -57,7 +57,7 @@ class SocksGssApiAuthentication
   @Override
   protected byte[] extractToken(Buffer input) throws Exception {
     if (socks5ClientConnector.getContext() == null) {
-      return null;
+      return new byte[0];
     }
     int version = input.getUByte();
     if (version != SOCKS5_GSSAPI_VERSION) {

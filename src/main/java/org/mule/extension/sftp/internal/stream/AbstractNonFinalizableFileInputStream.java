@@ -8,7 +8,7 @@ package org.mule.extension.sftp.internal.stream;
 
 import static org.apache.commons.io.IOUtils.EOF;
 
-import org.mule.extension.sftp.internal.FileConnectorConfig;
+import org.mule.extension.sftp.internal.config.FileConnectorConfig;
 import org.mule.extension.sftp.internal.connection.FileSystem;
 import org.mule.extension.sftp.internal.lock.Lock;
 import org.mule.extension.sftp.internal.lock.PathLock;
@@ -51,12 +51,12 @@ public abstract class AbstractNonFinalizableFileInputStream extends ProxyInputSt
   private final Lock lock;
   private final AtomicBoolean closed = new AtomicBoolean(false);
 
-  public AbstractNonFinalizableFileInputStream(LazyStreamSupplier streamSupplier,
-                                               PathLock lock) {
+  protected AbstractNonFinalizableFileInputStream(LazyStreamSupplier streamSupplier,
+                                                  PathLock lock) {
     this(streamSupplier, (Lock) lock);
   }
 
-  public AbstractNonFinalizableFileInputStream(LazyStreamSupplier streamSupplier, Lock lock) {
+  protected AbstractNonFinalizableFileInputStream(LazyStreamSupplier streamSupplier, Lock lock) {
     super(createLazyStream(streamSupplier));
     this.lock = lock;
     this.streamSupplier = streamSupplier;

@@ -19,7 +19,7 @@ public abstract class MulePRNGAlgorithm {
   private byte[] tmp = new byte[16];
   private SecureRandom random = null;
 
-  public MulePRNGAlgorithm() {
+  protected MulePRNGAlgorithm() {
 
     try {
       String algorithmName = getAlgorithmName();

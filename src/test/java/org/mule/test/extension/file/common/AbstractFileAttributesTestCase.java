@@ -6,7 +6,7 @@
  */
 package org.mule.test.extension.file.common;
 
-import static org.mule.extension.sftp.api.util.UriUtils.createUri;
+import static org.mule.extension.sftp.internal.util.UriUtils.createUri;
 
 import static org.apache.commons.lang3.SystemUtils.IS_OS_WINDOWS;
 import static org.hamcrest.CoreMatchers.equalTo;

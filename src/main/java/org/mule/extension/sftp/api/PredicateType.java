@@ -6,7 +6,7 @@
  */
 package org.mule.extension.sftp.api;
 
-import org.mule.extension.sftp.api.util.UriUtils;
+import org.mule.extension.sftp.internal.util.UriUtils;
 
 import java.nio.file.FileSystems;
 import java.nio.file.PathMatcher;

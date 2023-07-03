@@ -11,17 +11,17 @@ import java.net.InetSocketAddress;
 /**
  * Abstract base class for {@link AuthenticationHandler}s encapsulating basic common things.
  *
- * @param <ParameterType> defining the parameter type for the authentication
- * @param <TokenType>     defining the token type for the authentication
+ * @param <P> defining the parameter type for the authentication
+ * @param <T> defining the token type for the authentication
  */
-public abstract class AbstractAuthenticationHandler<ParameterType, TokenType>
-    implements AuthenticationHandler<ParameterType, TokenType> {
+public abstract class AbstractAuthenticationHandler<P, T>
+    implements AuthenticationHandler<P, T> {
 
   /** The {@link InetSocketAddress} or the proxy to connect to. */
   protected InetSocketAddress proxy;
 
   /** The last set parameters. */
-  protected ParameterType params;
+  protected P params;
 
   /** A flag telling whether this authentication is done. */
   protected boolean done;
@@ -31,12 +31,12 @@ public abstract class AbstractAuthenticationHandler<ParameterType, TokenType>
    *
    * @param proxy the {@link InetSocketAddress} of the proxy to connect to
    */
-  public AbstractAuthenticationHandler(InetSocketAddress proxy) {
+  protected AbstractAuthenticationHandler(InetSocketAddress proxy) {
     this.proxy = proxy;
   }
 
   @Override
-  public final void setParams(ParameterType input) {
+  public final void setParams(P input) {
     params = input;
   }
 

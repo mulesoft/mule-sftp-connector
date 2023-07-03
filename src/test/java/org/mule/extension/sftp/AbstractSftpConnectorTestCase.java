@@ -6,7 +6,7 @@
  */
 package org.mule.extension.sftp;
 
-import org.mule.extension.sftp.internal.SftpUtils;
+import org.mule.extension.sftp.internal.util.SftpUtils;
 import org.mule.extension.sftp.internal.connection.SftpClient;
 import org.mule.extension.sftp.internal.connection.SftpClientFactory;
 import org.mule.functional.junit4.MuleArtifactFunctionalTestCase;

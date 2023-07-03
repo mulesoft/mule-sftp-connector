@@ -8,7 +8,7 @@ package org.mule.extension.sftp.internal.connection;
 
 import org.mule.extension.sftp.api.FileAttributes;
 import org.mule.extension.sftp.api.FileWriteMode;
-import org.mule.extension.sftp.internal.FileConnectorConfig;
+import org.mule.extension.sftp.internal.config.FileConnectorConfig;
 import org.mule.extension.sftp.internal.lock.PathLock;
 import org.mule.extension.sftp.internal.subset.SubsetList;
 import org.mule.runtime.api.message.Message;

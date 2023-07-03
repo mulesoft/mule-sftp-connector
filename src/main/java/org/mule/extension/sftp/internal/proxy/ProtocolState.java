@@ -6,7 +6,7 @@
  */
 package org.mule.extension.sftp.internal.proxy;
 
-import static java.text.MessageFormat.format;
+import static java.lang.String.format;
 
 import org.mule.extension.sftp.internal.proxy.socks5.Socks5ClientConnector;
 import org.mule.extension.sftp.internal.proxy.socks5.SocksAuthenticationMethod;
@@ -41,7 +41,9 @@ public enum ProtocolState {
           connector.doGssApiAuth(session);
           break;
         default:
-          throw new IOException(format("Cannot authenticate to proxy", connector.proxyAddress));
+          throw new IOException(format("Cannot authenticate to proxy %s %s",
+                                       connector.proxyAddress.getAddress(),
+                                       connector.proxyAddress.getPort()));
       }
     }
   },

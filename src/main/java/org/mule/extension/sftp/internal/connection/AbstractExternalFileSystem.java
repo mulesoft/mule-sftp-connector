@@ -8,7 +8,7 @@ package org.mule.extension.sftp.internal.connection;
 
 import static java.lang.String.format;
 
-import org.mule.extension.sftp.api.exceptions.FileLockedException;
+import org.mule.extension.sftp.internal.exception.FileLockedException;
 import org.mule.extension.sftp.internal.lock.PathLock;
 import org.mule.extension.sftp.internal.lock.UriLock;
 
@@ -22,7 +22,7 @@ import java.nio.file.Path;
  */
 public abstract class AbstractExternalFileSystem extends AbstractFileSystem implements ExternalFileSystem {
 
-  public AbstractExternalFileSystem(String baseUri) {
+  protected AbstractExternalFileSystem(String baseUri) {
     super(baseUri);
   }
 
