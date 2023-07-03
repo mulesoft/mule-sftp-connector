@@ -15,7 +15,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import org.mule.extension.sftp.internal.FileConnectorConfig;
+import org.mule.extension.sftp.internal.config.FileConnectorConfig;
 import org.mule.extension.sftp.internal.connection.FileSystem;
 import org.mule.extension.sftp.internal.connection.ManagerBasedConnectionSource;
 import org.mule.runtime.api.connection.ConnectionException;

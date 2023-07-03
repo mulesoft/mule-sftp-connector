@@ -7,7 +7,7 @@
 package org.mule.extension.sftp.internal.proxy.socks5;
 
 import static java.nio.charset.StandardCharsets.US_ASCII;
-import static java.text.MessageFormat.format;
+import static java.lang.String.format;
 
 import org.mule.extension.sftp.internal.auth.AuthenticationHandler;
 import org.mule.extension.sftp.internal.proxy.AbstractClientProxyConnector;
@@ -32,20 +32,16 @@ import org.ietf.jgss.GSSContext;
  */
 public class Socks5ClientConnector extends AbstractClientProxyConnector {
 
-  // private static final byte SOCKS_VERSION_4 = 4;
   private static final byte SOCKS_VERSION_5 = 5;
 
   private static final byte SOCKS_CMD_CONNECT = 1;
-  // private static final byte SOCKS5_CMD_BIND = 2;
-  // private static final byte SOCKS5_CMD_UDP_ASSOCIATE = 3;
 
   // Address types
-
-  private static final byte SOCKS_ADDRESS_IPv4 = 1;
+  private static final byte SOCKS_ADDRESS_IP_V4 = 1;
 
   private static final byte SOCKS_ADDRESS_FQDN = 3;
 
-  private static final byte SOCKS_ADDRESS_IPv6 = 4;
+  private static final byte SOCKS_ADDRESS_IP_V6 = 4;
 
   // Reply codes
 
@@ -172,7 +168,7 @@ public class Socks5ClientConnector extends AbstractClientProxyConnector {
       length = remoteName.length + 1;
     } else {
       length = rawAddress.length;
-      type = length == 4 ? SOCKS_ADDRESS_IPv4 : SOCKS_ADDRESS_IPv6;
+      type = length == 4 ? SOCKS_ADDRESS_IP_V4 : SOCKS_ADDRESS_IP_V6;
     }
     Buffer buffer = new ByteArrayBuffer(4 + length + 2, false);
     buffer.putByte(SOCKS_VERSION_5);

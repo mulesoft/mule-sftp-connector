@@ -13,5 +13,9 @@ package org.mule.extension.sftp.api;
  */
 public final class FileDisplayConstants {
 
+  private FileDisplayConstants() {
+    throw new IllegalStateException("Utility class");
+  }
+
   public static final String MATCHER = "Matcher";
 }

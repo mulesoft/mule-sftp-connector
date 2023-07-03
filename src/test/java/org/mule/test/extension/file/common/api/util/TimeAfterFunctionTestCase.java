@@ -9,7 +9,7 @@ package org.mule.test.extension.file.common.api.util;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
-import org.mule.extension.sftp.api.util.TimeUntilFunction;
+import org.mule.extension.sftp.internal.util.TimeUntilFunction;
 
 import java.time.LocalDateTime;
 

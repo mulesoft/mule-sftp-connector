@@ -18,7 +18,7 @@ import static java.lang.String.format;
 
 public class SftpServerContainerLifecycleManager {
 
-    private static Logger LOGGER = LoggerFactory.getLogger(SftpServerContainerLifecycleManager.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(SftpServerContainerLifecycleManager.class);
 
     public static Container getContainerByName(String containerName) throws Exception {
         final DockerClient docker = DefaultDockerClient.fromEnv().build();

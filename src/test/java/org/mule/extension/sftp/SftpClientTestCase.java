@@ -6,7 +6,7 @@
  */
 package org.mule.extension.sftp;
 
-import static org.mule.extension.sftp.api.util.UriUtils.createUri;
+import static org.mule.extension.sftp.internal.util.UriUtils.createUri;
 
 import static java.lang.String.format;
 

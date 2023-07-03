@@ -21,7 +21,7 @@ public enum PRNGAlgorithm {
   private String implementationClassName;
   private String name;
 
-  PRNGAlgorithm(String name, Class implementationClass) {
+  PRNGAlgorithm(String name, Class<? extends MulePRNGAlgorithm> implementationClass) {
     this.name = name;
     this.implementationClassName = implementationClass.getName();
   }

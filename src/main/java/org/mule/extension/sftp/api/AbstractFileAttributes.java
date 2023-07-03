@@ -30,7 +30,7 @@ public abstract class AbstractFileAttributes implements FileAttributes, Serializ
   private static final long serialVersionUID = 3249780732227598L;
 
   @Parameter
-  protected final String path;
+  protected String path;
 
   @Parameter
   private String fileName;
@@ -44,6 +44,13 @@ public abstract class AbstractFileAttributes implements FileAttributes, Serializ
     this.path = path.toString();
     this.fileName = path.getFileName() != null ? path.getFileName().toString() : "";
   }
+
+  /**
+   * Default contructor (Creates a new instance)
+   *
+   * @param path a {@link Path} pointing to the represented file
+   */
+  protected AbstractFileAttributes() {}
 
   /**
    * Creates a new instance

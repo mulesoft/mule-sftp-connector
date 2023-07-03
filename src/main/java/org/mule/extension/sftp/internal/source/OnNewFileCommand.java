@@ -6,19 +6,19 @@
  */
 package org.mule.extension.sftp.internal.source;
 
-import org.mule.extension.sftp.internal.command.SftpCommand;
-import org.mule.extension.sftp.internal.connection.SftpFileSystem;
+import org.mule.extension.sftp.internal.operation.SftpCommand;
+import org.mule.extension.sftp.internal.connection.SftpFileSystemConnection;
 
 import java.net.URI;
 
 /**
- * A {@link SftpCommand} which implements support functionality for {@link SftpDirectoryListener}
+ * A {@link SftpCommand} which implements support functionality for {@link SftpDirectorySource}
  *
  * @since 1.1
  */
 public class OnNewFileCommand extends SftpCommand {
 
-  OnNewFileCommand(SftpFileSystem fileSystem) {
+  OnNewFileCommand(SftpFileSystemConnection fileSystem) {
     super(fileSystem);
   }
 

@@ -18,11 +18,6 @@ import org.mule.extension.sftp.api.SftpFileAttributes;
 import org.mule.runtime.api.lock.LockFactory;
 import org.mule.runtime.api.metadata.MediaType;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.file.Files;
@@ -44,7 +39,7 @@ public class FileMessageMediaTypeTestCase {
 
   private static final String fileContent = "File Content.";
 
-  private SftpFileSystem fileSystem;
+  private SftpFileSystemConnection fileSystem;
   private SftpFileAttributes sftpFileAttributesMock;
 
   @Before
@@ -53,7 +48,7 @@ public class FileMessageMediaTypeTestCase {
       testHarness.makeDir(TEMP_DIRECTORY);
     }
     setUpMocks();
-    fileSystem = new SftpFileSystem(client, "/", mock(LockFactory.class));
+    fileSystem = new SftpFileSystemConnection(client, "/", mock(LockFactory.class));
   }
 
   @Test

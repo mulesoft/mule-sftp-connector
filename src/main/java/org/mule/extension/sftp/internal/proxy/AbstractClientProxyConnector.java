@@ -78,9 +78,9 @@ public abstract class AbstractClientProxyConnector implements StatefulProxyConne
    * @param proxyUser     to authenticate at the proxy with; may be {@code null}
    * @param proxyPassword to authenticate at the proxy with; may be {@code null}
    */
-  public AbstractClientProxyConnector(InetSocketAddress proxyAddress,
-                                      InetSocketAddress remoteAddress, String proxyUser,
-                                      char[] proxyPassword) {
+  protected AbstractClientProxyConnector(InetSocketAddress proxyAddress,
+                                         InetSocketAddress remoteAddress, String proxyUser,
+                                         char[] proxyPassword) {
     this.proxyAddress = proxyAddress;
     this.remoteAddress = remoteAddress;
     this.proxyUser = proxyUser;
@@ -100,15 +100,6 @@ public abstract class AbstractClientProxyConnector implements StatefulProxyConne
     if (remainingProxyProtocolTime <= 0L) {
       remainingProxyProtocolTime = DEFAULT_PROXY_TIMEOUT_MILLIS;
     }
-    // if (session instanceof JGitClientSession) {
-    // JGitClientSession s = (JGitClientSession) session;
-    // unregister.set(() -> s.setProxyHandler(null));
-    // s.setProxyHandler(this);
-    // } else {
-    // Internal error, no translation
-    // throw new IllegalStateException(
-    // "Not a JGit session: " + session.getClass().getName()); //$NON-NLS-1$
-    // }
   }
 
   /**

@@ -11,7 +11,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import org.mule.extension.sftp.api.SftpConnectionException;
+import org.mule.extension.sftp.internal.exception.SftpConnectionException;
 import org.mule.extension.sftp.internal.connection.SftpClient;
 
 import java.util.Arrays;

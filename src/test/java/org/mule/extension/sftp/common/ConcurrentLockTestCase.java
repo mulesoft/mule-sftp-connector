@@ -6,7 +6,7 @@
  */
 package org.mule.extension.sftp.common;
 
-import static org.mule.extension.sftp.api.util.UriUtils.createUri;
+import static org.mule.extension.sftp.internal.util.UriUtils.createUri;
 
 import static java.lang.String.format;
 import static java.util.concurrent.TimeUnit.SECONDS;
@@ -16,15 +16,15 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import org.mule.extension.sftp.api.exceptions.FileLockedException;
-import org.mule.extension.sftp.internal.command.CopyCommand;
-import org.mule.extension.sftp.internal.command.CreateDirectoryCommand;
-import org.mule.extension.sftp.internal.command.DeleteCommand;
-import org.mule.extension.sftp.internal.command.ListCommand;
-import org.mule.extension.sftp.internal.command.MoveCommand;
-import org.mule.extension.sftp.internal.command.ReadCommand;
-import org.mule.extension.sftp.internal.command.RenameCommand;
-import org.mule.extension.sftp.internal.command.WriteCommand;
+import org.mule.extension.sftp.internal.exception.FileLockedException;
+import org.mule.extension.sftp.internal.operation.CopyCommand;
+import org.mule.extension.sftp.internal.operation.CreateDirectoryCommand;
+import org.mule.extension.sftp.internal.operation.DeleteCommand;
+import org.mule.extension.sftp.internal.operation.ListCommand;
+import org.mule.extension.sftp.internal.operation.MoveCommand;
+import org.mule.extension.sftp.internal.operation.ReadCommand;
+import org.mule.extension.sftp.internal.operation.RenameCommand;
+import org.mule.extension.sftp.internal.operation.WriteCommand;
 import org.mule.extension.sftp.internal.connection.AbstractFileSystem;
 import org.mule.extension.sftp.internal.connection.ExternalFileSystem;
 import org.mule.extension.sftp.internal.lock.Lock;

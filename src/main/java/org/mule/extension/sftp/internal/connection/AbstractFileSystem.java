@@ -10,16 +10,16 @@ import static java.lang.String.format;
 
 import org.mule.extension.sftp.api.FileAttributes;
 import org.mule.extension.sftp.api.FileWriteMode;
-import org.mule.extension.sftp.api.exceptions.FileLockedException;
-import org.mule.extension.sftp.internal.FileConnectorConfig;
-import org.mule.extension.sftp.internal.command.CopyCommand;
-import org.mule.extension.sftp.internal.command.CreateDirectoryCommand;
-import org.mule.extension.sftp.internal.command.DeleteCommand;
-import org.mule.extension.sftp.internal.command.ListCommand;
-import org.mule.extension.sftp.internal.command.MoveCommand;
-import org.mule.extension.sftp.internal.command.ReadCommand;
-import org.mule.extension.sftp.internal.command.RenameCommand;
-import org.mule.extension.sftp.internal.command.WriteCommand;
+import org.mule.extension.sftp.internal.exception.FileLockedException;
+import org.mule.extension.sftp.internal.config.FileConnectorConfig;
+import org.mule.extension.sftp.internal.operation.CopyCommand;
+import org.mule.extension.sftp.internal.operation.CreateDirectoryCommand;
+import org.mule.extension.sftp.internal.operation.DeleteCommand;
+import org.mule.extension.sftp.internal.operation.ListCommand;
+import org.mule.extension.sftp.internal.operation.MoveCommand;
+import org.mule.extension.sftp.internal.operation.ReadCommand;
+import org.mule.extension.sftp.internal.operation.RenameCommand;
+import org.mule.extension.sftp.internal.operation.WriteCommand;
 import org.mule.extension.sftp.internal.lock.PathLock;
 import org.mule.extension.sftp.internal.subset.SubsetList;
 import org.mule.runtime.api.lock.LockFactory;
@@ -51,7 +51,7 @@ public abstract class AbstractFileSystem<A extends org.mule.extension.sftp.api.F
 
   private final String basePath;
 
-  public AbstractFileSystem(String basePath) {
+  protected AbstractFileSystem(String basePath) {
     this.basePath = basePath;
   }
 

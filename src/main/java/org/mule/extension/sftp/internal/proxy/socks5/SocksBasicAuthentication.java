@@ -7,7 +7,7 @@
 package org.mule.extension.sftp.internal.proxy.socks5;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static java.text.MessageFormat.format;
+import static java.lang.String.format;
 
 import org.mule.extension.sftp.internal.auth.BasicAuthentication;
 

@@ -21,4 +21,9 @@ public class ExceptionInputStream extends InputStream {
   public int read() throws IOException {
     throw exception;
   }
+
+  @Override
+  public int read(byte[] b, int off, int len) throws IOException {
+    throw exception;
+  }
 }

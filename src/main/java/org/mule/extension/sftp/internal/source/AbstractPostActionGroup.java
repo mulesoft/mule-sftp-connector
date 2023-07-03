@@ -9,8 +9,8 @@ package org.mule.extension.sftp.internal.source;
 import static java.lang.String.format;
 
 import org.mule.extension.sftp.api.FileAttributes;
-import org.mule.extension.sftp.api.exceptions.FileAlreadyExistsException;
-import org.mule.extension.sftp.internal.FileConnectorConfig;
+import org.mule.extension.sftp.internal.exception.FileAlreadyExistsException;
+import org.mule.extension.sftp.internal.config.FileConnectorConfig;
 import org.mule.extension.sftp.internal.connection.AbstractFileSystem;
 
 import java.nio.file.Paths;

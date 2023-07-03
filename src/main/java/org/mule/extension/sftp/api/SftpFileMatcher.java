@@ -133,11 +133,11 @@ public class SftpFileMatcher extends FileMatcher<SftpFileMatcher, SftpFileAttrib
   }
 
   private void checkTimestampPrecision(SftpFileAttributes attributes) {
-    if (alreadyLoggedWarning.compareAndSet(false, true) && isSecondsOrLower(timeUnit)
+    if (LOGGER.isWarnEnabled() && alreadyLoggedWarning.compareAndSet(false, true) && isSecondsOrLower(timeUnit)
         && attributes.getTimestamp().getSecond() == 0 && attributes.getTimestamp().getNano() == 0) {
       LOGGER
-          .debug(format("The required timestamp precision %s cannot be met. The server may not support it.",
-                        timeUnit));
+          .warn(format("The required timestamp precision %s cannot be met. The server may not support it.",
+                       timeUnit));
     }
   }
 
