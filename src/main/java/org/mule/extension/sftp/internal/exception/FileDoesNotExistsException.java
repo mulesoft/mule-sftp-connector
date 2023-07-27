@@ -16,15 +16,13 @@ import org.mule.runtime.extension.api.exception.ModuleException;
  */
 public final class FileDoesNotExistsException extends ModuleException {
 
-  private static final FileError ERROR = FileError.FILE_DOESNT_EXIST;
-
   /**
    * Creates a new instance with the specified detail {@code message}
    *
    * @param message the detail message
    */
   public FileDoesNotExistsException(String message) {
-    super(message, ERROR);
+    super(message, FileError.FILE_DOESNT_EXIST);
   }
 
   /**
@@ -34,6 +32,6 @@ public final class FileDoesNotExistsException extends ModuleException {
    * @param exception cause of this exception
    */
   public FileDoesNotExistsException(String message, Exception exception) {
-    super(message, ERROR, exception);
+    super(message, FileError.FILE_DOESNT_EXIST, exception);
   }
 }
