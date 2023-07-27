@@ -71,7 +71,7 @@ public class SftpClient {
   private org.apache.sshd.sftp.client.SftpClient sftp;
   private ClientSession session;
   private final String host;
-  private int port = 22;
+  private int port;
   private String password;
   private String identityFile;
   private String passphrase;
