@@ -26,7 +26,7 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
  */
 public class SftpFileAttributes extends AbstractFileAttributes {
 
-  private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 686949251083311882L;
 
   @Parameter
   private LocalDateTime timestamp;
