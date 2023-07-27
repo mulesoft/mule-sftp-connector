@@ -6,7 +6,8 @@
  */
 package org.mule.extension.sftp.internal.exception;
 
-import org.mule.extension.sftp.internal.error.FileError;
+import static org.mule.extension.sftp.internal.error.FileError.ILLEGAL_PATH;
+
 import org.mule.runtime.extension.api.exception.ModuleException;
 
 /**
@@ -17,15 +18,13 @@ import org.mule.runtime.extension.api.exception.ModuleException;
  */
 public final class IllegalPathException extends ModuleException {
 
-  private static final FileError ERROR = FileError.ILLEGAL_PATH;
-
   /**
    * Creates a new instance with the specified detail {@code message}
    *
    * @param message the detail message
    */
   public IllegalPathException(String message) {
-    super(message, ERROR);
+    super(message, ILLEGAL_PATH);
   }
 
   /**
@@ -35,6 +34,6 @@ public final class IllegalPathException extends ModuleException {
    * @param exception cause of this exception
    */
   public IllegalPathException(String message, Exception exception) {
-    super(message, ERROR, exception);
+    super(message, ILLEGAL_PATH, exception);
   }
 }

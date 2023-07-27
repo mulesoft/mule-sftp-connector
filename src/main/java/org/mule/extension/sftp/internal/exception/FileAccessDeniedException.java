@@ -6,7 +6,8 @@
  */
 package org.mule.extension.sftp.internal.exception;
 
-import org.mule.extension.sftp.internal.error.FileError;
+import static org.mule.extension.sftp.internal.error.FileError.ACCESS_DENIED;
+
 import org.mule.runtime.extension.api.exception.ModuleException;
 
 /**
@@ -17,18 +18,16 @@ import org.mule.runtime.extension.api.exception.ModuleException;
  */
 public final class FileAccessDeniedException extends ModuleException {
 
-  private static final FileError ERROR = FileError.ACCESS_DENIED;
-
   /**
    * Creates a new instance with the specified detail {@code message}
    *
    * @param message the detail message
    */
   public FileAccessDeniedException(String message) {
-    super(message, ERROR);
+    super(message, ACCESS_DENIED);
   }
 
   public FileAccessDeniedException(String message, Exception exception) {
-    super(message, ERROR, exception);
+    super(message, ACCESS_DENIED, exception);
   }
 }

@@ -6,7 +6,8 @@
  */
 package org.mule.extension.sftp.internal.exception;
 
-import org.mule.extension.sftp.internal.error.FileError;
+import static org.mule.extension.sftp.internal.error.FileError.FILE_DOESNT_EXIST;
+
 import org.mule.runtime.extension.api.exception.ModuleException;
 
 /**
@@ -22,7 +23,7 @@ public final class FileDoesNotExistsException extends ModuleException {
    * @param message the detail message
    */
   public FileDoesNotExistsException(String message) {
-    super(message, FileError.FILE_DOESNT_EXIST);
+    super(message, FILE_DOESNT_EXIST);
   }
 
   /**
@@ -32,6 +33,6 @@ public final class FileDoesNotExistsException extends ModuleException {
    * @param exception cause of this exception
    */
   public FileDoesNotExistsException(String message, Exception exception) {
-    super(message, FileError.FILE_DOESNT_EXIST, exception);
+    super(message, FILE_DOESNT_EXIST, exception);
   }
 }

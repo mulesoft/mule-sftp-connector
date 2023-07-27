@@ -6,8 +6,9 @@
  */
 package org.mule.extension.sftp.internal.exception;
 
+import static org.mule.extension.sftp.internal.error.FileError.FILE_ALREADY_EXISTS;
+
 import org.mule.extension.sftp.api.FileWriteMode;
-import org.mule.extension.sftp.internal.error.FileError;
 import org.mule.runtime.extension.api.exception.ModuleException;
 
 /**
@@ -18,15 +19,13 @@ import org.mule.runtime.extension.api.exception.ModuleException;
  */
 public final class FileAlreadyExistsException extends ModuleException {
 
-  private static final FileError ERROR = FileError.FILE_ALREADY_EXISTS;
-
   /**
    * Creates a new instance with the specified detail {@code message}
    *
    * @param message the detail message
    */
   public FileAlreadyExistsException(String message) {
-    super(message, ERROR);
+    super(message, FILE_ALREADY_EXISTS);
   }
 
   /**
@@ -36,6 +35,6 @@ public final class FileAlreadyExistsException extends ModuleException {
    * @param exception cause of this exception
    */
   public FileAlreadyExistsException(String message, Exception exception) {
-    super(message, ERROR, exception);
+    super(message, FILE_ALREADY_EXISTS, exception);
   }
 }
