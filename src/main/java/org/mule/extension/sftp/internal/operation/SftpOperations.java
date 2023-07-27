@@ -17,6 +17,8 @@ import org.mule.extension.sftp.api.FileAttributes;
 import org.mule.extension.sftp.api.FileWriteMode;
 import org.mule.extension.sftp.api.SftpFileAttributes;
 import org.mule.extension.sftp.api.SftpFileMatcher;
+import org.mule.extension.sftp.internal.connection.FileSystem;
+import org.mule.extension.sftp.internal.connection.SftpFileSystemConnection;
 import org.mule.extension.sftp.internal.error.provider.FileCopyErrorTypeProvider;
 import org.mule.extension.sftp.internal.error.provider.FileDeleteErrorTypeProvider;
 import org.mule.extension.sftp.internal.error.provider.FileListErrorTypeProvider;
@@ -25,10 +27,6 @@ import org.mule.extension.sftp.internal.error.provider.FileRenameErrorTypeProvid
 import org.mule.extension.sftp.internal.error.provider.FileWriteErrorTypeProvider;
 import org.mule.extension.sftp.internal.exception.IllegalContentException;
 import org.mule.extension.sftp.internal.exception.IllegalPathException;
-import org.mule.extension.sftp.api.matcher.FileMatcher;
-import org.mule.extension.sftp.api.matcher.NullFilePayloadPredicate;
-import org.mule.extension.sftp.internal.connection.FileSystem;
-import org.mule.extension.sftp.internal.connection.SftpFileSystemConnection;
 import org.mule.extension.sftp.internal.extension.SftpConnector;
 import org.mule.runtime.api.message.Message;
 import org.mule.runtime.extension.api.annotation.error.Throws;
@@ -49,7 +47,6 @@ import org.mule.runtime.extension.api.runtime.streaming.StreamingHelper;
 import java.io.InputStream;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Predicate;
 
 /**
  * Ftp connector operations
