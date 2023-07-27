@@ -193,14 +193,6 @@ public class SftpClient {
     configureProxy(session);
   }
 
-  // private void configureHostChecking(Properties hash) {
-  // if (knownHostsFile != null) {
-  // checkExists(knownHostsFile);
-  // client
-  // .setServerKeyVerifier(new KnownHostsServerKeyVerifier(RejectAllServerKeyVerifier.INSTANCE, Paths.get(knownHostsFile)));
-  // }
-  // }
-
   private void configureProxy(ClientSession session) {
     if (proxyConfig != null) {
       InetSocketAddress proxyAddress = new InetSocketAddress(proxyConfig.getHost(), proxyConfig.getPort());
@@ -449,10 +441,6 @@ public class SftpClient {
     }
     return new MuleRuntimeException(createStaticMessage(message), cause);
   }
-
-  // private RuntimeException loginException(String user, Exception e) {
-  // return handleException(format("Error during login to %s@%s", user, host), e);
-  // }
 
   public void setKnownHostsFile(String knownHostsFile) {
     this.knownHostsFile =

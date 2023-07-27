@@ -287,8 +287,4 @@ public final class SftpOperations extends BaseFileSystemOperations {
   public void createDirectory(@Connection SftpFileSystemConnection fileSystem, @Path(location = EXTERNAL) String directoryPath) {
     super.doCreateDirectory(fileSystem, directoryPath);
   }
-
-  private Predicate<SftpFileAttributes> getPredicate(FileMatcher builder) {
-    return builder != null ? builder.build() : new NullFilePayloadPredicate();
-  }
 }

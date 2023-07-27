@@ -4,23 +4,23 @@
  * license, a copy of which has been included with this distribution in the
  * LICENSE.txt file.
  */
-package org.mule.extension.sftp.common.api.util;
+package org.mule.test.extension.file.common.api.util;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
-import org.mule.extension.sftp.internal.util.TimeSinceFunction;
+import org.mule.extension.sftp.internal.util.LocalDateTimeGreaterOrEqualAssessment;
 
 import java.time.LocalDateTime;
 
 import org.junit.Test;
 
-public class TimeSinceFunctionTestCase {
+public class LocalDateTimeGreaterOrEqualAssessmentTestCase {
 
   private static final LocalDateTime LOWER_BOUND = LocalDateTime.of(1983, 4, 20, 21, 15);
   private static final LocalDateTime UPPER_BOUND = LocalDateTime.of(2012, 3, 7, 18, 45);
 
-  private TimeSinceFunction function = new TimeSinceFunction();
+  private LocalDateTimeGreaterOrEqualAssessment function = new LocalDateTimeGreaterOrEqualAssessment();
 
   @Test
   public void isBefore() {
@@ -30,5 +30,10 @@ public class TimeSinceFunctionTestCase {
   @Test
   public void isAfter() {
     assertThat(function.apply(UPPER_BOUND, LOWER_BOUND), is(false));
+  }
+
+  @Test
+  public void isEquals() {
+    assertThat(function.apply(UPPER_BOUND, UPPER_BOUND), is(true));
   }
 }
