@@ -6,7 +6,6 @@
  */
 package org.mule.extension.sftp.internal.source;
 
-import static org.mule.extension.sftp.api.FileDisplayConstants.MATCHER;
 import static org.mule.runtime.api.i18n.I18nMessageFactory.createStaticMessage;
 import static org.mule.runtime.core.api.util.ExceptionUtils.extractConnectionException;
 import static org.mule.runtime.core.api.util.IOUtils.closeQuietly;
@@ -80,6 +79,7 @@ public class SftpDirectorySource extends PollingSource<InputStream, SftpFileAttr
   private static final Logger LOGGER = LoggerFactory.getLogger(SftpDirectorySource.class);
   private static final String ATTRIBUTES_CONTEXT_VAR = "attributes";
   private static final String POST_PROCESSING_GROUP_NAME = "Post processing action";
+  public static final String MATCHER = "Matcher";
 
   @Config
   private SftpConnector config;
