@@ -78,6 +78,7 @@ public abstract class GssApiAuthentication<P, T>
       throw e;
     }
   }
+
   /**
    * Creates the {@link GSSContext} to use.
    *
