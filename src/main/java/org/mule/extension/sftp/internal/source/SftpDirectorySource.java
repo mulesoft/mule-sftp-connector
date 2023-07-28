@@ -11,6 +11,7 @@ import static org.mule.runtime.core.api.util.ExceptionUtils.extractConnectionExc
 import static org.mule.runtime.core.api.util.IOUtils.closeQuietly;
 import static org.mule.runtime.extension.api.annotation.param.MediaType.ANY;
 import static org.mule.runtime.extension.api.runtime.source.PollContext.PollItemStatus.SOURCE_STOPPING;
+import static org.mule.sdk.api.annotation.source.SourceClusterSupport.DEFAULT_PRIMARY_NODE_ONLY;
 
 import static java.lang.String.format;
 
@@ -41,6 +42,7 @@ import org.mule.runtime.extension.api.runtime.source.PollContext;
 import org.mule.runtime.extension.api.runtime.source.PollContext.PollItemStatus;
 import org.mule.runtime.extension.api.runtime.source.PollingSource;
 import org.mule.runtime.extension.api.runtime.source.SourceCallbackContext;
+import org.mule.sdk.api.annotation.source.ClusterSupport;
 
 import java.io.InputStream;
 import java.net.URI;
@@ -73,6 +75,7 @@ import org.slf4j.LoggerFactory;
 @DisplayName("On New or Updated File")
 @Summary("Triggers when a new file is created in a directory")
 @Alias("listener")
+@ClusterSupport(DEFAULT_PRIMARY_NODE_ONLY)
 // TODO: MULE-13940 - add mimeType here too
 public class SftpDirectorySource extends PollingSource<InputStream, SftpFileAttributes> {
 
@@ -185,13 +188,13 @@ public class SftpDirectorySource extends PollingSource<InputStream, SftpFileAttr
     try {
       Long timeBetweenSizeCheckInMillis =
           config.getTimeBetweenSizeCheckInMillis(timeBetweenSizeCheck, timeBetweenSizeCheckUnit).orElse(null);
-      List<Result<InputStream, SftpFileAttributes>> files =
+      List<Result<String, SftpFileAttributes>> files =
           fileSystem.list(config, directoryUri.getPath(), recursive, matcher, timeBetweenSizeCheckInMillis);
       if (files.isEmpty()) {
         return;
       }
 
-      for (Result<InputStream, SftpFileAttributes> file : files) {
+      for (Result<String, SftpFileAttributes> file : files) {
         if (pollContext.isSourceStopping()) {
           return;
         }
@@ -208,8 +211,8 @@ public class SftpDirectorySource extends PollingSource<InputStream, SftpFileAttr
           }
           continue;
         }
-
-        if (!processFile(file, pollContext)) {
+        Result<InputStream, SftpFileAttributes> result = fileSystem.read(config, directoryUri.getPath(), true, timeBetweenSizeCheckInMillis);
+        if (!processFile(result, pollContext)) {
           break;
         }
       }
