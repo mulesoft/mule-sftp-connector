@@ -17,7 +17,6 @@ import org.mule.extension.sftp.internal.connection.SftpClient;
 import org.mule.extension.sftp.internal.connection.SftpFileSystemConnection;
 import org.mule.runtime.extension.api.runtime.operation.Result;
 
-import java.io.InputStream;
 import java.net.URI;
 import java.util.LinkedList;
 import java.util.List;
@@ -46,11 +45,11 @@ public final class SftpListCommand extends SftpCommand implements ListCommand<Sf
   /**
    * {@inheritDoc}
    */
-  public List<Result<InputStream, SftpFileAttributes>> list(FileConnectorConfig config,
-                                                            String directoryPath,
-                                                            boolean recursive,
-                                                            Predicate<SftpFileAttributes> matcher,
-                                                            Long timeBetweenSizeCheck) {
+  public List<Result<String, SftpFileAttributes>> list(FileConnectorConfig config,
+                                                       String directoryPath,
+                                                       boolean recursive,
+                                                       Predicate<SftpFileAttributes> matcher,
+                                                       Long timeBetweenSizeCheck) {
 
     FileAttributes directoryAttributes = getExistingFile(directoryPath);
     URI uri = createUri(directoryAttributes.getPath(), "");
@@ -59,7 +58,7 @@ public final class SftpListCommand extends SftpCommand implements ListCommand<Sf
       throw cannotListFileException(uri);
     }
 
-    List<Result<InputStream, SftpFileAttributes>> accumulator = new LinkedList<>();
+    List<Result<String, SftpFileAttributes>> accumulator = new LinkedList<>();
     doList(config, directoryAttributes.getPath(), accumulator, recursive, matcher, timeBetweenSizeCheck);
 
     return accumulator;
@@ -67,7 +66,7 @@ public final class SftpListCommand extends SftpCommand implements ListCommand<Sf
 
   private void doList(FileConnectorConfig config,
                       String path,
-                      List<Result<InputStream, SftpFileAttributes>> accumulator,
+                      List<Result<String, SftpFileAttributes>> accumulator,
                       boolean recursive,
                       Predicate<SftpFileAttributes> matcher,
                       Long timeBetweenSizeCheck) {
@@ -81,14 +80,15 @@ public final class SftpListCommand extends SftpCommand implements ListCommand<Sf
       }
       if (file.isDirectory()) {
         if (matcher.test(file)) {
-          accumulator.add(Result.<InputStream, SftpFileAttributes>builder().output(null).attributes(file).build());
+          accumulator.add(Result.<String, SftpFileAttributes>builder().output(file.getPath()).attributes(file).build());
         }
         if (recursive) {
           doList(config, file.getPath(), accumulator, recursive, matcher, timeBetweenSizeCheck);
         }
       } else {
         if (matcher.test(file)) {
-          accumulator.add(sftpReadCommand.read(config, file, false, timeBetweenSizeCheck));
+          accumulator.add(Result.<String, SftpFileAttributes>builder().output(file.getPath()).attributes(file)
+              .build());
         }
       }
     }

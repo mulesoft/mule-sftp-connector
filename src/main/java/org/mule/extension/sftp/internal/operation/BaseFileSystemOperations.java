@@ -68,12 +68,12 @@ public abstract class BaseFileSystemOperations {
    *         attributes
    * @throws IllegalArgumentException if {@code directoryPath} points to a file which doesn't exist or is not a directory
    */
-  protected List<Result<InputStream, org.mule.extension.sftp.api.FileAttributes>> doList(FileConnectorConfig config,
-                                                                                         FileSystem fileSystem,
-                                                                                         String directoryPath,
-                                                                                         boolean recursive,
-                                                                                         FileMatcher matchWith,
-                                                                                         Long timeBetweenSizeCheck) {
+  protected List<Result<String, org.mule.extension.sftp.api.FileAttributes>> doList(FileConnectorConfig config,
+                                                                                    FileSystem fileSystem,
+                                                                                    String directoryPath,
+                                                                                    boolean recursive,
+                                                                                    FileMatcher matchWith,
+                                                                                    Long timeBetweenSizeCheck) {
     fileSystem.changeToBaseDir();
     return fileSystem.list(config, directoryPath, recursive, getPredicate(matchWith), timeBetweenSizeCheck);
   }
