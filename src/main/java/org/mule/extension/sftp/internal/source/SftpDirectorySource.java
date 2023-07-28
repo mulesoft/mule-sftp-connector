@@ -177,7 +177,8 @@ public class SftpDirectorySource extends PollingSource<InputStream, SftpFileAttr
       fileSystem = openConnection(pollContext);
     } catch (Exception e) {
       LOGGER.error(format("Could not obtain connection while trying to poll directory '%s'. %s", directoryUri.getPath(),
-                          e.getMessage()));
+                          e.getMessage()),
+                   e);
       return;
     }
 
