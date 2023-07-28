@@ -211,7 +211,8 @@ public class SftpDirectorySource extends PollingSource<InputStream, SftpFileAttr
           }
           continue;
         }
-        Result<InputStream, SftpFileAttributes> result = fileSystem.read(config, directoryUri.getPath(), true, timeBetweenSizeCheckInMillis);
+        Result<InputStream, SftpFileAttributes> result =
+            fileSystem.read(config, directoryUri.getPath(), true, timeBetweenSizeCheckInMillis);
         if (!processFile(result, pollContext)) {
           break;
         }
