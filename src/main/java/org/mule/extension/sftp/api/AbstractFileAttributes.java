@@ -79,10 +79,6 @@ public abstract class AbstractFileAttributes implements FileAttributes, Serializ
     return fileName;
   }
 
-  protected LocalDateTime asDateTime(Instant instant) {
-    return LocalDateTime.ofInstant(instant, ZoneId.systemDefault());
-  }
-
   @Override
   public String toString() {
     return ReflectionToStringBuilder.toString(this, SHORT_PREFIX_STYLE);

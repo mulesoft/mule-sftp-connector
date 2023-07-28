@@ -6,6 +6,7 @@
  */
 package org.mule.extension.sftp.api;
 
+import static org.mule.extension.sftp.internal.util.SftpUtils.asDateTime;
 import static org.mule.extension.sftp.internal.util.SftpUtils.normalizePath;
 
 import static org.apache.sshd.sftp.client.SftpClient.Attributes;
