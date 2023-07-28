@@ -42,6 +42,7 @@ public class SftpDirectoryListenerReconnectionTestCase {
     private static final String PAYLOAD = "{\"Angel\":\"Aziraphale\"}";
     private static final String PAYLOAD2 = "{\"Demon\":\"Crowley\"}";
     private static final String CONTAINER_NAME = "openssh";
+    private static final String SFTP_LISTENER_PORT = System.getProperty("sftp.listener.port","2222");
     private static final String CONTENT_TYPE_HEADER_VALUE = "application/json";
     private static final String FILES_ENDPOINT = "/sftp/files";
     private static final String CLEAR_OS_ENDPOINT = "/os/files";
@@ -58,7 +59,7 @@ public class SftpDirectoryListenerReconnectionTestCase {
         return runtimeBuilder
                 .custom("sftp-reconnection-app", "sftp-reconnection-app.xml")
                 .withTemplatePomFile("sftp-pom.xml")
-                .withProperty("sftp.listener.port", System.getProperty("sftp.listener.port","2222"))
+                .withProperty("sftp.listener.port", SFTP_LISTENER_PORT)
                 .withApi(api1, port)
                 .withApi(api2, port)
                 .withApi(api3, port);
@@ -81,7 +82,7 @@ public class SftpDirectoryListenerReconnectionTestCase {
         });
 
         // Stop sftp server, clear os, re-start sftp server
-        String containerId = stopServerContainer(CONTAINER_NAME, 0);
+        String containerId = stopServerContainer(CONTAINER_NAME + "-" + SFTP_LISTENER_PORT, 0);
         runtime.api(api3).request(CLEAR_OS_ENDPOINT).put();
         startServerContainer(containerId);
 
