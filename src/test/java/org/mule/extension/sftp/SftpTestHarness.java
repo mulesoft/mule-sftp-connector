@@ -6,25 +6,24 @@
  */
 package org.mule.extension.sftp;
 
+import static org.mule.extension.sftp.SftpServer.PASSWORD;
+import static org.mule.extension.sftp.SftpServer.USERNAME;
+import static org.mule.extension.sftp.api.FileWriteMode.CREATE_NEW;
+import static org.mule.extension.sftp.api.FileWriteMode.OVERWRITE;
+import static org.mule.extension.sftp.internal.util.UriUtils.createUri;
+import static org.mule.extension.sftp.internal.util.UriUtils.trimLastFragment;
+import static org.mule.extension.sftp.internal.util.SftpUtils.normalizePath;
+import static org.mule.extension.sftp.internal.util.SftpUtils.resolvePathOrResource;
+
 import static java.util.stream.Collectors.toList;
+
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
-import static org.mule.extension.file.common.api.FileWriteMode.APPEND;
-import static org.mule.extension.file.common.api.FileWriteMode.CREATE_NEW;
-import static org.mule.extension.file.common.api.FileWriteMode.OVERWRITE;
-import static org.mule.extension.file.common.api.util.UriUtils.createUri;
-import static org.mule.extension.file.common.api.util.UriUtils.trimLastFragment;
-import static org.mule.extension.sftp.SftpServer.PASSWORD;
-import static org.mule.extension.sftp.SftpServer.USERNAME;
-import static org.mule.extension.sftp.internal.SftpUtils.normalizePath;
-import static org.mule.extension.sftp.internal.SftpUtils.resolvePathOrResource;
-import static org.mule.extension.sftp.random.alg.PRNGAlgorithm.SHA1PRNG;
 
 import org.mule.extension.AbstractSftpTestHarness;
-import org.mule.extension.file.common.api.FileAttributes;
-import org.mule.extension.file.common.api.FileWriteMode;
+import org.mule.extension.sftp.api.FileAttributes;
 import org.mule.extension.sftp.api.SftpFileAttributes;
 import org.mule.extension.sftp.internal.connection.SftpClient;
 import org.mule.extension.sftp.internal.connection.SftpClientFactory;

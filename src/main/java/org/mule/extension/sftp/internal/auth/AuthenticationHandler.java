@@ -27,10 +27,10 @@ import java.io.Closeable;
  *
  * An {@code AuthenticationHandler} may be stateful and therefore is a {@link Closeable}.
  *
- * @param <ParameterType> defining the parameter type for {@link #setParams(Object)}
- * @param <TokenType>     defining the token type for {@link #getToken()}
+ * @param <P> defining the parameter type for {@link #setParams(Object)}
+ * @param <T> defining the token type for {@link #getToken()}
  */
-public interface AuthenticationHandler<ParameterType, TokenType>
+public interface AuthenticationHandler<P, T>
     extends Closeable {
 
   /**
@@ -52,7 +52,7 @@ public interface AuthenticationHandler<ParameterType, TokenType>
    *
    * @param input to set, may be {@code null}
    */
-  void setParams(ParameterType input);
+  void setParams(P input);
 
   /**
    * Retrieves the last token generated.
@@ -60,7 +60,7 @@ public interface AuthenticationHandler<ParameterType, TokenType>
    * @return the token, or {@code null} if there is none
    * @throws Exception if an error occurs
    */
-  TokenType getToken() throws Exception;
+  T getToken() throws Exception;
 
   /**
    * Tells whether is authentication mechanism is done (successfully or unsuccessfully).

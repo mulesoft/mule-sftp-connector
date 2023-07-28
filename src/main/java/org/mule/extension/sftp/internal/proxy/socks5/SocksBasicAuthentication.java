@@ -6,14 +6,15 @@
  */
 package org.mule.extension.sftp.internal.proxy.socks5;
 
-import org.apache.sshd.common.util.buffer.Buffer;
-import org.apache.sshd.common.util.buffer.ByteArrayBuffer;
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.lang.String.format;
+
 import org.mule.extension.sftp.internal.auth.BasicAuthentication;
 
 import java.io.IOException;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
-import static java.text.MessageFormat.format;
+import org.apache.sshd.common.util.buffer.Buffer;
+import org.apache.sshd.common.util.buffer.ByteArrayBuffer;
 
 /**
  * @see <a href="https://tools.ietf.org/html/rfc1929">RFC 1929</a>

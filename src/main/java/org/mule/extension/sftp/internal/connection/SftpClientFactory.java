@@ -6,9 +6,6 @@
  */
 package org.mule.extension.sftp.internal.connection;
 
-import org.mule.extension.sftp.random.alg.PRNGAlgorithm;
-
-
 /**
  * Creates instances of {@link SftpClient}
  *

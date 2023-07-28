@@ -6,14 +6,15 @@
  */
 package org.mule.extension.sftp.internal.proxy.socks5;
 
-import org.apache.sshd.common.util.buffer.Buffer;
-import org.apache.sshd.common.util.buffer.ByteArrayBuffer;
-import org.ietf.jgss.GSSContext;
+import static java.lang.String.format;
+
 import org.mule.extension.sftp.internal.auth.GssApiAuthentication;
 
 import java.io.IOException;
 
-import static java.text.MessageFormat.format;
+import org.apache.sshd.common.util.buffer.Buffer;
+import org.apache.sshd.common.util.buffer.ByteArrayBuffer;
+import org.ietf.jgss.GSSContext;
 
 /**
  * @see <a href="https://tools.ietf.org/html/rfc1961">RFC 1961</a>
@@ -56,7 +57,7 @@ class SocksGssApiAuthentication
   @Override
   protected byte[] extractToken(Buffer input) throws Exception {
     if (socks5ClientConnector.getContext() == null) {
-      return null;
+      return new byte[0];
     }
     int version = input.getUByte();
     if (version != SOCKS5_GSSAPI_VERSION) {

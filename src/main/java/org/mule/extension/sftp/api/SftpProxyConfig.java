@@ -21,7 +21,7 @@ public class SftpProxyConfig {
 
   public enum Protocol {
     HTTP, SOCKS4, SOCKS5
-  };
+  }
 
   @Parameter
   private String host;

@@ -6,15 +6,18 @@
  */
 package org.mule.extension.sftp.api;
 
+import static org.mule.extension.sftp.internal.util.SftpUtils.normalizePath;
+
 import static org.apache.sshd.sftp.client.SftpClient.Attributes;
-import static org.mule.extension.sftp.internal.SftpUtils.normalizePath;
+
+import org.mule.runtime.extension.api.annotation.param.Parameter;
 
 import java.net.URI;
 import java.time.LocalDateTime;
-import java.util.Date;
 
-import org.mule.extension.file.common.api.AbstractFileAttributes;
-import org.mule.runtime.extension.api.annotation.param.Parameter;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+
 
 /**
  * Metadata about a file in a SFTP server
@@ -22,6 +25,8 @@ import org.mule.runtime.extension.api.annotation.param.Parameter;
  * @since 1.0
  */
 public class SftpFileAttributes extends AbstractFileAttributes {
+
+  private static final long serialVersionUID = 686949251083311882L;
 
   @Parameter
   private LocalDateTime timestamp;
@@ -37,6 +42,13 @@ public class SftpFileAttributes extends AbstractFileAttributes {
 
   @Parameter
   private boolean symbolicLink;
+
+  /**
+   * Creates a new instance (Default constructor)
+   */
+  public SftpFileAttributes() {
+    super();
+  }
 
   /**
    * Creates a new instance
@@ -100,4 +112,27 @@ public class SftpFileAttributes extends AbstractFileAttributes {
   public String getPath() {
     return normalizePath(super.getPath());
   }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o)
+      return true;
+
+    if (!(o instanceof SftpFileAttributes))
+      return false;
+
+    SftpFileAttributes that = (SftpFileAttributes) o;
+
+    return new EqualsBuilder().append(getSize(), that.getSize()).append(regularSize, that.regularSize)
+        .append(isDirectory(), that.isDirectory()).append(isSymbolicLink(), that.isSymbolicLink())
+        .append(getTimestamp(), that.getTimestamp()).append(getPath(), that.getPath()).append(getName(), that.getName())
+        .isEquals();
+  }
+
+  @Override
+  public int hashCode() {
+    return new HashCodeBuilder(17, 37).append(getTimestamp()).append(getSize()).append(regularSize).append(isDirectory())
+        .append(isSymbolicLink()).append(getPath()).append(getName()).toHashCode();
+  }
+
 }

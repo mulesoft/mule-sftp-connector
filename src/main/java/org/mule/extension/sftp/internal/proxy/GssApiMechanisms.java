@@ -6,11 +6,6 @@
  */
 package org.mule.extension.sftp.internal.proxy;
 
-import org.ietf.jgss.GSSContext;
-import org.ietf.jgss.GSSException;
-import org.ietf.jgss.GSSManager;
-import org.ietf.jgss.GSSName;
-import org.ietf.jgss.Oid;
 import org.mule.runtime.api.exception.MuleRuntimeException;
 
 import java.net.InetAddress;
@@ -21,6 +16,12 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
+
+import org.ietf.jgss.GSSContext;
+import org.ietf.jgss.GSSException;
+import org.ietf.jgss.GSSManager;
+import org.ietf.jgss.GSSName;
+import org.ietf.jgss.Oid;
 
 /**
  * Global repository of GSS-API mechanisms that we can use.

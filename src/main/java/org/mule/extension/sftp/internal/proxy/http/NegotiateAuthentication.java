@@ -6,11 +6,12 @@
  */
 package org.mule.extension.sftp.internal.proxy.http;
 
-import org.ietf.jgss.GSSContext;
 import org.mule.extension.sftp.internal.auth.GssApiAuthentication;
 import org.mule.extension.sftp.internal.proxy.AuthenticationChallenge;
 import org.mule.extension.sftp.internal.proxy.GssApiMechanisms;
 import org.mule.runtime.core.api.util.Base64;
+
+import org.ietf.jgss.GSSContext;
 
 /**
  * @see <a href="https://tools.ietf.org/html/rfc4559">RFC 4559</a>

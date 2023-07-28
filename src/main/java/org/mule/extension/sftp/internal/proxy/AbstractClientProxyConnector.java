@@ -6,8 +6,6 @@
  */
 package org.mule.extension.sftp.internal.proxy;
 
-import org.apache.sshd.client.session.ClientSession;
-
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -15,6 +13,8 @@ import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
+
+import org.apache.sshd.client.session.ClientSession;
 
 /**
  * Basic common functionality for a {@link StatefulProxyConnector}.
@@ -78,9 +78,9 @@ public abstract class AbstractClientProxyConnector implements StatefulProxyConne
    * @param proxyUser     to authenticate at the proxy with; may be {@code null}
    * @param proxyPassword to authenticate at the proxy with; may be {@code null}
    */
-  public AbstractClientProxyConnector(InetSocketAddress proxyAddress,
-                                      InetSocketAddress remoteAddress, String proxyUser,
-                                      char[] proxyPassword) {
+  protected AbstractClientProxyConnector(InetSocketAddress proxyAddress,
+                                         InetSocketAddress remoteAddress, String proxyUser,
+                                         char[] proxyPassword) {
     this.proxyAddress = proxyAddress;
     this.remoteAddress = remoteAddress;
     this.proxyUser = proxyUser;

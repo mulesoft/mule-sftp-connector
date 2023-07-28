@@ -6,11 +6,9 @@
  */
 package org.mule.extension.sftp.internal.proxy.http;
 
-import org.apache.sshd.client.session.ClientSession;
-import org.apache.sshd.common.io.IoSession;
-import org.apache.sshd.common.util.Readable;
-import org.apache.sshd.common.util.buffer.Buffer;
-import org.apache.sshd.common.util.buffer.ByteArrayBuffer;
+import static java.nio.charset.StandardCharsets.US_ASCII;
+import static java.lang.String.format;
+
 import org.mule.extension.sftp.internal.proxy.AbstractClientProxyConnector;
 import org.mule.extension.sftp.internal.proxy.AuthenticationChallenge;
 import org.mule.extension.sftp.internal.proxy.HttpParser;
@@ -24,8 +22,11 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
-import static java.nio.charset.StandardCharsets.US_ASCII;
-import static java.text.MessageFormat.format;
+import org.apache.sshd.client.session.ClientSession;
+import org.apache.sshd.common.io.IoSession;
+import org.apache.sshd.common.util.Readable;
+import org.apache.sshd.common.util.buffer.Buffer;
+import org.apache.sshd.common.util.buffer.ByteArrayBuffer;
 
 /**
  * Simple HTTP proxy connector using Basic Authentication.
@@ -35,6 +36,8 @@ public class HttpClientConnector extends AbstractClientProxyConnector {
   private static final String HTTP_HEADER_PROXY_AUTHENTICATION = "Proxy-Authentication:";
 
   private static final String HTTP_HEADER_PROXY_AUTHORIZATION = "Proxy-Authorization:";
+
+  private static final String ERROR_MSG_UNEXPECTED_RESPONSE = "Unexpected HTTP proxy response from %s: %s";
 
   private HttpAuthenticationHandler basic;
 
@@ -47,6 +50,18 @@ public class HttpClientConnector extends AbstractClientProxyConnector {
   private HttpAuthenticationHandler authenticator;
 
   private boolean ongoing;
+
+  /**
+   * Creates a new {@link HttpClientConnector}. The connector supports anonymous proxy connections as well as Basic and Negotiate
+   * authentication.
+   *
+   * @param proxyAddress  of the proxy server we're connecting to
+   * @param remoteAddress of the target server to connect to
+   */
+  public HttpClientConnector(InetSocketAddress proxyAddress,
+                             InetSocketAddress remoteAddress) {
+    this(proxyAddress, remoteAddress, null, null);
+  }
 
   /**
    * Creates a new {@link HttpClientConnector}. The connector supports anonymous proxy connections as well as Basic and Negotiate
@@ -114,7 +129,7 @@ public class HttpClientConnector extends AbstractClientProxyConnector {
     // Persistent connections are the default in HTTP 1.1 (see RFC 2616),
     // but let's be explicit.
     return msg.append(format(
-                             "CONNECT {0}:{1} HTTP/1.1\r\nProxy-Connection: keep-alive\r\nConnection: keep-alive\r\nHost: {0}:{1}\r\n",
+                             "CONNECT HOST %s:%s HTTP/1.1%nProxy-Connection: keep-alive%nConnection: keep-alive%n",
                              // $NON-NLS-1$
                              remoteAddress.getHostString(),
                              Integer.toString(remoteAddress.getPort())));
@@ -155,12 +170,13 @@ public class HttpClientConnector extends AbstractClientProxyConnector {
   private void handleMessage(IoSession session, List<String> reply)
       throws Exception {
     if (reply.isEmpty() || reply.get(0).isEmpty()) {
-      throw new IOException(format("Unexpected HTTP proxy response from %s: %s", proxyAddress));
+      throw new IOException(format(ERROR_MSG_UNEXPECTED_RESPONSE, proxyAddress.getAddress(),
+                                   Integer.toString(proxyAddress.getPort()))); // $NON-NLS-1$
     }
     try {
       StatusLine status = HttpParser.parseStatusLine(reply.get(0));
       if (!ongoing) {
-        throw new IOException(format("Unexpected HTTP proxy response from %s: %s", proxyAddress,
+        throw new IOException(format(ERROR_MSG_UNEXPECTED_RESPONSE, proxyAddress,
                                      Integer.toString(status.getResultCode()), status.getReason()));
       }
       switch (status.getResultCode()) {
@@ -189,7 +205,7 @@ public class HttpClientConnector extends AbstractClientProxyConnector {
                                        Integer.toString(status.getResultCode()), status.getReason()));
       }
     } catch (HttpParser.ParseException e) {
-      throw new IOException(format("Unexpected HTTP proxy response from %s: %s", proxyAddress, reply.get(0)), e);
+      throw new IOException(format(ERROR_MSG_UNEXPECTED_RESPONSE, proxyAddress, reply.get(0)), e);
     }
   }
 

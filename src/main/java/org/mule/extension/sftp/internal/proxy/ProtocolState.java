@@ -6,17 +6,18 @@
  */
 package org.mule.extension.sftp.internal.proxy;
 
-import org.apache.sshd.common.io.IoSession;
-import org.apache.sshd.common.util.buffer.Buffer;
-import org.apache.sshd.common.util.buffer.BufferUtils;
+import static java.lang.String.format;
+
 import org.mule.extension.sftp.internal.proxy.socks5.Socks5ClientConnector;
+import org.mule.extension.sftp.internal.proxy.socks5.SocksAuthenticationMethod;
 
 import java.io.IOException;
 
-import static java.text.MessageFormat.format;
+import org.apache.sshd.common.io.IoSession;
+import org.apache.sshd.common.util.buffer.Buffer;
+import org.apache.sshd.common.util.buffer.BufferUtils;
 
 public enum ProtocolState {
-
 
   NONE,
 

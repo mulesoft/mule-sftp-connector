@@ -8,14 +8,14 @@ package org.mule.extension.sftp.api;
 
 import static java.lang.String.format;
 import static java.time.LocalDateTime.now;
+
 import static org.slf4j.LoggerFactory.getLogger;
 
-import org.mule.extension.file.common.api.PredicateType;
+import org.mule.extension.sftp.api.matcher.FileMatcher;
 import org.mule.runtime.extension.api.annotation.Alias;
 import org.mule.runtime.extension.api.annotation.dsl.xml.TypeDsl;
-import org.mule.runtime.extension.api.annotation.param.Parameter;
 import org.mule.runtime.extension.api.annotation.param.Optional;
-import org.mule.extension.file.common.api.matcher.FileMatcher;
+import org.mule.runtime.extension.api.annotation.param.Parameter;
 import org.mule.runtime.extension.api.annotation.param.display.Example;
 import org.mule.runtime.extension.api.annotation.param.display.Summary;
 
@@ -133,11 +133,11 @@ public class SftpFileMatcher extends FileMatcher<SftpFileMatcher, SftpFileAttrib
   }
 
   private void checkTimestampPrecision(SftpFileAttributes attributes) {
-    if (alreadyLoggedWarning.compareAndSet(false, true) && isSecondsOrLower(timeUnit)
+    if (LOGGER.isWarnEnabled() && alreadyLoggedWarning.compareAndSet(false, true) && isSecondsOrLower(timeUnit)
         && attributes.getTimestamp().getSecond() == 0 && attributes.getTimestamp().getNano() == 0) {
       LOGGER
-          .debug(format("The required timestamp precision %s cannot be met. The server may not support it.",
-                        timeUnit));
+          .warn(format("The required timestamp precision %s cannot be met. The server may not support it.",
+                       timeUnit));
     }
   }
 

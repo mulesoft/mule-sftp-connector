@@ -6,22 +6,23 @@
  */
 package org.mule.extension.sftp.internal.auth;
 
-import org.ietf.jgss.GSSContext;
+import static java.lang.String.format;
+
 import org.mule.extension.sftp.internal.proxy.GssApiMechanisms;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
 
-import static java.lang.String.format;
+import org.ietf.jgss.GSSContext;
 
 /**
  * An abstract implementation of a GSS-API multi-round authentication.
  *
- * @param <ParameterType> defining the parameter type for the authentication
- * @param <TokenType>     defining the token type for the authentication
+ * @param <P> defining the parameter type for the authentication
+ * @param <T> defining the token type for the authentication
  */
-public abstract class GssApiAuthentication<ParameterType, TokenType>
-    extends AbstractAuthenticationHandler<ParameterType, TokenType> {
+public abstract class GssApiAuthentication<P, T>
+    extends AbstractAuthenticationHandler<P, T> {
 
   private GSSContext context;
 
@@ -92,6 +93,6 @@ public abstract class GssApiAuthentication<ParameterType, TokenType>
    * @return the extracted token, or {@code null} if none
    * @throws Exception if an error occurs
    */
-  protected abstract byte[] extractToken(ParameterType input)
+  protected abstract byte[] extractToken(P input)
       throws Exception;
 }

@@ -6,15 +6,15 @@
  */
 package org.mule.extension.sftp.internal.proxy.http;
 
+import static java.lang.String.format;
+import static java.nio.charset.StandardCharsets.UTF_8;
+
 import org.mule.extension.sftp.internal.auth.BasicAuthentication;
 import org.mule.extension.sftp.internal.proxy.AuthenticationChallenge;
 import org.mule.runtime.core.api.util.Base64;
 
 import java.io.IOException;
 import java.util.Arrays;
-
-import static java.lang.String.format;
-import static java.nio.charset.StandardCharsets.UTF_8;
 
 /**
  * @see <a href="https://tools.ietf.org/html/rfc7617">RFC 7617</a>

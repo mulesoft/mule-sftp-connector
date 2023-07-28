@@ -6,8 +6,9 @@
  */
 package org.mule.extension.sftp.internal.lifecycle;
 
-import org.junit.rules.TemporaryFolder;
 import org.mule.extension.sftp.TestProxyServer;
+
+import org.junit.rules.TemporaryFolder;
 
 public class ProxyServerLifecycleManager {
 

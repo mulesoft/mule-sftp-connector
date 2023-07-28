@@ -1,16 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <mule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:munit="http://www.mulesoft.org/schema/mule/munit"
-      xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools"
       xmlns="http://www.mulesoft.org/schema/mule/core"
       xmlns:sftp="http://www.mulesoft.org/schema/mule/sftp"
-      xmlns:java="http://www.mulesoft.org/schema/mule/java"
       xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
-      http://www.mulesoft.org/schema/mule/test http://www.mulesoft.org/schema/mule/test/current/mule-test.xsd
+
 		http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
-		http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd
-        http://www.mulesoft.org/schema/mule/sftp http://www.mulesoft.org/schema/mule/sftp/current/mule-sftp.xsd
-        http://www.mulesoft.org/schema/mule/java http://www.mulesoft.org/schema/mule/java/current/mule-java.xsd">
+
+        http://www.mulesoft.org/schema/mule/sftp http://www.mulesoft.org/schema/mule/sftp/current/mule-sftp.xsd">
 
     <munit:config name="sftp-delete-test-case.xml">
         <munit:parameterizations>
@@ -39,8 +36,8 @@
             </sftp:write>
         </munit:behavior>
         <munit:execution>
-            <sftp:list config-ref="${config}" directoryPath="test">
-            </sftp:list>
+            <sftp:list-and-get config-ref="${config}" directoryPath="test">
+            </sftp:list-and-get>
             <flow-ref name="wait-2-seconds"/>
             <foreach collection="#[payload]">
                 <sftp:write config-ref="${config}" path="test/copy-of-will-be-deleted.txt" createParentDirectories="false" >
