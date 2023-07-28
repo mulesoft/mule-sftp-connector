@@ -61,7 +61,7 @@
         </munit:behavior>
         <munit:execution>
             <sftp:delete config-ref="config" path="test/created-to-eliminate/eliminated-02"/>
-            <sftp:list-and-get config-ref="config" directoryPath="test/created-to-eliminate"/>
+            <sftp:list config-ref="config" directoryPath="test/created-to-eliminate"/>
         </munit:execution>
         <munit:validation>
             <munit-tools:assert-equals actual="#[sizeOf(payload)]" expected="#[1]"/>

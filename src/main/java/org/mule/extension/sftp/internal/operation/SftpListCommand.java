@@ -32,14 +32,12 @@ import org.slf4j.Logger;
 public final class SftpListCommand extends SftpCommand implements ListCommand<SftpFileAttributes> {
 
   private static final Logger LOGGER = getLogger(SftpListCommand.class);
-  private final SftpReadCommand sftpReadCommand;
 
   /**
    * {@inheritDoc}
    */
-  public SftpListCommand(SftpFileSystemConnection fileSystem, SftpClient client, SftpReadCommand sftpReadCommand) {
+  public SftpListCommand(SftpFileSystemConnection fileSystem, SftpClient client) {
     super(fileSystem, client);
-    this.sftpReadCommand = sftpReadCommand;
   }
 
   /**
