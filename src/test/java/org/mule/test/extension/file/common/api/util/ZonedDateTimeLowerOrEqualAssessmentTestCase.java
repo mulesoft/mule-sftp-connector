@@ -21,20 +21,20 @@ public class ZonedDateTimeLowerOrEqualAssessmentTestCase {
   private static final ZonedDateTime LOWER_BOUND = ZonedDateTime.of(1983, 4, 20, 21, 15, 0, 0, ZoneId.systemDefault()); // .of(1983, 4, 20, 21, 15);
   private static final ZonedDateTime UPPER_BOUND = ZonedDateTime.of(2012, 3, 7, 18, 45, 0, 0, ZoneId.systemDefault()); // LocalDateTime.of(2012, 3, 7, 18, 45);
 
-  private ZonedDateTimeLowerOrEqualAssessment function = new ZonedDateTimeLowerOrEqualAssessment();
+  private ZonedDateTimeLowerOrEqualAssessment lteZonedDateTimeFunction = new ZonedDateTimeLowerOrEqualAssessment();
 
   @Test
   public void isBefore() {
-    assertThat(function.apply(LOWER_BOUND, UPPER_BOUND), is(false));
+    assertThat(lteZonedDateTimeFunction.apply(LOWER_BOUND, UPPER_BOUND), is(false));
   }
 
   @Test
   public void isAfter() {
-    assertThat(function.apply(UPPER_BOUND, LOWER_BOUND), is(true));
+    assertThat(lteZonedDateTimeFunction.apply(UPPER_BOUND, LOWER_BOUND), is(true));
   }
 
   @Test
   public void isEquals() {
-    assertThat(function.apply(UPPER_BOUND, UPPER_BOUND), is(true));
+    assertThat(lteZonedDateTimeFunction.apply(UPPER_BOUND, UPPER_BOUND), is(true));
   }
 }

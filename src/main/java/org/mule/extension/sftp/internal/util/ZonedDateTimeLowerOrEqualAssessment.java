@@ -23,6 +23,7 @@ public final class ZonedDateTimeLowerOrEqualAssessment implements BiFunction<Zon
    */
   @Override
   public Boolean apply(ZonedDateTime criteria, ZonedDateTime value) {
-    return value.compareTo(criteria) <= 0;
+    // DO NOT USE comparteTo
+    return value.isBefore(criteria) || value.isEqual(criteria);
   }
 }
