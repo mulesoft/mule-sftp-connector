@@ -17,9 +17,9 @@ import static org.junit.Assert.assertThat;
 
 public class ZonedDateTimeTimezoneDifferencesAssessmentTestCase {
 
-  private static final ZonedDateTime DATE_TIME_A = ZonedDateTime.parse("1983-04-20T15:35:00.000-02:00"); // ZonedDateTime.of(1983, 4, 20, 15, 15, 0, 0, ZoneId.of("Etc/GMT-2"));
-  private static final ZonedDateTime DATE_TIME_B = ZonedDateTime.parse("1983-04-20T16:35:00.000-01:00"); // ZonedDateTime.of(1983, 4, 20, 16, 15, 0, 0, ZoneId.of("Etc/GMT-1"));
-  private static final ZonedDateTime DATE_TIME_C = ZonedDateTime.parse("1983-04-20T17:35:00.000Z"); // ZonedDateTime.of(1983, 4, 20, 17, 15, 0, 0, ZoneId.of("Etc/GMT0"));
+  private static final ZonedDateTime DATE_TIME_A = ZonedDateTime.parse("1983-04-20T15:35:00.000-02:00");
+  private static final ZonedDateTime DATE_TIME_B = ZonedDateTime.parse("1983-04-20T16:35:00.000-01:00");
+  private static final ZonedDateTime DATE_TIME_C = ZonedDateTime.parse("1983-04-20T17:35:00.000Z");
 
   private ZonedDateTimeLowerOrEqualAssessment lteZonedDateTimeFunction = new ZonedDateTimeLowerOrEqualAssessment();
   private ZonedDateTimeGreaterOrEqualAssessment gteZonedDateTimeFunction = new ZonedDateTimeGreaterOrEqualAssessment();
