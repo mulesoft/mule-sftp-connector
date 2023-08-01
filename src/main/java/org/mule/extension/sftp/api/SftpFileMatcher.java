@@ -6,6 +6,9 @@
  */
 package org.mule.extension.sftp.api;
 
+import static java.lang.String.format;
+import static org.slf4j.LoggerFactory.getLogger;
+
 import org.mule.extension.sftp.api.matcher.FileMatcher;
 import org.mule.runtime.extension.api.annotation.Alias;
 import org.mule.runtime.extension.api.annotation.dsl.xml.TypeDsl;
@@ -13,7 +16,6 @@ import org.mule.runtime.extension.api.annotation.param.Optional;
 import org.mule.runtime.extension.api.annotation.param.Parameter;
 import org.mule.runtime.extension.api.annotation.param.display.Example;
 import org.mule.runtime.extension.api.annotation.param.display.Summary;
-import org.slf4j.Logger;
 
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
@@ -21,8 +23,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Predicate;
 
-import static java.lang.String.format;
-import static org.slf4j.LoggerFactory.getLogger;
+import org.slf4j.Logger;
 
 /**
  * A set of criterias used to filter files stored in a FTP server. The file's properties are to be represented on an instance of

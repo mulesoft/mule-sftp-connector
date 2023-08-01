@@ -6,14 +6,15 @@
  */
 package org.mule.test.extension.file.common.api.util;
 
-import org.junit.Test;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
+
 import org.mule.extension.sftp.internal.util.ZonedDateTimeLowerOrEqualAssessment;
 
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import org.junit.Test;
 
 public class ZonedDateTimeLowerOrEqualAssessmentTestCase {
 

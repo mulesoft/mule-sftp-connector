@@ -6,8 +6,8 @@
  */
 package org.mule.extension.sftp.api;
 
-import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
+import static org.apache.commons.lang3.builder.ToStringStyle.SHORT_PREFIX_STYLE;
+
 import org.mule.runtime.extension.api.annotation.param.Parameter;
 
 import java.io.Serializable;
@@ -17,7 +17,8 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 
-import static org.apache.commons.lang3.builder.ToStringStyle.SHORT_PREFIX_STYLE;
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 
 /**
  * Base class for implementations of {@link org.mule.extension.sftp.api.FileAttributes}
@@ -46,8 +47,6 @@ public abstract class AbstractFileAttributes implements FileAttributes, Serializ
 
   /**
    * Default contructor (Creates a new instance)
-   *
-   * @param path a {@link Path} pointing to the represented file
    */
   protected AbstractFileAttributes() {}
 
