@@ -165,6 +165,56 @@
         </munit:execution>
     </munit:test>
 
+    <!-- Added tests for validating timezone usage of dates -->
+    <munit:test name="listFileFilteringByTimestampSince"
+                description="New file is created and it should be picked up by the list operation using a date since with shifted timezone">
+        <munit:behavior>
+            <set-variable variableName="fileName" value="sampleFileIn.txt"/>
+        </munit:behavior>
+        <munit:execution>
+            <until-successful maxRetries="50" millisBetweenRetries="1000">
+                <sftp:write config-ref="config" path='#[vars.fileName]' createParentDirectories="true">
+                    <sftp:content>Sample content</sftp:content>
+                </sftp:write>
+                <flow-ref name="wait-2-seconds"/>
+            </until-successful>
+            <sftp:list-and-get config-ref="config" directoryPath=".">
+                <!-- Make the 'since' an hour earlier and then move that same time to a different timezone -->
+                <sftp:matcher timestampSince="#[ ((now() - |PT1H|) >> &quot;+11:30&quot;) ]" />
+            </sftp:list-and-get>
+        </munit:execution>
+        <munit:validation>
+            <munit-tools:assert-that expression="#[attributes.fileName]" is="#[MunitTools::hasValue(vars.fileName)]"/>
+        </munit:validation>
+    </munit:test>
+
+    <munit:test name="notListFileFilteringByTimestampSince"
+                description="New file is created and it should be picked up by the list operation using a date since with shifted timezone">
+        <munit:behavior>
+            <set-variable variableName="fileName" value="sampleFileOut.txt"/>
+        </munit:behavior>
+        <munit:execution>
+            <until-successful maxRetries="50" millisBetweenRetries="1000">
+                <sftp:write config-ref="config" path='#[vars.fileName]' createParentDirectories="true">
+                    <sftp:content>Sample content</sftp:content>
+                </sftp:write>
+                <flow-ref name="wait-2-seconds"/>
+            </until-successful>
+            <sftp:list-and-get config-ref="config" directoryPath=".">
+                <sftp:matcher timestampSince="#[ ((now() + |PT1H|) >> &quot;-11:30&quot;) ]" />
+            </sftp:list-and-get>
+        </munit:execution>
+        <munit:validation>
+            <munit-tools:assert-that expression="#[attributes.fileName]" is="#[MunitTools::not(MunitTools::hasValue(vars.fileName))]"/>
+        </munit:validation>
+    </munit:test>
+
+    <flow name="list-filtering-by-timestamp-since">
+        <sftp:list-and-get config-ref="config" directoryPath=".">
+            <sftp:matcher timestampSince="#[ ((now() + |PT1H|) >> &quot;-11:30&quot;) ]" />
+        </sftp:list-and-get>
+    </flow>
+
     <flow name="list-filtering-updated-recently">
         <sftp:list-and-get config-ref="config" directoryPath=".">
             <sftp:matcher notUpdatedInTheLast="3" timeUnit="SECONDS"/>
