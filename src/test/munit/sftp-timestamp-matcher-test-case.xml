@@ -27,7 +27,7 @@
         </java:invoke-static>
 
 <!--        <until-successful maxRetries="50" millisBetweenRetries="2500">-->
-<!--            <sftp:list-and-get config-ref="config" directoryPath="." />-->
+<!--            <sftp:list-and-get config-ref="config-docker" directoryPath="." />-->
 <!--        </until-successful>-->
     </munit:before-suite>
 
@@ -40,32 +40,27 @@
         </java:invoke-static>
     </munit:after-suite>
 
-<!--    <munit:before-test name="create-file-for-list">-->
+    <munit:before-test name="create-file-for-list">
 <!--        <flow-ref name="write-file"/>-->
-<!--    </munit:before-test>-->
+        <java:invoke-static class="java.lang.Thread"
+                            method="sleep(long)">
+            <java:args>
+                #[{
+                arg0: 20000,
+                }]
+            </java:args>
+        </java:invoke-static>
 
-    <!-- Added tests for validating timezone usage of dates -->
+    </munit:before-test>
+
     <munit:test name="listFileFilteringByTimestampSince"
                 description="New file is created and it should be picked up by the list operation using a date since with shifted timezone">
         <munit:behavior>
             <set-variable variableName="fileName" value="sampleFileIn.txt"/>
         </munit:behavior>
         <munit:execution>
-            <java:invoke-static class="java.lang.Thread"
-                                method="sleep(long)">
-                <java:args>
-                    #[{
-                    arg0: 15000,
-                    }]
-                </java:args>
-            </java:invoke-static>
-            <sftp:write config-ref="config" path='#[vars.fileName]' createParentDirectories="true">
-                <sftp:content>Sample content</sftp:content>
-            </sftp:write>
-            <sftp:list-and-get config-ref="config" directoryPath=".">
-                <!-- Make the 'since' an hour earlier and then move that same time to a different timezone -->
-                <sftp:matcher timestampSince="#[ ((now() - |PT1H|) >> &quot;+11:30&quot;) ]" />
-            </sftp:list-and-get>
+            <flow-ref name="write-file-to-match"/>
+            <flow-ref name="list-files-filtering-by-timestamp-since"/>
         </munit:execution>
         <munit:validation>
             <munit-tools:assert-that expression="#[attributes]" is="#[MunitTools::hasValue(vars.fileName)]"/>
@@ -78,24 +73,40 @@
             <set-variable variableName="fileName" value="sampleFileOut.txt"/>
         </munit:behavior>
         <munit:execution>
-            <java:invoke-static class="java.lang.Thread"
-                                method="sleep(long)">
-                <java:args>
-                    #[{
-                    arg0: 15000,
-                    }]
-                </java:args>
-            </java:invoke-static>
-            <sftp:write config-ref="config" path='#[vars.fileName]' createParentDirectories="true">
-                <sftp:content>Sample content</sftp:content>
-            </sftp:write>
-            <sftp:list-and-get config-ref="config" directoryPath=".">
-                <sftp:matcher timestampSince="#[ ((now() + |PT1H|) >> &quot;-11:30&quot;) ]" />
-            </sftp:list-and-get>
+            <flow-ref name="write-file-to-miss"/>
+            <flow-ref name="list-no-files-filtering-by-timestamp-since"/>
         </munit:execution>
         <munit:validation>
             <munit-tools:assert-that expression="#[attributes]" is="#[MunitTools::not(MunitTools::hasValue(vars.fileName))]"/>
         </munit:validation>
     </munit:test>
+
+    <flow name="write-file-to-match">
+        <until-successful maxRetries="50" millisBetweenRetries="2500">
+            <sftp:write config-ref="config-docker" path='sampleFileIn.txt' createParentDirectories="true">
+                <sftp:content>Sample content</sftp:content>
+            </sftp:write>
+        </until-successful>
+    </flow>
+
+    <flow name="write-file-to-miss">
+        <sftp:write config-ref="config-docker" path='sampleFileOut.txt' createParentDirectories="true">
+            <sftp:content>Sample content</sftp:content>
+        </sftp:write>
+    </flow>
+
+    <flow name="list-files-filtering-by-timestamp-since">
+        <until-successful maxRetries="50" millisBetweenRetries="2500">
+            <sftp:list-and-get config-ref="config-docker" directoryPath=".">
+                <sftp:matcher timestampSince="#[ ((now() - |PT1H|) >> &quot;+11:30&quot;) ]"/>
+            </sftp:list-and-get>
+        </until-successful>
+    </flow>
+
+    <flow name="list-no-files-filtering-by-timestamp-since">
+        <sftp:list-and-get config-ref="config-docker" directoryPath=".">
+            <sftp:matcher timestampSince="#[ ((now() + |PT1H|) >> &quot;-11:30&quot;) ]" />
+        </sftp:list-and-get>
+    </flow>
 
 </mule>

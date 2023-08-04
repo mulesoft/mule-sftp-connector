@@ -80,7 +80,10 @@ public class SftpServer {
         configureSshdServer(createFtpSubsystemFactory());
       }
       sshdServer.start();
+      Thread.sleep(10000);
     } catch (IOException e) {
+      throw new MuleRuntimeException(e);
+    } catch (InterruptedException e) {
       throw new MuleRuntimeException(e);
     }
   }

@@ -165,12 +165,6 @@
         </munit:execution>
     </munit:test>
 
-    <flow name="list-filtering-by-timestamp-since">
-        <sftp:list-and-get config-ref="config" directoryPath=".">
-            <sftp:matcher timestampSince="#[ ((now() + |PT1H|) >> &quot;-11:30&quot;) ]" />
-        </sftp:list-and-get>
-    </flow>
-
     <flow name="list-filtering-updated-recently">
         <sftp:list-and-get config-ref="config" directoryPath=".">
             <sftp:matcher notUpdatedInTheLast="3" timeUnit="SECONDS"/>
