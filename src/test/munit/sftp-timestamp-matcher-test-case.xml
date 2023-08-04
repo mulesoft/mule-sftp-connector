@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:munit="http://www.mulesoft.org/schema/mule/munit"
+      xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools"
+      xmlns="http://www.mulesoft.org/schema/mule/core"
+      xmlns:sftp="http://www.mulesoft.org/schema/mule/sftp"
+      xmlns:java="http://www.mulesoft.org/schema/mule/java"
+      xsi:schemaLocation="
+		http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+		http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
+		http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd
+        http://www.mulesoft.org/schema/mule/sftp http://www.mulesoft.org/schema/mule/sftp/current/mule-sftp.xsd
+        http://www.mulesoft.org/schema/mule/java http://www.mulesoft.org/schema/mule/java/current/mule-java.xsd">
+
+    <munit:config name="sftp-timestamp-matchers-test-case.xml"/>
+
+    <munit:dynamic-port propertyName="sftp.server.port"/>
+
+    <munit:before-suite name="startListMatcherTestServer">
+        <java:invoke-static class="org.mule.extension.sftp.internal.lifecycle.SftpServerLifecycleManager"
+                            method="startSftpServer(String)">
+            <java:args>
+                #[{
+                arg0: ${sftp.server.port},
+                }]
+            </java:args>
+        </java:invoke-static>
+
+<!--        <until-successful maxRetries="50" millisBetweenRetries="2500">-->
+<!--            <sftp:list-and-get config-ref="config" directoryPath="." />-->
+<!--        </until-successful>-->
+    </munit:before-suite>
+
+    <munit:after-suite name="clearLisMatcherTestServer">
+        <java:invoke-static class="org.mule.extension.sftp.internal.lifecycle.SftpServerLifecycleManager"
+                            method="stopSftpServer()">
+            <java:args>
+                #[{}]
+            </java:args>
+        </java:invoke-static>
+    </munit:after-suite>
+
+<!--    <munit:before-test name="create-file-for-list">-->
+<!--        <flow-ref name="write-file"/>-->
+<!--    </munit:before-test>-->
+
+    <!-- Added tests for validating timezone usage of dates -->
+    <munit:test name="listFileFilteringByTimestampSince"
+                description="New file is created and it should be picked up by the list operation using a date since with shifted timezone">
+        <munit:behavior>
+            <set-variable variableName="fileName" value="sampleFileIn.txt"/>
+        </munit:behavior>
+        <munit:execution>
+            <java:invoke-static class="java.lang.Thread"
+                                method="sleep(long)">
+                <java:args>
+                    #[{
+                    arg0: 15000,
+                    }]
+                </java:args>
+            </java:invoke-static>
+            <sftp:write config-ref="config" path='#[vars.fileName]' createParentDirectories="true">
+                <sftp:content>Sample content</sftp:content>
+            </sftp:write>
+            <sftp:list-and-get config-ref="config" directoryPath=".">
+                <!-- Make the 'since' an hour earlier and then move that same time to a different timezone -->
+                <sftp:matcher timestampSince="#[ ((now() - |PT1H|) >> &quot;+11:30&quot;) ]" />
+            </sftp:list-and-get>
+        </munit:execution>
+        <munit:validation>
+            <munit-tools:assert-that expression="#[attributes]" is="#[MunitTools::hasValue(vars.fileName)]"/>
+        </munit:validation>
+    </munit:test>
+
+    <munit:test name="notListFileFilteringByTimestampSince"
+                description="New file is created and it should be picked up by the list operation using a date since with shifted timezone">
+        <munit:behavior>
+            <set-variable variableName="fileName" value="sampleFileOut.txt"/>
+        </munit:behavior>
+        <munit:execution>
+            <java:invoke-static class="java.lang.Thread"
+                                method="sleep(long)">
+                <java:args>
+                    #[{
+                    arg0: 15000,
+                    }]
+                </java:args>
+            </java:invoke-static>
+            <sftp:write config-ref="config" path='#[vars.fileName]' createParentDirectories="true">
+                <sftp:content>Sample content</sftp:content>
+            </sftp:write>
+            <sftp:list-and-get config-ref="config" directoryPath=".">
+                <sftp:matcher timestampSince="#[ ((now() + |PT1H|) >> &quot;-11:30&quot;) ]" />
+            </sftp:list-and-get>
+        </munit:execution>
+        <munit:validation>
+            <munit-tools:assert-that expression="#[attributes]" is="#[MunitTools::not(MunitTools::hasValue(vars.fileName))]"/>
+        </munit:validation>
+    </munit:test>
+
+</mule>
