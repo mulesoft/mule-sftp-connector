@@ -33,14 +33,10 @@
             </sftp:write>
         </munit:behavior>
         <munit:execution>
-            <sftp:list config-ref="${config}" directoryPath="test">
-            </sftp:list>
-            <foreach collection="#[payload]">
-                <sftp:read config-ref="${config}" path="#[payload]" />
-                <flow-ref name="wait-2-seconds"/>
-                <sftp:write config-ref="${config}" path="test/copy-of-will-be-deleted.txt" createParentDirectories="false" >
-                </sftp:write>
-            </foreach>
+            <sftp:read config-ref="${config}" path="test/will-be-deleted.txt" />
+            <flow-ref name="wait-2-seconds"/>
+            <sftp:write config-ref="${config}" path="test/copy-of-will-be-deleted.txt" createParentDirectories="false" >
+            </sftp:write>
         </munit:execution>
     </munit:test>
 
