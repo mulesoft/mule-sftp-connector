@@ -4,7 +4,7 @@
  * license, a copy of which has been included with this distribution in the
  * LICENSE.txt file.
  */
-package org.mule.test.extension.file.common.api;
+package org.mule.extension.sftp.api;
 
 import org.mule.functional.api.exception.ExpectedError;
 

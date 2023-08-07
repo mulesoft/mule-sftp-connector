@@ -174,7 +174,6 @@ public class SftpDirectorySource extends PollingSource<InputStream, SftpFileAttr
     if (pollContext.isSourceStopping()) {
       return;
     }
-
     SftpFileSystemConnection fileSystem;
     try {
       fileSystem = openConnection(pollContext);
@@ -184,7 +183,6 @@ public class SftpDirectorySource extends PollingSource<InputStream, SftpFileAttr
                    e);
       return;
     }
-
     try {
       Long timeBetweenSizeCheckInMillis =
           config.getTimeBetweenSizeCheckInMillis(timeBetweenSizeCheck, timeBetweenSizeCheckUnit).orElse(null);
@@ -193,18 +191,14 @@ public class SftpDirectorySource extends PollingSource<InputStream, SftpFileAttr
       if (files.isEmpty()) {
         return;
       }
-
       for (Result<String, SftpFileAttributes> file : files) {
         if (pollContext.isSourceStopping()) {
           return;
         }
-
         SftpFileAttributes attributes = file.getAttributes().get();
-
         if (attributes.isDirectory()) {
           continue;
         }
-
         if (!matcher.test(attributes)) {
           if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("Skipping file '{}' because the matcher rejected it", attributes.getPath());
@@ -212,7 +206,7 @@ public class SftpDirectorySource extends PollingSource<InputStream, SftpFileAttr
           continue;
         }
         Result<InputStream, SftpFileAttributes> result =
-            fileSystem.read(config, directoryUri.getPath(), true, timeBetweenSizeCheckInMillis);
+            fileSystem.read(config, attributes.getPath(), true, timeBetweenSizeCheckInMillis);
         if (!processFile(result, pollContext)) {
           break;
         }
