@@ -28,8 +28,7 @@
             <munit:enable-flow-source value="delete-created-files"/>
         </munit:enable-flow-sources>
         <munit:behavior>
-            <set-variable variableName="fileName" value="test/will-be-deleted.txt"/>
-            <sftp:write config-ref="${config}" path='#[vars.fileName]' >
+            <sftp:write config-ref="${config}" path="test/will-be-deleted.txt" >
                 <sftp:content>test content</sftp:content>
             </sftp:write>
         </munit:behavior>
@@ -49,7 +48,7 @@
     <flow name="delete-created-files">
         <sftp:listener config-ref="${config}" directory="test">
             <scheduling-strategy>
-                <fixed-frequency startDelay="1000"/>
+                <fixed-frequency startDelay="1500"/>
             </scheduling-strategy>
         </sftp:listener>
         <sftp:delete config-ref="${config}" path="#[attributes.path]" />
