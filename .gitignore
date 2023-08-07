@@ -30,3 +30,8 @@ testdir/
 hostkey.ser
 *.h2.db
 *.factorypath
+
+
+automation-credentials.properties
+know_hosts.properties
+know_hosts_error.properties

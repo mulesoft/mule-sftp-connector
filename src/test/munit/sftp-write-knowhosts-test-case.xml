@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:munit="http://www.mulesoft.org/schema/mule/munit"
+      xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools"
+      xmlns="http://www.mulesoft.org/schema/mule/core"
+      xmlns:sftp="http://www.mulesoft.org/schema/mule/sftp"
+      xmlns:java="http://www.mulesoft.org/schema/mule/java"
+      xsi:schemaLocation="
+		http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+		http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
+		http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd
+        http://www.mulesoft.org/schema/mule/sftp http://www.mulesoft.org/schema/mule/sftp/current/mule-sftp.xsd
+        http://www.mulesoft.org/schema/mule/java http://www.mulesoft.org/schema/mule/java/current/mule-java.xsd">
+
+    <munit:config name="sftp-write-knowhosts-test-case.xml"/>
+
+    <configuration-properties file="automation-credentials.properties"/>
+
+    <sftp:config name="config-known-host">
+        <sftp:connection username="${sftp.user}" password="${sftp.password}" host="44.217.240.197" port="${sftp.port}"
+                         knownHostsFile="know_hosts.properties" workingDir="/upload">
+        </sftp:connection>
+    </sftp:config>
+
+    <sftp:config name="config-known-host-error">
+        <sftp:connection username="${sftp.user}" password="${sftp.password}" host="44.217.240.197" port="${sftp.port}"
+                         knownHostsFile="know_hosts_error.properties" workingDir="/upload">
+        </sftp:connection>
+    </sftp:config>
+
+    <munit:test name="sftp-write-file-know-host">
+        <munit:behavior>
+            <set-variable variableName="fileName" value="write.txt"/>
+            <set-variable variableName="mode" value="OVERWRITE"/>
+            <set-variable variableName="createParent" value="true"/>
+        </munit:behavior>
+        <munit:execution>
+            <sftp:write config-ref="config-known-host" path="#[vars.fileName]" mode="#[vars.mode]"
+                        createParentDirectories="#[vars.createParent]"/>
+        </munit:execution>
+        <munit:validation>
+            <sftp:read config-ref="config-known-host" path="#[vars.fileName]"/>
+            <munit-tools:assert-that expression="#[payload]" is="#[MunitTools::isEmptyString()]"/>
+        </munit:validation>
+    </munit:test>
+
+    <munit:test name="sftp-write-file-know-host-error">
+        <munit:behavior>
+            <set-variable variableName="fileName" value="write.txt"/>
+            <set-variable variableName="mode" value="OVERWRITE"/>
+            <set-variable variableName="createParent" value="true"/>
+        </munit:behavior>
+        <munit:execution>
+            <try>
+                <sftp:write config-ref="config-known-host-error" path="#[vars.fileName]" mode="#[vars.mode]"
+                            createParentDirectories="#[vars.createParent]"/>
+                <error-handler>
+                    <on-error-continue type="SFTP:CONNECTIVITY"/>
+                </error-handler>
+            </try>
+        </munit:execution>
+    </munit:test>
+</mule>
