@@ -6,14 +6,6 @@
  */
 package org.mule.extension.sftp.internal.connection;
 
-import static java.lang.String.format;
-import static java.util.Collections.emptyList;
-import static java.util.Objects.nonNull;
-
-import static org.apache.commons.collections.CollectionUtils.isEmpty;
-import static org.apache.sshd.sftp.common.SftpConstants.SSH_FX_CONNECTION_LOST;
-import static org.apache.sshd.sftp.common.SftpConstants.SSH_FX_NO_CONNECTION;
-
 import static org.mule.extension.sftp.internal.error.FileError.CONNECTIVITY;
 import static org.mule.extension.sftp.internal.util.SftpUtils.normalizePath;
 import static org.mule.extension.sftp.internal.util.SftpUtils.resolvePathOrResource;
@@ -21,6 +13,14 @@ import static org.mule.extension.sftp.internal.util.UriUtils.createUri;
 import static org.mule.runtime.api.i18n.I18nMessageFactory.createStaticMessage;
 import static org.mule.runtime.api.util.collection.Collectors.toImmutableList;
 import static org.mule.runtime.core.api.util.StringUtils.isEmpty;
+
+import static java.lang.String.format;
+import static java.util.Collections.emptyList;
+import static java.util.Objects.nonNull;
+
+import static org.apache.commons.collections.CollectionUtils.isEmpty;
+import static org.apache.sshd.sftp.common.SftpConstants.SSH_FX_CONNECTION_LOST;
+import static org.apache.sshd.sftp.common.SftpConstants.SSH_FX_NO_CONNECTION;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
