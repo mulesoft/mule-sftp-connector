@@ -24,6 +24,17 @@ import static org.apache.sshd.sftp.common.SftpConstants.SSH_FX_NO_CONNECTION;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
+import org.mule.extension.sftp.api.FileWriteMode;
+import org.mule.extension.sftp.api.SftpFileAttributes;
+import org.mule.extension.sftp.api.SftpProxyConfig;
+import org.mule.extension.sftp.internal.error.FileError;
+import org.mule.extension.sftp.internal.exception.FileAccessDeniedException;
+import org.mule.extension.sftp.internal.exception.SftpConnectionException;
+import org.mule.extension.sftp.internal.proxy.http.HttpClientConnector;
+import org.mule.extension.sftp.internal.proxy.socks5.Socks5ClientConnector;
+import org.mule.runtime.api.connection.ConnectionException;
+import org.mule.runtime.api.exception.MuleRuntimeException;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -50,17 +61,6 @@ import org.apache.sshd.common.util.security.SecurityUtils;
 import org.apache.sshd.sftp.client.SftpClient.OpenMode;
 import org.apache.sshd.sftp.common.SftpConstants;
 import org.apache.sshd.sftp.common.SftpException;
-
-import org.mule.extension.sftp.api.FileWriteMode;
-import org.mule.extension.sftp.api.SftpFileAttributes;
-import org.mule.extension.sftp.api.SftpProxyConfig;
-import org.mule.extension.sftp.internal.error.FileError;
-import org.mule.extension.sftp.internal.exception.FileAccessDeniedException;
-import org.mule.extension.sftp.internal.exception.SftpConnectionException;
-import org.mule.extension.sftp.internal.proxy.http.HttpClientConnector;
-import org.mule.extension.sftp.internal.proxy.socks5.Socks5ClientConnector;
-import org.mule.runtime.api.connection.ConnectionException;
-import org.mule.runtime.api.exception.MuleRuntimeException;
 
 import org.slf4j.Logger;
 
