@@ -214,6 +214,7 @@
                         <configuration>
                             <folder>mule-sftp-connector</folder>
                             <vaultBucket>connector-credentials</vaultBucket>
+                            <vaultAddress>https://vault.connectors.cloud</vaultAddress>
                         </configuration>
                     </execution>
                 </executions>
