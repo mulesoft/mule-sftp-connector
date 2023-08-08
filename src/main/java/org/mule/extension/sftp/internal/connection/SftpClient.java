@@ -213,7 +213,7 @@ public class SftpClient {
                                                      PublicKey serverKey,
                                                      Collection<HostEntryPair> knownHosts) {
               if (GenericUtils.isEmpty(knownHosts)) {
-                LOGGER.warn("known_hosts collection is empty!");
+                LOGGER.error("known_hosts collection is empty!");
               }
               return super.acceptKnownHostEntries(clientSession, remoteAddress, serverKey, knownHosts);
             }

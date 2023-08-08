@@ -42,20 +42,12 @@
         </munit:validation>
     </munit:test>
 
-    <munit:test name="sftp-write-file-know-host-error">
-        <munit:behavior>
-            <set-variable variableName="fileName" value="write.txt"/>
-            <set-variable variableName="mode" value="OVERWRITE"/>
-            <set-variable variableName="createParent" value="true"/>
-        </munit:behavior>
+    <munit:test name="sftp-write-file-know-host-error" expectedErrorType="SFTP:CANNOT_REACH">
         <munit:execution>
-            <try>
-                <sftp:write config-ref="config-known-host-error" path="#[vars.fileName]" mode="#[vars.mode]"
-                            createParentDirectories="#[vars.createParent]"/>
-                <error-handler>
-                    <on-error-continue type="SFTP:CONNECTIVITY"/>
-                </error-handler>
-            </try>
+            <sftp:write config-ref="config-known-host-error" path="write.txt" mode="OVERWRITE"
+                        createParentDirectories="true"/>
         </munit:execution>
     </munit:test>
+
+
 </mule>
