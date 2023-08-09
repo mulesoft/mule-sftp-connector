@@ -4,7 +4,7 @@
  * license, a copy of which has been included with this distribution in the
  * LICENSE.txt file.
  */
-package org.mule.test.extension.file.common.api.util;
+package org.mule.extension.sftp.util;
 
 import org.junit.Test;
 import org.mule.extension.sftp.internal.util.ZonedDateTimeGreaterOrEqualAssessment;

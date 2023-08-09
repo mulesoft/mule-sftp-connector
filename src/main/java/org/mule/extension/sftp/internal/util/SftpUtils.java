@@ -10,8 +10,8 @@ import static java.lang.Thread.currentThread;
 
 import java.net.URL;
 import java.time.Instant;
-import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.ZonedDateTime;
 
 import org.apache.commons.io.FilenameUtils;
 
@@ -38,7 +38,7 @@ public class SftpUtils {
     return resource != null ? resource.getPath() : pathOrResourceName;
   }
 
-  public static LocalDateTime asDateTime(Instant instant) {
-    return LocalDateTime.ofInstant(instant, ZoneId.systemDefault());
+  public static ZonedDateTime asDateTime(Instant instant) {
+    return ZonedDateTime.ofInstant(instant, ZoneId.systemDefault());
   }
 }
