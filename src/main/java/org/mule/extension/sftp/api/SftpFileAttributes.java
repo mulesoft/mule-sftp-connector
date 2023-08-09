@@ -14,7 +14,7 @@ import static org.apache.sshd.sftp.client.SftpClient.Attributes;
 import org.mule.runtime.extension.api.annotation.param.Parameter;
 
 import java.net.URI;
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
@@ -30,7 +30,7 @@ public class SftpFileAttributes extends AbstractFileAttributes {
   private static final long serialVersionUID = 686949251083311882L;
 
   @Parameter
-  private LocalDateTime timestamp;
+  private ZonedDateTime timestamp;
 
   @Parameter
   private long size;
@@ -70,7 +70,7 @@ public class SftpFileAttributes extends AbstractFileAttributes {
   /**
    * @return The last time the file was modified
    */
-  public LocalDateTime getTimestamp() {
+  public ZonedDateTime getTimestamp() {
     return timestamp;
   }
 

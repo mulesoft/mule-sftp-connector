@@ -6,16 +6,16 @@
  */
 package org.mule.extension.sftp.internal.util;
 
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.function.BiFunction;
 
 /**
- * A Boolean {@link BiFunction} which returns {@code true} if a given {@link LocalDateTime} is posterior or equal to a reference
+ * A Boolean {@link BiFunction} which returns {@code true} if a given {@link ZonedDateTime} is posterior or equal to a reference
  * date
  *
  * @since 1.0
  */
-public final class LocalDateTimeGreaterOrEqualAssessment implements BiFunction<LocalDateTime, LocalDateTime, Boolean> {
+public final class ZonedDateTimeGreaterOrEqualAssessment implements BiFunction<ZonedDateTime, ZonedDateTime, Boolean> {
 
   /**
    * @param criteria the reference value
@@ -23,7 +23,8 @@ public final class LocalDateTimeGreaterOrEqualAssessment implements BiFunction<L
    * @return {@code true} if {@code value} is posterior or equal to {@code criteria}
    */
   @Override
-  public Boolean apply(LocalDateTime criteria, LocalDateTime value) {
-    return value.compareTo(criteria) >= 0;
+  public Boolean apply(ZonedDateTime criteria, ZonedDateTime value) {
+    // DO NOT USE comparteTo
+    return value.isAfter(criteria) || value.isEqual(criteria);
   }
 }

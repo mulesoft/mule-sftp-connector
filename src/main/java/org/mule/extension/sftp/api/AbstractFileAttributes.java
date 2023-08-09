@@ -44,8 +44,6 @@ public abstract class AbstractFileAttributes implements FileAttributes, Serializ
 
   /**
    * Default contructor (Creates a new instance)
-   *
-   * @param path a {@link Path} pointing to the represented file
    */
   protected AbstractFileAttributes() {}
 
