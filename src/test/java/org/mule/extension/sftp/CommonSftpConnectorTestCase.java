@@ -10,7 +10,7 @@ import static org.mule.extension.sftp.AllureConstants.SftpFeature.SFTP_EXTENSION
 import static org.mule.extension.sftp.SftpTestHarness.AuthType.PUBLIC_KEY;
 import static org.mule.extension.sftp.SftpTestHarness.AuthType.USER_PASSWORD;
 import static org.mule.runtime.core.api.util.IOUtils.closeQuietly;
-import static org.mule.test.extension.file.common.api.FileTestHarness.HELLO_PATH;
+import static org.mule.extension.sftp.api.FileTestHarness.HELLO_PATH;
 
 import org.mule.extension.sftp.api.FileWriteMode;
 import org.mule.extension.sftp.internal.stream.AbstractNonFinalizableFileInputStream;

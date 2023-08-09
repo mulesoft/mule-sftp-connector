@@ -13,9 +13,6 @@ import org.mule.runtime.extension.api.annotation.param.Parameter;
 import java.io.Serializable;
 import java.net.URI;
 import java.nio.file.Path;
-import java.time.Instant;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
@@ -75,10 +72,6 @@ public abstract class AbstractFileAttributes implements FileAttributes, Serializ
   @Override
   public String getName() {
     return fileName;
-  }
-
-  protected ZonedDateTime asDateTime(Instant instant) {
-    return ZonedDateTime.ofInstant(instant, ZoneId.systemDefault());
   }
 
   @Override

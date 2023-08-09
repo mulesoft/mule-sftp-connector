@@ -51,7 +51,7 @@
 
     <munit:test name="sftp-list-and-get-root-path">
         <munit:execution>
-            <sftp:list-and-get config-ref="${config}" directoryPath="/"/>
+            <sftp:list config-ref="${config}" directoryPath="/"/>
         </munit:execution>
         <munit:validation>
             <munit-tools:assert>

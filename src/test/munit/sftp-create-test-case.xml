@@ -43,7 +43,7 @@
             <sftp:create-directory config-ref="config" directoryPath="created-dir-test"/>
         </munit:execution>
         <munit:validation>
-            <sftp:list-and-get config-ref="config" directoryPath="/"/>
+            <sftp:list config-ref="config" directoryPath="/"/>
             <munit-tools:assert>
                 <munit-tools:that><![CDATA[#[import * from dw::test::Asserts
                                      ---
@@ -66,7 +66,7 @@
             <sftp:create-directory config-ref="config" directoryPath="created-dir-test/subDirectory"/>
         </munit:execution>
         <munit:validation>
-            <sftp:list-and-get config-ref="config" directoryPath="created-dir-test"/>
+            <sftp:list config-ref="config" directoryPath="created-dir-test"/>
             <munit-tools:assert>
                 <munit-tools:that><![CDATA[#[import * from dw::test::Asserts
                                      ---
@@ -89,7 +89,7 @@
             <sftp:create-directory config-ref="config" directoryPath="created-dir-test/?1*@|#"/>
         </munit:execution>
         <munit:validation>
-            <sftp:list-and-get config-ref="config" directoryPath="created-dir-test"/>
+            <sftp:list config-ref="config" directoryPath="created-dir-test"/>
             <munit-tools:assert>
                 <munit-tools:that><![CDATA[#[import * from dw::test::Asserts
                                      ---

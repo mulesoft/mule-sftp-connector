@@ -6,6 +6,7 @@
  */
 package org.mule.extension.sftp.api;
 
+import static org.mule.extension.sftp.internal.util.SftpUtils.asDateTime;
 import static org.mule.extension.sftp.internal.util.SftpUtils.normalizePath;
 
 import static org.apache.sshd.sftp.client.SftpClient.Attributes;
@@ -35,7 +36,7 @@ public class SftpFileAttributes extends AbstractFileAttributes {
   private long size;
 
   @Parameter
-  private boolean regularSize;
+  private boolean regularFile;
 
   @Parameter
   private boolean directory;
@@ -61,7 +62,7 @@ public class SftpFileAttributes extends AbstractFileAttributes {
 
     this.timestamp = asDateTime(attrs.getModifyTime().toInstant());
     this.size = attrs.getSize();
-    this.regularSize = attrs.isRegularFile();
+    this.regularFile = attrs.isRegularFile();
     this.directory = attrs.isDirectory();
     this.symbolicLink = attrs.isSymbolicLink();
   }
@@ -86,7 +87,7 @@ public class SftpFileAttributes extends AbstractFileAttributes {
    */
   @Override
   public boolean isRegularFile() {
-    return regularSize;
+    return regularFile;
   }
 
   /**
@@ -123,7 +124,7 @@ public class SftpFileAttributes extends AbstractFileAttributes {
 
     SftpFileAttributes that = (SftpFileAttributes) o;
 
-    return new EqualsBuilder().append(getSize(), that.getSize()).append(regularSize, that.regularSize)
+    return new EqualsBuilder().append(getSize(), that.getSize()).append(regularFile, that.regularFile)
         .append(isDirectory(), that.isDirectory()).append(isSymbolicLink(), that.isSymbolicLink())
         .append(getTimestamp(), that.getTimestamp()).append(getPath(), that.getPath()).append(getName(), that.getName())
         .isEquals();
@@ -131,7 +132,7 @@ public class SftpFileAttributes extends AbstractFileAttributes {
 
   @Override
   public int hashCode() {
-    return new HashCodeBuilder(17, 37).append(getTimestamp()).append(getSize()).append(regularSize).append(isDirectory())
+    return new HashCodeBuilder(17, 37).append(getTimestamp()).append(getSize()).append(regularFile).append(isDirectory())
         .append(isSymbolicLink()).append(getPath()).append(getName()).toHashCode();
   }
 

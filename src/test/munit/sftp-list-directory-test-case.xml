@@ -52,9 +52,9 @@
             <sftp:create-directory config-ref="config" directoryPath="test/created-to-eliminate/second-subdirectory/other-level-directory"/>
         </munit:behavior>
         <munit:execution>
-            <sftp:list-and-get config-ref="config" directoryPath="test/created-to-eliminate" recursive="true"/>
+            <sftp:list config-ref="config" directoryPath="test/created-to-eliminate" recursive="true"/>
             <set-variable value="#[sizeOf(payload)]" variableName="count_recursive"/>
-            <sftp:list-and-get  config-ref="config" directoryPath="test/created-to-eliminate"/>
+            <sftp:list  config-ref="config" directoryPath="test/created-to-eliminate"/>
         </munit:execution>
         <munit:validation>
             <munit-tools:assert-that expression="#[vars.count_recursive]" is="#[MunitTools::greaterThan(sizeOf(payload))]"/>
@@ -64,7 +64,7 @@
     <munit:test name="sftp-list-directory-non-exists" description="Attempt to list a non-existent directory, expect error SFTP:ILLEGAL_PATH"
                 expectedErrorType="SFTP:ILLEGAL_PATH">
         <munit:execution>
-            <sftp:list-and-get config-ref="config" directoryPath="directory-not-created"/>
+            <sftp:list config-ref="config" directoryPath="directory-not-created"/>
         </munit:execution>
     </munit:test>
 

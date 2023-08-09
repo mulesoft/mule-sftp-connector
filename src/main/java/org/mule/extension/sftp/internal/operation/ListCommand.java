@@ -12,7 +12,6 @@ import org.mule.extension.sftp.internal.connection.FileSystem;
 import org.mule.extension.sftp.internal.subset.SubsetList;
 import org.mule.runtime.extension.api.runtime.operation.Result;
 
-import java.io.InputStream;
 import java.util.List;
 import java.util.function.Predicate;
 
@@ -31,15 +30,15 @@ public interface ListCommand<A extends FileAttributes> {
    * @param recursive            whether to include the contents of sub-directories
    * @param matcher              a {@link Predicate} of {@link FileAttributes} used to filter the output list
    * @param timeBetweenSizeCheck wait time between size checks to determine if a file is ready to be read in milliseconds.
-   * @return a {@link List} of {@link Result} objects each one containing each file's content in the payload and metadata in the
+   * @return a {@link List} of {@link Result} objects each one containing each file's path in the payload and metadata in the
    *         attributes
    * @throws IllegalArgumentException if {@code directoryPath} points to a file which doesn't exist or is not a directory
    */
-  List<Result<InputStream, A>> list(FileConnectorConfig config,
-                                    String directoryPath,
-                                    boolean recursive,
-                                    Predicate<A> matcher,
-                                    Long timeBetweenSizeCheck);
+  List<Result<String, A>> list(FileConnectorConfig config,
+                               String directoryPath,
+                               boolean recursive,
+                               Predicate<A> matcher,
+                               Long timeBetweenSizeCheck);
 
   /**
    * Lists files under the considerations of {@link FileSystem#list(FileConnectorConfig, String, boolean, Predicate)}
@@ -50,16 +49,16 @@ public interface ListCommand<A extends FileAttributes> {
    * @param matcher              a {@link Predicate} of {@link FileAttributes} used to filter the output list
    * @param timeBetweenSizeCheck wait time between size checks to determine if a file is ready to be read in milliseconds.
    * @param subsetList           parameter group that lets you obtain a subset of the results
-   * @return a {@link List} of {@link Result} objects each one containing each file's content in the payload and metadata in the
+   * @return a {@link List} of {@link Result} objects each one containing each file's path in the payload and metadata in the
    *         attributes
    * @throws IllegalArgumentException if {@code directoryPath} points to a file which doesn't exist or is not a directory
    */
-  default List<Result<InputStream, A>> list(FileConnectorConfig config,
-                                            String directoryPath,
-                                            boolean recursive,
-                                            Predicate<A> matcher,
-                                            Long timeBetweenSizeCheck,
-                                            SubsetList subsetList) {
+  default List<Result<String, A>> list(FileConnectorConfig config,
+                                       String directoryPath,
+                                       boolean recursive,
+                                       Predicate<A> matcher,
+                                       Long timeBetweenSizeCheck,
+                                       SubsetList subsetList) {
     return list(config, directoryPath, recursive, matcher, timeBetweenSizeCheck);
   }
 }
