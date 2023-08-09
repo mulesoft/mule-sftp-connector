@@ -89,16 +89,16 @@
     </flow>
 
     <flow name="list-files-filtering-by-timestamp-since">
-        <sftp:list-and-get config-ref="config" directoryPath=".">
+        <sftp:list config-ref="config" directoryPath=".">
             <sftp:matcher timestampSince="#[ ((now() - |PT1H|) >> &quot;+11:30&quot;) ]"/>
-        </sftp:list-and-get>
+        </sftp:list>
     </flow>
 
 
     <flow name="list-no-files-filtering-by-timestamp-since">
-        <sftp:list-and-get config-ref="config" directoryPath=".">
+        <sftp:list config-ref="config" directoryPath=".">
             <sftp:matcher timestampSince="#[ ((now() + |PT1H|) >> &quot;-11:30&quot;) ]" />
-        </sftp:list-and-get>
+        </sftp:list>
     </flow>
 
 </mule>
