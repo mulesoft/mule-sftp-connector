@@ -56,11 +56,6 @@
     </properties>
 
     <dependencies>
-        <dependency>
-            <groupId>org.mule.sdk</groupId>
-            <artifactId>mule-sdk-compatibility-api</artifactId>
-            <version>${muleSdkCompatibilityApiVersion}</version>
-        </dependency>
 
         <dependency>
             <groupId>org.mule.sdk</groupId>
@@ -409,7 +404,7 @@
                             <images>
                                 <image>
                                     <name>linuxserver/openssh-server</name>
-                                    <alias>openssh</alias>
+                                    <alias>openssh-${sftp.listener.port}</alias>
                                     <run>
                                         <env>
                                             <PUID>1000</PUID>
@@ -420,7 +415,7 @@
                                             <USER_NAME>mule</USER_NAME>
                                         </env>
                                         <ports>
-                                            <port>sftp.listener.port:2222</port>
+                                            <port>${sftp.listener.port}:2222</port>
                                         </ports>
                                         <log>
                                             <enabled>true</enabled>

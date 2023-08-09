@@ -54,7 +54,7 @@
             <sftp:rename config-ref="config" path="source/created-to-rename" to="file-renamed"/>
         </munit:execution>
         <munit:validation >
-            <sftp:list-and-get config-ref="config" directoryPath="source"/>
+            <sftp:list config-ref="config" directoryPath="source"/>
             <munit-tools:assert-that  expression="#[sizeOf(payload)]" is="#[MunitTools::equalTo(1)]"/>
             <munit-tools:assert-that expression="#[payload[0].attributes.fileName]" is="#[MunitTools::equalTo('file-renamed')]"/>
         </munit:validation>
@@ -81,12 +81,12 @@
             </sftp:write>
         </munit:behavior>
         <munit:execution>
-            <sftp:list-and-get config-ref="config" directoryPath="source/file-renamed" />
+            <sftp:list config-ref="config" directoryPath="source/file-renamed" />
             <set-variable value="#[sizeOf(payload)]" variableName="size-directory-before-rename"/>
             <sftp:rename config-ref="config" path="source/created-to-rename" to="file-renamed" overwrite="true"/>
         </munit:execution>
         <munit:validation>
-            <sftp:list-and-get config-ref="config" directoryPath="source/file-renamed" />
+            <sftp:list config-ref="config" directoryPath="source/file-renamed" />
             <munit-tools:assert-that expression='#[vars."size-directory-before-rename"]' is="#[MunitTools::lessThan(sizeOf(payload))]" />
         </munit:validation>
     </munit:test>
@@ -109,7 +109,7 @@
             <sftp:rename config-ref="config" path="source/directory-to-rename" to="directory-renamed-@#!%!@="/>
         </munit:execution>
         <munit:validation >
-            <sftp:list-and-get config-ref="config" directoryPath="source"/>
+            <sftp:list config-ref="config" directoryPath="source"/>
             <munit-tools:assert-that expression="#[sizeOf(payload)]" is="#[MunitTools::greaterThan(0)]"/>
             <munit-tools:assert-that expression="#[payload[0].attributes.fileName]" is="#[MunitTools::equalTo('directory-renamed-@#!%!@=')]"/>
         </munit:validation>

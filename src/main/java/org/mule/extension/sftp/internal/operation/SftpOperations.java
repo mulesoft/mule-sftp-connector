@@ -41,8 +41,6 @@ import org.mule.runtime.extension.api.annotation.param.display.Path;
 import org.mule.runtime.extension.api.annotation.param.display.Placement;
 import org.mule.runtime.extension.api.annotation.param.display.Summary;
 import org.mule.runtime.extension.api.runtime.operation.Result;
-import org.mule.runtime.extension.api.runtime.streaming.PagingProvider;
-import org.mule.runtime.extension.api.runtime.streaming.StreamingHelper;
 
 import java.io.InputStream;
 import java.util.List;
@@ -65,34 +63,32 @@ public final class SftpOperations extends BaseFileSystemOperations {
    * recursion into such directory.
    *
    * @param config                   the config that is parameterizing this operation
+   * @param fileSystem               a reference to the host {@link FileSystem}
    * @param directoryPath            the path to the directory to be listed
    * @param recursive                whether to include the contents of sub-directories. Defaults to false.
    * @param matcher                  a matcher used to filter the output list
    * @param timeBetweenSizeCheck     wait time between size checks to determine if a file is ready to be read.
    * @param timeBetweenSizeCheckUnit time unit to be used in the wait time between size checks.
-   * @return a {@link List} of {@link Message messages} each one containing each file's content in the payload and metadata in the
+   * @return a {@link List} of {@link Message messages} each one containing each file's path in the payload and metadata in the
    *         attributes
    * @throws IllegalArgumentException if {@code directoryPath} points to a file which doesn't exist or is not a directory
    */
-  @Summary("List all the files from given directory (each SftpFileAttributes include an InputStream pointing to the content)")
+  @Summary("List all the files from given directory")
   @MediaType(value = ANY, strict = false)
   @Throws(FileListErrorTypeProvider.class)
-  public PagingProvider<SftpFileSystemConnection, Result<Object, SftpFileAttributes>> listAndGet(@Config SftpConnector config,
-                                                                                                 @Path(type = DIRECTORY,
-                                                                                                     location = EXTERNAL) String directoryPath,
-                                                                                                 @Optional(
-                                                                                                     defaultValue = "false") boolean recursive,
-                                                                                                 @Optional @DisplayName("File Matching Rules") @Summary("Matcher to filter the listed files") SftpFileMatcher matcher,
-                                                                                                 @ConfigOverride @Placement(
-                                                                                                     tab = ADVANCED_TAB) Long timeBetweenSizeCheck,
-                                                                                                 @ConfigOverride @Placement(
-                                                                                                     tab = ADVANCED_TAB) TimeUnit timeBetweenSizeCheckUnit,
-                                                                                                 StreamingHelper streamingHelper) {
-    PagingProvider result =
-        doPagedList(config, directoryPath, recursive, matcher,
-                    config.getTimeBetweenSizeCheckInMillis(timeBetweenSizeCheck, timeBetweenSizeCheckUnit).orElse(null),
-                    streamingHelper);
-    return result;
+  public List<Result<String, SftpFileAttributes>> list(@Config SftpConnector config,
+                                                       @Connection SftpFileSystemConnection fileSystem,
+                                                       @DisplayName("Directory Path") @Path(type = DIRECTORY,
+                                                           location = EXTERNAL) String directoryPath,
+                                                       @Optional(defaultValue = "false") boolean recursive,
+                                                       @Optional @DisplayName("File Matching Rules") @Summary("Matcher to filter the listed files") SftpFileMatcher matcher,
+                                                       @ConfigOverride @Placement(tab = ADVANCED_TAB) Long timeBetweenSizeCheck,
+                                                       @ConfigOverride @Placement(
+                                                           tab = ADVANCED_TAB) TimeUnit timeBetweenSizeCheckUnit) {
+    List result =
+        doList(config, fileSystem, directoryPath, recursive, matcher,
+               config.getTimeBetweenSizeCheckInMillis(timeBetweenSizeCheck, timeBetweenSizeCheckUnit).orElse(null));
+    return (List<Result<String, SftpFileAttributes>>) result;
   }
 
   /**

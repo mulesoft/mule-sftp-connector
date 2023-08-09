@@ -28,7 +28,7 @@ import org.mule.extension.sftp.api.SftpFileAttributes;
 import org.mule.extension.sftp.internal.connection.SftpClient;
 import org.mule.extension.sftp.internal.connection.SftpClientFactory;
 import org.mule.tck.junit4.rule.DynamicPort;
-import org.mule.test.extension.file.common.api.FileTestHarness;
+import org.mule.extension.sftp.api.FileTestHarness;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;

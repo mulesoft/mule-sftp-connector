@@ -14,30 +14,22 @@ import static java.nio.file.Paths.get;
 
 import org.mule.extension.sftp.api.FileAttributes;
 import org.mule.extension.sftp.api.FileWriteMode;
-import org.mule.extension.sftp.internal.config.FileConnectorConfig;
-import org.mule.extension.sftp.internal.exception.IllegalContentException;
-import org.mule.extension.sftp.internal.exception.IllegalPathException;
 import org.mule.extension.sftp.api.matcher.FileMatcher;
 import org.mule.extension.sftp.api.matcher.NullFilePayloadPredicate;
+import org.mule.extension.sftp.internal.config.FileConnectorConfig;
 import org.mule.extension.sftp.internal.connection.FileSystem;
-import org.mule.extension.sftp.internal.subset.SubsetList;
-import org.mule.runtime.api.exception.MuleException;
+import org.mule.extension.sftp.internal.exception.IllegalContentException;
+import org.mule.extension.sftp.internal.exception.IllegalPathException;
 import org.mule.runtime.api.message.Message;
-import org.mule.runtime.api.streaming.CursorProvider;
 import org.mule.runtime.extension.api.annotation.param.Config;
 import org.mule.runtime.extension.api.annotation.param.Connection;
 import org.mule.runtime.extension.api.annotation.param.Optional;
 import org.mule.runtime.extension.api.annotation.param.display.DisplayName;
 import org.mule.runtime.extension.api.annotation.param.display.Placement;
 import org.mule.runtime.extension.api.runtime.operation.Result;
-import org.mule.runtime.extension.api.runtime.streaming.PagingProvider;
-import org.mule.runtime.extension.api.runtime.streaming.StreamingHelper;
 
 import java.io.InputStream;
-import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Predicate;
 
 import org.apache.tika.Tika;
@@ -48,8 +40,6 @@ import org.apache.tika.Tika;
  * @since 1.0
  */
 public abstract class BaseFileSystemOperations {
-
-  private static final Integer LIST_PAGE_SIZE = 10;
 
   /**
    * Lists all the files in the {@code directoryPath} which match the given {@code matcher}.
@@ -68,109 +58,14 @@ public abstract class BaseFileSystemOperations {
    *         attributes
    * @throws IllegalArgumentException if {@code directoryPath} points to a file which doesn't exist or is not a directory
    */
-  protected List<Result<InputStream, org.mule.extension.sftp.api.FileAttributes>> doList(FileConnectorConfig config,
-                                                                                         FileSystem fileSystem,
-                                                                                         String directoryPath,
-                                                                                         boolean recursive,
-                                                                                         FileMatcher matchWith,
-                                                                                         Long timeBetweenSizeCheck) {
+  protected List<Result<String, org.mule.extension.sftp.api.FileAttributes>> doList(FileConnectorConfig config,
+                                                                                    FileSystem fileSystem,
+                                                                                    String directoryPath,
+                                                                                    boolean recursive,
+                                                                                    FileMatcher matchWith,
+                                                                                    Long timeBetweenSizeCheck) {
     fileSystem.changeToBaseDir();
     return fileSystem.list(config, directoryPath, recursive, getPredicate(matchWith), timeBetweenSizeCheck);
-  }
-
-
-  /**
-   * Lists all the files in the {@code directoryPath} which match the given {@code matcher}.
-   * <p>
-   * If the listing encounters a directory, the output list will include its contents depending on the value of the
-   * {@code recursive} parameter. If {@code recursive} is enabled, then all the files in that directory will be listed immediately
-   * after their parent directory.
-   * <p>
-   *
-   * @param config               the config that is parameterizing this operation
-   * @param directoryPath        the path to the directory to be listed
-   * @param recursive            whether to include the contents of sub-directories. Defaults to false.
-   * @param matchWith            a matcher used to filter the output list
-   * @param timeBetweenSizeCheck wait time between size checks to determine if a file is ready to be read in milliseconds.
-   * @return a {@link PagingProvider} of {@link Result} objects each one containing each file's content in the payload and
-   *         metadata in the attributes
-   * @throws IllegalArgumentException if {@code directoryPath} points to a file which doesn't exist or is not a directory
-   */
-  protected PagingProvider<FileSystem, Result<CursorProvider, org.mule.extension.sftp.api.FileAttributes>> doPagedList(FileConnectorConfig config,
-                                                                                                                       String directoryPath,
-                                                                                                                       boolean recursive,
-                                                                                                                       FileMatcher matchWith,
-                                                                                                                       Long timeBetweenSizeCheck,
-                                                                                                                       StreamingHelper streamingHelper) {
-    return doPagedList(config, directoryPath, recursive, matchWith, timeBetweenSizeCheck, streamingHelper, null);
-  }
-
-  /**
-   * Lists all the files in the {@code directoryPath} which match the given {@code matcher}.
-   * <p>
-   * If the listing encounters a directory, the output list will include its contents depending on the value of the
-   * {@code recursive} parameter. If {@code recursive} is enabled, then all the files in that directory will be listed immediately
-   * after their parent directory.
-   * <p>
-   *
-   * @param config               the config that is parameterizing this operation
-   * @param directoryPath        the path to the directory to be listed
-   * @param recursive            whether to include the contents of sub-directories. Defaults to false.
-   * @param matchWith            a matcher used to filter the output list
-   * @param timeBetweenSizeCheck wait time between size checks to determine if a file is ready to be read in milliseconds.
-   * @param subsetList           parameter group that lets you obtain a subset of the results
-   * @return a {@link PagingProvider} of {@link Result} objects each one containing each file's content in the payload and
-   *         metadata in the attributes
-   * @throws IllegalArgumentException if {@code directoryPath} points to a file which doesn't exist or is not a directory
-   */
-  protected PagingProvider<FileSystem, Result<CursorProvider, org.mule.extension.sftp.api.FileAttributes>> doPagedList(FileConnectorConfig config,
-                                                                                                                       String directoryPath,
-                                                                                                                       boolean recursive,
-                                                                                                                       FileMatcher matchWith,
-                                                                                                                       Long timeBetweenSizeCheck,
-                                                                                                                       StreamingHelper streamingHelper,
-                                                                                                                       SubsetList subsetList) {
-    return new PagingProvider<FileSystem, Result<CursorProvider, org.mule.extension.sftp.api.FileAttributes>>() {
-
-      private List<Result<InputStream, org.mule.extension.sftp.api.FileAttributes>> files;
-      private Iterator<Result<InputStream, org.mule.extension.sftp.api.FileAttributes>> filesIterator;
-      private final AtomicBoolean initialised = new AtomicBoolean(false);
-
-      @Override
-      public List<Result<CursorProvider, org.mule.extension.sftp.api.FileAttributes>> getPage(FileSystem connection) {
-        if (initialised.compareAndSet(false, true)) {
-          initializePagingProvider(connection);
-        }
-        List<Result<CursorProvider, org.mule.extension.sftp.api.FileAttributes>> page = new LinkedList<>();
-        for (int i = 0; i < LIST_PAGE_SIZE && filesIterator.hasNext(); i++) {
-          Result<InputStream, org.mule.extension.sftp.api.FileAttributes> result = filesIterator.next();
-          page.add((Result.<CursorProvider, org.mule.extension.sftp.api.FileAttributes>builder()
-              .attributes(result.getAttributes().get())
-              .output((CursorProvider) streamingHelper.resolveCursorProvider(result.getOutput()))
-              .mediaType(result.getMediaType().orElse(null))
-              .attributesMediaType(result.getAttributesMediaType().orElse(null))
-              .build()));
-        }
-        return page;
-      }
-
-      private void initializePagingProvider(FileSystem connection) {
-        connection.changeToBaseDir();
-        files = connection.list(config, directoryPath, recursive, getPredicate(matchWith), timeBetweenSizeCheck, subsetList);
-        filesIterator = files.iterator();
-      }
-
-      @Override
-      public java.util.Optional<Integer> getTotalResults(FileSystem connection) {
-        return java.util.Optional.of(files.size());
-      }
-
-      @Override
-      public void close(FileSystem connection) throws MuleException {
-        // No action required here.
-      }
-
-    };
   }
 
   /**

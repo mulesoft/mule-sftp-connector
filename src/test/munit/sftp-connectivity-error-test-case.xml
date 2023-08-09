@@ -273,7 +273,7 @@
             <try>
                 <flow-ref name="stop-sftp-server" />
 
-                <sftp:list-and-get config-ref="config" directoryPath="." />
+                <sftp:list config-ref="config" directoryPath="." />
                 <error-handler>
                     <on-error-continue type="SFTP:CONNECTIVITY">
                         <set-variable variableName="sftpConnectivityExceptionThrown" value="#[true]" />

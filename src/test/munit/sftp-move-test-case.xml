@@ -158,7 +158,7 @@
             <sftp:move config-ref="config" sourcePath="source/first-level-subDirectory/second-level-subDirectory" targetPath="target" createParentDirectories="false"/>
         </munit:execution>
         <munit:validation >
-            <sftp:list-and-get config-ref="config" directoryPath="target"/>
+            <sftp:list config-ref="config" directoryPath="target"/>
             <munit-tools:assert-equals actual="#[sizeOf(payload)]" expected="#[1]"/>
             <munit-tools:assert-equals actual="#[payload[0].attributes.fileName]" expected='#["second-level-subDirectory"]'/>
         </munit:validation>
@@ -202,12 +202,12 @@
             <sftp:create-directory config-ref="config" directoryPath="target/created-to-move"/>
         </munit:behavior>
         <munit:execution>
-            <sftp:list-and-get config-ref="config" directoryPath="target"/>
+            <sftp:list config-ref="config" directoryPath="target"/>
             <set-variable value="#[sizeOf(payload)]" variableName="sizeTargetBeforeMove"/>
             <sftp:move config-ref="config" sourcePath="source/created-to-move" targetPath="target" overwrite="true" renameTo="directory-renamed"/>
         </munit:execution>
         <munit:validation >
-            <sftp:list-and-get config-ref="config" directoryPath="target"/>
+            <sftp:list config-ref="config" directoryPath="target"/>
             <munit-tools:assert-that expression="#[sizeOf(payload)]" is="#[MunitTools::greaterThan(vars.sizeTargetBeforeMove)]"/>
         </munit:validation>
     </munit:test>
