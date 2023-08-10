@@ -10,66 +10,56 @@
 		http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd
         http://www.mulesoft.org/schema/mule/sftp http://www.mulesoft.org/schema/mule/sftp/current/mule-sftp.xsd">
 
-    <munit:config name="sftp-connection-preferred-authentication-methods-test-case.xml" >
-        <munit:parameterizations>
-            <munit:parameterization name="password">
-                <munit:parameters>
-                    <munit:parameter propertyName="password" value="test"/>
-                    <munit:parameter propertyName="password-wrong" value="wrong"/>
-                    <munit:parameter propertyName="authentication-method" value="PASSWORD"/>
-                    <munit:parameter propertyName="authentication-method-wrong" value="PUBLIC_KEY"/>
-                </munit:parameters>
-            </munit:parameterization>
-        </munit:parameterizations>
-    </munit:config>
+    <munit:config name="sftp-connection-preferred-authentication-methods-test-case.xml" />
 
-    <sftp:config name="config-preferred-authentication-method" >
+    <!-- CONFIGS -->
+    <sftp:config name="config-preferred-authentication-method-password" >
         <sftp:connection username="mule" password="test" host="localhost" port="${sftp.listener.port}"
                          workingDir="/config" >
             <pooling-profile />
             <sftp:preferred-authentication-methods >
-                <sftp:preferred-authentication-method value="${authentication-method}" />
+                <sftp:preferred-authentication-method value="PASSWORD" />
             </sftp:preferred-authentication-methods>
         </sftp:connection>
     </sftp:config>
 
-    <sftp:config name="config-preferred-authentication-methods" >
+    <sftp:config name="config-preferred-authentication-methods-password" >
         <sftp:connection username="mule" password="test" host="localhost" port="${sftp.listener.port}"
                          workingDir="/config" >
             <pooling-profile />
             <sftp:preferred-authentication-methods >
-                <sftp:preferred-authentication-method value="${authentication-method-wrong}" />
-                <sftp:preferred-authentication-method value="${authentication-method}" />
+                <sftp:preferred-authentication-method value="PUBLIC_KEY" />
+                <sftp:preferred-authentication-method value="PASSWORD" />
             </sftp:preferred-authentication-methods>
         </sftp:connection>
     </sftp:config>
 
-    <sftp:config name="config-preferred-authentication-method-wrong" >
+    <sftp:config name="config-preferred-authentication-method-password-wrong" >
         <sftp:connection username="mule" password="test" host="localhost" port="${sftp.listener.port}"
                          workingDir="/config" >
             <pooling-profile />
             <sftp:preferred-authentication-methods >
-                <sftp:preferred-authentication-method value="${authentication-method-wrong}" />
+                <sftp:preferred-authentication-method value="PUBLIC_KEY" />
             </sftp:preferred-authentication-methods>
         </sftp:connection>
     </sftp:config>
 
-    <sftp:config name="config-authentication-credential-wrong" >
+    <sftp:config name="config-authentication-credential-password-wrong" >
         <sftp:connection username="mule" password="wrong" host="localhost" port="${sftp.listener.port}"
                          workingDir="/config" >
             <pooling-profile />
             <sftp:preferred-authentication-methods >
-                <sftp:preferred-authentication-method value="${authentication-method}" />
+                <sftp:preferred-authentication-method value="PASSWORD" />
             </sftp:preferred-authentication-methods>
         </sftp:connection>
     </sftp:config>
 
 
-
-    <munit:test name="sftp-connection-preferred-authentication-method"
+    <!-- TESTS -->
+    <munit:test name="sftp-connection-preferred-authentication-method-password"
                 description="Test preferred-authentication-methods parameter">
         <munit:execution>
-            <sftp:list config-ref="config-preferred-authentication-method"
+            <sftp:list config-ref="config-preferred-authentication-method-password"
                        directoryPath="test/" recursive="true"/>
         </munit:execution>
         <munit:validation>
@@ -77,10 +67,10 @@
         </munit:validation>
     </munit:test>
 
-    <munit:test name="sftp-connection-preferred-authentication-methods"
+    <munit:test name="sftp-connection-preferred-authentication-methods-password"
                 description="Test preferred-authentication-methods parameter">
         <munit:execution>
-            <sftp:list config-ref="config-preferred-authentication-methods"
+            <sftp:list config-ref="config-preferred-authentication-methods-password"
                        directoryPath="test/" recursive="true"/>
         </munit:execution>
         <munit:validation>
@@ -88,21 +78,24 @@
         </munit:validation>
     </munit:test>
 
-    <munit:test name="sftp-connection-preferred-authentication-methods-public-key-fail"
+
+    <!-- ERROR TESTS -->
+    <munit:test name="sftp-connection-preferred-authentication-method-password-wrong"
                 description="Test preferred-authentication-methods parameter"
                 expectedErrorType="SFTP:INVALID_CREDENTIALS">
         <munit:execution>
-            <sftp:list config-ref="config-preferred-authentication-method-wrong"
+            <sftp:list config-ref="config-preferred-authentication-method-password-wrong"
                        directoryPath="test/" recursive="true"/>
         </munit:execution>
     </munit:test>
 
-    <munit:test name="sftp-authentication-credential-wrong"
+    <munit:test name="sftp-authentication-credential-password-wrong"
                 description="Test preferred-authentication-methods parameter"
                 expectedErrorType="SFTP:INVALID_CREDENTIALS">
         <munit:execution>
-            <sftp:list config-ref="config-authentication-credential-wrong"
+            <sftp:list config-ref="config-authentication-credential-password-wrong"
                        directoryPath="test/" recursive="true"/>
         </munit:execution>
     </munit:test>
+
 </mule>
