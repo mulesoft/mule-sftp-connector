@@ -51,6 +51,7 @@ import org.apache.sshd.common.config.keys.FilePasswordProvider;
 import org.apache.sshd.common.config.keys.loader.KeyPairResourceLoader;
 import org.apache.sshd.common.keyprovider.KeyIdentityProvider;
 import org.apache.sshd.common.util.security.SecurityUtils;
+import org.apache.sshd.core.CoreModuleProperties;
 import org.apache.sshd.sftp.client.SftpClient.OpenMode;
 import org.apache.sshd.sftp.common.SftpConstants;
 import org.apache.sshd.sftp.common.SftpException;
@@ -183,13 +184,13 @@ public class SftpClient {
   }
 
   private void configureSession(String user) throws IOException {
-
+    if (this.preferredAuthenticationMethods != null && !this.preferredAuthenticationMethods.isEmpty()) {
+      CoreModuleProperties.PREFERRED_AUTHS.set(client, this.preferredAuthenticationMethods.toLowerCase());
+    }
     session = client.connect(user, host, port)
         .verify(connectionTimeoutMillis)
         .getSession();
-
     session.setKeyIdentityProvider(KeyIdentityProvider.EMPTY_KEYS_PROVIDER);
-
     configureProxy(session);
   }
 
