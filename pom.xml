@@ -214,10 +214,9 @@
                         <configuration>
                             <folder>mule-sftp-connector</folder>
                             <vaultBucket>connector-credentials</vaultBucket>
-                            <vault.address>https://vault.connectors.cloud</vault.address>
-                            <vault.secret.engine>connector-credentials</vault.secret.engine>
-                            <vault.user>${env.VAULT_USER}</vault.user>
-                            <vault.password>${env.VAULT_PASSWORD}</vault.password>
+                            <vaultAddress>https://vault.connectors.cloud</vaultAddress>
+                            <vaultUser>${env.VAULT_USER}</vaultUser>
+                            <vaultPassword>${env.VAULT_PASSWORD}</vaultPassword>
                         </configuration>
                     </execution>
                 </executions>
