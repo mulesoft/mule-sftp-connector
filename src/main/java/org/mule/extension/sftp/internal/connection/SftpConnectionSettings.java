@@ -9,8 +9,10 @@ package org.mule.extension.sftp.internal.connection;
 import static org.mule.runtime.api.meta.model.display.PathModel.Location.EMBEDDED;
 import static org.mule.runtime.api.meta.model.display.PathModel.Type.FILE;
 
+import org.mule.extension.sftp.api.random.alg.PRNGAlgorithm;
 import org.mule.runtime.extension.api.annotation.param.Optional;
 import org.mule.runtime.extension.api.annotation.param.Parameter;
+import org.mule.runtime.extension.api.annotation.param.display.DisplayName;
 import org.mule.runtime.extension.api.annotation.param.display.Password;
 import org.mule.runtime.extension.api.annotation.param.display.Path;
 import org.mule.runtime.extension.api.annotation.param.display.Placement;
@@ -86,6 +88,14 @@ public final class SftpConnectionSettings {
   @Secret
   private String identityFile;
 
+
+  @Parameter
+  @Optional(defaultValue = "AUTOSELECT")
+  @Summary("The Pseudo Random Generator Algorithm to use")
+  @Placement(order = 7)
+  @DisplayName("PRNG Algorithm")
+  private PRNGAlgorithm prngAlgorithm;
+
   public int getPort() {
     return port;
   }
@@ -134,6 +144,14 @@ public final class SftpConnectionSettings {
     this.host = host;
   }
 
+  public PRNGAlgorithm getPrngAlgorithm() {
+    return prngAlgorithm;
+  }
+
+  public void setPrngAlgorithm(PRNGAlgorithm prngAlgorithm) {
+    this.prngAlgorithm = prngAlgorithm;
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -150,11 +168,12 @@ public final class SftpConnectionSettings {
         Objects.equals(username, that.username) &&
         Objects.equals(password, that.password) &&
         Objects.equals(passphrase, that.passphrase) &&
-        Objects.equals(identityFile, that.identityFile);
+        Objects.equals(identityFile, that.identityFile) &&
+        prngAlgorithm == that.prngAlgorithm;
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(host, port, username, password, passphrase, identityFile);
+    return Objects.hash(host, port, username, password, passphrase, identityFile, prngAlgorithm);
   }
 }

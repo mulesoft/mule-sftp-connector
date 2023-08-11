@@ -28,7 +28,7 @@
 
     <sftp:config name="sftp-config">
         <sftp:connection username="mule" password="test" host="127.0.0.1" port="${sftp.listener.port}"
-                         workingDir="/app">
+                         workingDir="/app" prngAlgorithm="SHA1PRNG">
             <reconnection >
                 <reconnect-forever />
             </reconnection>

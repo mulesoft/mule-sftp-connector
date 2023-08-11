@@ -6,31 +6,31 @@
         http://www.mulesoft.org/schema/mule/sftp http://www.mulesoft.org/schema/mule/sftp/current/mule-sftp.xsd">
 
     <sftp:config name="sftpConfigInvalidCredentials">
-        <sftp:connection username="invalidUser" password="invalidPassword" host="localhost" port="${SFTP_PORT}" workingDir="${workingDir}"/>
+        <sftp:connection username="invalidUser" password="invalidPassword" host="localhost" port="${SFTP_PORT}" workingDir="${workingDir}" prngAlgorithm="SHA1PRNG"/>
     </sftp:config>
 
     <sftp:config name="sftpConfigConnectionTimeout">
-        <sftp:connection username="muletest1" password="muletest1" host="google.com" port="${SFTP_PORT}" workingDir="${workingDir}" connectionTimeout="1" connectionTimeoutUnit="MILLISECONDS"/>
+        <sftp:connection username="muletest1" password="muletest1" host="google.com" port="${SFTP_PORT}" workingDir="${workingDir}" connectionTimeout="1" connectionTimeoutUnit="MILLISECONDS" prngAlgorithm="SHA1PRNG"/>
     </sftp:config>
 
     <sftp:config name="sftpConfigConnectionRefused">
-        <sftp:connection username="muletest1" password="muletest1" host="localhost" port="8888" workingDir="${workingDir}"/>
+        <sftp:connection username="muletest1" password="muletest1" host="localhost" port="8888" workingDir="${workingDir}" prngAlgorithm="SHA1PRNG"/>
     </sftp:config>
 
     <sftp:config name="sftpConfigMissingCredentials">
-        <sftp:connection host="localhost" port="${SFTP_PORT}" workingDir="${workingDir}"/>
+        <sftp:connection host="localhost" port="${SFTP_PORT}" workingDir="${workingDir}" prngAlgorithm="SHA1PRNG"/>
     </sftp:config>
 
     <sftp:config name="sftpConfigUnknownHost">
-        <sftp:connection username="anonymous" password="password"  host="dsadsadas" port="${SFTP_PORT}" workingDir="${workingDir}"/>
+        <sftp:connection username="anonymous" password="password"  host="dsadsadas" port="${SFTP_PORT}" workingDir="${workingDir}" prngAlgorithm="SHA1PRNG"/>
     </sftp:config>
 
     <sftp:config name="sftpConfigFirstConnection">
-        <sftp:connection username="limitedUsed" password="limitedUsed"  host="localhost" port="${SFTP_PORT}" workingDir="${workingDir}"/>
+        <sftp:connection username="limitedUsed" password="limitedUsed"  host="localhost" port="${SFTP_PORT}" workingDir="${workingDir}" prngAlgorithm="SHA1PRNG"/>
     </sftp:config>
 
     <sftp:config name="sftpConfigServiceUnavailable">
-        <sftp:connection username="limitedUsed" password="limitedUsed"  host="localhost" port="${SFTP_PORT}" workingDir="${workingDir}"/>
+        <sftp:connection username="limitedUsed" password="limitedUsed"  host="localhost" port="${SFTP_PORT}" workingDir="${workingDir}" prngAlgorithm="SHA1PRNG"/>
     </sftp:config>
 
 </mule>
