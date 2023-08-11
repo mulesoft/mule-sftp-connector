@@ -11,14 +11,14 @@
 
     <sftp:config name="config">
         <sftp:connection username="muletest1" password="muletest1" host="localhost" port="${sftp.server.port}"
-                         workingDir="/" prngAlgorithm="SHA1PRNG">
+                         workingDir="/" >
             <pooling-profile exhaustedAction="WHEN_EXHAUSTED_WAIT" maxActive="7" maxIdle="3" maxWait="5000"/>
         </sftp:connection>
     </sftp:config>
 
     <sftp:config name="config-with-reconnection">
         <sftp:connection username="muletest1" password="muletest1" host="localhost" port="${sftp.server.port}"
-                         workingDir="/" prngAlgorithm="SHA1PRNG">
+                         workingDir="/">
             <reconnection >
                 <reconnect count="20" frequency="1000"/>
             </reconnection>
@@ -27,8 +27,7 @@
     </sftp:config>
 
     <sftp:config name="config-without-working-dir">
-        <sftp:connection username="muletest1" password="muletest1" host="localhost" port="${sftp.server.port}"
-                         prngAlgorithm="SHA1PRNG">
+        <sftp:connection username="muletest1" password="muletest1" host="localhost" port="${sftp.server.port}">
             <pooling-profile exhaustedAction="WHEN_EXHAUSTED_WAIT" maxActive="7" maxIdle="3" maxWait="5000"/>
         </sftp:connection>
     </sftp:config>
@@ -40,26 +39,26 @@
 
     <sftp:config name="config-docker">
         <sftp:connection username="mule" password="test" host="localhost" port="${sftp.listener.port}"
-                         workingDir="/config" prngAlgorithm="SHA1PRNG">
+                         workingDir="/config">
             <pooling-profile exhaustedAction="WHEN_EXHAUSTED_WAIT" maxActive="7" maxIdle="3" maxWait="5000"/>
         </sftp:connection>
     </sftp:config>
 
     <sftp:config name="config-docker-with-home-directory">
         <sftp:connection username="mule" password="test" host="localhost" port="${sftp.listener.port}"
-                         workingDir="/config" prngAlgorithm="SHA1PRNG">
+                         workingDir="/config">
             <pooling-profile exhaustedAction="WHEN_EXHAUSTED_WAIT" maxActive="7" maxIdle="3" maxWait="5000"/>
         </sftp:connection>
     </sftp:config>
 
     <sftp:config name="config-docker-with-private-directory">
         <sftp:connection username="mule" password="test" host="localhost" port="${sftp.listener.port}"
-                         workingDir="/" prngAlgorithm="SHA1PRNG">
+                         workingDir="/">
             <pooling-profile exhaustedAction="WHEN_EXHAUSTED_WAIT" maxActive="7" maxIdle="3" maxWait="5000"/>
         </sftp:connection>
     </sftp:config>
     <sftp:config name="config-docker-without-home-directory">
-        <sftp:connection username="mule" password="test" host="localhost" port="${sftp.listener.port}" prngAlgorithm="SHA1PRNG">
+        <sftp:connection username="mule" password="test" host="localhost" port="${sftp.listener.port}">
             <reconnection>
                 <reconnect count="20" frequency="1000"/>
             </reconnection>
@@ -83,7 +82,7 @@
 
     <sftp:config name="config-invalid-folder">
         <sftp:connection username="muletest1" password="muletest1" host="localhost" port="${sftp.server.port}"
-                         workingDir="/invalid" prngAlgorithm="SHA1PRNG">
+                         workingDir="/invalid">
             <pooling-profile exhaustedAction="WHEN_EXHAUSTED_WAIT" maxActive="7" maxIdle="3" maxWait="5000"/>
         </sftp:connection>
     </sftp:config>
