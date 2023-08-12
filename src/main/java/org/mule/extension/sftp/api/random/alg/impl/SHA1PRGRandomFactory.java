@@ -4,19 +4,20 @@
  * license, a copy of which has been included with this distribution in the
  * LICENSE.txt file.
  */
-package org.mule.extension.sftp.api.random.alg.impl;
 
-import org.mule.extension.sftp.api.random.alg.MulePRNGAlgorithm;
+package org.mule.extension.sftp.api.random.alg.impl;
 
 import org.apache.sshd.common.random.AbstractRandomFactory;
 import org.apache.sshd.common.random.Random;
 
-public class NativeNonBlockingPRNGAlgorithm extends AbstractRandomFactory {
+import org.mule.extension.sftp.api.random.alg.MulePRNGAlgorithm;
 
-  public static final String NAME = "NativePRNGNonBlocking";
-  public static final NativeNonBlockingPRNGAlgorithm INSTANCE = new NativeNonBlockingPRNGAlgorithm();
+public class SHA1PRGRandomFactory extends AbstractRandomFactory {
 
-  private NativeNonBlockingPRNGAlgorithm() {
+  public static final String NAME = "SHA1PRNG";
+  public static final SHA1PRGRandomFactory INSTANCE = new SHA1PRGRandomFactory();
+
+  private SHA1PRGRandomFactory() {
     super(NAME);
   }
 

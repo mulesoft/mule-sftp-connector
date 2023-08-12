@@ -25,6 +25,7 @@ import static org.junit.Assert.fail;
 import org.mule.extension.AbstractSftpTestHarness;
 import org.mule.extension.sftp.api.FileAttributes;
 import org.mule.extension.sftp.api.SftpFileAttributes;
+import org.mule.extension.sftp.api.random.alg.PRNGAlgorithm;
 import org.mule.extension.sftp.internal.connection.SftpClient;
 import org.mule.extension.sftp.internal.connection.SftpClientFactory;
 import org.mule.tck.junit4.rule.DynamicPort;
@@ -114,7 +115,7 @@ public class SftpTestHarness extends AbstractSftpTestHarness {
   }
 
   private SftpClient createDefaultSftpClient() throws IOException, GeneralSecurityException {
-    SftpClient sftpClient = new SftpClientFactory().createInstance("localhost", sftpPort.getNumber());
+    SftpClient sftpClient = new SftpClientFactory().createInstance("localhost", sftpPort.getNumber(), PRNGAlgorithm.SHA1PRNG);
     clientAuthConfigurator.configure(sftpClient);
 
     sftpClient.setPassword(PASSWORD);

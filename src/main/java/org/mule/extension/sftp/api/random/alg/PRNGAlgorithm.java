@@ -6,28 +6,31 @@
  */
 package org.mule.extension.sftp.api.random.alg;
 
-import org.mule.extension.sftp.api.random.alg.impl.AutoSelectPRGNAlgorithm;
-import org.mule.extension.sftp.api.random.alg.impl.NativeBlockingPRNGAlgorithm;
-import org.mule.extension.sftp.api.random.alg.impl.NativeNonBlockingPRNGAlgorithm;
-import org.mule.extension.sftp.api.random.alg.impl.NativePRNGAlgorithm;
-import org.mule.extension.sftp.api.random.alg.impl.SHA1PRNGAlgorithm;
+import org.mule.extension.sftp.api.random.alg.impl.NativeBlockingPRNGRandomFactory;
+import org.mule.extension.sftp.api.random.alg.impl.NativePRNGRandomFactory;
+import org.mule.extension.sftp.api.random.alg.impl.SHA1PRGRandomFactory;
+
+import org.apache.sshd.common.random.RandomFactory;
+import org.apache.sshd.common.random.SingletonRandomFactory;
+import org.apache.sshd.common.util.security.SecurityUtils;
 
 public enum PRNGAlgorithm {
 
-  AUTOSELECT("AUTOSELECT", AutoSelectPRGNAlgorithm.class), NativePRNG("NativePRNG", NativeBlockingPRNGAlgorithm.class), SHA1PRNG(
-      "SHA1PRNG", SHA1PRNGAlgorithm.class), NativePRNGBlocking("NativePRNGBlocking",
-          NativePRNGAlgorithm.class), NativePRNGNonBlocking("NativePRNGNonBlocking", NativeNonBlockingPRNGAlgorithm.class);
+  AUTOSELECT("AUTOSELECT", new SingletonRandomFactory(SecurityUtils.getRandomFactory())), SHA1PRNG("SHA1PRNG",
+      SHA1PRGRandomFactory.INSTANCE), NativePRNG("NativePRNG", NativePRNGRandomFactory.INSTANCE), NativePRNGBlocking(
+          "NativePRNGBlocking", NativePRNGRandomFactory.INSTANCE), NativePRNGNonBlocking("NativePRNGNonBlocking",
+              NativeBlockingPRNGRandomFactory.INSTANCE);
 
-  private String implementationClassName;
+  private RandomFactory factory;
   private String name;
 
-  PRNGAlgorithm(String name, Class<? extends MulePRNGAlgorithm> implementationClass) {
+  PRNGAlgorithm(String name, RandomFactory factory) {
     this.name = name;
-    this.implementationClassName = implementationClass.getName();
+    this.factory = factory;
   }
 
-  public String getImplementationClassName() {
-    return implementationClassName;
+  public RandomFactory getRandomFactory() {
+    return factory;
   }
 
   public String getName() {
