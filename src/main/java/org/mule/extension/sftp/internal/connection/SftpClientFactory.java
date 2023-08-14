@@ -6,6 +6,8 @@
  */
 package org.mule.extension.sftp.internal.connection;
 
+import org.mule.extension.sftp.api.random.alg.PRNGAlgorithm;
+
 /**
  * Creates instances of {@link SftpClient}
  *
@@ -21,7 +23,7 @@ public class SftpClientFactory {
    * @param port the remote connection port
    * @return a {@link SftpClient}
    */
-  public SftpClient createInstance(String host, int port) {
-    return new SftpClient(host, port);
+  public SftpClient createInstance(String host, int port, PRNGAlgorithm prngAlgorithm) {
+    return new SftpClient(host, port, prngAlgorithm);
   }
 }

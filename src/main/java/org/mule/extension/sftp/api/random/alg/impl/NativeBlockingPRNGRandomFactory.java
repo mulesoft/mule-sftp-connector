@@ -11,12 +11,12 @@ import org.mule.extension.sftp.api.random.alg.MulePRNGAlgorithm;
 import org.apache.sshd.common.random.AbstractRandomFactory;
 import org.apache.sshd.common.random.Random;
 
-public class NativeNonBlockingPRNGAlgorithm extends AbstractRandomFactory {
+public class NativeBlockingPRNGRandomFactory extends AbstractRandomFactory {
 
-  public static final String NAME = "NativePRNGNonBlocking";
-  public static final NativeNonBlockingPRNGAlgorithm INSTANCE = new NativeNonBlockingPRNGAlgorithm();
+  public static final String NAME = "NativePRNGBlocking";
+  public static final NativeBlockingPRNGRandomFactory INSTANCE = new NativeBlockingPRNGRandomFactory();
 
-  private NativeNonBlockingPRNGAlgorithm() {
+  private NativeBlockingPRNGRandomFactory() {
     super(NAME);
   }
 

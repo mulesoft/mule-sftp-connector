@@ -22,6 +22,8 @@ import static org.apache.sshd.sftp.common.SftpConstants.SSH_FX_NO_CONNECTION;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import org.mule.extension.sftp.api.FileWriteMode;
+import org.mule.extension.sftp.api.random.alg.PRNGAlgorithm;
+import org.mule.extension.sftp.internal.exception.SftpConnectionException;
 import org.mule.extension.sftp.api.SftpFileAttributes;
 import org.mule.extension.sftp.api.SftpProxyConfig;
 import org.mule.extension.sftp.internal.error.FileError;
@@ -44,6 +46,7 @@ import java.security.KeyPair;
 import java.util.Collection;
 import java.util.List;
 
+import org.apache.sshd.client.ClientBuilder;
 import org.apache.sshd.client.SshClient;
 import org.apache.sshd.client.session.ClientSession;
 import org.apache.sshd.common.config.keys.FilePasswordProvider;
@@ -66,7 +69,7 @@ public class SftpClient {
   protected static final OpenMode[] CREATE_MODES = {OpenMode.Write, OpenMode.Create};
   protected static final OpenMode[] APPEND_MODES = {OpenMode.Write, OpenMode.Append};
 
-  private final SshClient client = SshClient.setUpDefaultClient();
+  private final SshClient client;
   private org.apache.sshd.sftp.client.SftpClient sftp;
   private ClientSession session;
   private final String host;
@@ -90,11 +93,18 @@ public class SftpClient {
    * @param host the host address
    * @param port the remote connection port
    */
-  public SftpClient(String host, int port) {
+  public SftpClient(String host, int port, PRNGAlgorithm prngAlgorithm) {
     this.host = host;
     this.port = port;
+
+
+    client = ClientBuilder.builder()
+        .randomFactory(prngAlgorithm.getRandomFactory())
+        .build();
+
     client.start();
   }
+
 
   /**
    * @return the current working directory
