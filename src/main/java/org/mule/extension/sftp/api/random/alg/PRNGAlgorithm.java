@@ -7,6 +7,7 @@
 package org.mule.extension.sftp.api.random.alg;
 
 import org.mule.extension.sftp.api.random.alg.impl.NativeBlockingPRNGRandomFactory;
+import org.mule.extension.sftp.api.random.alg.impl.NativeNonBlockingPRNGFactory;
 import org.mule.extension.sftp.api.random.alg.impl.NativePRNGRandomFactory;
 import org.mule.extension.sftp.api.random.alg.impl.SHA1PRGRandomFactory;
 
@@ -16,10 +17,10 @@ import org.apache.sshd.common.util.security.SecurityUtils;
 
 public enum PRNGAlgorithm {
 
-  AUTOSELECT("AUTOSELECT", new SingletonRandomFactory(SecurityUtils.getRandomFactory())), SHA1PRNG("SHA1PRNG",
-      SHA1PRGRandomFactory.INSTANCE), NativePRNG("NativePRNG", NativePRNGRandomFactory.INSTANCE), NativePRNGBlocking(
-          "NativePRNGBlocking", NativePRNGRandomFactory.INSTANCE), NativePRNGNonBlocking("NativePRNGNonBlocking",
-              NativeBlockingPRNGRandomFactory.INSTANCE);
+  AUTOSELECT("AUTOSELECT", new SingletonRandomFactory(SecurityUtils.getRandomFactory())),
+  SHA1PRNG("SHA1PRNG", SHA1PRGRandomFactory.INSTANCE), NativePRNG("NativePRNG", NativePRNGRandomFactory.INSTANCE),
+  NativePRNGBlocking("NativePRNGBlocking", NativeBlockingPRNGRandomFactory.INSTANCE),
+  NativePRNGNonBlocking("NativePRNGNonBlocking", NativeNonBlockingPRNGFactory.INSTANCE);
 
   private RandomFactory factory;
   private String name;
