@@ -12,17 +12,17 @@
 
     <munit:config name="sftp-write-knowhosts-test-case.xml"/>
 
-    <configuration-properties file="automation-credentials.properties"/>
+    <configuration-properties file="src/test/resources/automation-credentials.properties"/>
 
     <sftp:config name="config-known-host">
         <sftp:connection username="${sftp.user}" password="${sftp.password}" host="${sftp.ip}" port="${sftp.port}"
-                         knownHostsFile="know_hosts.properties" workingDir="/upload">
+                         knownHostsFile="src/test/resources/know_hosts.properties" workingDir="/upload">
         </sftp:connection>
     </sftp:config>
 
     <sftp:config name="config-known-host-error">
         <sftp:connection username="${sftp.user}" password="${sftp.password}" host="${sftp.ip}" port="${sftp.port}"
-                         knownHostsFile="know_hosts_error.properties" workingDir="/upload">
+                         knownHostsFile="src/test/resources/know_hosts_error.properties" workingDir="/upload">
         </sftp:connection>
     </sftp:config>
 
