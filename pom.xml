@@ -196,27 +196,6 @@
     <build>
         <plugins>
             <plugin>
-                <groupId>com.mulesoft.connectors.maven</groupId>
-                <artifactId>connector-maven-plugin</artifactId>
-                <version>3.0.2</version>
-                <executions>
-                    <execution>
-                        <id>get-configuration-files</id>
-                        <phase>pre-integration-test</phase>
-                        <goals>
-                            <goal>get-configuration-files</goal>
-                        </goals>
-                        <configuration>
-                            <folder>mule-sftp-connector</folder>
-                            <vaultBucket>connector-credentials</vaultBucket>
-                            <vaultAddress>https://vault.connectors.cloud</vaultAddress>
-                            <vaultUser>${env.VAULT_USER}</vaultUser>
-                            <vaultPassword>${env.VAULT_PASSWORD}</vaultPassword>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
                 <artifactId>maven-resources-plugin</artifactId>
                 <version>${mavenResources.version}</version>
                 <executions>
