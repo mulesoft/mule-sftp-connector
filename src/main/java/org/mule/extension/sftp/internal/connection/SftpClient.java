@@ -184,7 +184,7 @@ public class SftpClient {
     sftp = scf.createSftpClient(session);
   }
 
-  private void configureSession(String user) throws IOException, GeneralSecurityException  {
+  private void configureSession(String user) throws IOException, GeneralSecurityException {
     if (this.preferredAuthenticationMethods != null && !this.preferredAuthenticationMethods.isEmpty()) {
       CoreModuleProperties.PREFERRED_AUTHS.set(client, this.preferredAuthenticationMethods.toLowerCase());
     }

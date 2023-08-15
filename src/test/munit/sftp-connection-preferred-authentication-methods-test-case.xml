@@ -14,7 +14,6 @@
 
     <!-- CONFIGS -->
     <sftp:config name="config-preferred-authentication-method-password" >
-
         <sftp:connection username="mule" password="test" host="localhost" port="${sftp.listener.port}"
                          workingDir="/config" >
             <pooling-profile />
@@ -58,9 +57,10 @@
 
     <!-- TESTS -->
     <munit:test name="sftp-connection-preferred-authentication-method-password"
-                description="Test preferred-authentication-methods parameter">
+                description="Test preferred-authentication-methods parameter for one method only (password)">
         <munit:execution>
             <sftp:list config-ref="config-preferred-authentication-method-password"
+                       directoryPath="test/" recursive="true"/>
         </munit:execution>
         <munit:validation>
             <munit-tools:assert-that expression="#[payload]" is="#[MunitTools::notNullValue()]"/>
@@ -68,26 +68,29 @@
     </munit:test>
 
     <munit:test name="sftp-connection-preferred-authentication-methods-password"
-                description="Test preferred-authentication-methods parameter">
+                description="Test preferred-authentication-methods parameter for two methods (the first one fails the second one passes)">
         <munit:execution>
             <sftp:list config-ref="config-preferred-authentication-methods-password"
+                       directoryPath="test/" recursive="true"/>
         </munit:execution>
         <munit:validation>
             <munit-tools:assert-that expression="#[payload]" is="#[MunitTools::notNullValue()]"/>
         </munit:validation>
     </munit:test>
 
+
     <!-- ERROR TESTS -->
     <munit:test name="sftp-connection-preferred-authentication-method-password-wrong"
-                description="Test preferred-authentication-methods parameter"
+                description="Test preferred-authentication-methods parameter error. The method does note have the parameters that it needs."
                 expectedErrorType="SFTP:INVALID_CREDENTIALS">
         <munit:execution>
             <sftp:list config-ref="config-preferred-authentication-method-password-wrong"
+                       directoryPath="test/" recursive="true"/>
         </munit:execution>
     </munit:test>
 
     <munit:test name="sftp-authentication-credential-password-wrong"
-                description="Test preferred-authentication-methods parameter"
+                description="Test preferred-authentication-methods parameter error. The credentials are wrong."
                 expectedErrorType="SFTP:INVALID_CREDENTIALS">
         <munit:execution>
             <sftp:list config-ref="config-authentication-credential-password-wrong"
