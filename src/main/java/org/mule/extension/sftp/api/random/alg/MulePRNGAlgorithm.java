@@ -9,25 +9,23 @@ package org.mule.extension.sftp.api.random.alg;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 
+import org.apache.sshd.common.random.AbstractRandom;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public abstract class MulePRNGAlgorithm {
+public class MulePRNGAlgorithm extends AbstractRandom {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(MulePRNGAlgorithm.class);
 
   private byte[] tmp = new byte[16];
   private SecureRandom random = null;
 
-  protected MulePRNGAlgorithm() {
+  private String name;
 
+  public MulePRNGAlgorithm(String name) {
     try {
-      String algorithmName = getAlgorithmName();
-      if (algorithmName == null) {
-        fallBackToSecureRandom();
-        return;
-      }
-      random = SecureRandom.getInstance(algorithmName);
+      this.name = name;
+      random = SecureRandom.getInstance(name);
     } catch (NoSuchAlgorithmException e) {
       LOGGER.warn("Error retrieving PRGN generator. Using default Pseudonumber Random Generator");
       fallBackToSecureRandom();
@@ -38,6 +36,10 @@ public abstract class MulePRNGAlgorithm {
     random = new SecureRandom();
   }
 
+  public String getName() {
+    return name;
+  }
+
   public void fill(byte[] foo, int start, int len) {
     if (len > tmp.length) {
       tmp = new byte[len];
@@ -46,6 +48,7 @@ public abstract class MulePRNGAlgorithm {
     System.arraycopy(tmp, 0, foo, start, len);
   }
 
-  protected abstract String getAlgorithmName();
-
+  public synchronized int random(int n) {
+    return this.random.nextInt(n);
+  }
 }

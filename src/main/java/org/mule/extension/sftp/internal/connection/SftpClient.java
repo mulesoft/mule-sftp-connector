@@ -17,16 +17,15 @@ import static org.mule.runtime.core.api.util.StringUtils.isEmpty;
 import static java.lang.String.format;
 import static java.util.Collections.emptyList;
 import static java.util.Objects.nonNull;
-
 import static org.apache.commons.collections.CollectionUtils.isEmpty;
 import static org.apache.sshd.sftp.common.SftpConstants.SSH_FX_CONNECTION_LOST;
 import static org.apache.sshd.sftp.common.SftpConstants.SSH_FX_NO_CONNECTION;
-
 import static org.slf4j.LoggerFactory.getLogger;
 
 import org.mule.extension.sftp.api.FileWriteMode;
 import org.mule.extension.sftp.api.SftpFileAttributes;
 import org.mule.extension.sftp.api.SftpProxyConfig;
+import org.mule.extension.sftp.api.random.alg.PRNGAlgorithm;
 import org.mule.extension.sftp.internal.error.FileError;
 import org.mule.extension.sftp.internal.exception.FileAccessDeniedException;
 import org.mule.extension.sftp.internal.exception.SftpConnectionException;
@@ -49,19 +48,19 @@ import java.security.PublicKey;
 import java.util.Collection;
 import java.util.List;
 
+import org.apache.sshd.client.ClientBuilder;
 import org.apache.sshd.client.SshClient;
 import org.apache.sshd.client.keyverifier.KnownHostsServerKeyVerifier;
 import org.apache.sshd.client.keyverifier.RejectAllServerKeyVerifier;
 import org.apache.sshd.client.session.ClientSession;
 import org.apache.sshd.common.config.keys.FilePasswordProvider;
 import org.apache.sshd.common.config.keys.loader.KeyPairResourceLoader;
-import org.apache.sshd.common.keyprovider.KeyIdentityProvider;
 import org.apache.sshd.common.util.GenericUtils;
 import org.apache.sshd.common.util.security.SecurityUtils;
+import org.apache.sshd.core.CoreModuleProperties;
 import org.apache.sshd.sftp.client.SftpClient.OpenMode;
 import org.apache.sshd.sftp.common.SftpConstants;
 import org.apache.sshd.sftp.common.SftpException;
-
 import org.slf4j.Logger;
 
 /**
@@ -75,7 +74,7 @@ public class SftpClient {
   protected static final OpenMode[] CREATE_MODES = {OpenMode.Write, OpenMode.Create};
   protected static final OpenMode[] APPEND_MODES = {OpenMode.Write, OpenMode.Append};
 
-  private final SshClient client = SshClient.setUpDefaultClient();
+  private final SshClient client;
   private org.apache.sshd.sftp.client.SftpClient sftp;
   private ClientSession session;
   private final String host;
@@ -99,11 +98,18 @@ public class SftpClient {
    * @param host the host address
    * @param port the remote connection port
    */
-  public SftpClient(String host, int port) {
+  public SftpClient(String host, int port, PRNGAlgorithm prngAlgorithm) {
     this.host = host;
     this.port = port;
+
+
+    client = ClientBuilder.builder()
+        .randomFactory(prngAlgorithm.getRandomFactory())
+        .build();
+
     client.start();
   }
+
 
   /**
    * @return the current working directory
@@ -153,13 +159,7 @@ public class SftpClient {
    */
   public void login(String user) throws IOException, GeneralSecurityException {
     configureSession(user);
-    if (!isEmpty(password)) {
-      session.addPasswordIdentity(password);
-    }
 
-    if (!isEmpty(identityFile)) {
-      setupIdentity();
-    }
 
     session.auth().verify(connectionTimeoutMillis);
 
@@ -190,15 +190,22 @@ public class SftpClient {
     sftp = scf.createSftpClient(session);
   }
 
-  private void configureSession(String user) throws IOException {
+  private void configureSession(String user) throws IOException, GeneralSecurityException {
     configureHostChecking();
-
+    if (this.preferredAuthenticationMethods != null && !this.preferredAuthenticationMethods.isEmpty()) {
+      CoreModuleProperties.PREFERRED_AUTHS.set(client, this.preferredAuthenticationMethods.toLowerCase());
+    }
     session = client.connect(user, host, port)
         .verify(connectionTimeoutMillis)
         .getSession();
 
-    session.setKeyIdentityProvider(KeyIdentityProvider.EMPTY_KEYS_PROVIDER);
+    if (!isEmpty(password)) {
+      session.addPasswordIdentity(password);
+    }
 
+    if (!isEmpty(identityFile)) {
+      setupIdentity();
+    }
     configureProxy(session);
   }
 

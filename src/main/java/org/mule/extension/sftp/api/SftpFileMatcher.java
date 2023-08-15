@@ -7,8 +7,6 @@
 package org.mule.extension.sftp.api;
 
 import static java.lang.String.format;
-import static java.time.LocalDateTime.now;
-
 import static org.slf4j.LoggerFactory.getLogger;
 
 import org.mule.extension.sftp.api.matcher.FileMatcher;
@@ -19,7 +17,7 @@ import org.mule.runtime.extension.api.annotation.param.Parameter;
 import org.mule.runtime.extension.api.annotation.param.display.Example;
 import org.mule.runtime.extension.api.annotation.param.display.Summary;
 
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -47,7 +45,7 @@ public class SftpFileMatcher extends FileMatcher<SftpFileMatcher, SftpFileAttrib
   @Summary("Files created before this date are rejected.")
   @Example("2015-06-03T13:21:58+00:00")
   @Optional
-  private LocalDateTime timestampSince;
+  private ZonedDateTime timestampSince;
 
   /**
    * Files created after this date are rejected.
@@ -56,7 +54,7 @@ public class SftpFileMatcher extends FileMatcher<SftpFileMatcher, SftpFileAttrib
   @Summary("Files created after this date are rejected.")
   @Example("2015-06-03T13:21:58+00:00")
   @Optional
-  private LocalDateTime timestampUntil;
+  private ZonedDateTime timestampUntil;
 
   /**
    * Minimum time that should have passed since a file was updated to not be rejected. This attribute works in tandem with
@@ -111,7 +109,7 @@ public class SftpFileMatcher extends FileMatcher<SftpFileMatcher, SftpFileAttrib
     }
 
     // We want to make sure that the same time is used when comparing multiple files consecutively.
-    LocalDateTime now = now();
+    ZonedDateTime now = ZonedDateTime.now();
 
     if (notUpdatedInTheLast != null) {
       predicate = predicate.and(attributes -> {
@@ -146,20 +144,20 @@ public class SftpFileMatcher extends FileMatcher<SftpFileMatcher, SftpFileAttrib
         || timeUnit == TimeUnit.NANOSECONDS;
   }
 
-  private LocalDateTime minusTime(LocalDateTime localDateTime, Long time, TimeUnit timeUnit) {
-    return localDateTime.minus(getTimeInMillis(time, timeUnit), ChronoUnit.MILLIS);
+  private ZonedDateTime minusTime(ZonedDateTime zonedDateTime, Long time, TimeUnit timeUnit) {
+    return zonedDateTime.minus(getTimeInMillis(time, timeUnit), ChronoUnit.MILLIS);
   }
 
   private long getTimeInMillis(Long time, TimeUnit timeUnit) {
     return timeUnit.toMillis(time);
   }
 
-  public SftpFileMatcher setTimestampSince(LocalDateTime timestampSince) {
+  public SftpFileMatcher setTimestampSince(ZonedDateTime timestampSince) {
     this.timestampSince = timestampSince;
     return this;
   }
 
-  public SftpFileMatcher setTimestampUntil(LocalDateTime timestampUntil) {
+  public SftpFileMatcher setTimestampUntil(ZonedDateTime timestampUntil) {
     this.timestampUntil = timestampUntil;
     return this;
   }
@@ -176,11 +174,11 @@ public class SftpFileMatcher extends FileMatcher<SftpFileMatcher, SftpFileAttrib
     this.notUpdatedInTheLast = notUpdatedInTheLast;
   }
 
-  public LocalDateTime getTimestampSince() {
+  public ZonedDateTime getTimestampSince() {
     return timestampSince;
   }
 
-  public LocalDateTime getTimestampUntil() {
+  public ZonedDateTime getTimestampUntil() {
     return timestampUntil;
   }
 

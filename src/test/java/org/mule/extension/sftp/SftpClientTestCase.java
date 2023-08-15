@@ -18,6 +18,7 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.when;
 
+import org.mule.extension.sftp.api.random.alg.PRNGAlgorithm;
 import org.mule.extension.sftp.internal.connection.SftpClient;
 import org.mule.runtime.api.connection.ConnectionException;
 import org.mule.runtime.api.exception.MuleRuntimeException;
@@ -57,7 +58,7 @@ public class SftpClientTestCase {
   private ClientSession session;
 
   @InjectMocks
-  private SftpClient client = new SftpClient(EMPTY, 0);
+  private SftpClient client = new SftpClient(EMPTY, 0, PRNGAlgorithm.SHA1PRNG);
 
   @Test
   public void returnNullOnUnexistingFile() throws Exception {

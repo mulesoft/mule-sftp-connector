@@ -13,9 +13,6 @@ import org.mule.runtime.extension.api.annotation.param.Parameter;
 import java.io.Serializable;
 import java.net.URI;
 import java.nio.file.Path;
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
@@ -47,8 +44,6 @@ public abstract class AbstractFileAttributes implements FileAttributes, Serializ
 
   /**
    * Default contructor (Creates a new instance)
-   *
-   * @param path a {@link Path} pointing to the represented file
    */
   protected AbstractFileAttributes() {}
 
@@ -77,10 +72,6 @@ public abstract class AbstractFileAttributes implements FileAttributes, Serializ
   @Override
   public String getName() {
     return fileName;
-  }
-
-  protected LocalDateTime asDateTime(Instant instant) {
-    return LocalDateTime.ofInstant(instant, ZoneId.systemDefault());
   }
 
   @Override

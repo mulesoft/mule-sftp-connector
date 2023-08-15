@@ -9,6 +9,9 @@ package org.mule.extension.sftp.internal.util;
 import static java.lang.Thread.currentThread;
 
 import java.net.URL;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 
 import org.apache.commons.io.FilenameUtils;
 
@@ -33,5 +36,9 @@ public class SftpUtils {
   public static String resolvePathOrResource(String pathOrResourceName) {
     URL resource = currentThread().getContextClassLoader().getResource(pathOrResourceName);
     return resource != null ? resource.getPath() : pathOrResourceName;
+  }
+
+  public static ZonedDateTime asDateTime(Instant instant) {
+    return ZonedDateTime.ofInstant(instant, ZoneId.systemDefault());
   }
 }

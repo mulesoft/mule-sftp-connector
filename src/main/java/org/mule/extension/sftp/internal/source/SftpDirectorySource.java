@@ -11,6 +11,7 @@ import static org.mule.runtime.core.api.util.ExceptionUtils.extractConnectionExc
 import static org.mule.runtime.core.api.util.IOUtils.closeQuietly;
 import static org.mule.runtime.extension.api.annotation.param.MediaType.ANY;
 import static org.mule.runtime.extension.api.runtime.source.PollContext.PollItemStatus.SOURCE_STOPPING;
+import static org.mule.sdk.api.annotation.source.SourceClusterSupport.DEFAULT_PRIMARY_NODE_ONLY;
 
 import static java.lang.String.format;
 
@@ -41,6 +42,7 @@ import org.mule.runtime.extension.api.runtime.source.PollContext;
 import org.mule.runtime.extension.api.runtime.source.PollContext.PollItemStatus;
 import org.mule.runtime.extension.api.runtime.source.PollingSource;
 import org.mule.runtime.extension.api.runtime.source.SourceCallbackContext;
+import org.mule.sdk.api.annotation.source.ClusterSupport;
 
 import java.io.InputStream;
 import java.net.URI;
@@ -73,6 +75,7 @@ import org.slf4j.LoggerFactory;
 @DisplayName("On New or Updated File")
 @Summary("Triggers when a new file is created in a directory")
 @Alias("listener")
+@ClusterSupport(DEFAULT_PRIMARY_NODE_ONLY)
 // TODO: MULE-13940 - add mimeType here too
 public class SftpDirectorySource extends PollingSource<InputStream, SftpFileAttributes> {
 
@@ -171,44 +174,40 @@ public class SftpDirectorySource extends PollingSource<InputStream, SftpFileAttr
     if (pollContext.isSourceStopping()) {
       return;
     }
-
     SftpFileSystemConnection fileSystem;
     try {
       fileSystem = openConnection(pollContext);
     } catch (Exception e) {
       LOGGER.error(format("Could not obtain connection while trying to poll directory '%s'. %s", directoryUri.getPath(),
-                          e.getMessage()));
+                          e.getMessage()),
+                   e);
       return;
     }
-
     try {
       Long timeBetweenSizeCheckInMillis =
           config.getTimeBetweenSizeCheckInMillis(timeBetweenSizeCheck, timeBetweenSizeCheckUnit).orElse(null);
-      List<Result<InputStream, SftpFileAttributes>> files =
+      List<Result<String, SftpFileAttributes>> files =
           fileSystem.list(config, directoryUri.getPath(), recursive, matcher, timeBetweenSizeCheckInMillis);
       if (files.isEmpty()) {
         return;
       }
-
-      for (Result<InputStream, SftpFileAttributes> file : files) {
+      for (Result<String, SftpFileAttributes> file : files) {
         if (pollContext.isSourceStopping()) {
           return;
         }
-
         SftpFileAttributes attributes = file.getAttributes().get();
-
         if (attributes.isDirectory()) {
           continue;
         }
-
         if (!matcher.test(attributes)) {
           if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("Skipping file '{}' because the matcher rejected it", attributes.getPath());
           }
           continue;
         }
-
-        if (!processFile(file, pollContext)) {
+        Result<InputStream, SftpFileAttributes> result =
+            fileSystem.read(config, attributes.getPath(), true, timeBetweenSizeCheckInMillis);
+        if (!processFile(result, pollContext)) {
           break;
         }
       }
