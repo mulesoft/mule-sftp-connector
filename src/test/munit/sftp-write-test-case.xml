@@ -140,7 +140,7 @@
     </munit:test>
 
     <munit:test name="sftp-write-big-file"
-                description="Perform a write operation with a big content" ignore="#[Munit::muleVersionPriorTo('4.2.0')]">
+                description="Perform a write operation with a big content" ignore="#[Munit::muleVersionPriorTo('4.3.0')]">
         <munit:behavior>
             <set-variable variableName="fileName" value="filePath.txt"/>
             <set-variable variableName="loopSize" value="500000"/>
