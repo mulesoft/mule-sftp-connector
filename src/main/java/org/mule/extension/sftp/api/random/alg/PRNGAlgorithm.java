@@ -17,10 +17,10 @@ import org.apache.sshd.common.util.security.SecurityUtils;
 
 public enum PRNGAlgorithm {
 
-  AUTOSELECT("AUTOSELECT", new SingletonRandomFactory(SecurityUtils.getRandomFactory())),
-  SHA1PRNG("SHA1PRNG", SHA1PRGRandomFactory.INSTANCE), NativePRNG("NativePRNG", NativePRNGRandomFactory.INSTANCE),
-  NativePRNGBlocking("NativePRNGBlocking", NativeBlockingPRNGRandomFactory.INSTANCE),
-  NativePRNGNonBlocking("NativePRNGNonBlocking", NativeNonBlockingPRNGFactory.INSTANCE);
+  AUTOSELECT("AUTOSELECT", new SingletonRandomFactory(SecurityUtils.getRandomFactory())), SHA1PRNG("SHA1PRNG",
+      SHA1PRGRandomFactory.INSTANCE), NativePRNG("NativePRNG", NativePRNGRandomFactory.INSTANCE), NativePRNGBlocking(
+          "NativePRNGBlocking", NativeBlockingPRNGRandomFactory.INSTANCE), NativePRNGNonBlocking("NativePRNGNonBlocking",
+              NativeNonBlockingPRNGFactory.INSTANCE);
 
   private RandomFactory factory;
   private String name;
