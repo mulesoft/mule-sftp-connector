@@ -18,14 +18,13 @@
         </sftp:connection>
     </sftp:config>
 
-    <!--TODO:W-13914127 Refactor test to use only one sftp server-->
     <sftp:config name="config-known-host-error">
         <sftp:connection username="${sftp.user}" password="${sftp.password}" host="${sftp.ip}" port="${sftp.port}"
                          knownHostsFile="src/test/resources/know_hosts_error.properties" workingDir="/upload">
         </sftp:connection>
     </sftp:config>
 
-    <!--TODO:W-13914127 Refactor test to use only one sftp server-->
+    <!--TODO:W-13947618 Refactor test to use only one sftp server-->
     <munit:test name="sftp-write-file-know-host" ignore="true">
         <munit:execution>
             <sftp:write config-ref="config-known-host" path="write.txt" mode="OVERWRITE"
@@ -33,6 +32,7 @@
         </munit:execution>
     </munit:test>
 
+    <!--TODO:W-13947618 Refactor test to use only one sftp server-->
     <munit:test name="sftp-write-file-know-host-error" expectedErrorType="SFTP:CANNOT_REACH" ignore="true">
         <munit:execution>
             <sftp:write config-ref="config-known-host-error" path="write.txt" mode="OVERWRITE"
