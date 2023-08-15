@@ -16,18 +16,19 @@ import static org.mule.runtime.core.api.util.StringUtils.isEmpty;
 
 import static java.lang.String.format;
 import static java.util.Collections.emptyList;
+import static java.util.Objects.nonNull;
 import static org.apache.commons.collections.CollectionUtils.isEmpty;
 import static org.apache.sshd.sftp.common.SftpConstants.SSH_FX_CONNECTION_LOST;
 import static org.apache.sshd.sftp.common.SftpConstants.SSH_FX_NO_CONNECTION;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import org.mule.extension.sftp.api.FileWriteMode;
-import org.mule.extension.sftp.api.random.alg.PRNGAlgorithm;
-import org.mule.extension.sftp.internal.exception.SftpConnectionException;
 import org.mule.extension.sftp.api.SftpFileAttributes;
 import org.mule.extension.sftp.api.SftpProxyConfig;
+import org.mule.extension.sftp.api.random.alg.PRNGAlgorithm;
 import org.mule.extension.sftp.internal.error.FileError;
 import org.mule.extension.sftp.internal.exception.FileAccessDeniedException;
+import org.mule.extension.sftp.internal.exception.SftpConnectionException;
 import org.mule.extension.sftp.internal.proxy.http.HttpClientConnector;
 import org.mule.extension.sftp.internal.proxy.socks5.Socks5ClientConnector;
 import org.mule.runtime.api.connection.ConnectionException;
@@ -38,18 +39,23 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 import java.net.URI;
 import java.nio.file.Paths;
 import java.security.GeneralSecurityException;
 import java.security.KeyPair;
+import java.security.PublicKey;
 import java.util.Collection;
 import java.util.List;
 
 import org.apache.sshd.client.ClientBuilder;
 import org.apache.sshd.client.SshClient;
+import org.apache.sshd.client.keyverifier.KnownHostsServerKeyVerifier;
+import org.apache.sshd.client.keyverifier.RejectAllServerKeyVerifier;
 import org.apache.sshd.client.session.ClientSession;
 import org.apache.sshd.common.config.keys.FilePasswordProvider;
 import org.apache.sshd.common.config.keys.loader.KeyPairResourceLoader;
+import org.apache.sshd.common.util.GenericUtils;
 import org.apache.sshd.common.util.security.SecurityUtils;
 import org.apache.sshd.core.CoreModuleProperties;
 import org.apache.sshd.sftp.client.SftpClient.OpenMode;
@@ -185,6 +191,7 @@ public class SftpClient {
   }
 
   private void configureSession(String user) throws IOException, GeneralSecurityException {
+    configureHostChecking();
     if (this.preferredAuthenticationMethods != null && !this.preferredAuthenticationMethods.isEmpty()) {
       CoreModuleProperties.PREFERRED_AUTHS.set(client, this.preferredAuthenticationMethods.toLowerCase());
     }
@@ -200,6 +207,25 @@ public class SftpClient {
       setupIdentity();
     }
     configureProxy(session);
+  }
+
+  private void configureHostChecking() {
+    if (nonNull(knownHostsFile)) {
+      client
+          .setServerKeyVerifier(new KnownHostsServerKeyVerifier(RejectAllServerKeyVerifier.INSTANCE, Paths.get(knownHostsFile)) {
+
+            @Override
+            protected boolean acceptKnownHostEntries(
+                                                     ClientSession clientSession, SocketAddress remoteAddress,
+                                                     PublicKey serverKey,
+                                                     Collection<HostEntryPair> knownHosts) {
+              if (GenericUtils.isEmpty(knownHosts)) {
+                LOGGER.error("known_hosts collection is empty!");
+              }
+              return super.acceptKnownHostEntries(clientSession, remoteAddress, serverKey, knownHosts);
+            }
+          });
+    }
   }
 
   private void configureProxy(ClientSession session) {
@@ -454,6 +480,7 @@ public class SftpClient {
   public void setKnownHostsFile(String knownHostsFile) {
     this.knownHostsFile =
         !isEmpty(knownHostsFile) ? new File(resolvePathOrResource(knownHostsFile)).getAbsolutePath() : knownHostsFile;
+
   }
 
   public void setPassword(String password) {

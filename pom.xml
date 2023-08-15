@@ -26,6 +26,8 @@
         <commonsIoVersion>2.13.0</commonsIoVersion>
         <commonsLangVersion>3.12.0</commonsLangVersion>
         <commonsCollectionsVersion>3.2.2</commonsCollectionsVersion>
+        <connector.maven.plugin.version>3.0.2</connector.maven.plugin.version>
+
 
         <muleTestsComponentPlugin>${mule.version}</muleTestsComponentPlugin>
         <muleTestsRunnerVersion>4.1.5</muleTestsRunnerVersion>
