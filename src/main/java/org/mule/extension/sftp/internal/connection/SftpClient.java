@@ -7,16 +7,15 @@
 package org.mule.extension.sftp.internal.connection;
 
 import static org.mule.extension.sftp.internal.error.FileError.CONNECTIVITY;
-import static org.mule.extension.sftp.internal.util.UriUtils.createUri;
 import static org.mule.extension.sftp.internal.util.SftpUtils.normalizePath;
 import static org.mule.extension.sftp.internal.util.SftpUtils.resolvePathOrResource;
+import static org.mule.extension.sftp.internal.util.UriUtils.createUri;
 import static org.mule.runtime.api.i18n.I18nMessageFactory.createStaticMessage;
 import static org.mule.runtime.api.util.collection.Collectors.toImmutableList;
 import static org.mule.runtime.core.api.util.StringUtils.isEmpty;
 
 import static java.lang.String.format;
 import static java.util.Collections.emptyList;
-
 import static org.apache.commons.collections.CollectionUtils.isEmpty;
 import static org.apache.sshd.sftp.common.SftpConstants.SSH_FX_CONNECTION_LOST;
 import static org.apache.sshd.sftp.common.SftpConstants.SSH_FX_NO_CONNECTION;
@@ -27,8 +26,9 @@ import org.mule.extension.sftp.api.random.alg.PRNGAlgorithm;
 import org.mule.extension.sftp.internal.exception.SftpConnectionException;
 import org.mule.extension.sftp.api.SftpFileAttributes;
 import org.mule.extension.sftp.api.SftpProxyConfig;
-import org.mule.extension.sftp.internal.exception.FileAccessDeniedException;
 import org.mule.extension.sftp.internal.error.FileError;
+import org.mule.extension.sftp.internal.exception.FileAccessDeniedException;
+import org.mule.extension.sftp.internal.exception.SftpConnectionException;
 import org.mule.extension.sftp.internal.proxy.http.HttpClientConnector;
 import org.mule.extension.sftp.internal.proxy.socks5.Socks5ClientConnector;
 import org.mule.runtime.api.connection.ConnectionException;
@@ -51,8 +51,8 @@ import org.apache.sshd.client.SshClient;
 import org.apache.sshd.client.session.ClientSession;
 import org.apache.sshd.common.config.keys.FilePasswordProvider;
 import org.apache.sshd.common.config.keys.loader.KeyPairResourceLoader;
-import org.apache.sshd.common.keyprovider.KeyIdentityProvider;
 import org.apache.sshd.common.util.security.SecurityUtils;
+import org.apache.sshd.core.CoreModuleProperties;
 import org.apache.sshd.sftp.client.SftpClient.OpenMode;
 import org.apache.sshd.sftp.common.SftpConstants;
 import org.apache.sshd.sftp.common.SftpException;
@@ -154,13 +154,7 @@ public class SftpClient {
    */
   public void login(String user) throws IOException, GeneralSecurityException {
     configureSession(user);
-    if (!isEmpty(password)) {
-      session.addPasswordIdentity(password);
-    }
 
-    if (!isEmpty(identityFile)) {
-      setupIdentity();
-    }
 
     session.auth().verify(connectionTimeoutMillis);
 
@@ -191,14 +185,21 @@ public class SftpClient {
     sftp = scf.createSftpClient(session);
   }
 
-  private void configureSession(String user) throws IOException {
-
+  private void configureSession(String user) throws IOException, GeneralSecurityException {
+    if (this.preferredAuthenticationMethods != null && !this.preferredAuthenticationMethods.isEmpty()) {
+      CoreModuleProperties.PREFERRED_AUTHS.set(client, this.preferredAuthenticationMethods.toLowerCase());
+    }
     session = client.connect(user, host, port)
         .verify(connectionTimeoutMillis)
         .getSession();
 
-    session.setKeyIdentityProvider(KeyIdentityProvider.EMPTY_KEYS_PROVIDER);
+    if (!isEmpty(password)) {
+      session.addPasswordIdentity(password);
+    }
 
+    if (!isEmpty(identityFile)) {
+      setupIdentity();
+    }
     configureProxy(session);
   }
 

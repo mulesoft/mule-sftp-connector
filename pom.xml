@@ -406,6 +406,7 @@
                                     <name>linuxserver/openssh-server</name>
                                     <alias>openssh-${sftp.listener.port}</alias>
                                     <run>
+                                        <containerNamePattern>%e</containerNamePattern>
                                         <env>
                                             <PUID>1000</PUID>
                                             <PGID>1000</PGID>
