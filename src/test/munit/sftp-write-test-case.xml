@@ -27,7 +27,7 @@
         </munit:parameterizations>
     </munit:config>
 
-    <munit:dynamic-port propertyName="sftp.server.port"/>
+
 
     <munit:before-suite name="startSftpTestServerForWriting">
         <java:invoke-static class="org.mule.extension.sftp.internal.lifecycle.SftpServerLifecycleManager"

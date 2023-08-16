@@ -14,9 +14,9 @@
 
     <munit:config name="sftp-rename-test-case.xml"/>
 
-    <munit:dynamic-port propertyName="sftp.server.port"/>
 
-    <munit:before-suite name="startCopyTestServer">
+
+    <munit:before-suite name="before-sftp-rename-test-case">
         <java:invoke-static class="org.mule.extension.sftp.internal.lifecycle.SftpServerLifecycleManager"
                             method="startSftpServer(String)">
             <java:args>
@@ -27,7 +27,7 @@
         </java:invoke-static>
     </munit:before-suite>
 
-    <munit:after-suite name="clearCopyTestServer">
+    <munit:after-suite name="after-sftp-rename-test-case">
         <java:invoke-static class="org.mule.extension.sftp.internal.lifecycle.SftpServerLifecycleManager"
                             method="stopSftpServer()">
             <java:args>
@@ -36,7 +36,7 @@
         </java:invoke-static>
     </munit:after-suite>
 
-    <munit:after-test name="execute after each tests">
+    <munit:after-test name="after-test-sftp-rename-test-case">
         <try>
             <sftp:delete config-ref="config" path="source"/>
             <error-handler >

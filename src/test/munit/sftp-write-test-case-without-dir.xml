@@ -19,7 +19,7 @@
         </munit:parameterizations>
     </munit:config>
 
-    <munit:dynamic-port propertyName="sftp.server.port"/>
+
 
     <munit:test name="sftp-write-on-home-directory">
         <munit:behavior>

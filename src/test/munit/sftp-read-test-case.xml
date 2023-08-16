@@ -14,8 +14,6 @@
 
     <munit:config name="sftp-read-test-case.xml"/>
 
-    <munit:dynamic-port propertyName="sftp.server.port"/>
-
     <sftp:config name="config-with-limited-pool">
         <sftp:connection username="muletest1" password="muletest1" host="localhost" port="${sftp.server.port}"
                          workingDir="/" prngAlgorithm="SHA1PRNG">

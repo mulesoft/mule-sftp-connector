@@ -27,7 +27,7 @@
         </munit:parameterizations>
     </munit:config>
 
-    <munit:dynamic-port propertyName="sftp.server.port"/>
+
     <munit:dynamic-port propertyName="proxy.server.port"/>
 
     <sftp:config name="proxy-config">
