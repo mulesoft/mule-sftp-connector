@@ -83,9 +83,11 @@ public abstract class AbstractFileAttributes implements FileAttributes, Serializ
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
+    if (this == o)
+      return true;
 
-    if (!(o instanceof AbstractFileAttributes)) return false;
+    if (!(o instanceof AbstractFileAttributes))
+      return false;
 
     AbstractFileAttributes that = (AbstractFileAttributes) o;
 
