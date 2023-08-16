@@ -443,7 +443,7 @@
                                             <port>${connection.broken.port}:${connection.broken.port}</port>
                                         </ports>
                                         <links>
-                                            <link>openssh</link>
+                                            <link>openssh-${sftp.listener.port}</link>
                                         </links>
                                     </run>
                                 </image>
