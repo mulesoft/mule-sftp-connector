@@ -15,6 +15,8 @@ import java.net.URI;
 import java.nio.file.Path;
 
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 
 /**
@@ -77,5 +79,21 @@ public abstract class AbstractFileAttributes implements FileAttributes, Serializ
   @Override
   public String toString() {
     return ReflectionToStringBuilder.toString(this, SHORT_PREFIX_STYLE);
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+
+    if (!(o instanceof AbstractFileAttributes)) return false;
+
+    AbstractFileAttributes that = (AbstractFileAttributes) o;
+
+    return new EqualsBuilder().append(getPath(), that.getPath()).append(fileName, that.fileName).isEquals();
+  }
+
+  @Override
+  public int hashCode() {
+    return new HashCodeBuilder(17, 37).append(getPath()).append(fileName).toHashCode();
   }
 }

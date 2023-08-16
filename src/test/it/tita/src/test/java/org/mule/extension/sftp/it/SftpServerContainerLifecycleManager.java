@@ -6,11 +6,13 @@
  */
 package org.mule.extension.sftp.it;
 
+import static org.slf4j.LoggerFactory.getLogger;
+
 import com.spotify.docker.client.DefaultDockerClient;
 import com.spotify.docker.client.DockerClient;
 import com.spotify.docker.client.messages.Container;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 
 import java.util.List;
 
@@ -18,7 +20,7 @@ import static java.lang.String.format;
 
 public class SftpServerContainerLifecycleManager {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(SftpServerContainerLifecycleManager.class);
+    private static final Logger LOGGER = getLogger(SftpServerContainerLifecycleManager.class);
 
     public static Container getContainerByName(String containerName) throws Exception {
         final DockerClient docker = DefaultDockerClient.fromEnv().build();
