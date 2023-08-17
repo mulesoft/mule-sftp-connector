@@ -19,12 +19,12 @@
         </munit:parameterizations>
     </munit:config>
 
-    <munit:dynamic-port propertyName="sftp.server.port"/>
+
 
     <munit:test name="sftp-write-on-home-directory">
         <munit:behavior>
-            <set-variable variableName="fileName" value="filePath.txt"/>
-            <set-variable variableName="fullPath" value="/config/filePath.txt"/>
+            <set-variable variableName="fileName" value="test/filePathWithoutDir.txt"/>
+            <set-variable variableName="fullPath" value="test/filePathWithoutDir.txt"/>
         </munit:behavior>
         <munit:execution>
             <sftp:write config-ref="${config}" path='#[vars.fileName]' createParentDirectories="false">

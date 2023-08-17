@@ -14,9 +14,7 @@
 
     <munit:config name="sftp-list-matchers-test-case.xml"/>
 
-    <munit:dynamic-port propertyName="sftp.server.port"/>
-
-    <munit:before-suite name="startListMatcherTestServer">
+    <munit:before-suite name="before-suite-sftp-list-matchers-test-case">
         <java:invoke-static class="org.mule.extension.sftp.internal.lifecycle.SftpServerLifecycleManager"
                             method="startSftpServer(String)">
             <java:args>
@@ -27,7 +25,7 @@
         </java:invoke-static>
     </munit:before-suite>
 
-    <munit:after-suite name="clearLisMatcherTestServer">
+    <munit:after-suite name="after-suite-sftp-list-matchers-test-case">
         <java:invoke-static class="org.mule.extension.sftp.internal.lifecycle.SftpServerLifecycleManager"
                             method="stopSftpServer()">
             <java:args>
@@ -36,7 +34,7 @@
         </java:invoke-static>
     </munit:after-suite>
 
-    <munit:before-test name="create-file-for-list">
+    <munit:before-test name="before-test-sftp-list-matchers-test-case">
         <flow-ref name="write-file"/>
     </munit:before-test>
 

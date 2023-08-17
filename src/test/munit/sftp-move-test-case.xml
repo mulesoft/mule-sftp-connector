@@ -1,0 +1,215 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:munit="http://www.mulesoft.org/schema/mule/munit"
+      xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools"
+      xmlns="http://www.mulesoft.org/schema/mule/core"
+      xmlns:sftp="http://www.mulesoft.org/schema/mule/sftp"
+      xmlns:java="http://www.mulesoft.org/schema/mule/java" xmlns:test="http://www.mulesoft.org/schema/mule/test"
+      xsi:schemaLocation="
+		http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+		http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
+		http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd
+        http://www.mulesoft.org/schema/mule/sftp http://www.mulesoft.org/schema/mule/sftp/current/mule-sftp.xsd
+        http://www.mulesoft.org/schema/mule/java http://www.mulesoft.org/schema/mule/java/current/mule-java.xsd">
+
+    <munit:config name="sftp-move-test-case.xml"/>
+
+
+
+    <munit:before-suite name="before-sftp-move-test-case">
+        <java:invoke-static class="org.mule.extension.sftp.internal.lifecycle.SftpServerLifecycleManager"
+                            method="startSftpServer(String)">
+            <java:args>
+                #[{
+                arg0: ${sftp.server.port},
+                }]
+            </java:args>
+        </java:invoke-static>
+    </munit:before-suite>
+
+    <munit:after-suite name="after-sftp-move-test-case">
+        <java:invoke-static class="org.mule.extension.sftp.internal.lifecycle.SftpServerLifecycleManager"
+                            method="stopSftpServer()">
+            <java:args>
+                #[{}]
+            </java:args>
+        </java:invoke-static>
+    </munit:after-suite>
+
+    <munit:after-test name="after-test-sftp-move-test-case">
+        <try>
+            <sftp:delete config-ref="config" path="source"/>
+            <sftp:delete config-ref="config" path="target"/>
+            <error-handler >
+                <on-error-continue type="SFTP:ILLEGAL_PATH"/>
+            </error-handler>
+        </try>
+    </munit:after-test>
+
+    <munit:test name="sftp-move-directories" description="Perform a move operation that move a whole directory">
+        <munit:behavior>
+            <set-variable variableName="fileContent" value="I just want to impress Mr. Stark"/>
+
+            <sftp:create-directory config-ref="config" directoryPath="move-dir-test"/>
+            <sftp:create-directory config-ref="config" directoryPath="move-dir-test/folder-to-move"/>
+
+            <sftp:write config-ref="config" path="move-dir-test/folder-to-move/file1.txt">
+                <sftp:content>#[vars.fileContent]</sftp:content>
+            </sftp:write>
+            <sftp:write config-ref="config" path="move-dir-test/folder-to-move/file2.txt">
+                <sftp:content>#[vars.fileContent]</sftp:content>
+            </sftp:write>
+            <sftp:write config-ref="config" path="move-dir-test/folder-to-move/file3.txt">
+                <sftp:content>#[vars.fileContent]</sftp:content>
+            </sftp:write>
+        </munit:behavior>
+        <munit:execution>
+            <sftp:move config-ref="config" sourcePath="move-dir-test/folder-to-move/"
+                      targetPath="move-dir-test/folder-moved" overwrite="false"
+                      createParentDirectories="true"/>
+        </munit:execution>
+        <munit:validation>
+            <sftp:read config-ref="config" path="move-dir-test/folder-moved/folder-to-move/file1.txt"/>
+            <munit-tools:assert>
+                <munit-tools:that><![CDATA[#[import * from dw::test::Asserts
+                                     ---
+                                    payload must equalTo(vars.fileContent)
+                                    ]]]>
+                </munit-tools:that>
+            </munit-tools:assert>
+            <sftp:read config-ref="config" path="move-dir-test/folder-moved/folder-to-move/file2.txt"/>
+            <munit-tools:assert>
+                <munit-tools:that><![CDATA[#[import * from dw::test::Asserts
+                                     ---
+                                    payload must equalTo(vars.fileContent)
+                                    ]]]>
+                </munit-tools:that>
+            </munit-tools:assert>
+            <sftp:read config-ref="config" path="move-dir-test/folder-moved/folder-to-move/file3.txt"/>
+            <munit-tools:assert>
+                <munit-tools:that><![CDATA[#[import * from dw::test::Asserts
+                                     ---
+                                    payload must equalTo(vars.fileContent)
+                                    ]]]>
+                </munit-tools:that>
+            </munit-tools:assert>
+
+            <try>
+                <sftp:read config-ref="config" path="move-dir-test/folder-to-move/file1.txt"/>
+                <error-handler >
+                    <on-error-continue type="SFTP:ILLEGAL_PATH"/>
+                </error-handler>
+            </try>
+
+            <try>
+                <sftp:read config-ref="config" path="move-dir-test/folder-to-move/file2.txt"/>
+                <error-handler >
+                    <on-error-continue type="SFTP:ILLEGAL_PATH"/>
+                </error-handler>
+            </try>
+
+            <try>
+                <sftp:read config-ref="config" path="move-dir-test/folder-to-move/file3.txt"/>
+                <error-handler >
+                    <on-error-continue type="SFTP:ILLEGAL_PATH"/>
+                </error-handler>
+            </try>
+
+        </munit:validation>
+    </munit:test>
+
+    <munit:test name="sftp-move-to-target-ending-in-separator" description="Perform move operations of a file with a destination that ends in a separator">
+        <munit:behavior>
+            <set-variable variableName="fileContent" value="I just want to impress Mr. Stark"/>
+
+            <sftp:create-directory config-ref="config" directoryPath="move-test"/>
+            <sftp:create-directory config-ref="config" directoryPath="move-test/folder-input"/>
+
+            <sftp:write config-ref="config" path="move-test/folder-input/hello-world.txt">
+                <sftp:content>#[vars.fileContent]</sftp:content>
+            </sftp:write>
+        </munit:behavior>
+        <munit:execution>
+            <sftp:copy config-ref="config" sourcePath="move-test/folder-input/hello-world.txt"
+                      targetPath="move-test/folder-output/" overwrite="false"
+                      createParentDirectories="true"/>
+            <set-payload value="Copy with FTP works fine!!"/>
+        </munit:execution>
+        <munit:validation>
+            <sftp:read config-ref="config" path="move-test/folder-output/hello-world.txt"/>
+            <munit-tools:assert>
+                <munit-tools:that><![CDATA[#[import * from dw::test::Asserts
+                                     ---
+                                    payload must equalTo(vars.fileContent)
+                                    ]]]>
+                </munit-tools:that>
+            </munit-tools:assert>
+        </munit:validation>
+    </munit:test>
+
+    <munit:test name="sftp-move-directory-without-createParentDirectories"
+                description="Directories with different hierarchies are created and a second level directory is moved to a target without creating the parent directories,
+                the target is expected to contain only one file">
+        <munit:behavior >
+            <sftp:create-directory config-ref="config" directoryPath="source/first-level-subDirectory/second-level-subDirectory"/>
+            <sftp:create-directory config-ref="config" directoryPath="target"/>
+        </munit:behavior>
+        <munit:execution>
+            <sftp:move config-ref="config" sourcePath="source/first-level-subDirectory/second-level-subDirectory" targetPath="target" createParentDirectories="false"/>
+        </munit:execution>
+        <munit:validation >
+            <sftp:list config-ref="config" directoryPath="target"/>
+            <munit-tools:assert-equals actual="#[sizeOf(payload)]" expected="#[1]"/>
+            <munit-tools:assert-equals actual="#[payload[0].attributes.fileName]" expected='#["second-level-subDirectory"]'/>
+        </munit:validation>
+    </munit:test>
+
+    <munit:test name="sftp-move-directory-with-target-invalid" description="An attempt is made to move a directory without the createParentDirectories property to an invalid path." expectedErrorType="SFTP:ILLEGAL_PATH">
+        <munit:behavior>
+            <sftp:create-directory  config-ref="config" directoryPath="source/created-to-move"/>
+            <sftp:create-directory  config-ref="config" directoryPath="target"/>
+        </munit:behavior>
+        <munit:execution>
+            <sftp:move config-ref="config" sourcePath="source/created-to-move" targetPath="target/directory-non-exists" createParentDirectories="false"/>
+        </munit:execution>
+    </munit:test>
+
+    <munit:test name="sftp-move-directory-with-source-invalid" description="Trying to move a non-existent file" expectedErrorType="SFTP:ILLEGAL_PATH">
+        <munit:behavior>
+            <sftp:create-directory config-ref="config" directoryPath="target"/>
+            <sftp:create-directory config-ref="config" directoryPath="source"/>
+        </munit:behavior>
+        <munit:execution>
+            <sftp:move config-ref="config" sourcePath="source/directory-non-exists" targetPath="target"/>
+        </munit:execution>
+    </munit:test>
+
+    <munit:test name="sftp-move-directory-exists-on-target" description="An attempt is made to move a file that already exists on the destination." expectedErrorType="SFTP:FILE_ALREADY_EXISTS">
+        <munit:behavior>
+            <sftp:create-directory config-ref="config" directoryPath="source/created-to-move"/>
+            <sftp:create-directory config-ref="config" directoryPath="target/created-to-move"/>
+        </munit:behavior>
+        <munit:execution>
+            <sftp:move config-ref="config" sourcePath="source/created-to-move" targetPath="target"/>
+        </munit:execution>
+    </munit:test>
+
+    <munit:test name="sftp-move-directory-exist-on-target-whit-renameTo-enable"
+                description="An existing file is moved to the destination and when the overwrite property is configured,
+                it is expected that the file will be renamed and that the destination will obtain one more directory than at the beginning.">
+        <munit:behavior>
+            <sftp:create-directory config-ref="config" directoryPath="source/created-to-move"/>
+            <sftp:create-directory config-ref="config" directoryPath="target/created-to-move"/>
+        </munit:behavior>
+        <munit:execution>
+            <sftp:list config-ref="config" directoryPath="target"/>
+            <set-variable value="#[sizeOf(payload)]" variableName="sizeTargetBeforeMove"/>
+            <sftp:move config-ref="config" sourcePath="source/created-to-move" targetPath="target" overwrite="true" renameTo="directory-renamed"/>
+        </munit:execution>
+        <munit:validation >
+            <sftp:list config-ref="config" directoryPath="target"/>
+            <munit-tools:assert-that expression="#[sizeOf(payload)]" is="#[MunitTools::greaterThan(vars.sizeTargetBeforeMove)]"/>
+        </munit:validation>
+    </munit:test>
+
+</mule>

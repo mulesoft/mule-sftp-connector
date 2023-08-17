@@ -14,7 +14,7 @@
 
     <munit:config name="new-file-being-constantly-updated-is-not-listened.xml"/>
 
-    <munit:dynamic-port propertyName="sftp.server.port"/>
+
 
     <munit:before-suite name="new-file-being-constantly-updated-is-not-listened-startListenerMatcherTestServer">
         <java:invoke-static class="org.mule.extension.sftp.internal.lifecycle.SftpServerLifecycleManager"

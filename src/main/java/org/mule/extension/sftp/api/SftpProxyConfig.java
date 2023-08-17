@@ -20,8 +20,11 @@ import java.util.Objects;
 public class SftpProxyConfig {
 
   public enum Protocol {
-    HTTP, SOCKS4, SOCKS5
-  };
+    HTTP,
+    //TODO We have to implement the SOCKS4 support W-13914127
+    //SOCKS4,
+    SOCKS5
+  }
 
   @Parameter
   private String host;

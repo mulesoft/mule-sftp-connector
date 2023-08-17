@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:munit="http://www.mulesoft.org/schema/mule/munit"
+      xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools"
+      xmlns="http://www.mulesoft.org/schema/mule/core"
+      xmlns:sftp="http://www.mulesoft.org/schema/mule/sftp"
+      xmlns:java="http://www.mulesoft.org/schema/mule/java"
+      xsi:schemaLocation="
+		http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+		http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
+		http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd
+        http://www.mulesoft.org/schema/mule/sftp http://www.mulesoft.org/schema/mule/sftp/current/mule-sftp.xsd
+        http://www.mulesoft.org/schema/mule/java http://www.mulesoft.org/schema/mule/java/current/mule-java.xsd">
+
+    <munit:config name="sftp-timestamp-matchers-test-case.xml"/>
+
+
+
+    <munit:before-suite name="before-suite-sftp-timestamp-matchers-test-case">
+        <java:invoke-static class="org.mule.extension.sftp.internal.lifecycle.SftpServerLifecycleManager"
+                            method="startSftpServer(String)">
+            <java:args>
+                #[{
+                arg0: ${sftp.server.port},
+                }]
+            </java:args>
+        </java:invoke-static>
+    </munit:before-suite>
+
+    <munit:after-suite name="after-suite-sftp-timestamp-matchers-test-case">
+        <java:invoke-static class="org.mule.extension.sftp.internal.lifecycle.SftpServerLifecycleManager"
+                            method="stopSftpServer()">
+            <java:args>
+                #[{}]
+            </java:args>
+        </java:invoke-static>
+    </munit:after-suite>
+
+    <munit:before-test name="before-test-sftp-timestamp-matchers-test-case">
+        <java:invoke-static class="java.lang.Thread"
+                            method="sleep(long)">
+            <java:args>
+                #[{
+                arg0: 20000,
+                }]
+            </java:args>
+        </java:invoke-static>
+
+    </munit:before-test>
+
+    <munit:test name="listFileFilteringByTimestampSince"
+                description="New file is created and it should be picked up by the list operation using a date since with shifted timezone"
+                ignore="#[true]" >
+        <munit:behavior>
+            <set-variable variableName="fileName" value="sampleFileIn.txt"/>
+        </munit:behavior>
+        <munit:execution>
+            <flow-ref name="write-file-to-match"/>
+            <flow-ref name="list-files-filtering-by-timestamp-since"/>
+        </munit:execution>
+        <munit:validation>
+            <munit-tools:assert-that expression="#[attributes]" is="#[MunitTools::hasValue(vars.fileName)]"/>
+        </munit:validation>
+    </munit:test>
+
+    <munit:test name="notListFileFilteringByTimestampSince"
+                description="New file is created and it should be picked up by the list operation using a date since with shifted timezone"
+                ignore="#[true]" >
+        <munit:behavior>
+            <set-variable variableName="fileName" value="sampleFileOut.txt"/>
+        </munit:behavior>
+        <munit:execution>
+            <flow-ref name="write-file-to-miss"/>
+            <flow-ref name="list-no-files-filtering-by-timestamp-since"/>
+        </munit:execution>
+        <munit:validation>
+            <munit-tools:assert-that expression="#[attributes]" is="#[MunitTools::not(MunitTools::hasValue(vars.fileName))]"/>
+        </munit:validation>
+    </munit:test>
+
+    <flow name="write-file-to-match">
+        <set-payload value="File Content"/>
+        <sftp:write config-ref="config" path="sampleFileIn.txt"/>
+    </flow>
+
+    <flow name="write-file-to-miss">
+        <set-payload value="File Content"/>
+        <sftp:write config-ref="config" path="sampleFileOut.txt"/>
+    </flow>
+
+    <flow name="list-files-filtering-by-timestamp-since">
+        <sftp:list config-ref="config" directoryPath=".">
+            <sftp:matcher timestampSince="#[ ((now() - |PT1H|) >> &quot;+11:30&quot;) ]"/>
+        </sftp:list>
+    </flow>
+
+
+    <flow name="list-no-files-filtering-by-timestamp-since">
+        <sftp:list config-ref="config" directoryPath=".">
+            <sftp:matcher timestampSince="#[ ((now() + |PT1H|) >> &quot;-11:30&quot;) ]" />
+        </sftp:list>
+    </flow>
+
+</mule>

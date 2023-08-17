@@ -14,9 +14,9 @@
 
     <munit:config name="sftp-copy-test-case.xml"/>
 
-    <munit:dynamic-port propertyName="sftp.server.port"/>
 
-    <munit:before-suite name="startCopyTestServer">
+
+    <munit:before-suite name="before-sftp-copy-test-cas">
         <java:invoke-static class="org.mule.extension.sftp.internal.lifecycle.SftpServerLifecycleManager"
                             method="startSftpServer(String)">
             <java:args>
@@ -27,7 +27,7 @@
         </java:invoke-static>
     </munit:before-suite>
 
-    <munit:after-suite name="clearCopyTestServer">
+    <munit:after-suite name="after-sftp-copy-test-case">
         <java:invoke-static class="org.mule.extension.sftp.internal.lifecycle.SftpServerLifecycleManager"
                             method="stopSftpServer()">
             <java:args>
@@ -101,7 +101,7 @@
             <sftp:copy config-ref="config" sourcePath="copy-test/folder-input/hello-world.txt"
                       targetPath="copy-test/folder-output/" overwrite="false"
                       createParentDirectories="true"/>
-            <set-payload value="Copy with FTP works fine!!"/>
+            <set-payload value="Copy with SFTP works fine!!"/>
         </munit:execution>
         <munit:validation>
             <sftp:read config-ref="config" path="copy-test/folder-output/hello-world.txt"/>
@@ -114,5 +114,103 @@
             </munit-tools:assert>
         </munit:validation>
     </munit:test>
+
+    <munit:test name="sftp-copy-non-exists-directory" description="Perform a copy operation from a non-existent directory"
+                expectedErrorType="SFTP:ILLEGAL_PATH">
+        <munit:execution>
+            <sftp:copy config-ref="config" sourcePath="copy-test/non-exist-directory" targetPath="target"/>
+        </munit:execution>
+    </munit:test>
+
+    <munit:test name="sftp-copy-file-already-exists" description="Perform a copy operation on a file that already exists on the target"
+                expectedErrorType="SFTP:FILE_ALREADY_EXISTS">
+        <munit:behavior >
+            <sftp:write config-ref="config" path="target/test.txt"/>
+            <sftp:write config-ref="config" path="source/test.txt"/>
+        </munit:behavior>
+        <munit:execution>
+            <sftp:copy config-ref="config" sourcePath="source/test.txt" targetPath="target"/>
+        </munit:execution>
+    </munit:test>
+
+    <munit:test name="sftp-copy-file-with-createParentDirectories-disable-to-non-exists-target"
+                description="Perform a copy operation to a non-existent target with the create parent directory property disabled"
+                expectedErrorType="SFTP:ILLEGAL_PATH">
+        <munit:behavior>
+            <set-payload value="Hello World!!"/>
+            <sftp:write config-ref="config" path="source/copy-file-test.txt"/>
+        </munit:behavior>
+        <munit:execution>
+            <sftp:copy  config-ref="config" sourcePath="source/copy-file-test.txt" targetPath="target/non-exists-directory" createParentDirectories="false"/>
+        </munit:execution>
+    </munit:test>
+
+    <munit:test name="sftp-copy-file-with-createParentDirectories-enable-to-non-exists-target"
+                description="Perform a copy operation to a non-existent target with the create parent directory property enable">
+        <munit:behavior>
+            <set-payload value="Hello World!!"/>
+            <sftp:write config-ref="config" path="source/copy-file-test.txt"/>
+        </munit:behavior>
+        <munit:execution>
+            <sftp:copy  config-ref="config" sourcePath="source/copy-file-test.txt" targetPath="target/will-be-created-directory" createParentDirectories="true"/>
+        </munit:execution>
+        <munit:validation >
+            <sftp:read config-ref="config" path="target/will-be-created-directory/copy-file-test.txt"/>
+            <munit-tools:assert-that expression="#[payload]" is="#[MunitTools::equalTo('Hello World!!')]"/>
+        </munit:validation>
+    </munit:test>
+
+    <munit:test name="sftp-copy-file-with-createParentDirectories-disable-to-exists-target"
+                description="Perform a copy operation to a existent target with the create parent directory property disable">
+        <munit:behavior>
+            <set-payload value="Hello World!!"/>
+            <sftp:write config-ref="config" path="source/copy-file-test.txt"/>
+            <sftp:create-directory config-ref="config" directoryPath="target/created-to-copy"/>
+        </munit:behavior>
+        <munit:execution>
+            <sftp:copy config-ref="config" sourcePath="source/copy-file-test.txt" targetPath="target/created-to-copy" createParentDirectories="false"/>
+        </munit:execution>
+        <munit:validation >
+            <sftp:read config-ref="config" path="target/created-to-copy/copy-file-test.txt"/>
+            <munit-tools:assert-that expression="#[payload]" is="#[MunitTools::equalTo('Hello World!!')]"/>
+        </munit:validation>
+    </munit:test>
+
+    <munit:test name="sftp-copy-file-exists-and-rename"
+                description="Copy a file that has the same name as another on the target. This copy must be renamed.">
+        <munit:behavior>
+            <set-payload value="This file was copied and renamed"/>
+            <sftp:write config-ref="config" path="source/file-for-copy-and-rename.txt"/>
+            <set-payload value="Hello World!!"/>
+            <sftp:write config-ref="config" path="target/file-for-copy-and-rename.txt"/>
+        </munit:behavior>
+        <munit:execution>
+            <sftp:copy config-ref="config" sourcePath="source/file-for-copy-and-rename.txt" targetPath="target" renameTo="rename-file.txt"/>
+        </munit:execution>
+        <munit:validation >
+            <sftp:read config-ref="config" path="target/file-for-copy-and-rename.txt"/>
+            <munit-tools:assert-that expression="#[payload]" is="#[MunitTools::equalTo('Hello World!!')]" />
+            <sftp:read config-ref="config" path="target/rename-file.txt"/>
+            <munit-tools:assert-that expression="#[payload]" is="#[MunitTools::equalTo('This file was copied and renamed')]"/>
+        </munit:validation>
+    </munit:test>
+
+    <munit:test name="sftp-copy-file-exists-and-overwrite"
+                description="Copy a file that has the same name as another on the target. This copy must be overwrite.">
+        <munit:behavior>
+            <set-payload value="This file was copied and overwrite"/>
+            <sftp:write config-ref="config" path="source/file-for-copy-and-overwrite.txt"/>
+            <set-payload value="Hello World!!"/>
+            <sftp:write config-ref="config" path="target/file-for-copy-and-overwrite.txt"/>
+        </munit:behavior>
+        <munit:execution>
+            <sftp:copy config-ref="config" sourcePath="source/file-for-copy-and-overwrite.txt" targetPath="target" overwrite="true"/>
+        </munit:execution>
+        <munit:validation >
+            <sftp:read config-ref="config" path="target/file-for-copy-and-overwrite.txt"/>
+            <munit-tools:assert-that expression="#[payload]" is="#[MunitTools::equalTo('This file was copied and overwrite')]"/>
+        </munit:validation>
+    </munit:test>
+
 
 </mule>

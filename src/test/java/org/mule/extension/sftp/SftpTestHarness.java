@@ -6,38 +6,39 @@
  */
 package org.mule.extension.sftp;
 
+import static org.mule.extension.sftp.SftpServer.PASSWORD;
+import static org.mule.extension.sftp.SftpServer.USERNAME;
+import static org.mule.extension.sftp.api.FileWriteMode.CREATE_NEW;
+import static org.mule.extension.sftp.api.FileWriteMode.OVERWRITE;
+import static org.mule.extension.sftp.internal.util.UriUtils.createUri;
+import static org.mule.extension.sftp.internal.util.UriUtils.trimLastFragment;
+import static org.mule.extension.sftp.internal.util.SftpUtils.normalizePath;
+import static org.mule.extension.sftp.internal.util.SftpUtils.resolvePathOrResource;
+
 import static java.util.stream.Collectors.toList;
+
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
-import static org.mule.extension.file.common.api.FileWriteMode.APPEND;
-import static org.mule.extension.file.common.api.FileWriteMode.OVERWRITE;
-import static org.mule.extension.file.common.api.util.UriUtils.createUri;
-import static org.mule.extension.file.common.api.util.UriUtils.trimLastFragment;
-import static org.mule.extension.sftp.SftpServer.PASSWORD;
-import static org.mule.extension.sftp.SftpServer.USERNAME;
-import static org.mule.extension.sftp.internal.SftpUtils.normalizePath;
-import static org.mule.extension.sftp.internal.SftpUtils.resolvePathOrResource;
-import static org.mule.extension.sftp.random.alg.PRNGAlgorithm.SHA1PRNG;
 
 import org.mule.extension.AbstractSftpTestHarness;
-import org.mule.extension.file.common.api.FileAttributes;
-import org.mule.extension.file.common.api.FileWriteMode;
+import org.mule.extension.sftp.api.FileAttributes;
 import org.mule.extension.sftp.api.SftpFileAttributes;
+import org.mule.extension.sftp.api.random.alg.PRNGAlgorithm;
 import org.mule.extension.sftp.internal.connection.SftpClient;
 import org.mule.extension.sftp.internal.connection.SftpClientFactory;
 import org.mule.tck.junit4.rule.DynamicPort;
-import org.mule.test.extension.file.common.api.FileTestHarness;
+import org.mule.extension.sftp.api.FileTestHarness;
 
 import java.io.ByteArrayInputStream;
-import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URI;
+import java.nio.file.Paths;
+import java.security.GeneralSecurityException;
 import java.util.List;
 
-import com.jcraft.jsch.JSchException;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.sshd.server.config.keys.AuthorizedKeysAuthenticator;
@@ -77,7 +78,7 @@ public class SftpTestHarness extends AbstractSftpTestHarness {
       case PUBLIC_KEY:
         clientAuthConfigurator = (sftpClient -> sftpClient.setIdentity(resolvePathOrResource("sftp-test-key"), null));
         serverAuthConfigurator = (sftpServer -> sftpServer
-            .setPublicKeyAuthenticator(new AuthorizedKeysAuthenticator(new File(resolvePathOrResource("sftp-test-key.pub")))));
+            .setPublicKeyAuthenticator(new AuthorizedKeysAuthenticator(Paths.get("sftp-test-key.pub"))));
     }
   }
 
@@ -113,9 +114,11 @@ public class SftpTestHarness extends AbstractSftpTestHarness {
     }
   }
 
-  private SftpClient createDefaultSftpClient() throws IOException, JSchException {
-    SftpClient sftpClient = new SftpClientFactory().createInstance("localhost", sftpPort.getNumber(), SHA1PRNG);
+  private SftpClient createDefaultSftpClient() throws IOException, GeneralSecurityException {
+    SftpClient sftpClient = new SftpClientFactory().createInstance("localhost", sftpPort.getNumber(), PRNGAlgorithm.SHA1PRNG);
     clientAuthConfigurator.configure(sftpClient);
+
+    sftpClient.setPassword(PASSWORD);
     sftpClient.login(USERNAME);
     return sftpClient;
   }
@@ -185,7 +188,8 @@ public class SftpTestHarness extends AbstractSftpTestHarness {
    */
   @Override
   public void write(String path, String content) throws Exception {
-    sftpClient.write(path, new ByteArrayInputStream(content.getBytes()), APPEND);
+    // Does the append also create a file before????
+    sftpClient.write(path, new ByteArrayInputStream(content.getBytes()), CREATE_NEW);
   }
 
   /**
@@ -278,7 +282,7 @@ public class SftpTestHarness extends AbstractSftpTestHarness {
   }
 
   protected void writeByteByByteAsync(String path, String content, long delayBetweenCharacters) throws Exception {
-    OutputStream os = sftpClient.getOutputStream(path, FileWriteMode.CREATE_NEW);
+    OutputStream os = sftpClient.getOutputStream(path, CREATE_NEW);
 
     new Thread(() -> {
 
