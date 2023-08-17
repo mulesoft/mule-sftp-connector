@@ -14,6 +14,8 @@
 
     <munit:config name="sftp-read-test-case.xml"/>
 
+    <munit:dynamic-port propertyName="sftp.server.port"/>
+
     <sftp:config name="config-with-limited-pool">
         <sftp:connection username="muletest1" password="muletest1" host="localhost" port="${sftp.server.port}"
                          workingDir="/" prngAlgorithm="SHA1PRNG">
@@ -30,7 +32,7 @@
                 }]
             </java:args>
         </java:invoke-static>
-        <sftp:create-directory  config-ref="config" directoryPath="source"/>
+        <sftp:create-directory config-ref="config" directoryPath="source"/>
     </munit:before-suite>
 
     <munit:after-suite name="clearSftpTestServer">
@@ -83,27 +85,29 @@
     <munit:test name="sftp-read-file-with-mimeType" description="A file is read and assigned an outputMimeType">
         <munit:behavior>
             <sftp:write config-ref="config" path="source/jsonDocument.json">
-                <sftp:content ><![CDATA[{
+                <sftp:content><![CDATA[{
   "name": "Document Json",
   "purpose": ReadTests
 }]]></sftp:content>
             </sftp:write>
-            <sftp:write config-ref="config" path="source/xmlDocument.xml" >
-                <sftp:content ><![CDATA[<root>
+            <sftp:write config-ref="config" path="source/xmlDocument.xml">
+                <sftp:content><![CDATA[<root>
   <name>Document Json</name>
   <purpose>ReadTests</purpose>
 </root>]]></sftp:content>
             </sftp:write>
         </munit:behavior>
-        <munit:validation >
+        <munit:validation>
             <sftp:read config-ref="config" path="source/jsonDocument.json" outputMimeType="application/json"/>
             <munit-tools:assert-that expression="#[payload]" is="#[MunitTools::withMediaType('application/json')]"/>
             <sftp:read config-ref="config" path="source/xmlDocument.xml" outputMimeType="application/xml"/>
-            <munit-tools:assert-that expression="#[payload]" is="#[MunitTools::withMediaType('application/xml')]" />
+            <munit-tools:assert-that expression="#[payload]" is="#[MunitTools::withMediaType('application/xml')]"/>
         </munit:validation>
     </munit:test>
 
-    <munit:test name="sftp-read-on-locked-file" description="Perform a read operation with lock when the connector is writing with a big content" ignore="#[Munit::muleVersionPriorTo('4.2.0')]" expectedErrorType="SFTP:FILE_LOCK">
+    <munit:test name="sftp-read-on-locked-file"
+                description="Perform a read operation with lock when the connector is writing with a big content"
+                ignore="#[Munit::muleVersionPriorTo('4.2.0')]" expectedErrorType="SFTP:FILE_LOCK">
         <munit:behavior>
             <set-variable variableName="fileName" value="filePath.txt"/>
             <set-variable variableName="loopSize" value="2500000"/>
@@ -114,7 +118,7 @@
         </munit:behavior>
         <munit:execution>
             <async>
-                <sftp:write config-ref="${config}" path='#[vars.fileName]' lock="#[true]">
+                <sftp:write config-ref="config" path='#[vars.fileName]' lock="#[true]">
                     <sftp:content>
                         #[
                         %dw 2.0
@@ -124,9 +128,11 @@
                         ]
                     </sftp:content>
                 </sftp:write>
+                <logger level="ERROR" message="#[payload]"/>
             </async>
-            <flow-ref name="wait-2-seconds"/>
-            <sftp:read config-ref="${config}" path='#[vars.fileName]' lock="#[true]"/>
+            <set-variable variableName="filenamePattern" value="*.txt"/>
+            <flow-ref name="assert-existing-file-flow"/>
+            <sftp:read config-ref="config" path='#[vars.fileName]' lock="#[true]"/>
             <munit-tools:assert>
                 <munit-tools:that><![CDATA[
                     #[import * from dw::test::Asserts
@@ -138,7 +144,9 @@
         </munit:execution>
     </munit:test>
 
-    <munit:test name="sftp-read-while-writing-file" description="Perform a read operation with lock when the connector is writing with a big content" ignore="#[Munit::muleVersionPriorTo('4.2.0')]">
+    <munit:test name="sftp-read-while-writing-file"
+                description="Perform a read operation with lock when the connector is writing with a big content"
+                ignore="#[Munit::muleVersionPriorTo('4.2.0')]">
         <munit:behavior>
             <set-variable variableName="fileName" value="filePath.txt"/>
             <set-variable variableName="loopSize" value="2500000"/>
@@ -149,7 +157,7 @@
         </munit:behavior>
         <munit:execution>
             <async>
-                <sftp:write config-ref="${config}" path='#[vars.fileName]'>
+                <sftp:write config-ref="config" path='#[vars.fileName]'>
                     <sftp:content>
                         #[
                         %dw 2.0
@@ -159,8 +167,11 @@
                         ]
                     </sftp:content>
                 </sftp:write>
+                <logger level="ERROR" message="#[payload]"/>
             </async>
-            <sftp:read config-ref="${config}" path='#[vars.fileName]'/>
+            <set-variable variableName="filenamePattern" value="*.txt"/>
+            <flow-ref name="assert-existing-file-flow"/>
+            <sftp:read config-ref="config" path='#[vars.fileName]'/>
             <munit-tools:assert>
                 <munit-tools:that><![CDATA[
                     #[import * from dw::test::Asserts
@@ -171,4 +182,14 @@
             </munit-tools:assert>
         </munit:execution>
     </munit:test>
+    <flow name="assert-existing-file-flow">
+        <until-successful maxRetries="50" millisBetweenRetries="1000">
+            <sftp:list config-ref="config" directoryPath="/">
+                <sftp:matcher
+                        filenamePattern='#[vars.filenamePattern]'
+                        caseSensitive="false"/>
+            </sftp:list>
+            <munit-tools:assert-that expression="#[payload[0].payload]" is="#[MunitTools::containsString(vars.fileName)]"/>
+        </until-successful>
+    </flow>
 </mule>
