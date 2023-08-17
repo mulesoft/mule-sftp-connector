@@ -409,9 +409,8 @@
                             <images>
                                 <image>
                                     <name>linuxserver/openssh-server</name>
-                                    <alias>openssh-${sftp.listener.port}</alias>
+                                    <alias>openssh</alias>
                                     <run>
-                                        <containerNamePattern>%e</containerNamePattern>
                                         <env>
                                             <PUID>1000</PUID>
                                             <PGID>1000</PGID>
@@ -443,7 +442,7 @@
                                             <port>${connection.broken.port}:${connection.broken.port}</port>
                                         </ports>
                                         <links>
-                                            <link>openssh-${sftp.listener.port}</link>
+                                            <link>openssh</link>
                                         </links>
                                     </run>
                                 </image>
