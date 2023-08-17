@@ -8,6 +8,8 @@ package org.mule.extension.sftp.internal.operation;
 
 import static org.mule.extension.sftp.internal.util.UriUtils.createUri;
 
+import static org.slf4j.LoggerFactory.getLogger;
+
 import org.mule.extension.sftp.api.FileAttributes;
 import org.mule.extension.sftp.internal.config.FileConnectorConfig;
 import org.mule.extension.sftp.internal.connection.SftpClient;
@@ -16,7 +18,7 @@ import org.mule.extension.sftp.internal.connection.SftpFileSystemConnection;
 import java.net.URI;
 
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 
 /**
  * A {@link SftpCommand} which implements the {@link CopyCommand} contract
@@ -25,7 +27,7 @@ import org.slf4j.LoggerFactory;
  */
 public class SftpCopyCommand extends SftpCommand implements CopyCommand {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(SftpCopyCommand.class);
+  private static final Logger LOGGER = getLogger(SftpCopyCommand.class);
 
   /**
    * {@inheritDoc}
