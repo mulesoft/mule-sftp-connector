@@ -6,7 +6,7 @@
       xmlns:sftp="http://www.mulesoft.org/schema/mule/sftp"
       xmlns:java="http://www.mulesoft.org/schema/mule/java"
       xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
-      http://www.mulesoft.org/schema/mule/test http://www.mulesoft.org/schema/mule/test/current/mule-test.xsd
+
 		http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
 		http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd
         http://www.mulesoft.org/schema/mule/sftp http://www.mulesoft.org/schema/mule/sftp/current/mule-sftp.xsd
@@ -14,20 +14,20 @@
 
     <munit:config name="sftp-write-test-case.xml">
         <munit:parameterizations>
-            <munit:parameterization name="config">
+            <munit:parameterization name="config-docker-with-home-directory">
                 <munit:parameters>
-                    <munit:parameter propertyName="config" value="config"/>
+                    <munit:parameter propertyName="config" value="config-docker-with-home-directory"/>
                 </munit:parameters>
             </munit:parameterization>
-            <munit:parameterization name="config-without-working-dir">
+            <munit:parameterization name="config-docker-without-home-directory">
                 <munit:parameters>
-                    <munit:parameter propertyName="config" value="config-without-working-dir"/>
+                    <munit:parameter propertyName="config" value="config-docker-without-home-directory"/>
                 </munit:parameters>
             </munit:parameterization>
         </munit:parameterizations>
     </munit:config>
 
-    <munit:dynamic-port propertyName="sftp.server.port"/>
+
 
     <munit:before-suite name="startSftpTestServerForWriting">
         <java:invoke-static class="org.mule.extension.sftp.internal.lifecycle.SftpServerLifecycleManager"
@@ -49,8 +49,98 @@
         </java:invoke-static>
     </munit:after-suite>
 
+    <munit:before-test name="create-new-file-to-append">
+        <flow-ref name="write-file-append"/>
+    </munit:before-test>
+
+    <munit:test name="sftp-write">
+        <munit:behavior>
+            <set-variable variableName="fileName" value="write-file.txt"/>
+            <set-variable variableName="mode" value="OVERWRITE"/>
+            <set-variable variableName="createParent" value="true"/>
+        </munit:behavior>
+        <munit:execution>
+            <sftp:write config-ref="${config}" path="#[vars.fileName]" mode="#[vars.mode]" createParentDirectories="#[vars.createParent]" />
+        </munit:execution>
+    </munit:test>
+
+    <munit:test name="sftp-write-void-file">
+        <munit:behavior>
+            <set-variable variableName="fileName" value="write-void.txt"/>
+            <set-variable variableName="mode" value="OVERWRITE"/>
+            <set-variable variableName="createParent" value="true"/>
+        </munit:behavior>
+        <munit:execution>
+            <sftp:write config-ref="${config}" path="#[vars.fileName]" mode="#[vars.mode]" createParentDirectories="#[vars.createParent]" />
+        </munit:execution>
+        <munit:validation >
+            <sftp:read config-ref="${config}" path="#[vars.fileName]" />
+            <munit-tools:assert-that expression="#[payload]" is="#[MunitTools::isEmptyString()]"/>
+        </munit:validation>
+    </munit:test>
+
+    <munit:test name="sftp-write-file-exists-with-createNewMode" description="It tries to create a new file when one with the same name already exists."
+                expectedErrorType="SFTP:FILE_ALREADY_EXISTS">
+        <munit:behavior >
+            <set-variable variableName="fileName" value="createNewFail.txt"/>
+            <set-variable variableName="mode" value="CREATE_NEW"/>
+            <sftp:write config-ref="${config}" path="#[vars.fileName]">
+            </sftp:write>
+        </munit:behavior>
+        <munit:execution>
+            <sftp:write config-ref="${config}" path="#[vars.fileName]" mode="#[vars.mode]">
+            </sftp:write>
+        </munit:execution>
+    </munit:test>
+
+    <munit:test name="sftp-write-with-createNewMode" description="Will create a new file with the CreateNew setting.">
+        <munit:behavior >
+            <set-variable variableName="fileName" value="newFileToTest.txt"/>
+            <set-variable variableName="mode" value="CREATE_NEW"/>
+            <try>
+                <sftp:delete config-ref="${config}" path="#[vars.fileName]"/>
+                <error-handler >
+                    <on-error-continue enableNotifications="false" logException="false" type="SFTP:ILLEGAL_PATH"/>
+                </error-handler>
+            </try>
+        </munit:behavior>
+        <munit:execution>
+            <set-payload value="Hello World!"/>
+            <sftp:write config-ref="${config}" path="#[vars.fileName]" mode="#[vars.mode]">
+            </sftp:write>
+        </munit:execution>
+        <munit:validation >
+            <sftp:read config-ref="${config}" path="#[vars.fileName]" />
+            <munit-tools:assert-that expression="#[payload]" is="#[MunitTools::equalTo('Hello World!')]"/>
+        </munit:validation>
+    </munit:test>
+
+    <munit:test name="sftp-read-write">
+        <munit:behavior>
+            <set-variable variableName="fileName" value="write-file.txt"/>
+            <set-variable variableName="mode" value="OVERWRITE"/>
+            <set-variable variableName="createParent" value="true"/>
+        </munit:behavior>
+        <munit:execution>
+            <sftp:read config-ref="${config}" path="#[vars.fileName]" />
+            <set-payload value="Hello World!" />
+            <sftp:write config-ref="${config}" path="#[vars.fileName]" mode="#[vars.mode]" createParentDirectories="#[vars.createParent]" />
+        </munit:execution>
+    </munit:test>
+
+    <munit:test name="sftp-write-lock">
+        <munit:behavior>
+            <set-variable variableName="fileName" value="write-file.txt"/>
+            <set-variable variableName="mode" value="OVERWRITE"/>
+            <set-variable variableName="createParent" value="true"/>
+        </munit:behavior>
+        <munit:execution>
+            <sftp:write config-ref="${config}" path="#[vars.fileName]" lock="true" mode="#[vars.mode]" createParentDirectories="#[vars.createParent]" />
+        </munit:execution>
+    </munit:test>
+
     <munit:test name="sftp-write-big-file"
-                description="Perform a write operation with a big content" ignore="#[Munit::muleVersionPriorTo('4.2.0')]">
+                description="Perform a write operation with a big content" ignore="#[Munit::muleVersionPriorTo('4.3.0')]">
         <munit:behavior>
             <set-variable variableName="fileName" value="filePath.txt"/>
             <set-variable variableName="loopSize" value="500000"/>
@@ -115,28 +205,27 @@
     </munit:test>
 
     <flow name="write-number-collection-until-successful">
-        <choice>
-            <when expression="#[payload == 0]">
-                <set-variable variableName="writeMode" value="CREATE_NEW" />
-            </when>
-            <otherwise>
-                <set-variable variableName="writeMode" value="APPEND" />
-            </otherwise>
-        </choice>
+        <logger level="INFO" message="#[payload]" />
         <set-payload value="#[payload as String]"/>
         <until-successful maxRetries="10" millisBetweenRetries="1000">
-            <sftp:write config-ref="${config}" path="filePath.txt" lock="true" mode="#[vars.writeMode]">
+            <sftp:write config-ref="${config}" path="test/filePath.txt" lock="true" mode="APPEND">
                 <sftp:content>#[payload]</sftp:content>
             </sftp:write>
         </until-successful>
     </flow>
 
-    <munit:test name="consecutive-writes-from-separate-flows-succeed-with-until-successful" ignore="#[Munit::muleVersionPriorTo('4.1.5')]">
+    <flow name="write-file-append">
+        <sftp:write config-ref="${config}" path="test/filePath.txt"/>
+        <sftp:write config-ref="${config}" path="write-file.txt"/>
+    </flow>
+
+
+    <munit:test name="consecutive-writes-from-separate-flows-succeed-with-until-successful"  ignore="#[Munit::muleVersionPriorTo('4.1.5')]">
         <munit:enable-flow-sources>
             <munit:enable-flow-source value="write-number-collection-until-successful"/>
         </munit:enable-flow-sources>
         <munit:behavior>
-            <set-variable variableName="fileName" value="filePath.txt"/>
+            <set-variable variableName="fileName" value="test/filePath.txt"/>
             <set-variable variableName="fileSize" value="#[6]"/>
             <set-variable variableName="expectedFileSize" value="#[vars.fileSize + 1]"/>
         </munit:behavior>
@@ -165,35 +254,14 @@
         </munit:validation>
     </munit:test>
 
-
-    <munit:test name="sftp-write-deleted-file" description="Use the list operation to get the file content and try to write it but it was deleted before and should expect exception"
-                expectedErrorType="SFTP:FILE_DOESNT_EXIST">
-        <munit:enable-flow-sources>
-            <munit:enable-flow-source value="delete-created-files"/>
-        </munit:enable-flow-sources>
-        <munit:behavior>
-            <set-variable variableName="fileName" value="/will-be-deleted.txt"/>
-            <sftp:write config-ref="${config}" path='#[vars.fileName]' >
-                <sftp:content>test content</sftp:content>
-            </sftp:write>
-        </munit:behavior>
-        <munit:execution>
-            <sftp:list config-ref="${config}" directoryPath="/">
-            </sftp:list>
-            <flow-ref name="wait-2-seconds"/>
-            <foreach collection="#[payload]">
-                <sftp:write config-ref="${config}" path="/copy-of-will-be-deleted.txt" createParentDirectories="false" >
-                </sftp:write>
-            </foreach>
-        </munit:execution>
-    </munit:test>
-
-
+    <munit:after-test  name="delete-file-append" description="A description">
+        <sftp:delete config-ref="${config}" path="test/filePath.txt"/>
+    </munit:after-test>
 
     <flow name="delete-created-files">
-        <sftp:listener config-ref="${config}" directory="/">
+        <sftp:listener config-ref="${config}" directory="test">
             <scheduling-strategy>
-                <fixed-frequency startDelay="1000"/>
+                <fixed-frequency startDelay="2000"/>
             </scheduling-strategy>
         </sftp:listener>
         <sftp:delete config-ref="${config}" path="#[attributes.path]" />

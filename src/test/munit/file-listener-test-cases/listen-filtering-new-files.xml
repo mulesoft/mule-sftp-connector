@@ -14,8 +14,6 @@
 
     <munit:config name="listen-filtering-new-files.xml"/>
 
-    <munit:dynamic-port propertyName="sftp.server.port"/>
-
     <munit:before-suite name="listen-filtering-new-files-startListenerMatcherTestServer">
         <java:invoke-static class="org.mule.extension.sftp.internal.lifecycle.SftpServerLifecycleManager"
                             method="startSftpServer(String)">

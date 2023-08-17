@@ -7,24 +7,25 @@
 package org.mule.extension.sftp;
 
 import static org.mule.extension.sftp.AllureConstants.SftpFeature.SFTP_EXTENSION;
+
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import org.mule.extension.file.common.api.AbstractFileSystem;
-import org.mule.extension.file.common.api.FileAttributes;
-import org.mule.extension.file.common.api.FileConnectorConfig;
-import org.mule.extension.file.common.api.command.CopyCommand;
-import org.mule.extension.file.common.api.command.CreateDirectoryCommand;
-import org.mule.extension.file.common.api.command.DeleteCommand;
-import org.mule.extension.file.common.api.command.ListCommand;
-import org.mule.extension.file.common.api.command.MoveCommand;
-import org.mule.extension.file.common.api.command.ReadCommand;
-import org.mule.extension.file.common.api.command.RenameCommand;
-import org.mule.extension.file.common.api.command.WriteCommand;
-import org.mule.extension.file.common.api.exceptions.FileAlreadyExistsException;
-import org.mule.extension.file.common.api.lock.PathLock;
-import org.mule.extension.file.common.api.source.AbstractPostActionGroup;
+import org.mule.extension.sftp.api.FileAttributes;
+import org.mule.extension.sftp.internal.exception.FileAlreadyExistsException;
+import org.mule.extension.sftp.internal.config.FileConnectorConfig;
+import org.mule.extension.sftp.internal.operation.CopyCommand;
+import org.mule.extension.sftp.internal.operation.CreateDirectoryCommand;
+import org.mule.extension.sftp.internal.operation.DeleteCommand;
+import org.mule.extension.sftp.internal.operation.ListCommand;
+import org.mule.extension.sftp.internal.operation.MoveCommand;
+import org.mule.extension.sftp.internal.operation.ReadCommand;
+import org.mule.extension.sftp.internal.operation.RenameCommand;
+import org.mule.extension.sftp.internal.operation.WriteCommand;
+import org.mule.extension.sftp.internal.connection.AbstractFileSystem;
+import org.mule.extension.sftp.internal.lock.PathLock;
+import org.mule.extension.sftp.internal.source.AbstractPostActionGroup;
 import org.mule.extension.sftp.internal.source.PostActionGroup;
 import org.mule.tck.junit4.AbstractMuleTestCase;
 import org.mule.tck.size.SmallTest;

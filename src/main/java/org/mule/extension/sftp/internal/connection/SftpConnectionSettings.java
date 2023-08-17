@@ -8,7 +8,8 @@ package org.mule.extension.sftp.internal.connection;
 
 import static org.mule.runtime.api.meta.model.display.PathModel.Location.EMBEDDED;
 import static org.mule.runtime.api.meta.model.display.PathModel.Type.FILE;
-import org.mule.extension.sftp.random.alg.PRNGAlgorithm;
+
+import org.mule.extension.sftp.api.random.alg.PRNGAlgorithm;
 import org.mule.runtime.extension.api.annotation.param.Optional;
 import org.mule.runtime.extension.api.annotation.param.Parameter;
 import org.mule.runtime.extension.api.annotation.param.display.DisplayName;

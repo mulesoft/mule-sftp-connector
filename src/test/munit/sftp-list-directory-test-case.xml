@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:munit="http://www.mulesoft.org/schema/mule/munit"
+      xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools"
+      xmlns="http://www.mulesoft.org/schema/mule/core"
+      xmlns:sftp="http://www.mulesoft.org/schema/mule/sftp"
+      xmlns:java="http://www.mulesoft.org/schema/mule/java" xmlns:test="http://www.mulesoft.org/schema/mule/test"
+      xsi:schemaLocation="
+		http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+		http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
+		http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd
+        http://www.mulesoft.org/schema/mule/sftp http://www.mulesoft.org/schema/mule/sftp/current/mule-sftp.xsd
+        http://www.mulesoft.org/schema/mule/java http://www.mulesoft.org/schema/mule/java/current/mule-java.xsd">
+
+    <munit:config name="sftp-list-test-case.xml"/>
+
+
+
+    <munit:before-suite name="before-sftp-list-test-case">
+        <java:invoke-static class="org.mule.extension.sftp.internal.lifecycle.SftpServerLifecycleManager"
+                            method="startSftpServer(String)">
+            <java:args>
+                #[{
+                arg0: ${sftp.server.port},
+                }]
+            </java:args>
+        </java:invoke-static>
+    </munit:before-suite>
+
+    <munit:after-suite name="after-sftp-list-test-case">
+        <java:invoke-static class="org.mule.extension.sftp.internal.lifecycle.SftpServerLifecycleManager"
+                            method="stopSftpServer()">
+            <java:args>
+                #[{}]
+            </java:args>
+        </java:invoke-static>
+    </munit:after-suite>
+
+    <munit:after-test name="after-test-sftp-list-test-case">
+        <try>
+            <sftp:delete config-ref="config" path="test/created-to-eliminate"/>
+            <error-handler >
+                <on-error-continue type="SFTP:ILLEGAL_PATH"/>
+            </error-handler>
+        </try>
+    </munit:after-test>
+
+    <munit:test name="sftp-list-recursive-enable" description="We create a two-level directory hierarchy,
+        when recursive is enabled the item count is higher than when it is false.">
+        <munit:behavior>
+            <sftp:create-directory config-ref="config" directoryPath="test/created-to-eliminate/first-subdirectory"/>
+            <sftp:create-directory config-ref="config" directoryPath="test/created-to-eliminate/second-subdirectory/other-level-directory"/>
+        </munit:behavior>
+        <munit:execution>
+            <sftp:list config-ref="config" directoryPath="test/created-to-eliminate" recursive="true"/>
+            <set-variable value="#[sizeOf(payload)]" variableName="count_recursive"/>
+            <sftp:list  config-ref="config" directoryPath="test/created-to-eliminate"/>
+        </munit:execution>
+        <munit:validation>
+            <munit-tools:assert-that expression="#[vars.count_recursive]" is="#[MunitTools::greaterThan(sizeOf(payload))]"/>
+        </munit:validation>
+    </munit:test>
+
+    <munit:test name="sftp-list-directory-non-exists" description="Attempt to list a non-existent directory, expect error SFTP:ILLEGAL_PATH"
+                expectedErrorType="SFTP:ILLEGAL_PATH">
+        <munit:execution>
+            <sftp:list config-ref="config" directoryPath="directory-not-created"/>
+        </munit:execution>
+    </munit:test>
+
+</mule>

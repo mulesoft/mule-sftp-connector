@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:munit="http://www.mulesoft.org/schema/mule/munit"
+      xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools"
+      xmlns="http://www.mulesoft.org/schema/mule/core"
+      xmlns:sftp="http://www.mulesoft.org/schema/mule/sftp"
+      xmlns:java="http://www.mulesoft.org/schema/mule/java" xmlns:test="http://www.mulesoft.org/schema/mule/test"
+      xsi:schemaLocation="
+		http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+		http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
+		http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd
+        http://www.mulesoft.org/schema/mule/sftp http://www.mulesoft.org/schema/mule/sftp/current/mule-sftp.xsd
+        http://www.mulesoft.org/schema/mule/java http://www.mulesoft.org/schema/mule/java/current/mule-java.xsd">
+
+    <munit:config name="sftp-create-test-case.xml"/>
+
+
+
+    <munit:before-suite name="before-sftp-create-test-case">
+        <java:invoke-static class="org.mule.extension.sftp.internal.lifecycle.SftpServerLifecycleManager"
+                            method="startSftpServer(String)">
+            <java:args>
+                #[{
+                arg0: ${sftp.server.port},
+                }]
+            </java:args>
+        </java:invoke-static>
+    </munit:before-suite>
+
+    <munit:after-suite name="after-sftp-create-test-case">
+        <java:invoke-static class="org.mule.extension.sftp.internal.lifecycle.SftpServerLifecycleManager"
+                            method="stopSftpServer()">
+            <java:args>
+                #[{}]
+            </java:args>
+        </java:invoke-static>
+    </munit:after-suite>
+    <munit:after-test name="after-test-sftp-create-test-case"  >
+        <sftp:delete config-ref="config" path="created-dir-test"/>
+    </munit:after-test>
+    <munit:test name="sftp-create-directory" description="Perform operation that create a directory">
+        <munit:execution>
+            <sftp:create-directory config-ref="config" directoryPath="created-dir-test"/>
+        </munit:execution>
+        <munit:validation>
+            <sftp:list config-ref="config" directoryPath="/"/>
+            <munit-tools:assert>
+                <munit-tools:that><![CDATA[#[import * from dw::test::Asserts
+                                     ---
+                                    payload[0].attributes.directory as String must equalTo('true')
+                                    ]]]>
+                </munit-tools:that>
+            </munit-tools:assert>
+            <munit-tools:assert>
+                <munit-tools:that><![CDATA[#[import * from dw::test::Asserts
+                                     ---
+                                    payload[0].attributes.fileName must equalTo('created-dir-test')
+                                    ]]]>
+                </munit-tools:that>
+            </munit-tools:assert>
+        </munit:validation>
+    </munit:test>
+
+    <munit:test name="sftp-create-SubDirectory" description="Perform operation that create a subDirectory">
+        <munit:execution>
+            <sftp:create-directory config-ref="config" directoryPath="created-dir-test/subDirectory"/>
+        </munit:execution>
+        <munit:validation>
+            <sftp:list config-ref="config" directoryPath="created-dir-test"/>
+            <munit-tools:assert>
+                <munit-tools:that><![CDATA[#[import * from dw::test::Asserts
+                                     ---
+                                    payload[0].attributes.directory as String must equalTo('true')
+                                    ]]]>
+                </munit-tools:that>
+            </munit-tools:assert>
+            <munit-tools:assert>
+                <munit-tools:that><![CDATA[#[import * from dw::test::Asserts
+                                     ---
+                                    payload[0].attributes.fileName must equalTo('subDirectory')
+                                    ]]]>
+                </munit-tools:that>
+            </munit-tools:assert>
+        </munit:validation>
+    </munit:test>
+
+    <munit:test name="sft-create-directory-whit-special-name" description="Perform a create operation with special name">
+        <munit:execution>
+            <sftp:create-directory config-ref="config" directoryPath="created-dir-test/?1*@|#"/>
+        </munit:execution>
+        <munit:validation>
+            <sftp:list config-ref="config" directoryPath="created-dir-test"/>
+            <munit-tools:assert>
+                <munit-tools:that><![CDATA[#[import * from dw::test::Asserts
+                                     ---
+                                    payload[0].attributes.directory as String must equalTo('true')
+                                    ]]]>
+                </munit-tools:that>
+            </munit-tools:assert>
+            <munit-tools:assert>
+                <munit-tools:that><![CDATA[#[import * from dw::test::Asserts
+                                     ---
+                                    payload[0].attributes.fileName must equalTo("?1*@|#")
+                                    ]]]>
+                </munit-tools:that>
+            </munit-tools:assert>
+        </munit:validation>
+    </munit:test>
+
+
+    <munit:test name="sft-create-directory-already-exists" description="Perform a create operation but it already exists. Expect SFTP:FILE_ALREADY_EXISTS error"
+                expectedErrorType="SFTP:FILE_ALREADY_EXISTS">
+        <munit:behavior >
+            <sftp:create-directory config-ref="config" directoryPath="created-dir-test"/>
+        </munit:behavior>
+        <munit:execution>
+            <sftp:create-directory config-ref="config" directoryPath="created-dir-test"/>
+        </munit:execution>
+   </munit:test>
+
+</mule>

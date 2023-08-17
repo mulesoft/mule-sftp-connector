@@ -9,7 +9,7 @@ package org.mule.extension.sftp;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
-import org.mule.extension.file.common.api.stream.AbstractNonFinalizableFileInputStream;
+import org.mule.extension.sftp.internal.stream.AbstractNonFinalizableFileInputStream;
 import org.mule.runtime.api.exception.MuleException;
 import org.mule.runtime.api.exception.MuleRuntimeException;
 import org.mule.runtime.core.api.event.CoreEvent;
