@@ -138,6 +138,9 @@ public class SftpClient {
    * @return a {@link SftpFileAttributes} or {@code null} if the file doesn't exist.
    */
   public SftpFileAttributes getAttributes(URI uri) throws IOException {
+    if (uri == null) {
+      return null;
+    }
     String path = normalizeRemotePath(uri.getPath());
     try {
       return new SftpFileAttributes(uri, sftp.stat(path));

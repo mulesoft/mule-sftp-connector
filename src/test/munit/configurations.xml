@@ -92,4 +92,13 @@
         </sftp:connection>
     </sftp:config>
 
+    <sftp:config name="config-with-toxiproxy">
+        <sftp:connection username="mule" password="test" host="localhost" port="${connection.lost.port}"
+                         workingDir="/config" prngAlgorithm="SHA1PRNG">
+            <reconnection >
+                <reconnect-forever />
+            </reconnection>
+        </sftp:connection>
+    </sftp:config>
+
 </mule>

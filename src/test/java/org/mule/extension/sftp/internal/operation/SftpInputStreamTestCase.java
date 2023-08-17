@@ -17,7 +17,6 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 import org.mule.extension.sftp.internal.lock.UriLock;
-import org.mule.extension.sftp.internal.operation.SftpInputStream;
 import org.mule.runtime.api.connection.ConnectionHandler;
 
 import java.io.ByteArrayInputStream;

@@ -5,7 +5,6 @@
       xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools"
       xmlns="http://www.mulesoft.org/schema/mule/core"
       xmlns:sftp="http://www.mulesoft.org/schema/mule/sftp"
-      xmlns:java="http://www.mulesoft.org/schema/mule/java"
       xmlns:test="http://www.mulesoft.org/schema/mule/test"
       xmlns:connection-test="http://www.mulesoft.org/schema/mule/connection-test"
       xsi:schemaLocation="
@@ -13,18 +12,9 @@
 		http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
 		http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd
         http://www.mulesoft.org/schema/mule/sftp http://www.mulesoft.org/schema/mule/sftp/current/mule-sftp.xsd
-        http://www.mulesoft.org/schema/mule/java http://www.mulesoft.org/schema/mule/java/current/mule-java.xsd
         http://www.mulesoft.org/schema/mule/connection-test http://www.mulesoft.org/schema/mule/connection-test/current/mule-connection-test.xsd">
 
     <munit:config name="sftp-copy-with-reconnection-test-case.xml"/>
-    <sftp:config name="config-with-toxiproxy">
-        <sftp:connection username="mule" password="test" host="localhost" port="${connection.lost.port}"
-                         workingDir="/config" prngAlgorithm="SHA1PRNG">
-            <reconnection >
-                <reconnect-forever />
-            </reconnection>
-        </sftp:connection>
-    </sftp:config>
 
     <munit:before-suite name="before-suite-reconnection">
         <connection-test:define-proxy-server-port serverPort="${toxiproxy.port}"/>
@@ -33,7 +23,6 @@
 
     <munit:test name="sftp-copy-directories-with-reconnection" description="Perform a copy operation that copies a whole directory with reconnection">
         <munit:behavior>
-
             <set-variable variableName="fileContent" value="I just want to impress Mr. Stark"/>
 
             <sftp:create-directory config-ref="config-with-toxiproxy" directoryPath="copy-dir-test"/>
