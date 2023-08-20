@@ -6,6 +6,8 @@
  */
 package org.mule.extension.sftp.internal.proxy;
 
+import org.mule.runtime.api.exception.MuleRuntimeException;
+
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
@@ -33,17 +35,17 @@ public class GssApiMechanisms {
   /**
    * Prefix to use with {@link GSSName#NT_HOSTBASED_SERVICE}.
    */
-  public static final String GSSAPI_HOST_PREFIX = "host@"; //$NON-NLS-1$
+  public static final String GSSAPI_HOST_PREFIX = "host@";
 
   /**
    * The {@link Oid} of Kerberos 5.
    */
-  public static final Oid KERBEROS_5 = createOid("1.2.840.113554.1.2.2"); //$NON-NLS-1$
+  public static final Oid KERBEROS_5 = createOid("1.2.840.113554.1.2.2");
 
   /**
    * SGNEGO is not to be used with ssh.
    */
-  public static final Oid SPNEGO = createOid("1.3.6.1.5.5.2"); //$NON-NLS-1$
+  public static final Oid SPNEGO = createOid("1.3.6.1.5.5.2");
 
   /**
    * Protects {@link #supportedMechanisms}.
@@ -116,7 +118,7 @@ public class GssApiMechanisms {
       try {
         address = InetAddress.getByName(remote.getHostString());
       } catch (UnknownHostException e) {
-        return null;
+        throw new MuleRuntimeException(e);
       }
     }
     return address;

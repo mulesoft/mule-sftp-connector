@@ -20,7 +20,7 @@ import java.util.List;
 public final class HttpParser {
 
   /**
-   * An exception indicating some problem parsing HTPP headers.
+   * An exception indicating some problem parsing HTTP headers.
    */
   public static class ParseException extends Exception {
 
@@ -75,7 +75,7 @@ public final class HttpParser {
       throw new ParseException(e);
     }
     // Again, accept even if the reason is missing
-    String reason = ""; //$NON-NLS-1$
+    String reason = "";
     if (secondBlank < line.length()) {
       reason = line.substring(secondBlank + 1);
     }
@@ -140,46 +140,106 @@ public final class HttpParser {
     // characters. Ugh.
     int length = header.length();
     for (int i = 0; i < length;) {
-      // int start = skipWhiteSpace(header, i);
-      // int end = HttpSupport.scanToken(header, start);
-      // if (end <= start) {
-      // break;
-      // }
-      // AuthenticationChallenge challenge = new AuthenticationChallenge(
-      // header.substring(start, end));
-      // challenges.add(challenge);
-      // i = parseChallenge(challenge, header, end);
+      int start = skipWhiteSpace(header, i);
+      int end = scanToken(header, start);
+      if (end <= start) {
+        break;
+      }
+      AuthenticationChallenge challenge = new AuthenticationChallenge(
+                                                                      header.substring(start, end));
+      challenges.add(challenge);
+      i = parseChallenge(challenge, header, end);
     }
   }
 
   private static int parseChallenge(AuthenticationChallenge challenge,
                                     String header, int from) {
-    /*
-     * int length = header.length(); boolean first = true; for (int start = from; start <= length; first = false) { // Now we have
-     * either a single token, which may end in zero or more // equal signs, or a comma-separated list of key=value pairs (with //
-     * optional legacy whitespace around the equals sign), where the // value can be either a token or a quoted string. start =
-     * skipWhiteSpace(header, start); int end = HttpSupport.scanToken(header, start); if (end == start) { // Nothing found. Either
-     * at end or on a comma. if (start < header.length() && header.charAt(start) == ',') { return start + 1; } return start; } int
-     * next = skipWhiteSpace(header, end); // Comma, or equals sign, or end of string if (next >= length || header.charAt(next) !=
-     * '=') { if (first) { // It must be a token challenge.setToken(header.substring(start, end)); if (next < length &&
-     * header.charAt(next) == ',') { next++; } return next; } // This token must be the name of the next authentication // scheme.
-     * return start; } int nextStart = skipWhiteSpace(header, next + 1); if (nextStart >= length) { if (next == end) { // '='
-     * immediately after the key, no value: key must be the // token, and the equals sign is part of the token
-     * challenge.setToken(header.substring(start, end + 1)); } else { // Key without value...
-     * challenge.addArgument(header.substring(start, end), null); } return nextStart; } if (nextStart == end + 1 &&
-     * header.charAt(nextStart) == '=') { // More than one equals sign: must be the single token. end = nextStart + 1; while (end
-     * < length && header.charAt(end) == '=') { end++; } challenge.setToken(header.substring(start, end)); end =
-     * skipWhiteSpace(header, end); if (end < length && header.charAt(end) == ',') { end++; } return end; } if
-     * (header.charAt(nextStart) == ',') { if (next == end) { // '=' immediately after the key, no value: key must be the //
-     * token, and the equals sign is part of the token challenge.setToken(header.substring(start, end + 1)); return nextStart + 1;
-     * } // Key without value... challenge.addArgument(header.substring(start, end), null); start = nextStart + 1; } else { if
-     * (header.charAt(nextStart) == '"') { int[] nextEnd = { nextStart + 1 }; String value = scanQuotedString(header, nextStart +
-     * 1, nextEnd); challenge.addArgument(header.substring(start, end), value); start = nextEnd[0]; } else { int nextEnd =
-     * HttpSupport.scanToken(header, nextStart); challenge.addArgument(header.substring(start, end), header.substring(nextStart,
-     * nextEnd)); start = nextEnd; } start = skipWhiteSpace(header, start); if (start < length && header.charAt(start) == ',') {
-     * start++; } } } return length;
-     */
-    return 0;
+    int length = header.length();
+    boolean first = true;
+    for (int start = from; start <= length; first = false) {
+      // Now we have either a single token, which may end in zero or more
+      // equal signs, or a comma-separated list of key=value pairs (with
+      // optional legacy whitespace around the equals sign), where the
+      // value can be either a token or a quoted string.
+      start = skipWhiteSpace(header, start);
+      int end = scanToken(header, start);
+      if (end == start) {
+        // Nothing found. Either at end or on a comma.
+        if (start < header.length() && header.charAt(start) == ',') {
+          return start + 1;
+        }
+        return start;
+      }
+      int next = skipWhiteSpace(header, end);
+      // Comma, or equals sign, or end of string
+      if (next >= length || header.charAt(next) != '=') {
+        if (first) {
+          // It must be a token
+          challenge.setToken(header.substring(start, end));
+          if (next < length && header.charAt(next) == ',') {
+            next++;
+          }
+          return next;
+        }
+        // This token must be the name of the next authentication
+        // scheme.
+        return start;
+      }
+      int nextStart = skipWhiteSpace(header, next + 1);
+      if (nextStart >= length) {
+        if (next == end) {
+          // '=' immediately after the key, no value: key must be the
+          // token, and the equals sign is part of the token
+          challenge.setToken(header.substring(start, end + 1));
+        } else {
+          // Key without value...
+          challenge.addArgument(header.substring(start, end), null);
+        }
+        return nextStart;
+      }
+      if (nextStart == end + 1 && header.charAt(nextStart) == '=') {
+        // More than one equals sign: must be the single token.
+        end = nextStart + 1;
+        while (end < length && header.charAt(end) == '=') {
+          end++;
+        }
+        challenge.setToken(header.substring(start, end));
+        end = skipWhiteSpace(header, end);
+        if (end < length && header.charAt(end) == ',') {
+          end++;
+        }
+        return end;
+      }
+      if (header.charAt(nextStart) == ',') {
+        if (next == end) {
+          // '=' immediately after the key, no value: key must be the
+          // token, and the equals sign is part of the token
+          challenge.setToken(header.substring(start, end + 1));
+          return nextStart + 1;
+        }
+        // Key without value...
+        challenge.addArgument(header.substring(start, end), null);
+        start = nextStart + 1;
+      } else {
+        if (header.charAt(nextStart) == '"') {
+          int[] nextEnd = {nextStart + 1};
+          String value = scanQuotedString(header, nextStart + 1,
+                                          nextEnd);
+          challenge.addArgument(header.substring(start, end), value);
+          start = nextEnd[0];
+        } else {
+          int nextEnd = scanToken(header, nextStart);
+          challenge.addArgument(header.substring(start, end),
+                                header.substring(nextStart, nextEnd));
+          start = nextEnd;
+        }
+        start = skipWhiteSpace(header, start);
+        if (start < length && header.charAt(start) == ',') {
+          start++;
+        }
+      }
+    }
+    return length;
   }
 
   private static int skipWhiteSpace(String header, int i) {
@@ -210,5 +270,52 @@ public final class HttpParser {
     }
     to[0] = i;
     return result.toString();
+  }
+
+  public static int scanToken(String header, int from) {
+    int length = header.length();
+    int i = from;
+    if (i < 0 || i > length) {
+      throw new IndexOutOfBoundsException();
+    }
+    while (i < length) {
+      char c = header.charAt(i);
+      switch (c) {
+        case '!':
+        case '#':
+        case '$':
+        case '%':
+        case '&':
+        case '\'':
+        case '*':
+        case '+':
+        case '-':
+        case '.':
+        case '^':
+        case '_':
+        case '`':
+        case '|':
+        case '~':
+        case '0':
+        case '1':
+        case '2':
+        case '3':
+        case '4':
+        case '5':
+        case '6':
+        case '7':
+        case '8':
+        case '9':
+          i++;
+          break;
+        default:
+          if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z')) {
+            i++;
+            break;
+          }
+          return i;
+      }
+    }
+    return i;
   }
 }

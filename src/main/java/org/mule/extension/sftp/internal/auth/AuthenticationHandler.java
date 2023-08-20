@@ -71,4 +71,6 @@ public interface AuthenticationHandler<P, T>
 
   @Override
   void close();
+
+  void setDone(boolean done);
 }

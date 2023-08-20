@@ -19,7 +19,7 @@ import org.apache.sshd.common.util.buffer.ByteArrayBuffer;
 /**
  * @see <a href="https://tools.ietf.org/html/rfc1929">RFC 1929</a>
  */
-class SocksBasicAuthentication
+public class SocksBasicAuthentication
     extends BasicAuthentication<Buffer, Buffer> {
 
   private static final byte SOCKS_BASIC_PROTOCOL_VERSION = 1;
@@ -38,7 +38,7 @@ class SocksBasicAuthentication
   public void process() throws Exception {
     // Retries impossible. RFC 1929 specifies that the server MUST
     // close the connection if authentication is unsuccessful.
-    socks5ClientConnector.setDone(true);
+    socks5ClientConnector.setCompleted(true);
     if (params.getByte() != SOCKS_BASIC_PROTOCOL_VERSION
         || params.getByte() != SOCKS_BASIC_AUTH_SUCCESS) {
       throw new IOException(format("Authentication to SOCKS5 proxy %s failed", proxy));
@@ -53,7 +53,7 @@ class SocksBasicAuthentication
 
   @Override
   public Buffer getToken() throws Exception {
-    if (socks5ClientConnector.isDone()) {
+    if (socks5ClientConnector.isCompleted()) {
       return null;
     }
     try {
@@ -77,7 +77,7 @@ class SocksBasicAuthentication
       return buffer;
     } finally {
       socks5ClientConnector.clearPassword();
-      socks5ClientConnector.setDone(true);
+      socks5ClientConnector.setCompleted(true);
     }
   }
 }

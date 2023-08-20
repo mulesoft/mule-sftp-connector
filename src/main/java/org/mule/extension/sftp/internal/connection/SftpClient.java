@@ -237,16 +237,12 @@ public class SftpClient {
       InetSocketAddress remoteAddress = new InetSocketAddress(this.host, this.port);
       switch (proxyConfig.getProtocol()) {
         case HTTP:
-          session.setClientProxyConnector(proxyConfig.getUsername() != null && proxyConfig.getPassword() != null
-              ? new HttpClientConnector(proxyAddress, remoteAddress, proxyConfig.getUsername(),
-                                        proxyConfig.getPassword().toCharArray())
-              : new HttpClientConnector(proxyAddress, remoteAddress));
+          session.setClientProxyConnector(new HttpClientConnector(proxyAddress, remoteAddress, proxyConfig.getUsername(),
+                                                                  proxyConfig.getPassword().toCharArray()));
           break;
         case SOCKS5:
-          session.setClientProxyConnector(proxyConfig.getUsername() != null && proxyConfig.getPassword() != null
-              ? new Socks5ClientConnector(proxyAddress, remoteAddress, proxyConfig.getUsername(),
-                                          proxyConfig.getPassword().toCharArray())
-              : new Socks5ClientConnector(proxyAddress, remoteAddress));
+          session.setClientProxyConnector(new Socks5ClientConnector(proxyAddress, remoteAddress, proxyConfig.getUsername(),
+                                                                    proxyConfig.getPassword().toCharArray()));
           break;
         default:
           // should never get here, except a new type was added to the enum and not handled

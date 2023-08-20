@@ -33,9 +33,9 @@ import org.apache.sshd.common.util.buffer.ByteArrayBuffer;
  */
 public class HttpClientConnector extends AbstractClientProxyConnector {
 
-  private static final String HTTP_HEADER_PROXY_AUTHENTICATION = "Proxy-Authentication:"; //$NON-NLS-1$
+  private static final String HTTP_HEADER_PROXY_AUTHENTICATION = "Proxy-Authentication:";
 
-  private static final String HTTP_HEADER_PROXY_AUTHORIZATION = "Proxy-Authorization:"; //$NON-NLS-1$
+  private static final String HTTP_HEADER_PROXY_AUTHORIZATION = "Proxy-Authorization:";
 
   private static final String ERROR_MSG_UNEXPECTED_RESPONSE = "Unexpected HTTP proxy response from %s: %s";
 
@@ -150,7 +150,7 @@ public class HttpClientConnector extends AbstractClientProxyConnector {
       byte[] data = new byte[length];
       buffer.getRawBytes(data, 0, length);
       String[] reply = new String(data, US_ASCII)
-          .split("\r\n"); //$NON-NLS-1$
+          .split("\r\n");
       handleMessage(session, Arrays.asList(reply));
     } catch (Exception e) {
       if (authenticator != null) {
@@ -159,7 +159,7 @@ public class HttpClientConnector extends AbstractClientProxyConnector {
       }
       ongoing = false;
       try {
-        setDone(false);
+        setCompleted(false);
       } catch (Exception inner) {
         e.addSuppressed(inner);
       }
@@ -186,7 +186,7 @@ public class HttpClientConnector extends AbstractClientProxyConnector {
           }
           authenticator = null;
           ongoing = false;
-          setDone(true);
+          setCompleted(true);
           break;
         case HttpURLConnection.HTTP_PROXY_AUTH:
           List<AuthenticationChallenge> challenges = HttpParser.getAuthenticationHeaders(reply, HTTP_HEADER_PROXY_AUTHENTICATION);

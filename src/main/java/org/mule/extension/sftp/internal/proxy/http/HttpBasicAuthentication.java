@@ -31,7 +31,7 @@ class HttpBasicAuthentication extends BasicAuthentication<AuthenticationChalleng
 
   @Override
   public String getName() {
-    return "Basic"; //$NON-NLS-1$
+    return "Basic";
   }
 
   @Override
@@ -39,11 +39,11 @@ class HttpBasicAuthentication extends BasicAuthentication<AuthenticationChalleng
     // We ask only once.
     if (asked) {
       throw new IllegalStateException(
-                                      "Basic auth: already asked user for password"); //$NON-NLS-1$
+                                      "Basic auth: already asked user for password");
     }
     asked = true;
     super.askCredentials();
-    httpClientConnector.setDone(true);
+    httpClientConnector.setCompleted(true);
   }
 
   @Override

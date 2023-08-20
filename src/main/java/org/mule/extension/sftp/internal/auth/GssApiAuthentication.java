@@ -34,7 +34,7 @@ public abstract class GssApiAuthentication<P, T>
    *
    * @param proxy the {@link InetSocketAddress} of the proxy to connect to
    */
-  protected GssApiAuthentication(InetSocketAddress proxy) {
+  public GssApiAuthentication(InetSocketAddress proxy) {
     super(proxy);
   }
 
@@ -42,7 +42,7 @@ public abstract class GssApiAuthentication<P, T>
   public void close() {
     GssApiMechanisms.closeContextSilently(context);
     context = null;
-    done = true;
+    setDone(true);
   }
 
   @Override
@@ -67,19 +67,15 @@ public abstract class GssApiAuthentication<P, T>
     }
     try {
       byte[] received = extractToken(params);
-      token = context.initSecContext(received, 0, received.length);
-      checkDone();
+      this.token = context.initSecContext(received, 0, received.length);
+      if (context.isEstablished()) {
+        this.context.dispose();
+        context = null;
+        setDone(true);
+      }
     } catch (Exception e) {
       close();
       throw e;
-    }
-  }
-
-  private void checkDone() throws Exception {
-    done = context.isEstablished();
-    if (done) {
-      context.dispose();
-      context = null;
     }
   }
 
