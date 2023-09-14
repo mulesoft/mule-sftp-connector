@@ -82,6 +82,7 @@ public final class SftpWriteCommand extends SftpCommand implements WriteCommand 
       if (e.getCause() instanceof DeletedFileWhileReadException) {
         throw new ModuleException(e.getCause().getMessage(), FileError.FILE_DOESNT_EXIST, e.getCause());
       }
+      client.exitChannel();
       throw exception(format("Exception was found writing to file '%s'", uri.getPath()), e);
     } finally {
       pathLock.release();
