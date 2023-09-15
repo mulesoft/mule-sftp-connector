@@ -1,3 +1,10 @@
+/*
+ * Copyright (c) MuleSoft, Inc.  All rights reserved.  http://www.mulesoft.com
+ * The software in this package is published under the terms of the CPAL v1.0
+ * license, a copy of which has been included with this distribution in the
+ * LICENSE.txt file.
+ */
+
 package org.mule.extension.sftp.internal.command;
 
 import static org.mockito.Matchers.any;
@@ -26,42 +33,42 @@ import org.mockito.runners.MockitoJUnitRunner;
 @RunWith(MockitoJUnitRunner.class)
 public class SftpWriteCommandTest {
 
-    @Mock
-    public SftpClient sftpClient;
+  @Mock
+  public SftpClient sftpClient;
 
-    @Mock
-    public SftpFileSystem sftpFileSystem;
+  @Mock
+  public SftpFileSystem sftpFileSystem;
 
 
-    public SftpWriteCommand sftpWriteCommand;
+  public SftpWriteCommand sftpWriteCommand;
 
-    @Before
-    public void setUp(){
-        sftpWriteCommand = new SftpWriteCommand(sftpFileSystem, sftpClient);
+  @Before
+  public void setUp() {
+    sftpWriteCommand = new SftpWriteCommand(sftpFileSystem, sftpClient);
+  }
+
+  @Test
+  public void write() throws Exception {
+    final Constructor<SftpATTRS> c = SftpATTRS.class.getDeclaredConstructor();
+    c.setAccessible(true);
+    final SftpATTRS sftpATTRS = c.newInstance();
+
+    final String filePath = "test.txt";
+    final FileWriteMode fileWriteMode = FileWriteMode.OVERWRITE;
+    final InputStream stubInputStream = IOUtils.toInputStream("some test data for my input stream", "UTF-8");
+    final URI uri = new URI("/upload/test.txt");
+
+    when(sftpClient.getAttributes(any())).thenReturn(new SftpFileAttributes(uri, sftpATTRS));
+    when(sftpFileSystem.getBasePath()).thenReturn("/upload");
+
+    doThrow(new TimeoutException()).when(sftpClient).write(filePath, stubInputStream, fileWriteMode);
+
+    try {
+      sftpWriteCommand.write(filePath, stubInputStream, fileWriteMode, false, true);
+    } catch (final Exception exception) {
+      verify(sftpClient).exitChannel();
     }
-
-    @Test
-    public void write() throws Exception {
-        final Constructor<SftpATTRS> c = SftpATTRS.class.getDeclaredConstructor();
-        c.setAccessible(true);
-        final SftpATTRS sftpATTRS = c.newInstance();
-
-        final String filePath = "test.txt";
-        final FileWriteMode fileWriteMode = FileWriteMode.OVERWRITE;
-        final InputStream stubInputStream = IOUtils.toInputStream("some test data for my input stream", "UTF-8");
-        final URI uri = new URI("/upload/test.txt");
-
-        when(sftpClient.getAttributes(any())).thenReturn(new SftpFileAttributes(uri, sftpATTRS));
-        when(sftpFileSystem.getBasePath()).thenReturn("/upload");
-
-        doThrow(new TimeoutException()).when(sftpClient).write(filePath, stubInputStream, fileWriteMode);
-
-        try{
-            sftpWriteCommand.write(filePath, stubInputStream, fileWriteMode, false, true);
-        }catch (final Exception exception){
-            verify(sftpClient).exitChannel();
-        }
-    }
+  }
 
 
 }
