@@ -494,4 +494,8 @@ public class SftpClient {
   public void setOwner(SftpFileSystem owner) {
     this.owner = owner;
   }
+
+  public void exitChannel() {
+    sftp.exit();
+  }
 }
