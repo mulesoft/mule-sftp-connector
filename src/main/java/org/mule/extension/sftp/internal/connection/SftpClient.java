@@ -48,7 +48,7 @@ import java.security.PublicKey;
 import java.util.Collection;
 import java.util.List;
 
-import org.apache.sshd.client.ClientBuilder;
+//import org.apache.sshd.client.ClientBuilder;
 import org.apache.sshd.client.SshClient;
 import org.apache.sshd.client.keyverifier.KnownHostsServerKeyVerifier;
 import org.apache.sshd.client.keyverifier.RejectAllServerKeyVerifier;
@@ -103,10 +103,11 @@ public class SftpClient {
     this.port = port;
 
 
-    client = ClientBuilder.builder()
-        .randomFactory(prngAlgorithm.getRandomFactory())
-        .build();
+    //    client = ClientBuilder.builder()
+    //        .randomFactory(prngAlgorithm.getRandomFactory())
+    //        .build();
 
+    client = SshClient.setUpDefaultClient();
     client.start();
   }
 
