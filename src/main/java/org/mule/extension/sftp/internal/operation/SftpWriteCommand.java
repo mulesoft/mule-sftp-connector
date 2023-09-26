@@ -8,6 +8,7 @@ package org.mule.extension.sftp.internal.operation;
 
 import static java.lang.String.format;
 
+import static org.mule.extension.sftp.internal.util.UriUtils.createUri;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import org.mule.extension.sftp.api.FileAttributes;
@@ -47,7 +48,7 @@ public final class SftpWriteCommand extends SftpCommand implements WriteCommand 
   @Override
   public void write(String filePath, InputStream content, FileWriteMode mode,
                     boolean lock, boolean createParentDirectory) {
-    URI uri = resolvePath(filePath);
+    URI uri = createUri(filePath);
     FileAttributes file = getFile(filePath);
 
     if (file == null) {
