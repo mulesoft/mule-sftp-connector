@@ -80,7 +80,7 @@ public abstract class SftpCommand extends ExternalFileCommand<SftpFileSystemConn
   }
 
   protected SftpFileAttributes getFile(String filePath, boolean requireExistence) {
-    URI uri = createUri(normalizePath(filePath));
+    URI uri = resolvePath(normalizePath(filePath));
     if (LOGGER.isTraceEnabled()) {
       LOGGER.trace("Get file attributes for path {}", uri);
     }
@@ -214,7 +214,7 @@ public abstract class SftpCommand extends ExternalFileCommand<SftpFileSystemConn
   protected final void copy(FileConnectorConfig config, String source, String target, boolean overwrite,
                             boolean createParentDirectory, String renameTo, SftpCopyDelegate delegate) {
     FileAttributes sourceFile = getExistingFile(source);
-    URI targetUri = createUri(target);
+    URI targetUri = resolvePath(target);
     FileAttributes targetFile = getFile(targetUri.getPath());
     String targetFileName = isBlank(renameTo) ? getFileName(source) : renameTo;
 
@@ -288,10 +288,6 @@ public abstract class SftpCommand extends ExternalFileCommand<SftpFileSystemConn
    */
   protected URI getBasePath(FileSystem fileSystem) {
     String basePath = fileSystem.getBasePath();
-    if (isEmpty(basePath)) {
-      basePath = ((SftpFileSystemConnection) fileSystem).getClient().getHome();
-    }
-    return createUri(basePath);
+    return createUri(isEmpty(basePath) ? basePath : "." );
   }
-
 }
