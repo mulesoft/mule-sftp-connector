@@ -9,6 +9,7 @@ package org.mule.extension.sftp.internal.operation;
 import static org.mule.runtime.api.meta.model.display.PathModel.Location.EXTERNAL;
 import static org.mule.runtime.api.meta.model.display.PathModel.Type.DIRECTORY;
 import static org.mule.runtime.api.meta.model.display.PathModel.Type.FILE;
+import static org.mule.runtime.api.meta.model.operation.ExecutionType.CPU_INTENSIVE;
 import static org.mule.runtime.core.api.util.StringUtils.isBlank;
 import static org.mule.runtime.extension.api.annotation.param.MediaType.ANY;
 import static org.mule.runtime.extension.api.annotation.param.display.Placement.ADVANCED_TAB;
@@ -30,6 +31,7 @@ import org.mule.extension.sftp.internal.exception.IllegalPathException;
 import org.mule.extension.sftp.internal.extension.SftpConnector;
 import org.mule.runtime.api.message.Message;
 import org.mule.runtime.extension.api.annotation.error.Throws;
+import org.mule.runtime.extension.api.annotation.execution.Execution;
 import org.mule.runtime.extension.api.annotation.param.Config;
 import org.mule.runtime.extension.api.annotation.param.ConfigOverride;
 import org.mule.runtime.extension.api.annotation.param.Connection;
@@ -117,6 +119,7 @@ public final class SftpOperations extends BaseFileSystemOperations {
   @Summary("Obtains the content and metadata of a file at a given path")
   @Throws(FileReadErrorTypeProvider.class)
   @MediaType(value = ANY, strict = false)
+  @Execution(CPU_INTENSIVE)
   public Result<InputStream, SftpFileAttributes> read(@Config SftpConnector config,
                                                       @Connection SftpFileSystemConnection fileSystem,
                                                       @DisplayName("File Path") @Path(type = FILE,

@@ -346,7 +346,8 @@ public class SftpClient {
    */
   public InputStream getFileContent(String path) {
     try {
-      return sftp.read(normalizeRemotePath(path));
+      String s = normalizeRemotePath(path);
+      return sftp.read(s);
     } catch (IOException e) {
       throw handleException("Exception was found trying to retrieve the contents of file " + path, e);
     }
