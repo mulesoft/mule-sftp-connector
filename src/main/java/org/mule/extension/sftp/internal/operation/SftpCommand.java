@@ -287,11 +287,6 @@ public abstract class SftpCommand extends ExternalFileCommand<SftpFileSystemConn
    * {@inheritDoc}
    */
   protected URI getBasePath(FileSystem fileSystem) {
-    String basePath = fileSystem.getBasePath();
-    if (isEmpty(basePath)) {
-      basePath = ((SftpFileSystemConnection) fileSystem).getClient().getHome();
-    }
-    return createUri(basePath);
+    return createUri(fileSystem.getBasePath());
   }
-
 }

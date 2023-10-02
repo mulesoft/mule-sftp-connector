@@ -19,15 +19,8 @@
                     <munit:parameter propertyName="config" value="config-docker-with-home-directory"/>
                 </munit:parameters>
             </munit:parameterization>
-            <munit:parameterization name="config-docker-without-home-directory">
-                <munit:parameters>
-                    <munit:parameter propertyName="config" value="config-docker-without-home-directory"/>
-                </munit:parameters>
-            </munit:parameterization>
         </munit:parameterizations>
     </munit:config>
-
-
 
     <munit:before-suite name="startSftpTestServerForWriting">
         <java:invoke-static class="org.mule.extension.sftp.internal.lifecycle.SftpServerLifecycleManager"
