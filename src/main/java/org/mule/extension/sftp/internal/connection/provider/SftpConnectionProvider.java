@@ -30,6 +30,7 @@ import org.mule.runtime.api.connection.ConnectionException;
 import org.mule.runtime.api.connection.ConnectionValidationResult;
 import org.mule.runtime.api.connection.PoolingConnectionProvider;
 import org.mule.runtime.api.lock.LockFactory;
+import org.mule.runtime.api.scheduler.SchedulerService;
 import org.mule.runtime.extension.api.annotation.Alias;
 import org.mule.runtime.extension.api.annotation.param.NullSafe;
 import org.mule.runtime.extension.api.annotation.param.Optional;
@@ -70,6 +71,9 @@ public class SftpConnectionProvider extends FileSystemProvider<SftpFileSystemCon
 
   @Inject
   private LockFactory lockFactory;
+
+  @Inject
+  protected SchedulerService schedulerService;
 
   /**
    * The directory to be considered as the root of every relative path used with this connector. If not provided, it will default
@@ -124,7 +128,7 @@ public class SftpConnectionProvider extends FileSystemProvider<SftpFileSystemCon
       LOGGER.debug(format("Connecting to host: '%s' at port: '%d'", connectionSettings.getHost(), connectionSettings.getPort()));
     }
     SftpClient client = clientFactory.createInstance(connectionSettings.getHost(), connectionSettings.getPort(),
-                                                     connectionSettings.getPrngAlgorithm());
+                                                     connectionSettings.getPrngAlgorithm(), schedulerService);
     client.setConnectionTimeoutMillis(getConnectionTimeoutUnit().toMillis(getConnectionTimeout()));
     client.setPassword(connectionSettings.getPassword());
     client.setIdentity(connectionSettings.getIdentityFile(), connectionSettings.getPassphrase());
