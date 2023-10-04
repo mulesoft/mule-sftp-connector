@@ -101,7 +101,7 @@ public class SftpClient {
   private SftpFileSystemConnection owner;
 
   private String cwd = "/";
-  private final Object LOCK = new Object();
+  private static final Object LOCK = new Object();
   private String home;
 
   protected SchedulerService schedulerService;
