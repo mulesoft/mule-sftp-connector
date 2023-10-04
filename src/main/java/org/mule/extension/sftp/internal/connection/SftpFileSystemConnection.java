@@ -227,6 +227,5 @@ public class SftpFileSystemConnection extends AbstractExternalFileSystem {
 
   public SftpClient getClient() {
     return client;
-
   }
 }
