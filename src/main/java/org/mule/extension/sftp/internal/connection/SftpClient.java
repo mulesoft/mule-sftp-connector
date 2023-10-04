@@ -6,7 +6,6 @@
  */
 package org.mule.extension.sftp.internal.connection;
 
-import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.mule.extension.sftp.internal.error.FileError.CONNECTIVITY;
 import static org.mule.extension.sftp.internal.util.SftpUtils.normalizePath;
 import static org.mule.extension.sftp.internal.util.SftpUtils.resolvePathOrResource;
@@ -15,6 +14,7 @@ import static org.mule.runtime.api.i18n.I18nMessageFactory.createStaticMessage;
 import static org.mule.runtime.api.util.collection.Collectors.toImmutableList;
 import static org.mule.runtime.core.api.util.StringUtils.isEmpty;
 
+import static java.util.concurrent.TimeUnit.SECONDS;
 import static java.lang.String.format;
 import static java.util.Collections.emptyList;
 import static java.util.Objects.nonNull;
@@ -80,7 +80,7 @@ public class SftpClient {
   private static final Logger LOGGER = getLogger(SftpClient.class);
   protected static final OpenMode[] CREATE_MODES = {OpenMode.Write, OpenMode.Create};
   protected static final OpenMode[] APPEND_MODES = {OpenMode.Write, OpenMode.Append};
-  public static final Long PWD_COMMAND_EXECUTION_TIMEOUT = 2L;
+  public static final Long PWD_COMMAND_EXECUTION_TIMEOUT = 30L;
   private static final TimeUnit PWD_COMMAND_EXECUTION_TIMEOUT_UNIT = SECONDS;
   private static final String PWD_COMMAND = "pwd";
 
@@ -101,6 +101,8 @@ public class SftpClient {
   private SftpFileSystemConnection owner;
 
   private String cwd = "/";
+  private final Object LOCK = new Object();
+  private String home;
 
   protected SchedulerService schedulerService;
 
@@ -389,7 +391,12 @@ public class SftpClient {
    */
   public String getHome() {
     try {
-      return executePWDCommandWithTimeout();
+      synchronized (LOCK) {
+        if (home == null) {
+          home = executePWDCommandWithTimeout();
+        }
+      }
+      return home;
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
@@ -399,7 +406,7 @@ public class SftpClient {
    * Apache Mina 2.9.2 - have a hardcoded timeout to infinite on executeRemoteCommand, if this method fails, the operation hangs.
    * The solution at the moment is to add a timeout with the tools provided by mule sdk.
    */
-  public String executePWDCommandWithTimeout() throws IOException {
+  private String executePWDCommandWithTimeout() throws IOException {
     try {
       Scheduler getHomeScheduler =
           schedulerService.cpuLightScheduler(SchedulerConfig.config().withShutdownTimeout(PWD_COMMAND_EXECUTION_TIMEOUT,
@@ -407,7 +414,7 @@ public class SftpClient {
       Future<String> submit = getHomeScheduler.submit(() -> session.executeRemoteCommand(PWD_COMMAND));
       return submit.get().trim();
     } catch (Exception ex) {
-      throw new IllegalPathException("PWD command not receive response from the server please select a valid working directory",
+      throw new IllegalPathException("Unable to resolve the working directory from server timed out. Please configure a valid working directory or use absolute paths on your operation.",
                                      ex);
     }
   }
