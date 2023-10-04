@@ -409,10 +409,12 @@ public class SftpClient {
   private String executePWDCommandWithTimeout() throws IOException {
     try {
       Scheduler getHomeScheduler =
-          schedulerService.cpuLightScheduler(SchedulerConfig.config().withShutdownTimeout(PWD_COMMAND_EXECUTION_TIMEOUT,
-                                                                                          PWD_COMMAND_EXECUTION_TIMEOUT_UNIT));
+              schedulerService.cpuLightScheduler(SchedulerConfig.config().withShutdownTimeout(PWD_COMMAND_EXECUTION_TIMEOUT,
+                      PWD_COMMAND_EXECUTION_TIMEOUT_UNIT));
       Future<String> submit = getHomeScheduler.submit(() -> session.executeRemoteCommand(PWD_COMMAND));
       return submit.get().trim();
+    } catch (InterruptedException e){
+      throw new MuleRuntimeException(e);
     } catch (Exception ex) {
       throw new IllegalPathException("Unable to resolve the working directory from server timed out. Please configure a valid working directory or use absolute paths on your operation.",
                                      ex);
