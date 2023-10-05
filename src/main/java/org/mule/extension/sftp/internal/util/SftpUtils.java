@@ -7,12 +7,12 @@
 package org.mule.extension.sftp.internal.util;
 
 import static java.lang.Thread.currentThread;
-import static org.mule.runtime.core.api.util.StringUtils.isEmpty;
 
 import java.net.URL;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.regex.Pattern;
 
 import org.apache.commons.io.FilenameUtils;
 
@@ -23,6 +23,8 @@ import org.apache.commons.io.FilenameUtils;
  */
 public class SftpUtils {
 
+  private static final Pattern TRIM_END_SLASH_PATTERN = Pattern.compile("/+$");
+
   private SftpUtils() {}
 
   /**
@@ -31,10 +33,7 @@ public class SftpUtils {
    *         "directory/subdirectory"
    */
   public static String normalizePath(String path) {
-    String pathToNormalize = path;
-    if (!isEmpty(path) && path.charAt(path.length() - 1) == '/') {
-      pathToNormalize = path.substring(0, path.length() - 2);
-    }
+    String pathToNormalize = TRIM_END_SLASH_PATTERN.matcher(path).replaceFirst("");
     return FilenameUtils.normalize(pathToNormalize, true);
   }
 
