@@ -14,6 +14,7 @@ import static org.mule.runtime.api.i18n.I18nMessageFactory.createStaticMessage;
 import static org.mule.runtime.api.util.collection.Collectors.toImmutableList;
 import static org.mule.runtime.core.api.util.StringUtils.isEmpty;
 
+import static java.util.concurrent.TimeUnit.SECONDS;
 import static java.lang.String.format;
 import static java.util.Collections.emptyList;
 import static java.util.Objects.nonNull;
@@ -28,11 +29,15 @@ import org.mule.extension.sftp.api.SftpProxyConfig;
 import org.mule.extension.sftp.api.random.alg.PRNGAlgorithm;
 import org.mule.extension.sftp.internal.error.FileError;
 import org.mule.extension.sftp.internal.exception.FileAccessDeniedException;
+import org.mule.extension.sftp.internal.exception.IllegalPathException;
 import org.mule.extension.sftp.internal.exception.SftpConnectionException;
 import org.mule.extension.sftp.internal.proxy.http.HttpClientConnector;
 import org.mule.extension.sftp.internal.proxy.socks5.Socks5ClientConnector;
 import org.mule.runtime.api.connection.ConnectionException;
 import org.mule.runtime.api.exception.MuleRuntimeException;
+import org.mule.runtime.api.scheduler.Scheduler;
+import org.mule.runtime.api.scheduler.SchedulerConfig;
+import org.mule.runtime.api.scheduler.SchedulerService;
 
 import java.io.File;
 import java.io.IOException;
@@ -47,6 +52,8 @@ import java.security.KeyPair;
 import java.security.PublicKey;
 import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.sshd.client.ClientBuilder;
 import org.apache.sshd.client.SshClient;
@@ -73,6 +80,9 @@ public class SftpClient {
   private static final Logger LOGGER = getLogger(SftpClient.class);
   protected static final OpenMode[] CREATE_MODES = {OpenMode.Write, OpenMode.Create};
   protected static final OpenMode[] APPEND_MODES = {OpenMode.Write, OpenMode.Append};
+  private static final Long PWD_COMMAND_EXECUTION_TIMEOUT = 30L;
+  private static final TimeUnit PWD_COMMAND_EXECUTION_TIMEOUT_UNIT = SECONDS;
+  private static final String PWD_COMMAND = "pwd";
 
   private final SshClient client;
   private org.apache.sshd.sftp.client.SftpClient sftp;
@@ -91,6 +101,10 @@ public class SftpClient {
   private SftpFileSystemConnection owner;
 
   private String cwd = "/";
+  private static final Object LOCK = new Object();
+  private String home;
+
+  protected SchedulerService schedulerService;
 
   /**
    * Creates a new instance which connects to a server on a given {@code host} and {@code port}
@@ -98,9 +112,10 @@ public class SftpClient {
    * @param host the host address
    * @param port the remote connection port
    */
-  public SftpClient(String host, int port, PRNGAlgorithm prngAlgorithm) {
+  public SftpClient(String host, int port, PRNGAlgorithm prngAlgorithm, SchedulerService schedulerService) {
     this.host = host;
     this.port = port;
+    this.schedulerService = schedulerService;
 
 
     client = ClientBuilder.builder()
@@ -376,9 +391,33 @@ public class SftpClient {
    */
   public String getHome() {
     try {
-      return session.executeRemoteCommand("pwd").trim();
+      synchronized (LOCK) {
+        if (home == null) {
+          home = executePWDCommandWithTimeout();
+        }
+      }
+      return home;
     } catch (IOException e) {
       throw new RuntimeException(e);
+    }
+  }
+
+  /**
+   * Apache Mina 2.9.2 - have a hardcoded timeout to infinite on executeRemoteCommand, if this method fails, the operation hangs.
+   * The solution at the moment is to add a timeout with the tools provided by mule sdk.
+   */
+  private String executePWDCommandWithTimeout() throws IOException {
+    try {
+      Scheduler getHomeScheduler =
+          schedulerService.cpuLightScheduler(SchedulerConfig.config().withShutdownTimeout(PWD_COMMAND_EXECUTION_TIMEOUT,
+                                                                                          PWD_COMMAND_EXECUTION_TIMEOUT_UNIT));
+      Future<String> submit = getHomeScheduler.submit(() -> session.executeRemoteCommand(PWD_COMMAND));
+      return submit.get().trim();
+    } catch (InterruptedException e) {
+      throw new MuleRuntimeException(e);
+    } catch (Exception ex) {
+      throw new IllegalPathException("Unable to resolve the working directory from server timed out. Please configure a valid working directory or use absolute paths on your operation.",
+                                     ex);
     }
   }
 
