@@ -125,7 +125,7 @@ public class FileMessageMediaTypeTestCase {
   @Test
   public void testWithDirectoryPath() throws Exception {
     String expectedMediaType = "application/octet-stream";
-    String fileName = "/directory";
+    String fileName = "/directory/";
     String fullPath = getFullPath(fileName);
     testHarness.makeDir(fullPath);
 

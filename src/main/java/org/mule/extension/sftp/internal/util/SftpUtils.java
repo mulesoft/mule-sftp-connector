@@ -7,6 +7,7 @@
 package org.mule.extension.sftp.internal.util;
 
 import static java.lang.Thread.currentThread;
+import static org.mule.runtime.core.api.util.StringUtils.isEmpty;
 
 import java.net.URL;
 import java.time.Instant;
@@ -30,7 +31,11 @@ public class SftpUtils {
    *         "directory/subdirectory"
    */
   public static String normalizePath(String path) {
-    return FilenameUtils.normalize(path, true);
+    String pathToNormalize = path;
+    if (!isEmpty(path) && path.charAt(path.length() - 1) == '/') {
+      pathToNormalize = path.substring(0, path.length() - 2);
+    }
+    return FilenameUtils.normalize(pathToNormalize, true);
   }
 
   public static String resolvePathOrResource(String pathOrResourceName) {
