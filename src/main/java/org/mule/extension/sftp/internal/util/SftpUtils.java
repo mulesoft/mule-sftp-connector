@@ -23,7 +23,7 @@ import org.apache.commons.io.FilenameUtils;
  */
 public class SftpUtils {
 
-  private static final Pattern TRIM_END_SLASH_PATTERN = Pattern.compile("/+$");
+  private static final Pattern TRIM_END_SLASH_PATTERN = Pattern.compile("(?<=.)(/+)$");
 
   private SftpUtils() {}
 
