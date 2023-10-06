@@ -12,6 +12,7 @@ import java.net.URL;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.regex.Pattern;
 
 import org.apache.commons.io.FilenameUtils;
 
@@ -22,6 +23,8 @@ import org.apache.commons.io.FilenameUtils;
  */
 public class SftpUtils {
 
+  private static final Pattern TRIM_END_SLASH_PATTERN = Pattern.compile("(?<=.)(/+)$");
+
   private SftpUtils() {}
 
   /**
@@ -30,7 +33,8 @@ public class SftpUtils {
    *         "directory/subdirectory"
    */
   public static String normalizePath(String path) {
-    return FilenameUtils.normalize(path, true);
+    String pathToNormalize = TRIM_END_SLASH_PATTERN.matcher(path).replaceFirst("");
+    return FilenameUtils.normalize(pathToNormalize, true);
   }
 
   public static String resolvePathOrResource(String pathOrResourceName) {
