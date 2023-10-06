@@ -22,8 +22,10 @@ import org.mule.extension.sftp.api.random.alg.PRNGAlgorithm;
 import org.mule.extension.sftp.internal.connection.SftpClient;
 import org.mule.runtime.api.connection.ConnectionException;
 import org.mule.runtime.api.exception.MuleRuntimeException;
+import org.mule.runtime.api.scheduler.SchedulerService;
 import org.mule.tck.size.SmallTest;
 
+import javax.inject.Inject;
 import java.net.URI;
 
 import org.apache.sshd.client.SshClient;
@@ -57,8 +59,11 @@ public class SftpClientTestCase {
   @Mock
   private ClientSession session;
 
+  @Inject
+  protected SchedulerService schedulerService;
+
   @InjectMocks
-  private SftpClient client = new SftpClient(EMPTY, 0, PRNGAlgorithm.SHA1PRNG);
+  private SftpClient client = new SftpClient(EMPTY, 0, PRNGAlgorithm.SHA1PRNG, schedulerService);
 
   @Test
   public void returnNullOnUnexistingFile() throws Exception {

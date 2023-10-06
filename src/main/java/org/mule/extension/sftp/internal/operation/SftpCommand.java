@@ -293,5 +293,4 @@ public abstract class SftpCommand extends ExternalFileCommand<SftpFileSystemConn
     }
     return createUri(basePath);
   }
-
 }
