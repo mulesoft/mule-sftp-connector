@@ -28,9 +28,11 @@ import org.mule.extension.sftp.api.SftpFileAttributes;
 import org.mule.extension.sftp.api.random.alg.PRNGAlgorithm;
 import org.mule.extension.sftp.internal.connection.SftpClient;
 import org.mule.extension.sftp.internal.connection.SftpClientFactory;
+import org.mule.runtime.api.scheduler.SchedulerService;
 import org.mule.tck.junit4.rule.DynamicPort;
 import org.mule.extension.sftp.api.FileTestHarness;
 
+import javax.inject.Inject;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -60,6 +62,9 @@ public class SftpTestHarness extends AbstractSftpTestHarness {
   private SftpClient sftpClient;
   private AuthConfigurator<SftpClient> clientAuthConfigurator;
   private AuthConfigurator<SftpServer> serverAuthConfigurator;
+
+  @Inject
+  protected SchedulerService schedulerService;
 
   /**
    * Creates a new instance which activates the {@code sftp} spring profile
@@ -115,7 +120,8 @@ public class SftpTestHarness extends AbstractSftpTestHarness {
   }
 
   private SftpClient createDefaultSftpClient() throws IOException, GeneralSecurityException {
-    SftpClient sftpClient = new SftpClientFactory().createInstance("localhost", sftpPort.getNumber(), PRNGAlgorithm.SHA1PRNG);
+    SftpClient sftpClient =
+        new SftpClientFactory().createInstance("localhost", sftpPort.getNumber(), PRNGAlgorithm.SHA1PRNG, schedulerService);
     clientAuthConfigurator.configure(sftpClient);
 
     sftpClient.setPassword(PASSWORD);
