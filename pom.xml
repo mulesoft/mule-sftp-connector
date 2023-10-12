@@ -14,7 +14,7 @@
     <groupId>org.mule.connectors</groupId>
     <artifactId>mule-sftp-connector</artifactId>
     <packaging>mule-extension</packaging>
-    <version>2.1.0-SNAPSHOT</version>
+    <version>2.1.1-SNAPSHOT</version>
 
     <name>SFTP Connector - Mule 4</name>
     <description>A Mule extension that provides functionality to manage files in an SFTP server</description>
@@ -56,8 +56,6 @@
         <muleJavaModule.version>1.2.10</muleJavaModule.version>
         <maven.invoker.plugin.version>3.6.0</maven.invoker.plugin.version>
         <muleConnectionTestModule.version>1.0.0</muleConnectionTestModule.version>
-        <net.bytebuddy.version>1.14.5</net.bytebuddy.version>
-
 
         <mulesoftLicenseVersion>1.4.0</mulesoftLicenseVersion>
         <license.maven.plugin.version>4.2</license.maven.plugin.version>
@@ -70,12 +68,6 @@
             <groupId>org.mule.sdk</groupId>
             <artifactId>mule-sdk-api</artifactId>
             <version>${muleSdkApiVersion}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>net.bytebuddy</groupId>
-            <artifactId>byte-buddy</artifactId>
-            <version>${net.bytebuddy.version}</version>
         </dependency>
 
         <dependency>
