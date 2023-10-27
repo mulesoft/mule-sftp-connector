@@ -8,6 +8,9 @@ package org.mule.extension.sftp.internal.extension;
 
 import static org.mule.runtime.extension.api.annotation.param.display.Placement.ADVANCED_TAB;
 import static org.mule.runtime.api.meta.Category.COMMUNITY;
+import static org.mule.sdk.api.meta.JavaVersion.JAVA_11;
+import static org.mule.sdk.api.meta.JavaVersion.JAVA_17;
+import static org.mule.sdk.api.meta.JavaVersion.JAVA_8;
 
 import org.mule.extension.sftp.internal.operation.SftpOperations;
 import org.mule.extension.sftp.internal.config.FileConnectorConfig;
@@ -25,6 +28,7 @@ import org.mule.runtime.extension.api.annotation.param.Optional;
 import org.mule.runtime.extension.api.annotation.param.Parameter;
 import org.mule.runtime.extension.api.annotation.param.display.Placement;
 import org.mule.runtime.extension.api.annotation.param.display.Summary;
+import org.mule.sdk.api.annotation.JavaVersionSupport;
 
 import java.util.concurrent.TimeUnit;
 
@@ -41,6 +45,7 @@ import javax.inject.Inject;
 @ErrorTypes(FileError.class)
 @Sources(SftpDirectorySource.class)
 @Xml(prefix = "sftp")
+@JavaVersionSupport({JAVA_8, JAVA_11, JAVA_17})
 public class SftpConnector extends FileConnectorConfig {
 
   @Inject
