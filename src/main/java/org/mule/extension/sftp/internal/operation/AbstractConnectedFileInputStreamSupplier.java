@@ -121,9 +121,9 @@ public abstract class AbstractConnectedFileInputStreamSupplier<T extends FileSys
    * @return an {@link Optional} that contains the {@link FileSystem} or {@link Optional#empty()}
    * @throws ConnectionException
    */
-  public Optional<T> getConnectionUsedForContentInputStream() throws ConnectionException {
-    return contentProvided && !contentConnectionReleased ? of(connectionSource.getConnection()) : empty();
-  }
+  //  public Optional<T> getConnectionUsedForContentInputStream() throws ConnectionException {
+  //    return contentProvided && !contentConnectionReleased ? of(connectionSource.getConnection()) : empty();
+  //  }
 
   /**
    * Gets the updated attributes of the file.

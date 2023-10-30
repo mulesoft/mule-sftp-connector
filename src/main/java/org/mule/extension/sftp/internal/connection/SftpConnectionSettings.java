@@ -116,41 +116,41 @@ public final class SftpConnectionSettings {
     return identityFile;
   }
 
-  public void setPort(int port) {
-    this.port = port;
-  }
-
-  public void setUsername(String username) {
-    this.username = username;
-  }
-
-  public void setPassword(String password) {
-    this.password = password;
-  }
-
-  public void setPassphrase(String passphrase) {
-    this.passphrase = passphrase;
-  }
-
-  public void setIdentityFile(String identityFile) {
-    this.identityFile = identityFile;
-  }
+//    public void setPort(int port) {
+//      this.port = port;
+//    }
+//
+//    public void setUsername(String username) {
+//      this.username = username;
+//    }
+//
+//    public void setPassword(String password) {
+//      this.password = password;
+//    }
+//
+//    public void setPassphrase(String passphrase) {
+//      this.passphrase = passphrase;
+//    }
+//
+//    public void setIdentityFile(String identityFile) {
+//      this.identityFile = identityFile;
+//    }
 
   public String getHost() {
     return host;
   }
 
-  public void setHost(String host) {
-    this.host = host;
-  }
+//  public void setHost(String host) {
+//    this.host = host;
+//  }
 
   public PRNGAlgorithm getPrngAlgorithm() {
     return prngAlgorithm;
   }
 
-  public void setPrngAlgorithm(PRNGAlgorithm prngAlgorithm) {
-    this.prngAlgorithm = prngAlgorithm;
-  }
+//  public void setPrngAlgorithm(PRNGAlgorithm prngAlgorithm) {
+//    this.prngAlgorithm = prngAlgorithm;
+//  }
 
   @Override
   public boolean equals(Object o) {

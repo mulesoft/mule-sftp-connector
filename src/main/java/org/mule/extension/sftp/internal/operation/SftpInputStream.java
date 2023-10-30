@@ -30,29 +30,6 @@ import org.apache.sshd.sftp.common.SftpException;
  */
 public class SftpInputStream extends AbstractNonFinalizableFileInputStream {
 
-  protected static ConnectionManager getConnectionManager(SftpConnector config) throws ConnectionException {
-    return config.getConnectionManager();
-  }
-
-  /**
-   * Establishes the underlying connection and returns a new instance of this class.
-   * <p>
-   * Instances returned by this method <b>MUST</b> be closed or fully consumed.
-   *
-   * @param config               the config which is parameterizing this operation
-   * @param attributes           a {@link FileAttributes} referencing the file which contents are to be fetched
-   * @param lock                 the {@link UriLock} to be used
-   * @param timeBetweenSizeCheck time in milliseconds to wait between size checks to decide if a file is ready to be read
-   * @return a new {@link SftpFileAttributes}
-   * @throws ConnectionException if a connection could not be established
-   */
-  public static SftpInputStream newInstance(SftpConnector config, SftpFileAttributes attributes, UriLock lock,
-                                            Long timeBetweenSizeCheck)
-      throws ConnectionException {
-    SftpFileInputStreamSupplier sftpFileInputStreamSupplier =
-        new SftpFileInputStreamSupplier(attributes, getConnectionManager(config), timeBetweenSizeCheck, config);
-    return new SftpInputStream(sftpFileInputStreamSupplier, lock);
-  }
 
   /**
    * Using the given connection ,returns a new instance of this class.
@@ -90,11 +67,6 @@ public class SftpInputStream extends AbstractNonFinalizableFileInputStream {
   }
 
   protected static class SftpFileInputStreamSupplier extends AbstractConnectedFileInputStreamSupplier<SftpFileSystemConnection> {
-
-    private SftpFileInputStreamSupplier(SftpFileAttributes attributes, ConnectionManager connectionManager,
-                                        Long timeBetweenSizeCheck, SftpConnector config) {
-      super(attributes, connectionManager, timeBetweenSizeCheck, config);
-    }
 
     private SftpFileInputStreamSupplier(SftpFileAttributes attributes, Long timeBetweenSizeCheck,
                                         SftpFileSystemConnection fileSystem) {

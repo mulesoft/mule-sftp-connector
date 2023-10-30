@@ -176,49 +176,49 @@ public class SftpConnectionProvider extends FileSystemProvider<SftpFileSystemCon
     return ftpFileSystem.validateConnection();
   }
 
-  void setPort(int port) {
-    connectionSettings.setPort(port);
-  }
-
-  void setHost(String host) {
-    connectionSettings.setHost(host);
-  }
-
-  void setUsername(String username) {
-    connectionSettings.setUsername(username);
-  }
-
-  void setPrngAlgorithm(PRNGAlgorithm algorithm) {
-    connectionSettings.setPrngAlgorithm(algorithm);
-  }
-
-  void setPassword(String password) {
-    connectionSettings.setPassword(password);
-  }
-
-  void setPassphrase(String passphrase) {
-    connectionSettings.setPassphrase(passphrase);
-  }
-
-  void setIdentityFile(String identityFile) {
-    connectionSettings.setIdentityFile(identityFile);
-  }
-
-  void setPreferredAuthenticationMethods(Set<SftpAuthenticationMethod> preferredAuthenticationMethods) {
-    this.preferredAuthenticationMethods = preferredAuthenticationMethods;
-  }
-
-  void setKnownHostsFile(String knownHostsFile) {
-    this.knownHostsFile = knownHostsFile;
-  }
-
-  public void setProxyConfig(SftpProxyConfig proxyConfig) {
-    this.proxyConfig = proxyConfig;
-  }
-
-  void setClientFactory(SftpClientFactory clientFactory) {
-    this.clientFactory = clientFactory;
-  }
+  //  void setPort(int port) {
+  //    connectionSettings.setPort(port);
+  //  }
+  //
+  //  void setHost(String host) {
+  //    connectionSettings.setHost(host);
+  //  }
+  //
+  //  void setUsername(String username) {
+  //    connectionSettings.setUsername(username);
+  //  }
+  //
+  //  void setPrngAlgorithm(PRNGAlgorithm algorithm) {
+  //    connectionSettings.setPrngAlgorithm(algorithm);
+  //  }
+  //
+  //  void setPassword(String password) {
+  //    connectionSettings.setPassword(password);
+  //  }
+  //
+  //  void setPassphrase(String passphrase) {
+  //    connectionSettings.setPassphrase(passphrase);
+  //  }
+  //
+  //  void setIdentityFile(String identityFile) {
+  //    connectionSettings.setIdentityFile(identityFile);
+  //  }
+  //
+  //  void setPreferredAuthenticationMethods(Set<SftpAuthenticationMethod> preferredAuthenticationMethods) {
+  //    this.preferredAuthenticationMethods = preferredAuthenticationMethods;
+  //  }
+  //
+  //  void setKnownHostsFile(String knownHostsFile) {
+  //    this.knownHostsFile = knownHostsFile;
+  //  }
+  //
+  //  public void setProxyConfig(SftpProxyConfig proxyConfig) {
+  //    this.proxyConfig = proxyConfig;
+  //  }
+  //
+  //  void setClientFactory(SftpClientFactory clientFactory) {
+  //    this.clientFactory = clientFactory;
+  //  }
 
   /**
    * {@inheritDoc}
@@ -244,21 +244,21 @@ public class SftpConnectionProvider extends FileSystemProvider<SftpFileSystemCon
     return timeoutSettings.getResponseTimeoutUnit();
   }
 
-  public void setConnectionTimeout(Integer connectionTimeout) {
-    timeoutSettings.setConnectionTimeout(connectionTimeout);
-  }
+  //  public void setConnectionTimeout(Integer connectionTimeout) {
+  //    timeoutSettings.setConnectionTimeout(connectionTimeout);
+  //  }
 
-  public void setConnectionTimeoutUnit(TimeUnit connectionTimeoutUnit) {
-    timeoutSettings.setConnectionTimeoutUnit(connectionTimeoutUnit);
-  }
-
-  public void setResponseTimeout(Integer responseTimeout) {
-    timeoutSettings.setResponseTimeout(responseTimeout);
-  }
-
-  public void setResponseTimeoutUnit(TimeUnit responseTimeoutUnit) {
-    timeoutSettings.setResponseTimeoutUnit(responseTimeoutUnit);
-  }
+  //  public void setConnectionTimeoutUnit(TimeUnit connectionTimeoutUnit) {
+  //    timeoutSettings.setConnectionTimeoutUnit(connectionTimeoutUnit);
+  //  }
+  //
+  //  public void setResponseTimeout(Integer responseTimeout) {
+  //    timeoutSettings.setResponseTimeout(responseTimeout);
+  //  }
+  //
+  //  public void setResponseTimeoutUnit(TimeUnit responseTimeoutUnit) {
+  //    timeoutSettings.setResponseTimeoutUnit(responseTimeoutUnit);
+  //  }
 
   private String getErrorMessage(SftpConnectionSettings connectionSettings, String message) {
     return format(SFTP_ERROR_MESSAGE_MASK, connectionSettings.getHost(), connectionSettings.getPort(), message);

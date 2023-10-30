@@ -121,18 +121,18 @@ public abstract class BaseFileSystemOperations {
    * @param mode                    a {@link org.mule.extension.sftp.api.FileWriteMode}. Defaults to {@code OVERWRITE}
    * @throws IllegalArgumentException if an illegal combination of arguments is supplied
    */
-  protected void doWrite(FileConnectorConfig config,
-                         FileSystem fileSystem, String path, InputStream content,
-                         boolean createParentDirectories, boolean lock, FileWriteMode mode) {
-    if (content == null) {
-      throw new IllegalContentException("Cannot write a null content");
-    }
-
-    validatePath(path, "path");
-    fileSystem.changeToBaseDir();
-
-    fileSystem.write(path, content, mode, lock, createParentDirectories);
-  }
+  //  protected void doWrite(FileConnectorConfig config,
+  //                         FileSystem fileSystem, String path, InputStream content,
+  //                         boolean createParentDirectories, boolean lock, FileWriteMode mode) {
+  //    if (content == null) {
+  //      throw new IllegalContentException("Cannot write a null content");
+  //    }
+  //
+  //    validatePath(path, "path");
+  //    fileSystem.changeToBaseDir();
+  //
+  //    fileSystem.write(path, content, mode, lock, createParentDirectories);
+  //  }
 
   /**
    * Copies the file at the {@code sourcePath} into the {@code targetPath}.
