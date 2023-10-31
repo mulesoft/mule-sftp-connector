@@ -44,10 +44,10 @@ public abstract class AbstractNonFinalizableFileInputStream extends ProxyInputSt
   private final Lock lock;
   private final AtomicBoolean closed = new AtomicBoolean(false);
 
-  //  protected AbstractNonFinalizableFileInputStream(LazyStreamSupplier streamSupplier,
-  //                                                  PathLock lock) {
-  //    this(streamSupplier, (Lock) lock);
-  //  }
+  protected AbstractNonFinalizableFileInputStream(LazyStreamSupplier streamSupplier,
+                                                  PathLock lock) {
+    this(streamSupplier, (Lock) lock);
+  }
 
   protected AbstractNonFinalizableFileInputStream(LazyStreamSupplier streamSupplier, Lock lock) {
     super(createLazyStream(streamSupplier));

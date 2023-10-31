@@ -39,7 +39,7 @@ public class DeletedFileWhileReadException extends FileReadException {
    *
    * @param cause
    */
-  //  public DeletedFileWhileReadException(Throwable cause) {
-  //    super(cause);
-  //  }
+  public DeletedFileWhileReadException(Throwable cause) {
+    super(cause);
+  }
 }

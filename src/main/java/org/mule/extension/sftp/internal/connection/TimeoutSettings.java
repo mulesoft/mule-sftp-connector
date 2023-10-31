@@ -85,21 +85,21 @@ public final class TimeoutSettings {
     return responseTimeoutUnit;
   }
 
-  //  public void setConnectionTimeout(Integer connectionTimeout) {
-  //    this.connectionTimeout = connectionTimeout;
-  //  }
-  //
-  //  public void setConnectionTimeoutUnit(TimeUnit connectionTimeoutUnit) {
-  //    this.connectionTimeoutUnit = connectionTimeoutUnit;
-  //  }
-  //
-  //  public void setResponseTimeout(Integer responseTimeout) {
-  //    this.responseTimeout = responseTimeout;
-  //  }
-  //
-  //  public void setResponseTimeoutUnit(TimeUnit responseTimeoutUnit) {
-  //    this.responseTimeoutUnit = responseTimeoutUnit;
-  //  }
+  public void setConnectionTimeout(Integer connectionTimeout) {
+    this.connectionTimeout = connectionTimeout;
+  }
+
+  public void setConnectionTimeoutUnit(TimeUnit connectionTimeoutUnit) {
+    this.connectionTimeoutUnit = connectionTimeoutUnit;
+  }
+
+  public void setResponseTimeout(Integer responseTimeout) {
+    this.responseTimeout = responseTimeout;
+  }
+
+  public void setResponseTimeoutUnit(TimeUnit responseTimeoutUnit) {
+    this.responseTimeoutUnit = responseTimeoutUnit;
+  }
 
   @Override
   public boolean equals(Object o) {

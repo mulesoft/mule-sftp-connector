@@ -31,8 +31,8 @@ import org.mule.extension.sftp.internal.error.FileError;
 import org.mule.extension.sftp.internal.exception.FileAccessDeniedException;
 import org.mule.extension.sftp.internal.exception.IllegalPathException;
 import org.mule.extension.sftp.internal.exception.SftpConnectionException;
-//import org.mule.extension.sftp.internal.proxy.http.HttpClientConnector;
-//import org.mule.extension.sftp.internal.proxy.socks5.Socks5ClientConnector;
+import org.mule.extension.sftp.internal.proxy.http.HttpClientConnector;
+import org.mule.extension.sftp.internal.proxy.socks5.Socks5ClientConnector;
 import org.mule.runtime.api.connection.ConnectionException;
 import org.mule.runtime.api.exception.MuleRuntimeException;
 import org.mule.runtime.api.scheduler.Scheduler;
@@ -224,7 +224,7 @@ public class SftpClient {
     if (!isEmpty(identityFile)) {
       setupIdentity();
     }
-    //configureProxy(session);
+    configureProxy(session);
   }
 
   private void configureHostChecking() {
@@ -246,29 +246,29 @@ public class SftpClient {
     }
   }
 
-  //  private void configureProxy(ClientSession session) {
-  //    if (proxyConfig != null) {
-  //      InetSocketAddress proxyAddress = new InetSocketAddress(proxyConfig.getHost(), proxyConfig.getPort());
-  //      InetSocketAddress remoteAddress = new InetSocketAddress(this.host, this.port);
-  //      switch (proxyConfig.getProtocol()) {
-  //        case HTTP:
-  //          session.setClientProxyConnector(proxyConfig.getUsername() != null && proxyConfig.getPassword() != null
-  //              ? new HttpClientConnector(proxyAddress, remoteAddress, proxyConfig.getUsername(),
-  //                                        proxyConfig.getPassword().toCharArray())
-  //              : new HttpClientConnector(proxyAddress, remoteAddress));
-  //          break;
-  //        case SOCKS5:
-  //          session.setClientProxyConnector(proxyConfig.getUsername() != null && proxyConfig.getPassword() != null
-  //              ? new Socks5ClientConnector(proxyAddress, remoteAddress, proxyConfig.getUsername(),
-  //                                          proxyConfig.getPassword().toCharArray())
-  //              : new Socks5ClientConnector(proxyAddress, remoteAddress));
-  //          break;
-  //        default:
-  //          // should never get here, except a new type was added to the enum and not handled
-  //          throw new IllegalArgumentException(format("Proxy protocol %s not recognized", proxyConfig.getProtocol()));
-  //      }
-  //    }
-  //  }
+  private void configureProxy(ClientSession session) {
+    if (proxyConfig != null) {
+      InetSocketAddress proxyAddress = new InetSocketAddress(proxyConfig.getHost(), proxyConfig.getPort());
+      InetSocketAddress remoteAddress = new InetSocketAddress(this.host, this.port);
+      switch (proxyConfig.getProtocol()) {
+        case HTTP:
+          session.setClientProxyConnector(proxyConfig.getUsername() != null && proxyConfig.getPassword() != null
+              ? new HttpClientConnector(proxyAddress, remoteAddress, proxyConfig.getUsername(),
+                                        proxyConfig.getPassword().toCharArray())
+              : new HttpClientConnector(proxyAddress, remoteAddress));
+          break;
+        case SOCKS5:
+          session.setClientProxyConnector(proxyConfig.getUsername() != null && proxyConfig.getPassword() != null
+              ? new Socks5ClientConnector(proxyAddress, remoteAddress, proxyConfig.getUsername(),
+                                          proxyConfig.getPassword().toCharArray())
+              : new Socks5ClientConnector(proxyAddress, remoteAddress));
+          break;
+        default:
+          // should never get here, except a new type was added to the enum and not handled
+          throw new IllegalArgumentException(format("Proxy protocol %s not recognized", proxyConfig.getProtocol()));
+      }
+    }
+  }
 
   /**
    * Renames the file at {@code sourcePath} to {@code target}

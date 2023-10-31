@@ -18,17 +18,17 @@ import org.mule.runtime.extension.api.exception.ModuleException;
  */
 public class SftpConnectionException extends ConnectionException {
 
-  //  public SftpConnectionException(String s) {
-  //    super(s);
-  //  }
+  public SftpConnectionException(String s) {
+    super(s);
+  }
 
   public SftpConnectionException(String message, FileError errors) {
     super(message, new ModuleException(message, errors));
   }
 
-  //  public SftpConnectionException(Throwable throwable, FileError fileError) {
-  //    super(new ModuleException(fileError, throwable));
-  //  }
+  public SftpConnectionException(Throwable throwable, FileError fileError) {
+    super(new ModuleException(fileError, throwable));
+  }
 
   public SftpConnectionException(String message, Throwable throwable, FileError fileError) {
     super(message, new ModuleException(fileError, throwable));

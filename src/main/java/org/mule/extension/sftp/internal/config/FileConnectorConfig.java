@@ -31,9 +31,9 @@ public abstract class FileConnectorConfig {
   /**
    * @return the name that this config has on the mule registry
    */
-  //  protected String getConfigName() {
-  //    return configName;
-  //  }
+  protected String getConfigName() {
+    return configName;
+  }
 
   /**
    * @param timeBetweenSizeCheck     amount of time units.
