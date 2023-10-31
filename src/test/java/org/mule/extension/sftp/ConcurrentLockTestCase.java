@@ -179,7 +179,6 @@ public class ConcurrentLockTestCase {
         locked = true;
         NullPathLock pathLockMock = mock(NullPathLock.class);
         when(pathLockMock.getPath()).thenReturn(path);
-        //return new NullPathLock(path);
         return pathLockMock;
       }
     }

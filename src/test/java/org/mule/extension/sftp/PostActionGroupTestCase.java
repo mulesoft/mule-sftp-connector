@@ -61,7 +61,6 @@ public class PostActionGroupTestCase extends AbstractMuleTestCase {
     when(postActionGroupMock2.getRenameTo()).thenReturn(null);
     when(postActionGroupMock2.getOverwrite()).thenReturn(false);
     when(postActionGroupMock2.isApplyPostActionWhenFailed()).thenReturn(true);
-    //new PostActionGroup(true, null, null, true).validateSelf();
     postActionGroupMock2.validateSelf();
 
     PostActionGroup postActionGroupMock3 = mock(PostActionGroup.class);
@@ -70,7 +69,6 @@ public class PostActionGroupTestCase extends AbstractMuleTestCase {
     when(postActionGroupMock3.getRenameTo()).thenReturn(null);
     when(postActionGroupMock3.getOverwrite()).thenReturn(false);
     when(postActionGroupMock3.isApplyPostActionWhenFailed()).thenReturn(false);
-    //new PostActionGroup(false, "someDir", null, false).validateSelf();
     postActionGroupMock3.validateSelf();
 
     PostActionGroup postActionGroupMock4 = mock(PostActionGroup.class);
@@ -79,7 +77,6 @@ public class PostActionGroupTestCase extends AbstractMuleTestCase {
     when(postActionGroupMock4.getRenameTo()).thenReturn(null);
     when(postActionGroupMock4.getOverwrite()).thenReturn(false);
     when(postActionGroupMock4.isApplyPostActionWhenFailed()).thenReturn(false);
-    //new PostActionGroup(true, null, null, false).validateSelf();
     postActionGroupMock4.validateSelf();
 
     PostActionGroup postActionGroupMock5 = mock(PostActionGroup.class);
@@ -88,7 +85,6 @@ public class PostActionGroupTestCase extends AbstractMuleTestCase {
     when(postActionGroupMock4.getRenameTo()).thenReturn("thisone.txt");
     when(postActionGroupMock4.getOverwrite()).thenReturn(false);
     when(postActionGroupMock4.isApplyPostActionWhenFailed()).thenReturn(false);
-    //    new PostActionGroup(false, "someDir", "thisone.txt", false).validateSelf();
     postActionGroupMock5.validateSelf();
 
     PostActionGroup postActionGroupMock6 = mock(PostActionGroup.class);
@@ -97,7 +93,6 @@ public class PostActionGroupTestCase extends AbstractMuleTestCase {
     when(postActionGroupMock4.getRenameTo()).thenReturn("thisone.txt");
     when(postActionGroupMock4.getOverwrite()).thenReturn(false);
     when(postActionGroupMock4.isApplyPostActionWhenFailed()).thenReturn(false);
-    //new PostActionGroup(false, null, "thisone.txt", false).validateSelf();
     postActionGroupMock6.validateSelf();
   }
 
@@ -111,7 +106,6 @@ public class PostActionGroupTestCase extends AbstractMuleTestCase {
     when(mock.getOverwrite()).thenReturn(false);
     when(mock.isApplyPostActionWhenFailed()).thenReturn(true);
     mock.validateSelf();
-    //new PostActionGroup(true, "someDir", null, true).validateSelf();
   }
 
   @Test(expected = IllegalArgumentException.class)
@@ -124,7 +118,6 @@ public class PostActionGroupTestCase extends AbstractMuleTestCase {
     when(mock.getOverwrite()).thenReturn(false);
     when(mock.isApplyPostActionWhenFailed()).thenReturn(true);
     mock.validateSelf();
-    //new PostActionGroup(true, null, "thisone.txt", true).validateSelf();
   }
 
 
