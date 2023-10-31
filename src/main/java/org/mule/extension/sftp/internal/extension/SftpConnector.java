@@ -45,7 +45,7 @@ import javax.inject.Inject;
 @ErrorTypes(FileError.class)
 @Sources(SftpDirectorySource.class)
 @Xml(prefix = "sftp")
-@JavaVersionSupport({JAVA_8, JAVA_11, JAVA_17})
+@JavaVersionSupport({JAVA_8, JAVA_11})
 public class SftpConnector extends FileConnectorConfig {
 
   @Inject
