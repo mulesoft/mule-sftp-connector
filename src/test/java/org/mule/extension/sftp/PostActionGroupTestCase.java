@@ -47,77 +47,23 @@ public class PostActionGroupTestCase extends AbstractMuleTestCase {
   @Test
   @Description("tests all the valid states of post action parameters")
   public void validAction() {
-    PostActionGroup postActionGroupMock1 = mock(PostActionGroup.class);
-    when(postActionGroupMock1.isAutoDelete()).thenReturn(true);
-    when(postActionGroupMock1.getMoveToDirectory()).thenReturn(null);
-    when(postActionGroupMock1.getRenameTo()).thenReturn(null);
-    when(postActionGroupMock1.getOverwrite()).thenReturn(false);
-    when(postActionGroupMock1.isApplyPostActionWhenFailed()).thenReturn(true);
-    postActionGroupMock1.validateSelf();
-
-    PostActionGroup postActionGroupMock2 = mock(PostActionGroup.class);
-    when(postActionGroupMock2.isAutoDelete()).thenReturn(true);
-    when(postActionGroupMock2.getMoveToDirectory()).thenReturn(null);
-    when(postActionGroupMock2.getRenameTo()).thenReturn(null);
-    when(postActionGroupMock2.getOverwrite()).thenReturn(false);
-    when(postActionGroupMock2.isApplyPostActionWhenFailed()).thenReturn(true);
-    postActionGroupMock2.validateSelf();
-
-    PostActionGroup postActionGroupMock3 = mock(PostActionGroup.class);
-    when(postActionGroupMock3.isAutoDelete()).thenReturn(false);
-    when(postActionGroupMock3.getMoveToDirectory()).thenReturn("someDir");
-    when(postActionGroupMock3.getRenameTo()).thenReturn(null);
-    when(postActionGroupMock3.getOverwrite()).thenReturn(false);
-    when(postActionGroupMock3.isApplyPostActionWhenFailed()).thenReturn(false);
-    postActionGroupMock3.validateSelf();
-
-    PostActionGroup postActionGroupMock4 = mock(PostActionGroup.class);
-    when(postActionGroupMock4.isAutoDelete()).thenReturn(true);
-    when(postActionGroupMock4.getMoveToDirectory()).thenReturn(null);
-    when(postActionGroupMock4.getRenameTo()).thenReturn(null);
-    when(postActionGroupMock4.getOverwrite()).thenReturn(false);
-    when(postActionGroupMock4.isApplyPostActionWhenFailed()).thenReturn(false);
-    postActionGroupMock4.validateSelf();
-
-    PostActionGroup postActionGroupMock5 = mock(PostActionGroup.class);
-    when(postActionGroupMock4.isAutoDelete()).thenReturn(false);
-    when(postActionGroupMock4.getMoveToDirectory()).thenReturn("someDir");
-    when(postActionGroupMock4.getRenameTo()).thenReturn("thisone.txt");
-    when(postActionGroupMock4.getOverwrite()).thenReturn(false);
-    when(postActionGroupMock4.isApplyPostActionWhenFailed()).thenReturn(false);
-    postActionGroupMock5.validateSelf();
-
-    PostActionGroup postActionGroupMock6 = mock(PostActionGroup.class);
-    when(postActionGroupMock4.isAutoDelete()).thenReturn(false);
-    when(postActionGroupMock4.getMoveToDirectory()).thenReturn(null);
-    when(postActionGroupMock4.getRenameTo()).thenReturn("thisone.txt");
-    when(postActionGroupMock4.getOverwrite()).thenReturn(false);
-    when(postActionGroupMock4.isApplyPostActionWhenFailed()).thenReturn(false);
-    postActionGroupMock6.validateSelf();
+    new PostActionGroup(true, null, null, true).validateSelf();
+    new PostActionGroup(true, null, null, false).validateSelf();
+    new PostActionGroup(false, "someDir", null, false).validateSelf();
+    new PostActionGroup(false, "someDir", "thisone.txt", false).validateSelf();
+    new PostActionGroup(false, null, "thisone.txt", false).validateSelf();
   }
 
   @Test(expected = IllegalArgumentException.class)
   @Description("verifies that autoDelete and moveToDirectory cannot be set at the same time")
   public void deleteAndMove() {
-    PostActionGroup mock = mock(PostActionGroup.class);
-    when(mock.isAutoDelete()).thenReturn(true);
-    when(mock.getMoveToDirectory()).thenReturn("someDir");
-    when(mock.getRenameTo()).thenReturn(null);
-    when(mock.getOverwrite()).thenReturn(false);
-    when(mock.isApplyPostActionWhenFailed()).thenReturn(true);
-    mock.validateSelf();
+    new PostActionGroup(true, "someDir", null, true).validateSelf();
   }
 
   @Test(expected = IllegalArgumentException.class)
   @Description("verifies that autoDelete and renameTo cannot be set at the same time")
   public void deleteAndRename() {
-    PostActionGroup mock = mock(PostActionGroup.class);
-    when(mock.isAutoDelete()).thenReturn(true);
-    when(mock.getMoveToDirectory()).thenReturn(null);
-    when(mock.getRenameTo()).thenReturn("thisone.txt");
-    when(mock.getOverwrite()).thenReturn(false);
-    when(mock.isApplyPostActionWhenFailed()).thenReturn(true);
-    mock.validateSelf();
+    new PostActionGroup(true, null, "thisone.txt", true).validateSelf();
   }
 
 
