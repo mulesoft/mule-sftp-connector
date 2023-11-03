@@ -254,6 +254,16 @@
         </munit:validation>
     </munit:test>
 
+    <munit:test name="sftp-write-null-path" expectedErrorType="SFTP:ILLEGAL_PATH">
+        <munit:behavior>
+            <set-variable variableName="mode" value="OVERWRITE"/>
+            <set-variable variableName="createParent" value="true"/>
+        </munit:behavior>
+        <munit:execution>
+            <sftp:write config-ref="${config}" path='#[""]' mode="#[vars.mode]" createParentDirectories="#[vars.createParent]" />
+        </munit:execution>
+    </munit:test>
+
     <munit:after-test  name="delete-file-append" description="A description">
         <sftp:delete config-ref="${config}" path="test/filePath.txt"/>
     </munit:after-test>
