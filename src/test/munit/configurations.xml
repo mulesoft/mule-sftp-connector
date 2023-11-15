@@ -20,6 +20,27 @@
         </sftp:connection>
     </sftp:config>
 
+    <sftp:config name="config-invalid-password">
+        <sftp:connection username="muletest1" password="INVALID" host="localhost" port="${sftp.server.port}"
+                         workingDir="/" prngAlgorithm="SHA1PRNG">
+            <pooling-profile exhaustedAction="WHEN_EXHAUSTED_WAIT" maxActive="7" maxIdle="3" maxWait="5000"/>
+        </sftp:connection>
+    </sftp:config>
+
+    <sftp:config name="config-no-username">
+        <sftp:connection password="INVALID" host="localhost" port="${sftp.server.port}"
+                         workingDir="/" prngAlgorithm="SHA1PRNG">
+            <pooling-profile exhaustedAction="WHEN_EXHAUSTED_WAIT" maxActive="7" maxIdle="3" maxWait="5000"/>
+        </sftp:connection>
+    </sftp:config>
+
+    <sftp:config name="config-with-identity-file-not-exists">
+        <sftp:connection username="muletest1" password="muletest1" host="localhost" port="${sftp.server.port}" identityFile="a-file-that-doesnt-exist"
+                         workingDir="/" prngAlgorithm="SHA1PRNG">
+            <pooling-profile exhaustedAction="WHEN_EXHAUSTED_WAIT" maxActive="7" maxIdle="3" maxWait="5000"/>
+        </sftp:connection>
+    </sftp:config>
+
     <sftp:config name="config-with-reconnection">
         <sftp:connection username="muletest1" password="muletest1" host="localhost" port="${sftp.server.port}"
                          workingDir="/" prngAlgorithm="SHA1PRNG">
