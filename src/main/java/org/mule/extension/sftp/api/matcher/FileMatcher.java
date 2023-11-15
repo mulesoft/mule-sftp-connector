@@ -229,6 +229,7 @@ public abstract class FileMatcher<T extends FileMatcher, A extends FileAttribute
   public PredicateType getPredicateType() {
     return predicateType;
   }
+
   public void setpredicateType(PredicateType predicateType) {
     this.predicateType = predicateType;
   }

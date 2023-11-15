@@ -44,7 +44,7 @@ public class SftpProxyConfig {
   @Parameter
   private Protocol protocol;
 
-  public SftpProxyConfig(){}
+  public SftpProxyConfig() {}
 
   public String getHost() {
     return host;

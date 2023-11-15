@@ -81,7 +81,7 @@ public abstract class AbstractFileAttributes implements FileAttributes, Serializ
   }
 
   public void setName(String fileName) {
-    this.fileName= fileName;
+    this.fileName = fileName;
   }
 
   @Override

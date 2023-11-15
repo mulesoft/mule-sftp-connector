@@ -57,7 +57,7 @@ public final class PathMatcherPredicate implements Predicate<String> {
   }
 
   public PathMatcherPredicate() {
-    this.delegate=null;
+    this.delegate = null;
   }
 
 
