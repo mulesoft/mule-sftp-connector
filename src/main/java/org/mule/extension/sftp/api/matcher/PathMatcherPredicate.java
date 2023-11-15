@@ -56,6 +56,11 @@ public final class PathMatcherPredicate implements Predicate<String> {
     delegate = getPredicateForFilename(pattern, predicateType, caseSensitive);
   }
 
+  public PathMatcherPredicate() {
+    this.delegate=null;
+  }
+
+
   public static String getGlobPrefix() {
     return GLOB_PREFIX;
   }
