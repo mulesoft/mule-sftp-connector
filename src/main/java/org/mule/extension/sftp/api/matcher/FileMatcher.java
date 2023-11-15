@@ -170,6 +170,15 @@ public abstract class FileMatcher<T extends FileMatcher, A extends FileAttribute
     return predicate;
   }
 
+  protected ZonedDateTimeLowerOrEqualAssessment getFileTimeUntil() {
+    return FILE_TIME_UNTIL;
+  }
+
+
+  protected ZonedDateTimeGreaterOrEqualAssessment getFileTimeSince() {
+    return FILE_TIME_SINCE;
+  }
+
   public String getFilenamePattern() {
     return filenamePattern;
   }
