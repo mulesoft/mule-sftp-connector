@@ -16,13 +16,15 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
+import static org.mule.extension.sftp.internal.util.StreamProxyUtil.getInputStreamFromStreamFactory
+
 public class StreamProxyUtilTest {
 
   @Test
   public void testGetInputStreamFromStreamFactory() {
     LazyStreamSupplier supplier = new LazyStreamSupplier(() -> new ByteArrayInputStream("test".getBytes()));
 
-    InputStream proxyStream = StreamProxyUtil.getInputStreamFromStreamFactory(supplier);
+    InputStream proxyStream = getInputStreamFromStreamFactory(supplier);
     assertNotNull("Proxy stream should not be null", proxyStream);
 
     byte[] buffer = new byte[4];

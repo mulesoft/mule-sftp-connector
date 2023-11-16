@@ -12,7 +12,6 @@ import org.mule.extension.sftp.internal.config.FileConnectorConfig;
 import org.mule.extension.sftp.internal.connection.FileSystem;
 import org.mule.extension.sftp.internal.lock.Lock;
 import org.mule.extension.sftp.internal.lock.PathLock;
-import org.mule.extension.sftp.internal.util.StreamProxyUtil;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -22,6 +21,10 @@ import java.util.function.Predicate;
 import org.apache.commons.io.input.AutoCloseInputStream;
 import org.apache.commons.io.input.ClosedInputStream;
 import org.apache.commons.io.input.ProxyInputStream;
+
+import static org.mule.extension.sftp.internal.util.StreamProxyUtil.getInputStreamFromStreamFactory;
+
+
 
 /**
  * Base class for {@link InputStream} instances returned by connectors which operate over a {@link FileSystem}.
@@ -109,7 +112,7 @@ public abstract class AbstractNonFinalizableFileInputStream extends ProxyInputSt
    * @return A proxy instance of {@link InputStream} that delegates to the real instance.
    */
   private static InputStream createLazyStream(LazyStreamSupplier streamFactory) {
-    return StreamProxyUtil.getInputStreamFromStreamFactory(streamFactory);
+    return getInputStreamFromStreamFactory(streamFactory);
   }
 
 }
