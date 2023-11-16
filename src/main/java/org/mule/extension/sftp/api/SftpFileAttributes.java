@@ -74,6 +74,11 @@ public class SftpFileAttributes extends AbstractFileAttributes {
     return timestamp;
   }
 
+  public void setTimestamp(ZonedDateTime timestamp) {
+    this.timestamp = timestamp;
+  }
+
+
   /**
    * {@inheritDoc}
    */
@@ -81,6 +86,11 @@ public class SftpFileAttributes extends AbstractFileAttributes {
   public long getSize() {
     return size;
   }
+
+  public void setSize(long size) {
+    this.size = size;
+  }
+
 
   /**
    * {@inheritDoc}
@@ -90,6 +100,11 @@ public class SftpFileAttributes extends AbstractFileAttributes {
     return regularFile;
   }
 
+  public void setRegularFile(boolean regularFile) {
+    this.regularFile = regularFile;
+  }
+
+
   /**
    * {@inheritDoc}
    */
@@ -98,6 +113,11 @@ public class SftpFileAttributes extends AbstractFileAttributes {
     return directory;
   }
 
+  public void setDirectory(boolean directory) {
+    this.directory = directory;
+  }
+
+
   /**
    * {@inheritDoc}
    */
@@ -105,6 +125,11 @@ public class SftpFileAttributes extends AbstractFileAttributes {
   public boolean isSymbolicLink() {
     return symbolicLink;
   }
+
+  public void setSymbolicLink(boolean symbolicLink) {
+    this.symbolicLink = symbolicLink;
+  }
+
 
   /**
    * {@inheritDoc}
