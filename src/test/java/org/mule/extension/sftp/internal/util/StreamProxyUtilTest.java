@@ -6,6 +6,8 @@
  */
 package org.mule.extension.sftp.internal.util;
 
+import static org.mule.extension.sftp.internal.util.StreamProxyUtil.getInputStreamFromStreamFactory;
+
 import org.junit.Test;
 import org.mule.extension.sftp.internal.stream.LazyStreamSupplier;
 
@@ -22,7 +24,7 @@ public class StreamProxyUtilTest {
   public void testGetInputStreamFromStreamFactory() {
     LazyStreamSupplier supplier = new LazyStreamSupplier(() -> new ByteArrayInputStream("test".getBytes()));
 
-    InputStream proxyStream = StreamProxyUtil.getInputStreamFromStreamFactory(supplier);
+    InputStream proxyStream = getInputStreamFromStreamFactory(supplier);
     assertNotNull("Proxy stream should not be null", proxyStream);
 
     byte[] buffer = new byte[4];
