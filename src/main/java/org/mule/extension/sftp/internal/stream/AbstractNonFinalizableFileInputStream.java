@@ -6,6 +6,7 @@
  */
 package org.mule.extension.sftp.internal.stream;
 
+import static org.mule.extension.sftp.internal.util.StreamProxyUtil.getInputStreamFromStreamFactory;
 import static org.apache.commons.io.IOUtils.EOF;
 
 import org.mule.extension.sftp.internal.config.FileConnectorConfig;
@@ -21,9 +22,6 @@ import java.util.function.Predicate;
 import org.apache.commons.io.input.AutoCloseInputStream;
 import org.apache.commons.io.input.ClosedInputStream;
 import org.apache.commons.io.input.ProxyInputStream;
-
-import static org.mule.extension.sftp.internal.util.StreamProxyUtil.getInputStreamFromStreamFactory;
-
 
 
 /**
