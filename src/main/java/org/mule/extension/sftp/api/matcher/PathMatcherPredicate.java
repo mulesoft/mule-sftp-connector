@@ -56,6 +56,23 @@ public final class PathMatcherPredicate implements Predicate<String> {
     delegate = getPredicateForFilename(pattern, predicateType, caseSensitive);
   }
 
+  public PathMatcherPredicate() {
+    this.delegate = null;
+  }
+
+
+  public static String getGlobPrefix() {
+    return GLOB_PREFIX;
+  }
+
+  public static String getRegexPrefix() {
+    return REGEX_PREFIX;
+  }
+
+  public Predicate<String> getDelegate() {
+    return delegate;
+  }
+
   /**
    * @param path the path to test
    * @return whether the given {@code path} matches {@code this} instance pattern

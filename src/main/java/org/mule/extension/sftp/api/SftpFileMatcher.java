@@ -93,6 +93,11 @@ public class SftpFileMatcher extends FileMatcher<SftpFileMatcher, SftpFileAttrib
   @Optional(defaultValue = "true")
   private boolean caseSensitive;
 
+
+  public SftpFileMatcher() {
+    super();
+  }
+
   @Override
   protected Predicate<SftpFileAttributes> addConditions(Predicate<SftpFileAttributes> predicate) {
     setPredicateType(PredicateType.EXTERNAL_FILE_SYSTEM);
@@ -178,8 +183,17 @@ public class SftpFileMatcher extends FileMatcher<SftpFileMatcher, SftpFileAttrib
     return timestampSince;
   }
 
+  public void setTimestampsince(ZonedDateTime timestampSince) {
+    this.timestampSince = timestampSince;
+  }
+
+
   public ZonedDateTime getTimestampUntil() {
     return timestampUntil;
+  }
+
+  public void setTimestampuntil(ZonedDateTime timestampUntil) {
+    this.timestampUntil = timestampUntil;
   }
 
   public TimeUnit getTimeUnit() {
@@ -197,4 +211,9 @@ public class SftpFileMatcher extends FileMatcher<SftpFileMatcher, SftpFileAttrib
   public boolean isCaseSensitive() {
     return this.caseSensitive;
   }
+
+  public void setCasesensitive(boolean caseSensitive) {
+    this.caseSensitive = caseSensitive;
+  }
+
 }

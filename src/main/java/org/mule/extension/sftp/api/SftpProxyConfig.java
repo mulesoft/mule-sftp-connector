@@ -44,24 +44,48 @@ public class SftpProxyConfig {
   @Parameter
   private Protocol protocol;
 
+  public SftpProxyConfig() {}
+
   public String getHost() {
     return host;
   }
+
+  public void setHost(String host) {
+    this.host = host;
+  }
+
 
   public Integer getPort() {
     return port;
   }
 
+  public void setPort(Integer port) {
+    this.port = port;
+  }
+
+
   public String getUsername() {
     return username;
+  }
+
+  public void setUsername(String username) {
+    this.username = username;
   }
 
   public String getPassword() {
     return password;
   }
 
+  public void setPassword(String password) {
+    this.password = password;
+  }
+
   public Protocol getProtocol() {
     return protocol;
+  }
+
+  public void setProtocol(Protocol protocol) {
+    this.protocol = protocol;
   }
 
   @Override

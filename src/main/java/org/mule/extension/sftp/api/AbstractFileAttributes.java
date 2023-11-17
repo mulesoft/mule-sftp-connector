@@ -68,12 +68,20 @@ public abstract class AbstractFileAttributes implements FileAttributes, Serializ
     return path;
   }
 
+  protected void setPath(String path) {
+    this.path = path;
+  }
+
   /**
    * {@inheritDoc}
    */
   @Override
   public String getName() {
     return fileName;
+  }
+
+  public void setName(String fileName) {
+    this.fileName = fileName;
   }
 
   @Override

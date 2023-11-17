@@ -170,32 +170,85 @@ public abstract class FileMatcher<T extends FileMatcher, A extends FileAttribute
     return predicate;
   }
 
+  protected ZonedDateTimeLowerOrEqualAssessment getFileTimeUntil() {
+    return FILE_TIME_UNTIL;
+  }
+
+
+  protected ZonedDateTimeGreaterOrEqualAssessment getFileTimeSince() {
+    return FILE_TIME_SINCE;
+  }
+
   public String getFilenamePattern() {
     return filenamePattern;
+  }
+
+  public void setFileNamePattern(String filenamePattern) {
+    this.filenamePattern = filenamePattern;
   }
 
   public String getPathPattern() {
     return pathPattern;
   }
 
+  public void setPathpattern(String pathPattern) {
+    this.pathPattern = pathPattern;
+  }
+
   public org.mule.extension.sftp.api.matcher.MatchPolicy getDirectories() {
     return directories;
+  }
+
+  public void setdirectories(org.mule.extension.sftp.api.matcher.MatchPolicy directories) {
+    this.directories = directories;
   }
 
   public org.mule.extension.sftp.api.matcher.MatchPolicy getRegularFiles() {
     return regularFiles;
   }
 
+  public void setRegularfiles(org.mule.extension.sftp.api.matcher.MatchPolicy regularFiles) {
+    this.regularFiles = regularFiles;
+  }
+
   public org.mule.extension.sftp.api.matcher.MatchPolicy getSymLinks() {
     return symLinks;
+  }
+
+  public void setsymLinks(org.mule.extension.sftp.api.matcher.MatchPolicy symLinks) {
+    this.symLinks = symLinks;
   }
 
   public Long getMinSize() {
     return minSize;
   }
 
+  public void setminSize(Long minSize) {
+    this.minSize = minSize;
+  }
+
   public Long getMaxSize() {
     return maxSize;
+  }
+
+  public void setmaxSize(Long maxSize) {
+    this.maxSize = maxSize;
+  }
+
+  public PredicateType getPredicateType() {
+    return predicateType;
+  }
+
+  public void setpredicateType(PredicateType predicateType) {
+    this.predicateType = predicateType;
+  }
+
+  public boolean isCaseSensitive() {
+    return caseSensitive;
+  }
+
+  public void setcaseSensitive(boolean caseSensitive) {
+    this.caseSensitive = caseSensitive;
   }
 
   public T setFilenamePattern(String filenamePattern) {
