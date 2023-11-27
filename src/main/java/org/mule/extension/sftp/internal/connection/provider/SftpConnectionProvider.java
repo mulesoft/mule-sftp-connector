@@ -15,6 +15,7 @@ import static org.apache.commons.lang3.StringUtils.join;
 import static org.apache.sshd.common.SshConstants.SSH2_DISCONNECT_NO_MORE_AUTH_METHODS_AVAILABLE;
 import static org.slf4j.LoggerFactory.getLogger;
 
+//import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.mule.extension.sftp.api.SftpAuthenticationMethod;
 import org.mule.extension.sftp.internal.exception.SftpConnectionException;
 import org.mule.extension.sftp.api.SftpProxyConfig;
@@ -41,6 +42,8 @@ import org.mule.runtime.extension.api.annotation.param.display.Path;
 import org.mule.runtime.extension.api.annotation.param.display.Summary;
 import org.mule.sdk.api.annotation.semantics.connectivity.ExcludeFromConnectivitySchema;
 
+import java.security.Provider;
+import java.security.Security;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -122,6 +125,8 @@ public class SftpConnectionProvider extends FileSystemProvider<SftpFileSystemCon
 
   @Override
   public SftpFileSystemConnection connect() throws ConnectionException {
+    printSecurityProviders();
+//    addBCprovider();
     checkConnectionTimeoutPrecision();
     checkResponseTimeoutPrecision();
     if (LOGGER.isDebugEnabled()) {
@@ -169,10 +174,17 @@ public class SftpConnectionProvider extends FileSystemProvider<SftpFileSystemCon
   @Override
   public void disconnect(SftpFileSystemConnection ftpFileSystem) {
     ftpFileSystem.disconnect();
+    try {
+      Security.removeProvider("BC");
+      LOGGER.info("BOUNCY CASTLE SECURITY PROVIDER REMOVED");
+    } catch (Exception ignored){
+      LOGGER.info("FAILED REMOVING SECURITY PROVIDER");
+    }
   }
 
   @Override
   public ConnectionValidationResult validate(SftpFileSystemConnection ftpFileSystem) {
+    printSecurityProviders();
     return ftpFileSystem.validateConnection();
   }
 
@@ -310,4 +322,31 @@ public class SftpConnectionProvider extends FileSystemProvider<SftpFileSystemCon
   private boolean supportedTimeoutPrecision(TimeUnit timeUnit, Integer timeout) {
     return timeUnit != null && timeout != null && (timeUnit.toMillis(timeout) >= 1 || timeout == 0);
   }
+
+  private void printSecurityProviders(){
+    LOGGER.info("****************************************");
+    LOGGER.info("****************************************");
+    LOGGER.info("****************************************");
+    LOGGER.info("Logging security providers ");
+
+    try {
+      Provider p[] = Security.getProviders();
+      for (int i = 0; i < p.length; i++) {
+        LOGGER.info(p[i].toString());
+      }
+    } catch (Exception e) {
+      LOGGER.info(e.getMessage());
+    }
+    LOGGER.info("****************************************");
+    LOGGER.info("****************************************");
+    LOGGER.info("****************************************");
+  }
+//  private void addBCprovider(){
+//    try{
+//      Security.addProvider(new BouncyCastleProvider());
+//      LOGGER.info("ADDED BOUNCY CASTLE SECURITY PROVIDER SUCCESSFULLY");
+//    } catch (Exception ignored){
+//      LOGGER.info("FAILED TO ADD BOUNCY CASTLE");
+//    }
+//  }
 }
