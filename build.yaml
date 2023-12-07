@@ -1,2 +1,8 @@
 projectType: extension
 mavenTool: "3.9.5"
+jdkTool: OPEN-JDK17
+additionalTestConfigs:
+  jdk8:
+    testJdkTool: OPEN-JDK8
+  jdk11:
+    testJdkTool: OPEN-JDK11
