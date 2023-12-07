@@ -1,2 +1,5 @@
 projectType: extension
 mavenTool: "3.9.5"
+additionalTestConfigs:
+  jdk8-fips:
+    testJdkTool: TEMURIN-JDK8-fips
