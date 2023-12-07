@@ -14,7 +14,7 @@
     <groupId>org.mule.connectors</groupId>
     <artifactId>mule-sftp-connector</artifactId>
     <packaging>mule-extension</packaging>
-    <version>3.0.0-SNAPSHOT</version>
+    <version>2.0.2-SNAPSHOT</version>
 
     <name>SFTP Connector - Mule 4</name>
     <description>A Mule extension that provides functionality to manage files in an SFTP server</description>
@@ -37,13 +37,13 @@
         <!-- Remove when a new parent version with MTF is available -->
         <munit.input.directory>src/test/munit</munit.input.directory>
         <munit.output.directory>${basedir}/target/test-mule/munit</munit.output.directory>
-        <munit.extensions.maven.plugin.version>1.2.0-SNAPSHOT</munit.extensions.maven.plugin.version>
-        <munit.version>3.1.0-SNAPSHOT</munit.version>
+        <munit.extensions.maven.plugin.version>1.2.0-rc1</munit.extensions.maven.plugin.version>
+        <munit.version>3.1.0-rc2</munit.version>
         <mavenResources.version>3.3.1</mavenResources.version>
         <sshdVersion>2.10.0</sshdVersion>
         <formatterConfigPath>formatter.xml</formatterConfigPath>
         <settingsFile>${java.io.tmpdir}/effective-settings.xml</settingsFile>
-        <mtf.tools.version>1.2.0-SNAPSHOT</mtf.tools.version>
+        <mtf.tools.version>1.2.0-rc1</mtf.tools.version>
         <mtf.javaopts></mtf.javaopts>
         <jacoco.version>0.8.10</jacoco.version>
         <maven.impsort.plugin.version>1.6.2</maven.impsort.plugin.version>
