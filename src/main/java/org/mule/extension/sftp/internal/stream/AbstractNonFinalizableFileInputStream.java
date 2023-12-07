@@ -1,11 +1,12 @@
 /*
- * Copyright (c) MuleSoft, Inc.  All rights reserved.  http://www.mulesoft.com
+ * Copyright 2023 Salesforce, Inc. All rights reserved.
  * The software in this package is published under the terms of the CPAL v1.0
  * license, a copy of which has been included with this distribution in the
  * LICENSE.txt file.
  */
 package org.mule.extension.sftp.internal.stream;
 
+import static org.mule.extension.sftp.internal.util.StreamProxyUtil.getInputStreamFromStreamFactory;
 import static org.apache.commons.io.IOUtils.EOF;
 
 import org.mule.extension.sftp.internal.config.FileConnectorConfig;
@@ -18,11 +19,10 @@ import java.io.InputStream;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Predicate;
 
-import net.sf.cglib.proxy.Enhancer;
-import net.sf.cglib.proxy.MethodInterceptor;
 import org.apache.commons.io.input.AutoCloseInputStream;
 import org.apache.commons.io.input.ClosedInputStream;
 import org.apache.commons.io.input.ProxyInputStream;
+
 
 /**
  * Base class for {@link InputStream} instances returned by connectors which operate over a {@link FileSystem}.
@@ -40,12 +40,6 @@ import org.apache.commons.io.input.ProxyInputStream;
  * @since 1.0
  */
 public abstract class AbstractNonFinalizableFileInputStream extends ProxyInputStream {
-
-  private static InputStream createLazyStream(LazyStreamSupplier streamFactory) {
-    return (InputStream) Enhancer.create(InputStream.class,
-                                         (MethodInterceptor) (proxy, method, arguments, methodProxy) -> methodProxy
-                                             .invoke(streamFactory.get(), arguments));
-  }
 
   private final LazyStreamSupplier streamSupplier;
   private final Lock lock;
@@ -103,4 +97,20 @@ public abstract class AbstractNonFinalizableFileInputStream extends ProxyInputSt
   public boolean isLocked() {
     return lock.isLocked();
   }
+
+  /**
+   * Creates a proxy instance of {@link InputStream} that lazily initializes and delegates method calls
+   * to a real {@link InputStream} instance provided by the given {@link LazyStreamSupplier}.
+   * The actual {@link InputStream} instance is only retrieved from the supplier when a method
+   * on the proxy is invoked for the first time.
+   *
+   * <p>This method is a convenience wrapper around {@link StreamProxyUtil#getInputStreamFromStreamFactory(LazyStreamSupplier)}.</p>
+   *
+   * @param streamFactory The {@link LazyStreamSupplier} that provides the real {@link InputStream} instance.
+   * @return A proxy instance of {@link InputStream} that delegates to the real instance.
+   */
+  private static InputStream createLazyStream(LazyStreamSupplier streamFactory) {
+    return getInputStreamFromStreamFactory(streamFactory);
+  }
+
 }
