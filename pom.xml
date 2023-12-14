@@ -478,7 +478,7 @@
                                         </log>
                                         <volumes>
                                             <bind>
-                                                <volume>/config/test</volume>
+                                                <volume>./config/test</volume>
                                             </bind>
                                         </volumes>
                                     </run>
