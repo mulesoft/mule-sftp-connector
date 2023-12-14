@@ -478,7 +478,7 @@
                                         </log>
                                         <volumes>
                                             <bind>
-                                                <volume>/config/test</volume>
+                                                <volume>${project.build.directory}/config/test:/config/test</volume>
                                             </bind>
                                         </volumes>
                                     </run>
@@ -513,7 +513,7 @@
                             </execution>
                             <execution>
                                 <id>stop</id>
-                                <phase>clean</phase>
+                                <phase>post-integration-test</phase>
                                 <goals>
                                     <goal>stop</goal>
                                     <goal>remove</goal>
