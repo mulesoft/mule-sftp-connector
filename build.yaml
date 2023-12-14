@@ -1,5 +1,3 @@
 projectType: extension
-additionalTestConfigs:
-  jdk17:
-    testJdkTool: OPEN-JDK17
-    mavenAdditionalArgs: -Dtest=none -DfailIfNoTests=false -DminVersion=4.6.0 -DruntimeVersion=4.6.0-rc2 -DruntimeProduct=MULE_EE -Dsftp.listener.port=2223
+testJdkTool: OPEN-JDK17
+mavenAdditionalArgs: -Dtest=none -DfailIfNoTests=false -DminVersion=4.6.0 -DruntimeVersion=4.6.0-rc2 -DruntimeProduct=MULE_EE -Dsftp.listener.port=2223
