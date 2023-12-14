@@ -469,6 +469,7 @@
                                             <PASSWORD_ACCESS>true</PASSWORD_ACCESS>
                                             <USER_PASSWORD>test</USER_PASSWORD>
                                             <USER_NAME>mule</USER_NAME>
+                                            <LOG_STDOUT>true</LOG_STDOUT>
                                         </env>
                                         <ports>
                                             <port>${sftp.listener.port}:2222</port>
