@@ -41,7 +41,7 @@
             <set-variable variableName="sftpConnectivityExceptionThrown" value="#[false]" />
         </munit:behavior>
         <munit:execution>
-            <sftp:write config-ref="config" path="/happiness-to-do-list.txt" >
+            <sftp:write config-ref="config" path="./happiness-to-do-list.txt" >
                 <sftp:content>Read Good Omens</sftp:content>
             </sftp:write>
 
@@ -51,7 +51,7 @@
                 <flow-ref name="stop-sftp-server" />
                 <munit-tools:sleep time="1000"/>
 
-                <sftp:write config-ref="config" path="/happiness-to-do-list.txt">
+                <sftp:write config-ref="config" path="./happiness-to-do-list.txt">
                     <sftp:content>Read it now</sftp:content>
                 </sftp:write>
                 <error-handler>
@@ -81,7 +81,7 @@
             <try>
                 <flow-ref name="stop-sftp-server" />
 
-                <sftp:read config-ref="config" path="/good-omens.txt" />
+                <sftp:read config-ref="config" path="./good-omens.txt" />
                 <error-handler>
                     <on-error-continue type="SFTP:CONNECTIVITY">
                         <set-variable variableName="sftpConnectivityExceptionThrown" value="#[true]" />
@@ -108,7 +108,7 @@
             <try>
                 <flow-ref name="stop-sftp-server" />
 
-                <sftp:delete config-ref="config" path="/good-omens.txt" />
+                <sftp:delete config-ref="config" path="./good-omens.txt" />
                 <error-handler>
                     <on-error-continue type="SFTP:CONNECTIVITY">
                         <set-variable variableName="sftpConnectivityExceptionThrown" value="#[true]" />
@@ -132,7 +132,7 @@
             <set-variable variableName="sftpConnectivityExceptionThrown" value="#[false]" />
         </munit:behavior>
         <munit:execution>
-            <sftp:write config-ref="config" path="/good-omens.txt" >
+            <sftp:write config-ref="config" path="./good-omens.txt" >
                 <sftp:content>In the beginning, it was a nice day.</sftp:content>
             </sftp:write>
 
@@ -141,7 +141,7 @@
             <try>
                 <flow-ref name="stop-sftp-server" />
 
-                <sftp:rename config-ref="config" path="/good-omens.txt" to="/good-omens-the-nice-and-accurate-prophecies-of-agnes-nutter-witch.txt" overwrite="#[true]"/>
+                <sftp:rename config-ref="config" path="./good-omens.txt" to="/good-omens-the-nice-and-accurate-prophecies-of-agnes-nutter-witch.txt" overwrite="#[true]"/>
                 <error-handler>
                     <on-error-continue type="SFTP:CONNECTIVITY">
                         <set-variable variableName="sftpConnectivityExceptionThrown" value="#[true]" />
@@ -165,7 +165,7 @@
             <set-variable variableName="sftpConnectivityExceptionThrown" value="#[false]" />
         </munit:behavior>
         <munit:execution>
-            <sftp:write config-ref="config" path="/good-omens.txt" >
+            <sftp:write config-ref="config" path="./good-omens.txt" >
                 <sftp:content>In the beginning, it was a nice day.</sftp:content>
             </sftp:write>
 
@@ -198,7 +198,7 @@
             <set-variable variableName="sftpConnectivityExceptionThrown" value="#[false]" />
         </munit:behavior>
         <munit:execution>
-            <sftp:write config-ref="config" path="/good-omens.txt" >
+            <sftp:write config-ref="config" path="./good-omens.txt" >
                 <sftp:content>In the beginning, it was a nice day.</sftp:content>
             </sftp:write>
 
@@ -231,7 +231,7 @@
             <set-variable variableName="sftpConnectivityExceptionThrown" value="#[false]" />
         </munit:behavior>
         <munit:execution>
-            <sftp:write config-ref="config" path="/good-omens.txt" >
+            <sftp:write config-ref="config" path="./good-omens.txt" >
                 <sftp:content>In the beginning, it was a nice day.</sftp:content>
             </sftp:write>
 
@@ -264,7 +264,7 @@
             <set-variable variableName="sftpConnectivityExceptionThrown" value="#[false]" />
         </munit:behavior>
         <munit:execution>
-            <sftp:write config-ref="config" path="/good-omens.txt" >
+            <sftp:write config-ref="config" path="./good-omens.txt" >
                 <sftp:content>In the beginning, it was a nice day.</sftp:content>
             </sftp:write>
 

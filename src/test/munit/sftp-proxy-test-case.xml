@@ -35,7 +35,7 @@
                          password="muletest1"
                          host="localhost"
                          port="${sftp.server.port}"
-                         workingDir="/"
+                         workingDir="./"
                          prngAlgorithm="SHA1PRNG"
                          connectionTimeout="200">
             <sftp:sftp-proxy-config host="localhost"

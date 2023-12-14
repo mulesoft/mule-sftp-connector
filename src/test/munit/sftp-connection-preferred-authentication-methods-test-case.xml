@@ -15,7 +15,7 @@
     <!-- CONFIGS -->
     <sftp:config name="config-preferred-authentication-method-password" >
         <sftp:connection username="mule" password="test" host="localhost" port="${sftp.listener.port}"
-                         workingDir="/config" >
+                         workingDir="./config" >
             <pooling-profile />
             <sftp:preferred-authentication-methods >
                 <sftp:preferred-authentication-method value="PASSWORD" />
@@ -25,7 +25,7 @@
 
     <sftp:config name="config-preferred-authentication-methods-password" >
         <sftp:connection username="mule" password="test" host="localhost" port="${sftp.listener.port}"
-                         workingDir="/config" >
+                         workingDir="./config" >
             <pooling-profile />
             <sftp:preferred-authentication-methods >
                 <sftp:preferred-authentication-method value="PUBLIC_KEY" />
@@ -36,7 +36,7 @@
 
     <sftp:config name="config-preferred-authentication-method-password-wrong" >
         <sftp:connection username="mule" password="test" host="localhost" port="${sftp.listener.port}"
-                         workingDir="/config" >
+                         workingDir="./config" >
             <pooling-profile />
             <sftp:preferred-authentication-methods >
                 <sftp:preferred-authentication-method value="PUBLIC_KEY" />
@@ -46,7 +46,7 @@
 
     <sftp:config name="config-authentication-credential-password-wrong" >
         <sftp:connection username="mule" password="wrong" host="localhost" port="${sftp.listener.port}"
-                         workingDir="/config" >
+                         workingDir="./config" >
             <pooling-profile />
             <sftp:preferred-authentication-methods >
                 <sftp:preferred-authentication-method value="PASSWORD" />
