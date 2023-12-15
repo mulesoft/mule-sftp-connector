@@ -1,4 +1,4 @@
-\projectType: extension
+projectType: extension
 additionalTestConfigs:
   jdk11:
     testJdkTool: TEMURIN-JDK11
