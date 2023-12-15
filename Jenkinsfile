@@ -1,3 +1,2 @@
-Map pipelineParams = [ "projectType" : "Extensions" ]
-
-runtimeBuild(pipelineParams)
+@Library("mule-runtime-library@test-sftp") _
+onpremBuild()
