@@ -23,6 +23,7 @@
         <docker.maven.plugin.version>0.43.4</docker.maven.plugin.version>
         <maven.helper.plugin.version>3.4.0</maven.helper.plugin.version>
         <apache.maven.help.plugin.version>3.4.0</apache.maven.help.plugin.version>
+        <maven.jdeps.plugin.version>3.1.2</maven.jdeps.plugin.version>
         <commonsIoVersion>2.13.0</commonsIoVersion>
         <commonsLangVersion>3.12.0</commonsLangVersion>
         <commonsCollectionsVersion>3.2.2</commonsCollectionsVersion>
@@ -53,7 +54,7 @@
         <slf4jApi.version>2.0.7</slf4jApi.version>
         <tikaCore.version>2.8.0</tikaCore.version>
         <bcprovJDK15on.version>1.59</bcprovJDK15on.version>
-        <muleJavaModule.version>1.2.10</muleJavaModule.version>
+        <muleJavaModule.version>1.3.0-SNAPSHOT</muleJavaModule.version>
         <maven.invoker.plugin.version>3.6.0</maven.invoker.plugin.version>
         <muleConnectionTestModule.version>1.0.0</muleConnectionTestModule.version>
 
@@ -306,12 +307,6 @@
                         <classifier>mule-plugin</classifier>
                     </dependency>
                     <dependency>
-                        <groupId>org.mule.modules</groupId>
-                        <artifactId>mule-connection-test-module</artifactId>
-                        <version>${muleConnectionTestModule.version}</version>
-                        <classifier>mule-plugin</classifier>
-                    </dependency>
-                    <dependency>
                         <groupId>org.apache.sshd</groupId>
                         <artifactId>sshd-core</artifactId>
                         <version>${sshdVersion}</version>
@@ -433,7 +428,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jdeps-plugin</artifactId>
-                <version>3.1.2</version>
+                <version>${maven.jdeps.plugin.version}</version>
                 <executions>
                     <execution>
                         <goals>
@@ -519,7 +514,7 @@
                             </execution>
                             <execution>
                                 <id>stop</id>
-                                <phase>clean</phase>
+                                <phase>post-integration-test</phase>
                                 <goals>
                                     <goal>stop</goal>
                                     <goal>remove</goal>
