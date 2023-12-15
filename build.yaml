@@ -1,1 +1,5 @@
 projectType: extension
+additionalTestConfigs:
+  jdk17:
+    testJdkTool: TEMURIN-JDK17
+    mavenAdditionalArgs: -DminVersion=4.6.0 -DruntimeVersion=4.6.0-rc2 -DruntimeProduct=MULE_EE
