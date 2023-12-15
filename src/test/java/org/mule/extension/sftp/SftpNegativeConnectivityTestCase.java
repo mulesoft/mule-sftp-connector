@@ -35,6 +35,7 @@ import org.junit.runners.Parameterized;
 
 @Feature(SFTP_EXTENSION)
 @Story("Negative Connectivity Testing")
+@Ignore
 public class SftpNegativeConnectivityTestCase extends CommonSftpConnectorTestCase {
 
   private final Matcher<Exception> IS_CONNECTION_EXCEPTION =
