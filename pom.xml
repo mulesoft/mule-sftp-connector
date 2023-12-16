@@ -272,8 +272,8 @@
                 <configuration>
                     <runtimeConfiguration>
                         <discoverRuntimes>
-                            <product>EE</product>
-                            <includeSnapshots>false</includeSnapshots>
+                            <product>ALL</product>
+                            <includeSnapshots>true</includeSnapshots>
                         </discoverRuntimes>
                     </runtimeConfiguration>
                     <argLines>
