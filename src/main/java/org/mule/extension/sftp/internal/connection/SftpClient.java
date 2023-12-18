@@ -204,7 +204,7 @@ public class SftpClient {
   }
 
   private void connect() throws IOException {
-    org.apache.sshd.sftp.client.SftpClientFactory scf = org.apache.sshd.sftp.client.SftpClientFactory.instance();
+    SftpConcurrentClientFactory scf = SftpConcurrentClientFactory.INSTANCE;
     sftp = scf.createSftpClient(session);
   }
 
