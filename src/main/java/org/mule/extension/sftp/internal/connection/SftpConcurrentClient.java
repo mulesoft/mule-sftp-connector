@@ -6,16 +6,15 @@
  */
 package org.mule.extension.sftp.internal.connection;
 
+import java.io.IOException;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+
 import org.apache.sshd.client.session.ClientSession;
 import org.apache.sshd.common.util.buffer.Buffer;
 import org.apache.sshd.sftp.client.SftpErrorDataHandler;
 import org.apache.sshd.sftp.client.SftpVersionSelector;
 import org.apache.sshd.sftp.client.impl.DefaultSftpClient;
-
-import java.io.IOException;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
-
 
 public class SftpConcurrentClient extends DefaultSftpClient {
 

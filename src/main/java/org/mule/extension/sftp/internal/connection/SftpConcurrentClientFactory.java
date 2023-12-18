@@ -6,17 +6,16 @@
  */
 package org.mule.extension.sftp.internal.connection;
 
+import java.io.IOException;
+
 import org.apache.sshd.client.session.ClientSession;
 import org.apache.sshd.sftp.client.SftpErrorDataHandler;
 import org.apache.sshd.sftp.client.SftpVersionSelector;
 import org.apache.sshd.sftp.client.impl.DefaultSftpClient;
 import org.apache.sshd.sftp.client.impl.DefaultSftpClientFactory;
 
-import java.io.IOException;
-
-
-
 public class SftpConcurrentClientFactory extends DefaultSftpClientFactory {
+
   public static final SftpConcurrentClientFactory INSTANCE = new SftpConcurrentClientFactory();
 
   public SftpConcurrentClientFactory() {
