@@ -15,26 +15,6 @@
 
     <munit:config name="listen-new-files.xml"/>
 
-    <munit:before-suite name="listen-new-files-startListenerMatcherTestServer">
-        <java:invoke-static class="org.mule.extension.sftp.internal.lifecycle.SftpServerLifecycleManager"
-                            method="startSftpServer(String)">
-            <java:args>
-                #[{
-                arg0: ${sftp.server.port},
-                }]
-            </java:args>
-        </java:invoke-static>
-    </munit:before-suite>
-
-    <munit:after-suite name="listen-new-files-clearListenerMatcherTestServer">
-        <java:invoke-static class="org.mule.extension.sftp.internal.lifecycle.SftpServerLifecycleManager"
-                            method="stopSftpServer()">
-            <java:args>
-                #[{}]
-            </java:args>
-        </java:invoke-static>
-    </munit:after-suite>
-
     <munit:before-test name="listen-new-files-create-file-for-listener">
         <sftp:write config-ref="config-docker" path='test/concurrent/concurrent1.txt' createParentDirectories="true">
             <sftp:content>concurrent test content ## 1</sftp:content>
