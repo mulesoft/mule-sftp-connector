@@ -16,6 +16,10 @@ import org.apache.sshd.sftp.client.impl.DefaultSftpClientFactory;
 
 public class SftpConcurrentClientFactory extends DefaultSftpClientFactory {
 
+  static SftpConcurrentClientFactory instance() {
+    return SftpConcurrentClientFactory.INSTANCE;
+  }
+
   public static final SftpConcurrentClientFactory INSTANCE = new SftpConcurrentClientFactory();
 
   public SftpConcurrentClientFactory() {
