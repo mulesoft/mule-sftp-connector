@@ -4,14 +4,12 @@
       xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools"
       xmlns="http://www.mulesoft.org/schema/mule/core"
       xmlns:sftp="http://www.mulesoft.org/schema/mule/sftp"
-      xmlns:java="http://www.mulesoft.org/schema/mule/java"
       xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
       xsi:schemaLocation="
 		http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
 		http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
 		http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd
-        http://www.mulesoft.org/schema/mule/sftp http://www.mulesoft.org/schema/mule/sftp/current/mule-sftp.xsd
-        http://www.mulesoft.org/schema/mule/java http://www.mulesoft.org/schema/mule/java/current/mule-java.xsd">
+        http://www.mulesoft.org/schema/mule/sftp http://www.mulesoft.org/schema/mule/sftp/current/mule-sftp.xsd">
 
     <munit:config name="listen-new-files.xml"/>
 
@@ -34,6 +32,7 @@
             <!--Wait for some polling cycles to avoid race conditions-->
             <munit-tools:sleep time="600"/>
             <flow-ref name="listen-multiple-files-flow"/>
+            <munit-tools:sleep time="600"/>
         </munit:execution>
         <munit:validation >
             <sftp:list doc:name="List" config-ref="config-docker" directoryPath="/config/test/concurrent"/>
@@ -44,16 +43,16 @@
     <flow name="listen-multiple-files-flow">
         <sftp:listener config-ref="config-docker" directory="/config/test/concurrent" autoDelete="true" applyPostActionWhenFailed="false">
             <scheduling-strategy>
-                <fixed-frequency frequency="3000"/>
+                <fixed-frequency frequency="1000"/>
             </scheduling-strategy>
         </sftp:listener>
         <set-variable value="#[%dw 2.0&#10;output application/java&#10;---&#10;attributes.path]" doc:name="Set Variable" variableName="filePath"/>
         <set-variable value="#[%dw 2.0&#10;output application/java&#10;---&#10;attributes.size]" doc:name="Set Variable" variableName="fileSize"/>
         <set-variable value="#[%dw 2.0&#10;output application/java&#10;---&#10;attributes.fileName]" doc:name="Set Variable" variableName="fileName"/>
-        <logger level="ERROR" doc:name="ERROR: Initial vars" message="Initial vars: #[vars]"/>
-        <logger level="ERROR" doc:name="ERROR: Start File processing" message="[file: #[vars.fileName]][size: #[vars.fileSize]] Start File Processing" />
-        <logger level="ERROR" doc:name="ERROR: File content"  message="[file: #[vars.fileName]][size: #[vars.fileSize]] WMS file content: #[payload]"/>
-        <logger level="ERROR" doc:name="ERROR: Completed File Processing" message="[file: #[vars.fileName]][size: #[vars.fileSize]] File processing was completed. The file will be deleted from the server..."/>
+        <logger level="INFO" doc:name="INFO: Initial vars" message="Initial vars: #[vars]"/>
+        <logger level="INFO" doc:name="INFO: Start File processing" message="[file: #[vars.fileName]][size: #[vars.fileSize]] Start File Processing" />
+        <logger level="INFO" doc:name="INFO: File content"  message="[file: #[vars.fileName]][size: #[vars.fileSize]] WMS file content: #[payload]"/>
+        <logger level="INFO" doc:name="INFO: Completed File Processing" message="[file: #[vars.fileName]][size: #[vars.fileSize]] File processing was completed. The file will be deleted from the server..."/>
     </flow>
 
 </mule>
