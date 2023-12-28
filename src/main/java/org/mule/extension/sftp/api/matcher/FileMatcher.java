@@ -46,8 +46,8 @@ public abstract class FileMatcher<T extends FileMatcher, A extends FileAttribute
   private static final String SIZE_MUST_BE_GREATER_THAN_ZERO_MESSAGE =
       "Matcher attribute '%s' must be greater than zero but '%d' was received";
   public static final boolean DEFAULT_CASE_SENSITIVE = true;
-  protected final ZonedDateTimeLowerOrEqualAssessment FILE_TIME_UNTIL = new ZonedDateTimeLowerOrEqualAssessment();
-  protected final ZonedDateTimeGreaterOrEqualAssessment FILE_TIME_SINCE = new ZonedDateTimeGreaterOrEqualAssessment();
+  protected final ZonedDateTimeLowerOrEqualAssessment fileTimeUntil = new ZonedDateTimeLowerOrEqualAssessment();
+  protected final ZonedDateTimeGreaterOrEqualAssessment fileTimeSince = new ZonedDateTimeGreaterOrEqualAssessment();
 
   /**
    * A matching pattern to be applied on the file name. This pattern needs to be consistent with the rules of
@@ -170,13 +170,13 @@ public abstract class FileMatcher<T extends FileMatcher, A extends FileAttribute
     return predicate;
   }
 
-  protected ZonedDateTimeLowerOrEqualAssessment getFileTimeUntil() {
-    return FILE_TIME_UNTIL;
+  public ZonedDateTimeLowerOrEqualAssessment getFileTimeUntil() {
+    return fileTimeUntil;
   }
 
 
-  protected ZonedDateTimeGreaterOrEqualAssessment getFileTimeSince() {
-    return FILE_TIME_SINCE;
+  public ZonedDateTimeGreaterOrEqualAssessment getFileTimeSince() {
+    return fileTimeSince;
   }
 
   public String getFilenamePattern() {
