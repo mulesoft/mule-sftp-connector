@@ -15,14 +15,20 @@ public class LazyInputStreamProxy extends InputStream {
 
   private final LazyStreamSupplier streamSupplier;
   private InputStream delegate;
+  private static final Object lock = new Object();
+
 
   public LazyInputStreamProxy(LazyStreamSupplier streamSupplier) {
     this.streamSupplier = streamSupplier;
   }
 
-  private InputStream getDelegate() {
+  public InputStream getDelegate() {
     if (delegate == null) {
-      delegate = streamSupplier.get();
+      synchronized (lock) {
+        if (delegate == null) {
+          delegate= streamSupplier.get();
+        }
+      }
     }
     return delegate;
   }
