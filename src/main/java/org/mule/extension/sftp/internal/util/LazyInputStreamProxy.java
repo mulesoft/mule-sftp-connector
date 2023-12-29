@@ -22,7 +22,7 @@ public class LazyInputStreamProxy extends InputStream {
     this.streamSupplier = streamSupplier;
   }
 
-  public InputStream getDelegate() {
+  private InputStream getDelegate() {
     if (delegate == null) {
       synchronized (lock) {
         if (delegate == null) {
