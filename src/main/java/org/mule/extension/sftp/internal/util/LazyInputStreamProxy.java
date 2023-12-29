@@ -26,7 +26,7 @@ public class LazyInputStreamProxy extends InputStream {
     if (delegate == null) {
       synchronized (lock) {
         if (delegate == null) {
-          delegate= streamSupplier.get();
+          delegate = streamSupplier.get();
         }
       }
     }
