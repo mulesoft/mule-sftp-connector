@@ -231,7 +231,7 @@
         <foreach collection="#[1 to 20]">
             <flow-ref name="#[vars.listFlowName]"/>
             <flow-ref name="assert-file-was-not-listed"/>
-            <munit-tools:sleep time="500"/>
+            <munit-tools:sleep time="1500"/>
         </foreach>
     </flow>
 
@@ -239,7 +239,7 @@
         <foreach collection="#[1 to 20]">
             <flow-ref name="#[vars.listFlowName]"/>
             <flow-ref name="assert-file-was-listed"/>
-            <munit-tools:sleep time="500"/>
+            <munit-tools:sleep time="1500"/>
         </foreach>
     </flow>
 

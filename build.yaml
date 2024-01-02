@@ -2,4 +2,4 @@ projectType: extension
 additionalTestConfigs:
   jdk17:
     testJdkTool: TEMURIN-JDK17
-    mavenAdditionalArgs: -Dtest=none -DfailIfNoTests=false -DminVersion=4.6.0 -DruntimeVersion=4.6.0-rc2 -DruntimeProduct=MULE_EE  -Dmunit.test=file-listener-test-cases/new-file-is-listened-and-later-filtered.xml#newFileIsListenedAndLaterFiltered
+    mavenAdditionalArgs: -Dtest=none -DfailIfNoTests=false -DminVersion=4.6.0 -DruntimeVersion=4.6.0-rc2 -DruntimeProduct=MULE_EE  -Dmunit.test=sftp-list-matcher-test-case.xml#newFileFilteredThenListedThenFilteredAgain
