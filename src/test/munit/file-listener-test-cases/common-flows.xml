@@ -20,7 +20,7 @@
             <flow-ref name="assert-file-was-listened"/>
         </until-successful>
         <!--Wait for some polling cycles, so that the listener sets the isFileBeingListed key back to true and avoid race conditions-->
-        <munit-tools:sleep time="600"/>
+        <munit-tools:sleep time="1200"/>
         <error-handler>
             <on-error-continue type="MULE:RETRY_EXHAUSTED">
                 <raise-error type="MULE:EXPRESSION" description="Test failure: the file was never listened."/>
@@ -33,7 +33,7 @@
             <flow-ref name="assert-file-was-not-listened"/>
         </until-successful>
         <!--Wait for some polling cycles, so that the listener sets the isFileBeingListed key back to true and avoid race conditions-->
-        <munit-tools:sleep time="600"/>
+        <munit-tools:sleep time="1200"/>
         <error-handler>
             <on-error-continue type="MULE:RETRY_EXHAUSTED">
                 <raise-error type="MULE:EXPRESSION" description="Test failure: the file was always listened."/>
@@ -71,6 +71,7 @@
         <munit-tools:retrieve key="isFileBeingListed"/>
         <flow-ref name="reset-file-listed"/>
         <munit-tools:assert-that expression="#[payload]" is="#[MunitTools::equalTo(false)]"/>
+        <logger level="INFO" message="TEST : #[payload]"/>
     </flow>
 
     <flow name="reset-file-listed">
