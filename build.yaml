@@ -1,4 +1,5 @@
 projectType: extension
+mavenAdditionalArgs: -Dtest=none -DfailIfNoTests=false -Dmunit.test=file-listener-test-cases/new-file-being-constantly-updated-is-listened.xml#newFileBeingConstantlyUpdatedIsListened
 additionalTestConfigs:
 #  jdk11:
 #    testJdkTool: TEMURIN-JDK11
