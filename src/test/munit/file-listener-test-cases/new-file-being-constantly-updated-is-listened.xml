@@ -51,7 +51,7 @@
                 <flow-ref name="wait-2-seconds"/>
                 <flow-ref name="modify-file"/>
                 <!--Wait for some polling cycles, so that the listener sets the isFileBeingListed key to true and avoid race conditions-->
-                <munit-tools:sleep time="600"/>
+                <munit-tools:sleep time="1200"/>
                 <flow-ref name="check-one-file-is-listened"/>
             </foreach>
         </munit:execution>
