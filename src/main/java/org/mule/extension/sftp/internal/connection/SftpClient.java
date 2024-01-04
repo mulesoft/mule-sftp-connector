@@ -85,7 +85,7 @@ public class SftpClient {
   private static final String PWD_COMMAND = "pwd";
 
   private final SshClient client;
-  private final SshdSftpClientWrapper sftp;
+  private org.apache.sshd.sftp.client.SftpClient sftp;
   private ClientSession session;
   private final String host;
   private int port;
@@ -121,7 +121,6 @@ public class SftpClient {
     client = ClientBuilder.builder()
         .randomFactory(prngAlgorithm.getRandomFactory())
         .build();
-    sftp = new SshdSftpClientWrapper();
 
     client.start();
   }
@@ -159,7 +158,7 @@ public class SftpClient {
     }
     String path = normalizeRemotePath(uri.getPath());
     try {
-      return new SftpFileAttributes(uri, sftp.getClient().stat(path));
+      return new SftpFileAttributes(uri, sftp.stat(path));
     } catch (SftpException e) {
       if (e.getStatus() == SftpConstants.SSH_FX_NO_SUCH_FILE) {
         return null;
@@ -206,8 +205,7 @@ public class SftpClient {
 
   private void connect() throws IOException {
     SftpConcurrentClientFactory scf = SftpConcurrentClientFactory.instance();
-    sftp.setClient(scf.createSftpClient(session));
-    // sftp = scf.createSftpClient(session);
+    sftp = scf.createSftpClient(session);
   }
 
   private void configureSession(String user) throws IOException, GeneralSecurityException {
@@ -280,7 +278,7 @@ public class SftpClient {
    */
   public void rename(String sourcePath, String target) {
     try {
-      sftp.getClient().rename(normalizeRemotePath(sourcePath), normalizeRemotePath(target));
+      sftp.rename(normalizeRemotePath(sourcePath), normalizeRemotePath(target));
       if (LOGGER.isTraceEnabled()) {
         LOGGER.trace("Renamed {} to {}", sourcePath, target);
       }
@@ -297,7 +295,7 @@ public class SftpClient {
   public void deleteFile(String path) {
 
     try {
-      sftp.getClient().remove(normalizeRemotePath(path));
+      sftp.remove(normalizeRemotePath(path));
       if (LOGGER.isTraceEnabled()) {
         LOGGER.trace("Deleted file {}", path);
       }
@@ -313,7 +311,7 @@ public class SftpClient {
     if (session != null) {
       try {
         session.close();
-        sftp.getClient().close();
+        sftp.close();
       } catch (IOException e) {
         LOGGER.warn("Error while closing: {}", e, e);
       }
@@ -327,7 +325,7 @@ public class SftpClient {
    * @return whether this client is currently connected and logged into the remote server
    */
   public boolean isConnected() {
-    return sftp != null && sftp.getClient().isOpen() && session != null && session.isOpen();
+    return sftp != null && sftp.isOpen() && session != null && session.isOpen();
   }
 
   /**
@@ -339,7 +337,7 @@ public class SftpClient {
   public List<SftpFileAttributes> list(String path) {
     Collection<org.apache.sshd.sftp.client.SftpClient.DirEntry> entries;
     try {
-      entries = sftp.getClient().readEntries(normalizeRemotePath(path));
+      entries = sftp.readEntries(normalizeRemotePath(path));
       if (LOGGER.isTraceEnabled()) {
         LOGGER.trace("Listed {} entries from path {}", entries.size(), path);
       }
@@ -363,7 +361,7 @@ public class SftpClient {
    */
   public InputStream getFileContent(String path) {
     try {
-      return sftp.getClient().read(normalizeRemotePath(path));
+      return sftp.read(normalizeRemotePath(path));
     } catch (IOException e) {
       throw handleException("Exception was found trying to retrieve the contents of file " + path, e);
     }
@@ -431,7 +429,7 @@ public class SftpClient {
    * @return an {@link OutputStream}
    */
   public OutputStream getOutputStream(String path, FileWriteMode mode) throws IOException {
-    return sftp.getClient().write(normalizeRemotePath(path), toApacheSshdModes(mode));
+    return sftp.write(normalizeRemotePath(path), toApacheSshdModes(mode));
   }
 
   private OpenMode[] toApacheSshdModes(FileWriteMode mode) {
@@ -460,7 +458,7 @@ public class SftpClient {
       if (LOGGER.isTraceEnabled()) {
         LOGGER.trace("Trying to create directory {}", directoryName);
       }
-      sftp.getClient().mkdir(normalizeRemotePath(directoryName));
+      sftp.mkdir(normalizeRemotePath(directoryName));
     } catch (IOException e) {
       throw handleException("Could not create the directory " + directoryName, e);
     }
@@ -475,7 +473,7 @@ public class SftpClient {
    */
   public void deleteDirectory(String path) {
     try {
-      sftp.getClient().rmdir(normalizeRemotePath(path));
+      sftp.rmdir(normalizeRemotePath(path));
     } catch (IOException e) {
       throw handleException("Could not delete directory " + path, e);
     }
@@ -514,7 +512,7 @@ public class SftpClient {
   }
 
   private RuntimeException handleIOException(String message, IOException cause) {
-    if (!sftp.getClient().isOpen()) {
+    if (!sftp.isOpen()) {
       return handleException(message, new SftpConnectionException("Error occurred while trying to connect to host",
                                                                   new ConnectionException(cause, owner), CONNECTIVITY, owner));
     }

@@ -1,4 +1,5 @@
 projectType: extension
+mavenAdditionalArgs: -Dtest=none -DfailIfNoTests=false -DskipTita -DskipTests
 additionalTestConfigs:
 #  jdk11:
 #    testJdkTool: TEMURIN-JDK11
