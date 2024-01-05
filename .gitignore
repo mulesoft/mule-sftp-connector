@@ -8,7 +8,6 @@ target/
 .classpath
 .project
 .settings
-.vscode/
 /workspace/
 
 # IntelliJ Idea files
@@ -16,6 +15,9 @@ target/
 *.ipr
 *.iws
 *.idea
+
+# Visual Studio Code
+.vscode/
 
 # Mac
 .DS_Store
@@ -28,7 +30,6 @@ temp/
 muleEmbeddedDB/
 activemq-data/
 testdir/
-hostkey.ser
 *.h2.db
 *.factorypath
 /test.sh
