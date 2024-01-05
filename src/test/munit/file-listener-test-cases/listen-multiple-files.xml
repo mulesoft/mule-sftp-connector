@@ -11,9 +11,9 @@
 		http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd
         http://www.mulesoft.org/schema/mule/sftp http://www.mulesoft.org/schema/mule/sftp/current/mule-sftp.xsd">
 
-    <munit:config name="listen-new-files.xml"/>
+    <munit:config name="listen-multiple-files.xml"/>
 
-    <munit:before-test name="listen-new-files-create-file-for-listener">
+    <munit:before-test name="listen-multiple-files">
         <sftp:write config-ref="config-docker" path='test/concurrent/concurrent1.txt' createParentDirectories="true">
             <sftp:content>concurrent test content ## 1</sftp:content>
         </sftp:write>
