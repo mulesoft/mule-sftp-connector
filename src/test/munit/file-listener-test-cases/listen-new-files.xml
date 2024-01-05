@@ -36,7 +36,7 @@
         </java:invoke-static>
     </munit:after-suite>
 
-    <munit:before-test name="listen-new-files-create-file-for-listener">
+    <munit:before-test name="listen-mew-files">
         <flow-ref name="write-file"/>
         <flow-ref name="reset-file-listed"/>
     </munit:before-test>

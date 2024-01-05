@@ -13,7 +13,7 @@
 
     <munit:config name="listen-multiple-files.xml"/>
 
-    <munit:before-test name="listen-new-files-create-file-for-listener">
+    <munit:before-test name="listen-multiple-files">
         <sftp:write config-ref="config-docker" path='test/concurrent/concurrent1.txt' createParentDirectories="true">
             <sftp:content>concurrent test content ## 1</sftp:content>
         </sftp:write>
