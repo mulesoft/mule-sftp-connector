@@ -28,7 +28,6 @@ temp/
 muleEmbeddedDB/
 activemq-data/
 testdir/
-hostkey.ser
 *.h2.db
 *.factorypath
 /test.sh
