@@ -85,10 +85,6 @@ public class SftpServer {
     }
   }
 
-  public Boolean isStarted() {
-    return sshdServer != null && sshdServer.isStarted();
-  }
-
   public void stop() {
     try {
       sshdServer.stop(false);
