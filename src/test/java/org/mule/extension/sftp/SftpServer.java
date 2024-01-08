@@ -55,7 +55,7 @@ public class SftpServer {
 
   private void configureSshdServer(SftpSubsystemFactory factory) {
     sshdServer.setPort(port);
-    sshdServer.setKeyPairProvider(new SimpleGeneratorHostKeyProvider(Paths.get("hostkey.ser")));
+    sshdServer.setKeyPairProvider(new SimpleGeneratorHostKeyProvider(Paths.get("src", "test", "resources", "hostkey.ser")));
     sshdServer.setSubsystemFactories(asList(factory));
     sshdServer.setCommandFactory(new ScpCommandFactory());
     sshdServer.setFileSystemFactory(new VirtualFileSystemFactory(path));
@@ -83,6 +83,10 @@ public class SftpServer {
     } catch (IOException e) {
       throw new MuleRuntimeException(e);
     }
+  }
+
+  public Boolean isStarted() {
+    return sshdServer != null && sshdServer.isStarted();
   }
 
   public void stop() {
