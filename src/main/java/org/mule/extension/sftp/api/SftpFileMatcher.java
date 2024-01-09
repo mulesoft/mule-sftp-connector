@@ -1,5 +1,5 @@
 /*
- * Copyright (c) MuleSoft, Inc.  All rights reserved.  http://www.mulesoft.com
+ * Copyright 2023 Salesforce, Inc. All rights reserved.
  * The software in this package is published under the terms of the CPAL v1.0
  * license, a copy of which has been included with this distribution in the
  * LICENSE.txt file.
@@ -93,6 +93,11 @@ public class SftpFileMatcher extends FileMatcher<SftpFileMatcher, SftpFileAttrib
   @Optional(defaultValue = "true")
   private boolean caseSensitive;
 
+
+  public SftpFileMatcher() {
+    super();
+  }
+
   @Override
   protected Predicate<SftpFileAttributes> addConditions(Predicate<SftpFileAttributes> predicate) {
     setPredicateType(PredicateType.EXTERNAL_FILE_SYSTEM);
@@ -100,12 +105,12 @@ public class SftpFileMatcher extends FileMatcher<SftpFileMatcher, SftpFileAttrib
 
     if (timestampSince != null) {
       predicate = predicate.and(attributes -> attributes.getTimestamp() == null
-          || FILE_TIME_SINCE.apply(timestampSince, attributes.getTimestamp()));
+          || fileTimeSince.apply(timestampSince, attributes.getTimestamp()));
     }
 
     if (timestampUntil != null) {
       predicate = predicate.and(attributes -> attributes.getTimestamp() == null
-          || FILE_TIME_UNTIL.apply(timestampUntil, attributes.getTimestamp()));
+          || fileTimeUntil.apply(timestampUntil, attributes.getTimestamp()));
     }
 
     // We want to make sure that the same time is used when comparing multiple files consecutively.
@@ -115,7 +120,7 @@ public class SftpFileMatcher extends FileMatcher<SftpFileMatcher, SftpFileAttrib
       predicate = predicate.and(attributes -> {
         checkTimestampPrecision(attributes);
         return attributes.getTimestamp() == null
-            || FILE_TIME_UNTIL.apply(minusTime(now, notUpdatedInTheLast, timeUnit), attributes.getTimestamp());
+            || fileTimeUntil.apply(minusTime(now, notUpdatedInTheLast, timeUnit), attributes.getTimestamp());
       });
     }
 
@@ -123,7 +128,7 @@ public class SftpFileMatcher extends FileMatcher<SftpFileMatcher, SftpFileAttrib
       predicate = predicate.and(attributes -> {
         checkTimestampPrecision(attributes);
         return attributes.getTimestamp() == null
-            || FILE_TIME_SINCE.apply(minusTime(now, updatedInTheLast, timeUnit), attributes.getTimestamp());
+            || fileTimeSince.apply(minusTime(now, updatedInTheLast, timeUnit), attributes.getTimestamp());
       });
     }
 
@@ -178,8 +183,17 @@ public class SftpFileMatcher extends FileMatcher<SftpFileMatcher, SftpFileAttrib
     return timestampSince;
   }
 
+  public void setTimestampsince(ZonedDateTime timestampSince) {
+    this.timestampSince = timestampSince;
+  }
+
+
   public ZonedDateTime getTimestampUntil() {
     return timestampUntil;
+  }
+
+  public void setTimestampuntil(ZonedDateTime timestampUntil) {
+    this.timestampUntil = timestampUntil;
   }
 
   public TimeUnit getTimeUnit() {
@@ -197,4 +211,9 @@ public class SftpFileMatcher extends FileMatcher<SftpFileMatcher, SftpFileAttrib
   public boolean isCaseSensitive() {
     return this.caseSensitive;
   }
+
+  public void setCasesensitive(boolean caseSensitive) {
+    this.caseSensitive = caseSensitive;
+  }
+
 }

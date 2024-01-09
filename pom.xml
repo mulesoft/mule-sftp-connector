@@ -20,9 +20,10 @@
     <description>A Mule extension that provides functionality to manage files in an SFTP server</description>
 
     <properties>
-        <docker.maven.plugin.version>0.43.3</docker.maven.plugin.version>
+        <docker.maven.plugin.version>0.43.4</docker.maven.plugin.version>
         <maven.helper.plugin.version>3.4.0</maven.helper.plugin.version>
         <apache.maven.help.plugin.version>3.4.0</apache.maven.help.plugin.version>
+        <maven.jdeps.plugin.version>3.1.2</maven.jdeps.plugin.version>
         <commonsIoVersion>2.13.0</commonsIoVersion>
         <commonsLangVersion>3.12.0</commonsLangVersion>
         <commonsCollectionsVersion>3.2.2</commonsCollectionsVersion>
@@ -31,20 +32,21 @@
 
         <muleTestsComponentPlugin>${mule.version}</muleTestsComponentPlugin>
         <muleTestsRunnerVersion>4.1.5</muleTestsRunnerVersion>
-        <muleSdkApiVersion>0.6.0</muleSdkApiVersion>
+        <muleSdkApiVersion>0.7.0</muleSdkApiVersion>
         <muleSdkCompatibilityApiVersion>0.5.0</muleSdkCompatibilityApiVersion>
 
         <!-- Remove when a new parent version with MTF is available -->
         <munit.input.directory>src/test/munit</munit.input.directory>
         <munit.output.directory>${basedir}/target/test-mule/munit</munit.output.directory>
-        <munit.extensions.maven.plugin.version>1.1.3</munit.extensions.maven.plugin.version>
-        <munit.version>2.3.18</munit.version>
+        <munit.extensions.maven.plugin.version>1.2.0-rc3</munit.extensions.maven.plugin.version>
+        <munit.version>3.1.0-rc4</munit.version>
         <mavenResources.version>3.3.1</mavenResources.version>
         <sshdVersion>2.10.0</sshdVersion>
-        <cglib.version>3.3.0</cglib.version>
         <formatterConfigPath>formatter.xml</formatterConfigPath>
         <settingsFile>${java.io.tmpdir}/effective-settings.xml</settingsFile>
-        <mtf.tools.version>1.0.0</mtf.tools.version>
+        <mtf.tools.version>1.2.0-rc1</mtf.tools.version>
+        <mtf.javaopts></mtf.javaopts>
+        <jacoco.version>0.8.10</jacoco.version>
         <maven.impsort.plugin.version>1.6.2</maven.impsort.plugin.version>
         <maven.checkstyle.plugin.version>3.1.2</maven.checkstyle.plugin.version>
         <importGoal>check</importGoal>
@@ -52,23 +54,21 @@
         <slf4jApi.version>2.0.7</slf4jApi.version>
         <tikaCore.version>2.8.0</tikaCore.version>
         <bcprovJDK15on.version>1.59</bcprovJDK15on.version>
-        <muleJavaModule.version>1.2.10</muleJavaModule.version>
+        <muleJavaModule.version>1.2.12</muleJavaModule.version>
         <maven.invoker.plugin.version>3.6.0</maven.invoker.plugin.version>
         <muleConnectionTestModule.version>1.0.0</muleConnectionTestModule.version>
+
+        <mulesoftLicenseVersion>1.4.0</mulesoftLicenseVersion>
+        <license.maven.plugin.version>4.2</license.maven.plugin.version>
+        <licensePath>LICENSE_HEADER_CPAL.txt</licensePath>
+        <licenseYear>2023</licenseYear>
     </properties>
 
     <dependencies>
-
         <dependency>
             <groupId>org.mule.sdk</groupId>
             <artifactId>mule-sdk-api</artifactId>
             <version>${muleSdkApiVersion}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>cglib</groupId>
-            <artifactId>cglib</artifactId>
-            <version>${cglib.version}</version>
         </dependency>
 
         <dependency>
@@ -191,10 +191,44 @@
             <scope>test</scope>
         </dependency>
 
+
+
     </dependencies>
 
     <build>
         <plugins>
+            <plugin>
+                <groupId>com.mycila</groupId>
+                <artifactId>license-maven-plugin</artifactId>
+                <version>${license.maven.plugin.version}</version>
+                <dependencies>
+                    <dependency>
+                        <groupId>com.mulesoft.license</groupId>
+                        <artifactId>license</artifactId>
+                        <version>${mulesoftLicenseVersion}</version>
+                    </dependency>
+                </dependencies>
+                <configuration>
+                    <header>${licensePath}</header>
+                    <properties>
+                        <year>${licenseYear}</year>
+                    </properties>
+                    <includes>
+                        <include>**/*.java</include>
+                    </includes>
+                    <mapping>
+                        <java>SLASHSTAR_STYLE</java>
+                    </mapping>
+                </configuration>
+                <executions>
+                    <execution>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
             <plugin>
                 <artifactId>maven-resources-plugin</artifactId>
                 <version>${mavenResources.version}</version>
@@ -234,6 +268,7 @@
                         <discoverRuntimes>
                             <product>ALL</product>
                             <includeSnapshots>true</includeSnapshots>
+                            <minMuleVersion>${minVersion}</minMuleVersion>
                         </discoverRuntimes>
                     </runtimeConfiguration>
                     <argLines>
@@ -241,6 +276,11 @@
                             -javaagent:${settings.localRepository}/org/jacoco/org.jacoco.agent/${jacoco.version}/org.jacoco.agent-${jacoco.version}-runtime.jar=destfile=${session.executionRootDirectory}/target/jacoco-munit.exec
                         </argLine>
                     </argLines>
+                    <environmentVariables>
+                        <!-- Toggles the JDK17 style flag -->
+                        <!-- ugly hack -->
+                        <_JAVA_OPTIONS>-XX:+PrintCommandLineFlags ${mtf.javaopts}</_JAVA_OPTIONS>
+                    </environmentVariables>
                 </configuration>
                 <dependencies>
                     <dependency>
@@ -262,12 +302,6 @@
                         <classifier>mule-plugin</classifier>
                     </dependency>
                     <dependency>
-                        <groupId>org.mule.modules</groupId>
-                        <artifactId>mule-connection-test-module</artifactId>
-                        <version>${muleConnectionTestModule.version}</version>
-                        <classifier>mule-plugin</classifier>
-                    </dependency>
-                    <dependency>
                         <groupId>org.apache.sshd</groupId>
                         <artifactId>sshd-core</artifactId>
                         <version>${sshdVersion}</version>
@@ -284,7 +318,6 @@
                         <artifactId>sshd-common</artifactId>
                         <version>${sshdVersion}</version>
                     </dependency>
-
                 </dependencies>
             </plugin>
             <plugin>
@@ -387,6 +420,22 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jdeps-plugin</artifactId>
+                <version>${maven.jdeps.plugin.version}</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>jdkinternals</goal> <!-- verify main classes -->
+                            <goal>test-jdkinternals</goal> <!-- verify test classes -->
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <failOnWarning>true</failOnWarning>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 
@@ -460,7 +509,7 @@
                             </execution>
                             <execution>
                                 <id>stop</id>
-                                <phase>clean</phase>
+                                <phase>post-integration-test</phase>
                                 <goals>
                                     <goal>stop</goal>
                                     <goal>remove</goal>
