@@ -18,6 +18,7 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 import static java.lang.String.format;
 import static java.util.Collections.emptyList;
 import static java.util.Objects.nonNull;
+
 import static org.apache.commons.collections.CollectionUtils.isEmpty;
 import static org.apache.sshd.sftp.common.SftpConstants.SSH_FX_CONNECTION_LOST;
 import static org.apache.sshd.sftp.common.SftpConstants.SSH_FX_NO_CONNECTION;
@@ -118,7 +119,9 @@ public class SftpClient {
     this.schedulerService = schedulerService;
 
 
+
     client = ClientBuilder.builder()
+        .factory(ConnectorSftpClient::new)
         .randomFactory(prngAlgorithm.getRandomFactory())
         .build();
 
@@ -213,6 +216,9 @@ public class SftpClient {
     if (this.preferredAuthenticationMethods != null && !this.preferredAuthenticationMethods.isEmpty()) {
       CoreModuleProperties.PREFERRED_AUTHS.set(client, this.preferredAuthenticationMethods.toLowerCase());
     }
+
+    ((ConnectorSftpClient) client).setProxyConfig(proxyConfig);
+
     session = client.connect(user, host, port)
         .verify(connectionTimeoutMillis)
         .getSession();
@@ -224,7 +230,6 @@ public class SftpClient {
     if (!isEmpty(identityFile)) {
       setupIdentity();
     }
-    configureProxy(session);
   }
 
   private void configureHostChecking() {
