@@ -14,7 +14,7 @@
     <groupId>org.mule.connectors</groupId>
     <artifactId>mule-sftp-connector</artifactId>
     <packaging>mule-extension</packaging>
-    <version>3.0.0-TEST-3-SNAPSHOT</version>
+    <version>3.0.0-TEST-18-SNAPSHOT</version>
 
     <name>SFTP Connector - Mule 4</name>
     <description>A Mule extension that provides functionality to manage files in an SFTP server</description>
@@ -102,9 +102,21 @@
             <version>${sshdVersion}</version>
         </dependency>
 
+<!--        <dependency>-->
+<!--            <groupId>org.eclipse.jgit</groupId>-->
+<!--            <artifactId>org.eclipse.jgit.ssh.apache</artifactId>-->
+<!--            <version>5.13.1.202206130422-r</version>-->
+<!--        </dependency>-->
+
         <dependency>
             <groupId>org.apache.sshd</groupId>
             <artifactId>sshd-sftp</artifactId>
+            <version>${sshdVersion}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.sshd</groupId>
+            <artifactId>sshd-osgi</artifactId>
             <version>${sshdVersion}</version>
         </dependency>
 
