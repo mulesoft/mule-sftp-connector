@@ -8,8 +8,6 @@ package org.mule.extension.sftp.internal.auth;
 
 import static java.lang.String.format;
 
-import org.mule.extension.sftp.internal.proxy.GssApiMechanisms;
-
 import java.io.IOException;
 import java.net.InetSocketAddress;
 
@@ -18,11 +16,13 @@ import org.ietf.jgss.GSSContext;
 /**
  * An abstract implementation of a GSS-API multi-round authentication.
  *
- * @param <P> defining the parameter type for the authentication
- * @param <T> defining the token type for the authentication
+ * @param <ParameterType>
+ *            defining the parameter type for the authentication
+ * @param <TokenType>
+ *            defining the token type for the authentication
  */
-public abstract class GssApiAuthentication<P, T>
-    extends AbstractAuthenticationHandler<P, T> {
+public abstract class GssApiAuthentication<ParameterType, TokenType>
+    extends AbstractAuthenticationHandler<ParameterType, TokenType> {
 
   private GSSContext context;
 
@@ -30,11 +30,13 @@ public abstract class GssApiAuthentication<P, T>
   protected byte[] token;
 
   /**
-   * Creates a new {@link GssApiAuthentication} to authenticate with the given {@code proxy}.
+   * Creates a new {@link org.mule.extension.sftp.internal.auth.GssApiAuthentication} to authenticate with the given
+   * {@code proxy}.
    *
-   * @param proxy the {@link InetSocketAddress} of the proxy to connect to
+   * @param proxy
+   *            the {@link java.net.InetSocketAddress} of the proxy to connect to
    */
-  protected GssApiAuthentication(InetSocketAddress proxy) {
+  public GssApiAuthentication(InetSocketAddress proxy) {
     super(proxy);
   }
 
@@ -84,20 +86,23 @@ public abstract class GssApiAuthentication<P, T>
   }
 
   /**
-   * Creates the {@link GSSContext} to use.
+   * Creates the {@link org.ietf.jgss.GSSContext} to use.
    *
-   * @return a fresh {@link GSSContext} to use
-   * @throws Exception if the context cannot be created
+   * @return a fresh {@link org.ietf.jgss.GSSContext} to use
+   * @throws Exception
+   *             if the context cannot be created
    */
   protected abstract GSSContext createContext() throws Exception;
 
   /**
    * Extracts the token from the last set parameters.
    *
-   * @param input to extract the token from
+   * @param input
+   *            to extract the token from
    * @return the extracted token, or {@code null} if none
-   * @throws Exception if an error occurs
+   * @throws Exception
+   *             if an error occurs
    */
-  protected abstract byte[] extractToken(P input)
+  protected abstract byte[] extractToken(ParameterType input)
       throws Exception;
 }

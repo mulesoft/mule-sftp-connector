@@ -6,6 +6,8 @@
  */
 package org.mule.extension.sftp.internal.proxy;
 
+import org.mule.extension.sftp.internal.connection.MuleSftpClientSession;
+
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -19,68 +21,52 @@ import org.apache.sshd.client.session.ClientSession;
 /**
  * Basic common functionality for a {@link StatefulProxyConnector}.
  */
-public abstract class AbstractClientProxyConnector implements StatefulProxyConnector {
+public abstract class AbstractClientProxyConnector
+    implements StatefulProxyConnector {
 
-  private static final long DEFAULT_PROXY_TIMEOUT_MILLIS = TimeUnit.SECONDS
-      .toMillis(30L);
+  private static final long DEFAULT_PROXY_TIMEOUT_NANOS = TimeUnit.SECONDS
+      .toNanos(30L);
 
-  /**
-   * Guards {@link #done} and {@link #bufferedCommands}.
-   */
+  /** Guards {@link #done} and {@link #bufferedCommands}. */
   private final Object lock = new Object();
+
   private boolean done;
 
   private List<Callable<Void>> bufferedCommands = new ArrayList<>();
 
   private AtomicReference<Runnable> unregister = new AtomicReference<>();
 
-  private long remainingProxyProtocolTime = DEFAULT_PROXY_TIMEOUT_MILLIS;
+  private long remainingProxyProtocolTime = DEFAULT_PROXY_TIMEOUT_NANOS;
 
   private long lastProxyOperationTime = 0L;
 
-  /**
-   * The ultimate remote address to connect to.
-   */
+  /** The ultimate remote address to connect to. */
   protected final InetSocketAddress remoteAddress;
 
-  public InetSocketAddress getProxyAddress() {
-    return proxyAddress;
-  }
-
-  /**
-   * The proxy address.
-   */
+  /** The proxy address. */
   protected final InetSocketAddress proxyAddress;
 
-  public String getProxyUser() {
-    return proxyUser;
-  }
-
-  public char[] getProxyPassword() {
-    return proxyPassword;
-  }
-
-  /**
-   * The user to authenticate at the proxy with.
-   */
+  /** The user to authenticate at the proxy with. */
   protected String proxyUser;
 
-  /**
-   * The password to use for authentication at the proxy.
-   */
+  /** The password to use for authentication at the proxy. */
   protected char[] proxyPassword;
 
   /**
-   * Creates a new {@link AbstractClientProxyConnector}.
+   * Creates a new {@link org.mule.extension.sftp.internal.proxy.AbstractClientProxyConnector}.
    *
-   * @param proxyAddress  of the proxy server we're connecting to
-   * @param remoteAddress of the target server to connect to
-   * @param proxyUser     to authenticate at the proxy with; may be {@code null}
-   * @param proxyPassword to authenticate at the proxy with; may be {@code null}
+   * @param proxyAddress
+   *            of the proxy server we're connecting to
+   * @param remoteAddress
+   *            of the target server to connect to
+   * @param proxyUser
+   *            to authenticate at the proxy with; may be {@code null}
+   * @param proxyPassword
+   *            to authenticate at the proxy with; may be {@code null}
    */
-  protected AbstractClientProxyConnector(InetSocketAddress proxyAddress,
-                                         InetSocketAddress remoteAddress, String proxyUser,
-                                         char[] proxyPassword) {
+  public AbstractClientProxyConnector(InetSocketAddress proxyAddress,
+                                      InetSocketAddress remoteAddress, String proxyUser,
+                                      char[] proxyPassword) {
     this.proxyAddress = proxyAddress;
     this.remoteAddress = remoteAddress;
     this.proxyUser = proxyUser;
@@ -89,16 +75,27 @@ public abstract class AbstractClientProxyConnector implements StatefulProxyConne
   }
 
   /**
-   * Initializes this instance. Installs itself as proxy handler on the session.
+   * Initializes this instance. Installs itself as proxy handler on the
+   * session.
    *
-   * @param session to initialize for
+   * @param session
+   *            to initialize for
    */
   protected void init(ClientSession session) {
-    remainingProxyProtocolTime = session.getLongProperty(
-                                                         StatefulProxyConnector.TIMEOUT_PROPERTY,
-                                                         DEFAULT_PROXY_TIMEOUT_MILLIS);
-    if (remainingProxyProtocolTime <= 0L) {
-      remainingProxyProtocolTime = DEFAULT_PROXY_TIMEOUT_MILLIS;
+    long millis = session.getLongProperty(
+                                          StatefulProxyConnector.TIMEOUT_PROPERTY,
+                                          0);
+    remainingProxyProtocolTime = (millis > 0)
+        ? TimeUnit.MILLISECONDS.toNanos(millis)
+        : DEFAULT_PROXY_TIMEOUT_NANOS;
+    if (session instanceof MuleSftpClientSession) {
+      MuleSftpClientSession s = (MuleSftpClientSession) session;
+      unregister.set(() -> s.setProxyHandler(null));
+      s.setProxyHandler(this);
+    } else {
+      // Internal error, no translation
+      throw new IllegalStateException(
+                                      "Not a JGit session: " + session.getClass().getName()); //$NON-NLS-1$
     }
   }
 
@@ -115,29 +112,30 @@ public abstract class AbstractClientProxyConnector implements StatefulProxyConne
     if (last != 0L) {
       long elapsed = now - last;
       remaining -= elapsed;
-      if (remaining < 0L) {
-        remaining = 10L; // Give it grace period.
-      }
+      remainingProxyProtocolTime = remaining;
     }
-    remainingProxyProtocolTime = remaining;
-    return remaining;
+    return Math.max(remaining / 1_000_000L, 10L); // Give it grace period.
   }
 
   /**
-   * Adjusts the timeout calculation to not account of elapsed time since the last time the timeout was gotten. Can be used for
-   * instance to ignore time spent in user dialogs be counted against the overall proxy connection protocol timeout.
+   * Adjusts the timeout calculation to not account of elapsed time since the
+   * last time the timeout was gotten. Can be used for instance to ignore time
+   * spent in user dialogs be counted against the overall proxy connection
+   * protocol timeout.
    */
-  public void adjustTimeout() {
+  protected void adjustTimeout() {
     lastProxyOperationTime = System.nanoTime();
   }
 
   /**
    * Sets the "done" flag.
    *
-   * @param success whether the connector terminated successfully.
-   * @throws Exception if starting ssh fails
+   * @param success
+   *            whether the connector terminated successfully.
+   * @throws Exception
+   *             if starting ssh fails
    */
-  public void setDone(boolean success) throws Exception {
+  protected void setDone(boolean success) throws Exception {
     List<Callable<Void>> buffered;
     Runnable unset = unregister.getAndSet(null);
     if (unset != null) {
@@ -169,12 +167,8 @@ public abstract class AbstractClientProxyConnector implements StatefulProxyConne
   /**
    * Clears the proxy password.
    */
-  public void clearPassword() {
+  protected void clearPassword() {
     Arrays.fill(proxyPassword, '\000');
     proxyPassword = new char[0];
-  }
-
-  public boolean isDone() {
-    return done;
   }
 }

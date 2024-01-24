@@ -4,66 +4,78 @@
  * license, a copy of which has been included with this distribution in the
  * LICENSE.txt file.
  */
+
 package org.mule.extension.sftp.internal.auth;
 
 import java.io.Closeable;
 
 /**
- * An {@code AuthenticationHandler} encapsulates a possibly multi-step authentication protocol. Intended usage:
+ * An {@code AuthenticationHandler} encapsulates a possibly multi-step
+ * authentication protocol. Intended usage:
  *
  * <pre>
  * setParams(something);
  * start();
  * sendToken(getToken());
  * while (!isDone()) {
- *   setParams(receiveMessageAndExtractParams());
- *   process();
- *   Object t = getToken();
- *   if (t != null) {
- *     sendToken(t);
- *   }
+ * 	setParams(receiveMessageAndExtractParams());
+ * 	process();
+ * 	Object t = getToken();
+ * 	if (t != null) {
+ * 		sendToken(t);
+ * 	}
  * }
  * </pre>
  *
- * An {@code AuthenticationHandler} may be stateful and therefore is a {@link Closeable}.
+ * An {@code AuthenticationHandler} may be stateful and therefore is a
+ * {@link java.io.Closeable}.
  *
- * @param <P> defining the parameter type for {@link #setParams(Object)}
- * @param <T> defining the token type for {@link #getToken()}
+ * @param <ParameterType>
+ *            defining the parameter type for {@link #setParams(Object)}
+ * @param <TokenType>
+ *            defining the token type for {@link #getToken()}
  */
-public interface AuthenticationHandler<P, T>
+public interface AuthenticationHandler<ParameterType, TokenType>
     extends Closeable {
 
   /**
-   * Produces the initial authentication token that can be then retrieved via {@link #getToken()}.
+   * Produces the initial authentication token that can be then retrieved via
+   * {@link #getToken()}.
    *
-   * @throws Exception if an error occurs
+   * @throws Exception
+   *             if an error occurs
    */
   void start() throws Exception;
 
   /**
    * Produces the next authentication token, if any.
    *
-   * @throws Exception if an error occurs
+   * @throws Exception
+   *             if an error occurs
    */
   void process() throws Exception;
 
   /**
-   * Sets the parameters for the next token generation via {@link #start()} or {@link #process()}.
+   * Sets the parameters for the next token generation via {@link #start()} or
+   * {@link #process()}.
    *
-   * @param input to set, may be {@code null}
+   * @param input
+   *            to set, may be {@code null}
    */
-  void setParams(P input);
+  void setParams(ParameterType input);
 
   /**
    * Retrieves the last token generated.
    *
    * @return the token, or {@code null} if there is none
-   * @throws Exception if an error occurs
+   * @throws Exception
+   *             if an error occurs
    */
-  T getToken() throws Exception;
+  TokenType getToken() throws Exception;
 
   /**
-   * Tells whether is authentication mechanism is done (successfully or unsuccessfully).
+   * Tells whether is authentication mechanism is done (successfully or
+   * unsuccessfully).
    *
    * @return whether this authentication is done
    */

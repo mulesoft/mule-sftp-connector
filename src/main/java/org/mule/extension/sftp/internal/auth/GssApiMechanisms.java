@@ -4,7 +4,7 @@
  * license, a copy of which has been included with this distribution in the
  * LICENSE.txt file.
  */
-package org.mule.extension.sftp.internal.proxy;
+package org.mule.extension.sftp.internal.auth;
 
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -13,7 +13,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.ietf.jgss.GSSContext;
 import org.ietf.jgss.GSSException;
@@ -30,28 +29,21 @@ public class GssApiMechanisms {
     // No instantiation
   }
 
-  /**
-   * Prefix to use with {@link GSSName#NT_HOSTBASED_SERVICE}.
-   */
+  /** Prefix to use with {@link org.ietf.jgss.GSSName#NT_HOSTBASED_SERVICE}. */
   public static final String GSSAPI_HOST_PREFIX = "host@"; //$NON-NLS-1$
 
-  /**
-   * The {@link Oid} of Kerberos 5.
-   */
+  /** The {@link org.ietf.jgss.Oid} of Kerberos 5. */
   public static final Oid KERBEROS_5 = createOid("1.2.840.113554.1.2.2"); //$NON-NLS-1$
 
-  /**
-   * SGNEGO is not to be used with ssh.
-   */
+  /** SGNEGO is not to be used with ssh. */
   public static final Oid SPNEGO = createOid("1.3.6.1.5.5.2"); //$NON-NLS-1$
 
-  /**
-   * Protects {@link #supportedMechanisms}.
-   */
+  /** Protects {@link #supportedMechanisms}. */
   private static final Object LOCK = new Object();
 
   /**
-   * The {@link AtomicBoolean} is set to {@code true} when the mechanism could be initialized successfully at least once.
+   * The {@link java.util.concurrent.atomic.AtomicBoolean} is set to {@code true} when the mechanism could
+   * be initialized successfully at least once.
    */
   private static Map<Oid, Boolean> supportedMechanisms;
 
@@ -81,7 +73,8 @@ public class GssApiMechanisms {
   /**
    * Report that this mechanism was used successfully.
    *
-   * @param mechanism that worked
+   * @param mechanism
+   *            that worked
    */
   public static void worked(Oid mechanism) {
     synchronized (LOCK) {
@@ -92,7 +85,8 @@ public class GssApiMechanisms {
   /**
    * Mark the mechanisms as failed.
    *
-   * @param mechanism to mark
+   * @param mechanism
+   *            to mark
    */
   public static void failed(Oid mechanism) {
     synchronized (LOCK) {
@@ -105,10 +99,11 @@ public class GssApiMechanisms {
   }
 
   /**
-   * Resolves an {@link InetSocketAddress}.
+   * Resolves an {@link java.net.InetSocketAddress}.
    *
-   * @param remote to resolve
-   * @return the resolved {@link InetAddress}, or {@code null} if unresolved.
+   * @param remote
+   *            to resolve
+   * @return the resolved {@link java.net.InetAddress}, or {@code null} if unresolved.
    */
   public static InetAddress resolve(InetSocketAddress remote) {
     InetAddress address = remote.getAddress();
@@ -125,11 +120,11 @@ public class GssApiMechanisms {
   /**
    * Determines a canonical host name for use use with GSS-API.
    *
-   * @param remote to get the host name from
-   * @return the canonical host name, if it can be determined, otherwise the {@link InetSocketAddress#getHostString() unprocessed
-   *         host name}.
+   * @param remote
+   *            to get the host name from
+   * @return the canonical host name, if it can be determined, otherwise the
+   *         {@link java.net.InetSocketAddress#getHostString() unprocessed host name}.
    */
-
   public static String getCanonicalName(InetSocketAddress remote) {
     InetAddress address = resolve(remote);
     if (address == null) {
@@ -139,14 +134,17 @@ public class GssApiMechanisms {
   }
 
   /**
-   * Creates a {@link GSSContext} for the given mechanism to authenticate with the host given by {@code fqdn}.
+   * Creates a {@link org.ietf.jgss.GSSContext} for the given mechanism to authenticate with
+   * the host given by {@code fqdn}.
    *
-   * @param mechanism {@link Oid} of the mechanism to use
-   * @param fqdn      fully qualified domain name of the host to authenticate with
-   * @return the context, if the mechanism is available and the context could be created, or {@code null} otherwise
+   * @param mechanism
+   *            {@link org.ietf.jgss.Oid} of the mechanism to use
+   * @param fqdn
+   *            fully qualified domain name of the host to authenticate with
+   * @return the context, if the mechanism is available and the context could
+   *         be created, or {@code null} otherwise
    */
-  public static GSSContext createContext(Oid mechanism,
-                                         String fqdn) {
+  public static GSSContext createContext(Oid mechanism, String fqdn) {
     GSSContext context = null;
     try {
       GSSManager manager = GSSManager.getInstance();
@@ -165,9 +163,11 @@ public class GssApiMechanisms {
   }
 
   /**
-   * Closes (disposes of) a {@link GSSContext} ignoring any {@link GSSException}s.
+   * Closes (disposes of) a {@link org.ietf.jgss.GSSContext} ignoring any
+   * {@link org.ietf.jgss.GSSException}s.
    *
-   * @param context to dispose
+   * @param context
+   *            to dispose
    */
   public static void closeContextSilently(GSSContext context) {
     if (context != null) {
