@@ -269,8 +269,8 @@
             <set-variable variableName="fileName" value="write-file.txt"/>
             <set-variable variableName="mode" value="OVERWRITE"/>
             <set-variable variableName="createParent" value="true"/>
-            <set-variable variableName="fileContent" value="Este mensaje deberia pisarlo por completo"/>
-            <set-variable variableName="fileContent2" value="hola, como estas?"/>
+            <set-variable variableName="fileContent" value="this should be cleaned before writing the next one"/>
+            <set-variable variableName="fileContent2" value="Hi, message cleaned"/>
         </munit:behavior>
         <munit:execution>
             <sftp:write config-ref="${config}" path="#[vars.fileName]" mode="#[vars.mode]" createParentDirectories="#[vars.createParent]">
