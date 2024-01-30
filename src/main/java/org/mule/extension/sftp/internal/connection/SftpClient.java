@@ -126,13 +126,6 @@ public class SftpClient {
 
     client.start();
 
-    //    if (proxyConfig != null) {
-    //      ((JGitSshClient) client)
-    //          .setProxyDatabase(remote -> new ProxyData(new Proxy(Proxy.Type.HTTP, new InetSocketAddress(proxyConfig.getHost(),
-    //                                                                                                     proxyConfig.getPort())),
-    //                                                    proxyConfig.getUsername(), proxyConfig.getPassword().toCharArray()));
-    //    }
-
     if (nonNull(proxyConfig)) {
       ((MuleSftpClient) client).setProxyConfig(proxyConfig);
     }
