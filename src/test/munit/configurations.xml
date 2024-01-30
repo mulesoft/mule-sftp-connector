@@ -21,7 +21,7 @@
     </sftp:config>
 
     <sftp:config name="config-proxy-auth">
-        <sftp:connection host="172.17.0.1" port="${sftp.proxy.auth}" username="mule" password="test" workingDir="/config" connectionTimeout="10000" responseTimeout="10000">
+        <sftp:connection host="host.docker.internal" port="${sftp.proxy.auth}" username="mule" password="test" workingDir="/config" connectionTimeout="10000" responseTimeout="10000">
             <sftp:sftp-proxy-config host="localhost" port="${squid.port.auth}" protocol="HTTP" username="foo" password="bar"/>
         </sftp:connection>
     </sftp:config>
