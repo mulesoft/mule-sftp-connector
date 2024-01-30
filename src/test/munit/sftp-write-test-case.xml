@@ -269,6 +269,28 @@
         </munit:execution>
     </munit:test>
 
+    <munit:test name="sftp-overwrite-cleaning-first-message">
+        <munit:behavior>
+            <set-variable variableName="fileName" value="write-file.txt"/>
+            <set-variable variableName="mode" value="OVERWRITE"/>
+            <set-variable variableName="createParent" value="true"/>
+            <set-variable variableName="fileContent" value="this should be cleaned before writing the next one"/>
+            <set-variable variableName="fileContent2" value="Hi, message cleaned"/>
+        </munit:behavior>
+        <munit:execution>
+            <sftp:write config-ref="${config}" path="#[vars.fileName]" mode="#[vars.mode]" createParentDirectories="#[vars.createParent]">
+                <sftp:content>#[vars.fileContent]</sftp:content>
+            </sftp:write>
+            <sftp:write config-ref="${config}" path="#[vars.fileName]" mode="#[vars.mode]" createParentDirectories="#[vars.createParent]">
+                <sftp:content>#[vars.fileContent2]</sftp:content>
+            </sftp:write>
+            <sftp:read config-ref="${config}" path='#[vars.fileName]'/>
+        </munit:execution>
+        <munit:validation>
+            <munit-tools:assert-equals actual="#[payload]" expected="#[vars.fileContent2]"/>
+        </munit:validation>
+    </munit:test>
+
     <munit:after-test  name="delete-file-append" description="A description">
         <sftp:delete config-ref="${config}" path="test/filePath.txt"/>
     </munit:after-test>
