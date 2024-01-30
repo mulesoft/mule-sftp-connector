@@ -346,11 +346,47 @@
                         <configuration>
                             <portNames>
                                 <portName>sftp.listener.port</portName>
+                                <portName>squid.port.auth</portName>
+                                <portName>sftp.proxy.auth</portName>
                             </portNames>
                         </configuration>
                     </execution>
                 </executions>
             </plugin>
+
+            <plugin>
+                <groupId>com.dkanejs.maven.plugins</groupId>
+                <artifactId>docker-compose-maven-plugin</artifactId>
+                <version>4.0.0</version>
+                <configuration>
+                    <composeFiles>
+                        <composeFile>${project.basedir}/src/test/resources/docker/docker-compose.yml</composeFile>
+                    </composeFiles>
+                    <envVars>
+                        <squidPortAuth>${squid.port.auth}</squidPortAuth>
+                        <sftpProxyAuth>${sftp.proxy.auth}</sftpProxyAuth>
+                    </envVars>
+                    <detachedMode>true</detachedMode>
+                    <skip>${docker.skip}</skip>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>docker-compose-up</id>
+                        <phase>generate-test-resources</phase>
+                        <goals>
+                            <goal>up</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>docker-compose-down</id>
+                        <phase>post-integration-test</phase>
+                        <goals>
+                            <goal>down</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-help-plugin</artifactId>
