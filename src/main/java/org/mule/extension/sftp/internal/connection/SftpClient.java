@@ -118,11 +118,17 @@ public class SftpClient {
     this.proxyConfig = sftpProxyConfig;
 
 
+    if (nonNull(proxyConfig)) {
+      client = ClientBuilder.builder()
+          .factory(MuleSftpClient::new)
+          .randomFactory(prngAlgorithm.getRandomFactory())
+          .build();
+    } else {
+      client = ClientBuilder.builder()
+          .randomFactory(prngAlgorithm.getRandomFactory())
+          .build();
+    }
 
-    client = ClientBuilder.builder()
-        .factory(MuleSftpClient::new)
-        .randomFactory(prngAlgorithm.getRandomFactory())
-        .build();
 
     client.start();
 
