@@ -41,7 +41,7 @@
         <munit.extensions.maven.plugin.version>1.2.0-SNAPSHOT</munit.extensions.maven.plugin.version>
         <munit.version>3.1.0-SNAPSHOT</munit.version>
         <mavenResources.version>3.3.1</mavenResources.version>
-        <sshdVersion>2.10.0</sshdVersion>
+        <sshdVersion>2.9.2</sshdVersion>
         <formatterConfigPath>formatter.xml</formatterConfigPath>
         <settingsFile>${java.io.tmpdir}/effective-settings.xml</settingsFile>
         <mtf.tools.version>1.2.0-SNAPSHOT</mtf.tools.version>
@@ -107,6 +107,26 @@
             <artifactId>sshd-sftp</artifactId>
             <version>${sshdVersion}</version>
         </dependency>
+
+
+        <dependency>
+            <groupId>org.eclipse.jgit</groupId>
+            <artifactId>org.eclipse.jgit.ssh.apache</artifactId>
+            <version>5.13.3.202401111512-r</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.apache.sshd</groupId>
+                    <artifactId>sshd-osgi</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+<!--        <dependency>-->
+<!--            <groupId>org.apache.sshd</groupId>-->
+<!--            <artifactId>sshd-osgi</artifactId>-->
+<!--            <version>${sshdVersion}</version>-->
+<!--        </dependency>-->
+
 
         <dependency>
             <groupId>org.apache.sshd</groupId>
@@ -346,6 +366,8 @@
                         <configuration>
                             <portNames>
                                 <portName>sftp.listener.port</portName>
+                                <portName>squid.port.auth</portName>
+                                <portName>sftp.proxy.auth</portName>
                             </portNames>
                         </configuration>
                     </execution>
@@ -435,6 +457,38 @@
                 <configuration>
                     <failOnWarning>true</failOnWarning>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>com.dkanejs.maven.plugins</groupId>
+                <artifactId>docker-compose-maven-plugin</artifactId>
+                <version>4.0.0</version>
+                <configuration>
+                    <composeFiles>
+                        <composeFile>${project.basedir}/src/test/resources/docker/docker-compose.yml</composeFile>
+                    </composeFiles>
+                    <envVars>
+                        <squidPortAuth>${squid.port.auth}</squidPortAuth>
+                        <sftpProxyAuth>${sftp.proxy.auth}</sftpProxyAuth>
+                    </envVars>
+                    <detachedMode>true</detachedMode>
+                    <skip>${docker.skip}</skip>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>docker-compose-up</id>
+                        <phase>generate-test-resources</phase>
+                        <goals>
+                            <goal>up</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>docker-compose-down</id>
+                        <phase>post-integration-test</phase>
+                        <goals>
+                            <goal>down</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>

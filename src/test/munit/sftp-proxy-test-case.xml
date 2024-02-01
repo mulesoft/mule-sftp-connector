@@ -19,11 +19,6 @@
                     <munit:parameter propertyName="proxyProtocol" value="HTTP"/>
                 </munit:parameters>
             </munit:parameterization>
-            <munit:parameterization name="SOCKS5">
-                <munit:parameters>
-                    <munit:parameter propertyName="proxyProtocol" value="SOCKS5"/>
-                </munit:parameters>
-            </munit:parameterization>
         </munit:parameterizations>
     </munit:config>
 
@@ -31,55 +26,36 @@
     <munit:dynamic-port propertyName="proxy.server.port"/>
 
     <sftp:config name="proxy-config">
-        <sftp:connection username="muletest1"
-                         password="muletest1"
-                         host="localhost"
-                         port="${sftp.server.port}"
+        <sftp:connection username="mule"
+                         password="test"
+                         host="172.17.0.1"
+                         port="${sftp.proxy.auth}"
                          workingDir="/"
                          prngAlgorithm="SHA1PRNG"
                          connectionTimeout="200">
             <sftp:sftp-proxy-config host="localhost"
-                                    port="${proxy.server.port}"
+                                    port="${squid.port.auth}"
                                     protocol="${proxyProtocol}"
-                                    username="proxyUser"
-                                    password="proxyPassword"/>
+                                    username="foo"
+                                    password="bar"/>
         </sftp:connection>
     </sftp:config>
 
-    <munit:before-suite name="startSftpTestServer">
-        <java:invoke-static class="org.mule.extension.sftp.internal.lifecycle.SftpServerLifecycleManager"
-                            method="startSftpServer(String)">
-            <java:args>
-                #[{
-                arg0: ${sftp.server.port},
-                }]
-            </java:args>
-        </java:invoke-static>
-        <java:invoke-static class="org.mule.extension.sftp.internal.lifecycle.ProxyServerLifecycleManager"
-                            method="startProxyServer(String, String)">
-            <java:args>
-                #[{
-                arg0: ${proxy.server.port},
-                arg1: ${sftp.server.port},
-                }]
-            </java:args>
-        </java:invoke-static>
-    </munit:before-suite>
+    <sftp:config name="proxy-config-error">
+        <sftp:connection username="mule"
+                         password="test"
+                         host="172.17.0.1"
+                         port="${sftp.proxy.auth}"
+                         workingDir="/"
+                         prngAlgorithm="SHA1PRNG"
+                         connectionTimeout="200">
+            <sftp:sftp-proxy-config host="localhost"
+                                    port="${squid.port.auth}"
+                                    protocol="${proxyProtocol}"/>
+        </sftp:connection>
+    </sftp:config>
 
-    <munit:after-suite name="clearSftpTestServer">
-        <java:invoke-static class="org.mule.extension.sftp.internal.lifecycle.ProxyServerLifecycleManager"
-                            method="stopProxyServer()">
-            <java:args>
-                #[{}]
-            </java:args>
-        </java:invoke-static>
-        <java:invoke-static class="org.mule.extension.sftp.internal.lifecycle.SftpServerLifecycleManager"
-                            method="stopSftpServer()">
-            <java:args>
-                #[{}]
-            </java:args>
-        </java:invoke-static>
-    </munit:after-suite>
+
 
     <munit:test name="sftp-proxy-connectivity-test">
         <munit:validation>
@@ -87,4 +63,9 @@
         </munit:validation>
     </munit:test>
 
+    <munit:test name="sftp-proxy-connectivity-negative-test"  expectedErrorType = "SFTP:DISCONNECTED">
+        <munit:validation>
+            <mtf:test-connectivity config-ref="proxy-config-error"/>
+        </munit:validation>
+    </munit:test>
 </mule>

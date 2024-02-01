@@ -28,6 +28,7 @@ import org.mule.extension.sftp.api.SftpFileAttributes;
 import org.mule.extension.sftp.api.random.alg.PRNGAlgorithm;
 import org.mule.extension.sftp.internal.connection.SftpClient;
 import org.mule.extension.sftp.internal.connection.SftpClientFactory;
+import org.mule.runtime.api.connection.ConnectionException;
 import org.mule.runtime.api.scheduler.SchedulerService;
 import org.mule.tck.junit4.rule.DynamicPort;
 import org.mule.extension.sftp.api.FileTestHarness;
@@ -119,9 +120,9 @@ public class SftpTestHarness extends AbstractSftpTestHarness {
     }
   }
 
-  private SftpClient createDefaultSftpClient() throws IOException, GeneralSecurityException {
+  private SftpClient createDefaultSftpClient() throws IOException, GeneralSecurityException, ConnectionException {
     SftpClient sftpClient =
-        new SftpClientFactory().createInstance("localhost", sftpPort.getNumber(), PRNGAlgorithm.SHA1PRNG, schedulerService);
+        new SftpClientFactory().createInstance("localhost", sftpPort.getNumber(), PRNGAlgorithm.SHA1PRNG, schedulerService, null);
     clientAuthConfigurator.configure(sftpClient);
 
     sftpClient.setPassword(PASSWORD);

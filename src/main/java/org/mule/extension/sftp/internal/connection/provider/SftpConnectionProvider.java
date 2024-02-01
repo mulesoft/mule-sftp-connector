@@ -128,7 +128,7 @@ public class SftpConnectionProvider extends FileSystemProvider<SftpFileSystemCon
       LOGGER.debug(format("Connecting to host: '%s' at port: '%d'", connectionSettings.getHost(), connectionSettings.getPort()));
     }
     SftpClient client = clientFactory.createInstance(connectionSettings.getHost(), connectionSettings.getPort(),
-                                                     connectionSettings.getPrngAlgorithm(), schedulerService);
+                                                     connectionSettings.getPrngAlgorithm(), schedulerService, proxyConfig);
     client.setConnectionTimeoutMillis(getConnectionTimeoutUnit().toMillis(getConnectionTimeout()));
     client.setPassword(connectionSettings.getPassword());
     client.setIdentity(connectionSettings.getIdentityFile(), connectionSettings.getPassphrase());
@@ -136,7 +136,6 @@ public class SftpConnectionProvider extends FileSystemProvider<SftpFileSystemCon
       client.setPreferredAuthenticationMethods(join(preferredAuthenticationMethods, ","));
     }
     client.setKnownHostsFile(knownHostsFile);
-    client.setProxyConfig(proxyConfig);
     try {
       client.login(connectionSettings.getUsername());
     } catch (final SshException e) {

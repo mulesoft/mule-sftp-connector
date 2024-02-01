@@ -18,6 +18,7 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 import static java.lang.String.format;
 import static java.util.Collections.emptyList;
 import static java.util.Objects.nonNull;
+
 import static org.apache.commons.collections.CollectionUtils.isEmpty;
 import static org.apache.sshd.sftp.common.SftpConstants.SSH_FX_CONNECTION_LOST;
 import static org.apache.sshd.sftp.common.SftpConstants.SSH_FX_NO_CONNECTION;
@@ -31,19 +32,19 @@ import org.mule.extension.sftp.internal.error.FileError;
 import org.mule.extension.sftp.internal.exception.FileAccessDeniedException;
 import org.mule.extension.sftp.internal.exception.IllegalPathException;
 import org.mule.extension.sftp.internal.exception.SftpConnectionException;
-import org.mule.extension.sftp.internal.proxy.http.HttpClientConnector;
-import org.mule.extension.sftp.internal.proxy.socks5.Socks5ClientConnector;
 import org.mule.runtime.api.connection.ConnectionException;
 import org.mule.runtime.api.exception.MuleRuntimeException;
 import org.mule.runtime.api.scheduler.Scheduler;
 import org.mule.runtime.api.scheduler.SchedulerConfig;
 import org.mule.runtime.api.scheduler.SchedulerService;
+import org.mule.runtime.core.api.util.StringUtils;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
+import java.net.Proxy;
 import java.net.SocketAddress;
 import java.net.URI;
 import java.nio.file.Paths;
@@ -68,6 +69,8 @@ import org.apache.sshd.core.CoreModuleProperties;
 import org.apache.sshd.sftp.client.SftpClient.OpenMode;
 import org.apache.sshd.sftp.common.SftpConstants;
 import org.apache.sshd.sftp.common.SftpException;
+import org.eclipse.jgit.internal.transport.sshd.JGitSshClient;
+import org.eclipse.jgit.transport.sshd.ProxyData;
 import org.slf4j.Logger;
 
 /**
@@ -96,8 +99,6 @@ public class SftpClient {
 
   private String preferredAuthenticationMethods;
   private long connectionTimeoutMillis = Long.MAX_VALUE;
-  private SftpProxyConfig proxyConfig;
-
   private SftpFileSystemConnection owner;
 
   private String cwd = "/";
@@ -112,17 +113,76 @@ public class SftpClient {
    * @param host the host address
    * @param port the remote connection port
    */
-  public SftpClient(String host, int port, PRNGAlgorithm prngAlgorithm, SchedulerService schedulerService) {
+  public SftpClient(String host, int port, PRNGAlgorithm prngAlgorithm, SchedulerService schedulerService,
+                    SftpProxyConfig proxyConfig)
+      throws ConnectionException {
     this.host = host;
     this.port = port;
     this.schedulerService = schedulerService;
 
 
-    client = ClientBuilder.builder()
-        .randomFactory(prngAlgorithm.getRandomFactory())
-        .build();
+    if (nonNull(proxyConfig)) {
+      validateProxy(proxyConfig);
 
-    client.start();
+      client = ClientBuilder.builder()
+          .factory(JGitSshClient::new)
+          .randomFactory(prngAlgorithm.getRandomFactory())
+          .build();
+
+      client.start();
+
+      configureProxy(proxyConfig);
+    } else {
+      client = ClientBuilder.builder()
+          .randomFactory(prngAlgorithm.getRandomFactory())
+          .build();
+
+      client.start();
+    }
+
+
+  }
+
+  private void configureProxy(SftpProxyConfig sftpProxyConfig) {
+    switch (sftpProxyConfig.getProtocol()) {
+      case HTTP:
+        if (StringUtils.isBlank(sftpProxyConfig.getPassword()) || StringUtils.isBlank(sftpProxyConfig.getUsername())) {
+          ((JGitSshClient) client)
+              .setProxyDatabase(remote -> new ProxyData(new Proxy(Proxy.Type.HTTP,
+                                                                  new InetSocketAddress(sftpProxyConfig.getHost(),
+                                                                                        sftpProxyConfig.getPort()))));
+        } else {
+          ((JGitSshClient) client).setProxyDatabase(remote -> new ProxyData(
+                                                                            new Proxy(Proxy.Type.HTTP,
+                                                                                      new InetSocketAddress(sftpProxyConfig
+                                                                                          .getHost(),
+                                                                                                            sftpProxyConfig
+                                                                                                                .getPort())),
+                                                                            sftpProxyConfig.getUsername(),
+                                                                            sftpProxyConfig.getPassword().toCharArray()));
+        }
+        break;
+      case SOCKS5:
+        if (StringUtils.isBlank(sftpProxyConfig.getPassword()) || StringUtils.isBlank(sftpProxyConfig.getUsername())) {
+          ((JGitSshClient) client)
+              .setProxyDatabase(remote -> new ProxyData(new Proxy(Proxy.Type.SOCKS,
+                                                                  new InetSocketAddress(sftpProxyConfig.getHost(),
+                                                                                        sftpProxyConfig.getPort()))));
+        } else {
+          ((JGitSshClient) client).setProxyDatabase(remote -> new ProxyData(
+                                                                            new Proxy(Proxy.Type.SOCKS,
+                                                                                      new InetSocketAddress(sftpProxyConfig
+                                                                                          .getHost(),
+                                                                                                            sftpProxyConfig
+                                                                                                                .getPort())),
+                                                                            sftpProxyConfig.getUsername(),
+                                                                            sftpProxyConfig.getPassword().toCharArray()));
+        }
+        break;
+      default:
+        // should never get here, except a new type was added to the enum and not handled
+        throw new IllegalArgumentException(format("Proxy protocol %s not recognized", sftpProxyConfig.getProtocol()));
+    }
   }
 
 
@@ -213,6 +273,7 @@ public class SftpClient {
     if (this.preferredAuthenticationMethods != null && !this.preferredAuthenticationMethods.isEmpty()) {
       CoreModuleProperties.PREFERRED_AUTHS.set(client, this.preferredAuthenticationMethods.toLowerCase());
     }
+
     session = client.connect(user, host, port)
         .verify(connectionTimeoutMillis)
         .getSession();
@@ -224,7 +285,6 @@ public class SftpClient {
     if (!isEmpty(identityFile)) {
       setupIdentity();
     }
-    configureProxy(session);
   }
 
   private void configureHostChecking() {
@@ -243,30 +303,6 @@ public class SftpClient {
               return super.acceptKnownHostEntries(clientSession, remoteAddress, serverKey, knownHosts);
             }
           });
-    }
-  }
-
-  private void configureProxy(ClientSession session) {
-    if (proxyConfig != null) {
-      InetSocketAddress proxyAddress = new InetSocketAddress(proxyConfig.getHost(), proxyConfig.getPort());
-      InetSocketAddress remoteAddress = new InetSocketAddress(this.host, this.port);
-      switch (proxyConfig.getProtocol()) {
-        case HTTP:
-          session.setClientProxyConnector(proxyConfig.getUsername() != null && proxyConfig.getPassword() != null
-              ? new HttpClientConnector(proxyAddress, remoteAddress, proxyConfig.getUsername(),
-                                        proxyConfig.getPassword().toCharArray())
-              : new HttpClientConnector(proxyAddress, remoteAddress));
-          break;
-        case SOCKS5:
-          session.setClientProxyConnector(proxyConfig.getUsername() != null && proxyConfig.getPassword() != null
-              ? new Socks5ClientConnector(proxyAddress, remoteAddress, proxyConfig.getUsername(),
-                                          proxyConfig.getPassword().toCharArray())
-              : new Socks5ClientConnector(proxyAddress, remoteAddress));
-          break;
-        default:
-          // should never get here, except a new type was added to the enum and not handled
-          throw new IllegalArgumentException(format("Proxy protocol %s not recognized", proxyConfig.getProtocol()));
-      }
     }
   }
 
@@ -546,21 +582,6 @@ public class SftpClient {
     this.connectionTimeoutMillis = connectionTimeoutMillis == 0 ? Long.MAX_VALUE : connectionTimeoutMillis;
   }
 
-  public void setProxyConfig(SftpProxyConfig proxyConfig) throws ConnectionException {
-    if (proxyConfig != null) {
-      if (proxyConfig.getHost() == null || proxyConfig.getPort() == null) {
-        throw new SftpConnectionException("SFTP Proxy must have both \"host\" and \"port\" set", FileError.CONNECTIVITY);
-      }
-
-      if ((proxyConfig.getUsername() == null) != (proxyConfig.getPassword() == null)) {
-        throw new SftpConnectionException("SFTP Proxy requires both \"username\" and \"password\" if configured with authentication (otherwise none)",
-                                          FileError.INVALID_CREDENTIALS);
-      }
-
-      this.proxyConfig = proxyConfig;
-    }
-  }
-
   public void setOwner(SftpFileSystemConnection owner) {
     this.owner = owner;
   }
@@ -570,6 +591,19 @@ public class SftpClient {
       return normalizePath(path);
     } else {
       return normalizePath((cwd.equals("/") ? "" : cwd) + "/" + path);
+    }
+  }
+
+  private void validateProxy(SftpProxyConfig proxyConfig) throws ConnectionException {
+    if (proxyConfig != null) {
+      if (proxyConfig.getHost() == null || proxyConfig.getPort() == null) {
+        throw new SftpConnectionException("SFTP Proxy must have both \"host\" and \"port\" set", FileError.CONNECTIVITY);
+      }
+
+      if ((proxyConfig.getUsername() == null) != (proxyConfig.getPassword() == null)) {
+        throw new SftpConnectionException("SFTP Proxy requires both \"username\" and \"password\" if configured with authentication (otherwise none)",
+                                          FileError.INVALID_CREDENTIALS);
+      }
     }
   }
 }
