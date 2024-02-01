@@ -121,7 +121,7 @@ public class SftpTestHarness extends AbstractSftpTestHarness {
 
   private SftpClient createDefaultSftpClient() throws IOException, GeneralSecurityException {
     SftpClient sftpClient =
-        new SftpClientFactory().createInstance("localhost", sftpPort.getNumber(), PRNGAlgorithm.SHA1PRNG, schedulerService);
+        new SftpClientFactory().createInstance("localhost", sftpPort.getNumber(), PRNGAlgorithm.SHA1PRNG, schedulerService, true);
     clientAuthConfigurator.configure(sftpClient);
 
     sftpClient.setPassword(PASSWORD);

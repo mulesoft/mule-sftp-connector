@@ -96,6 +96,17 @@ public final class SftpConnectionSettings {
   @DisplayName("PRNG Algorithm")
   private PRNGAlgorithm prngAlgorithm;
 
+
+  /**
+   * Strict Key or KEX header enabled by default, disabled if not supported
+   */
+  @Parameter
+  @Optional(defaultValue = "true")
+  @Summary("Enable KEX header if supported")
+  @Placement(order = 8)
+  @DisplayName("KEX Enabled")
+  private boolean kexHeader;
+
   public int getPort() {
     return port;
   }
@@ -152,6 +163,15 @@ public final class SftpConnectionSettings {
     this.prngAlgorithm = prngAlgorithm;
   }
 
+  public boolean isKexHeader() {
+    return kexHeader;
+  }
+
+  public void setKexHeader(boolean kexHeader) {
+    this.kexHeader = kexHeader;
+  }
+
+
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -165,6 +185,7 @@ public final class SftpConnectionSettings {
     SftpConnectionSettings that = (SftpConnectionSettings) o;
     return port == that.port &&
         Objects.equals(host, that.host) &&
+        Objects.equals(kexHeader, that.kexHeader) &&
         Objects.equals(username, that.username) &&
         Objects.equals(password, that.password) &&
         Objects.equals(passphrase, that.passphrase) &&
@@ -174,6 +195,6 @@ public final class SftpConnectionSettings {
 
   @Override
   public int hashCode() {
-    return Objects.hash(host, port, username, password, passphrase, identityFile, prngAlgorithm);
+    return Objects.hash(host, port, username, password, passphrase, identityFile, prngAlgorithm, kexHeader);
   }
 }

@@ -23,6 +23,7 @@ import static org.apache.sshd.sftp.common.SftpConstants.SSH_FX_CONNECTION_LOST;
 import static org.apache.sshd.sftp.common.SftpConstants.SSH_FX_NO_CONNECTION;
 import static org.slf4j.LoggerFactory.getLogger;
 
+import org.apache.sshd.client.session.SessionFactory;
 import org.mule.extension.sftp.api.FileWriteMode;
 import org.mule.extension.sftp.api.SftpFileAttributes;
 import org.mule.extension.sftp.api.SftpProxyConfig;
@@ -94,6 +95,8 @@ public class SftpClient {
   private String passphrase;
   private String knownHostsFile;
 
+  private boolean kexHeader;
+
   private String preferredAuthenticationMethods;
   private long connectionTimeoutMillis = Long.MAX_VALUE;
   private SftpProxyConfig proxyConfig;
@@ -112,15 +115,44 @@ public class SftpClient {
    * @param host the host address
    * @param port the remote connection port
    */
-  public SftpClient(String host, int port, PRNGAlgorithm prngAlgorithm, SchedulerService schedulerService) {
+  public SftpClient(String host, int port, PRNGAlgorithm prngAlgorithm, SchedulerService schedulerService, boolean kexHeader) {
     this.host = host;
     this.port = port;
+    this.kexHeader = kexHeader;
     this.schedulerService = schedulerService;
+
 
 
     client = ClientBuilder.builder()
         .randomFactory(prngAlgorithm.getRandomFactory())
         .build();
+
+    /* client.setCipherFactoriesNames("aes128-ctr,aes128-cbc");
+    client.getCipherFactoriesNames();
+    List<String> ciphersFactories = new ArrayList<>();
+    ciphersFactories.add("aes128-cbc");
+    ciphersFactories.add("aes128-ctr");
+    ciphersFactories.add("aes128-gcm@openssh.com");
+    ciphersFactories.add("none");
+    ciphersFactories.add("aes256-gcm@openssh.com");
+    ciphersFactories.add("aes192-cbc");
+    ciphersFactories.add("aes192-ctr");
+    ciphersFactories.add("aes256-cbc");
+    ciphersFactories.add("aes256-ctr");
+    ciphersFactories.add("arcfour128");
+    ciphersFactories.add("arcfour256");
+    ciphersFactories.add("blowfish-cbc");
+    ciphersFactories.add("3des-cbc");
+    
+    String concatenatedCiphersFactories = String.join(",", ciphersFactories);
+    
+    client.setCipherFactoriesNameList(concatenatedCiphersFactories);*/
+
+
+    if (!this.kexHeader) {
+      SessionFactory factory = new NoStrictKexSessionFactory(client);
+      client.setSessionFactory(factory);
+    }
 
     client.start();
   }
