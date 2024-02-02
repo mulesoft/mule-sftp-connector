@@ -28,7 +28,7 @@
     <sftp:config name="proxy-config">
         <sftp:connection username="mule"
                          password="test"
-                         host="openssh${sftp.proxy.auth}"
+                         host="host.docker.internal"
                          port="${sftp.proxy.auth}"
                          workingDir="/"
                          prngAlgorithm="SHA1PRNG"
@@ -44,7 +44,7 @@
     <sftp:config name="proxy-config-error">
         <sftp:connection username="mule"
                          password="test"
-                         host="openssh${sftp.proxy.auth}"
+                         host="host.docker.internal"
                          port="${sftp.proxy.auth}"
                          workingDir="/"
                          prngAlgorithm="SHA1PRNG"
