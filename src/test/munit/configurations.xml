@@ -13,6 +13,8 @@
 
     <munit:dynamic-port propertyName="sftp.server.port"/>
 
+    <configuration-properties file="automation-credentials.properties"/>
+
     <sftp:config name="config">
         <sftp:connection username="muletest1" password="muletest1" host="localhost" port="${sftp.server.port}"
                          workingDir="/" prngAlgorithm="SHA1PRNG">
@@ -21,7 +23,8 @@
     </sftp:config>
 
     <sftp:config name="config-proxy-auth">
-        <sftp:connection host="host.docker.internal" port="${sftp.proxy.auth}" username="mule" password="test" workingDir="/config" connectionTimeout="10000" responseTimeout="10000">
+        <sftp:connection username="${sftp.user}" password="${sftp.password}" host="${sftp.host}" port="${sftp.port}" workingDir="/config" connectionTimeout="10000" responseTimeout="10000">
+            <pooling-profile exhaustedAction="WHEN_EXHAUSTED_WAIT" maxActive="7" maxIdle="3" maxWait="5000"/>
             <sftp:sftp-proxy-config host="localhost" port="${squid.port.auth}" protocol="HTTP" username="foo" password="bar"/>
         </sftp:connection>
     </sftp:config>
