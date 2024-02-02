@@ -16,15 +16,7 @@
         <munit:parameterizations>
             <munit:parameterization name="HTTP">
                 <munit:parameters>
-                    <munit:parameter propertyName="sftp.username" value="demo"/>
-                    <munit:parameter propertyName="sftp.password" value="password"/>
-                    <munit:parameter propertyName="sftp.host" value="test.rebex.net"/>
-                    <munit:parameter propertyName="sftp.port" value="22"/>
-                    <munit:parameter propertyName="proxy.host" value="localhost"/>
-                    <munit:parameter propertyName="proxy.port" value="${squid.port.auth}"/>
-                    <munit:parameter propertyName="proxy.username" value="foo"/>
-                    <munit:parameter propertyName="proxy.password" value="bar"/>
-                    <munit:parameter propertyName="proxy.protocol" value="HTTP"/>
+                    <munit:parameter propertyName="proxyProtocol" value="HTTP"/>
                 </munit:parameters>
             </munit:parameterization>
         </munit:parameterizations>
@@ -34,32 +26,32 @@
     <munit:dynamic-port propertyName="proxy.server.port"/>
 
     <sftp:config name="proxy-config">
-        <sftp:connection username="${sftp.username}"
-                         password="${sftp.password}"
-                         host="${sftp.host}"
-                         port="${sftp.port}"
+        <sftp:connection username="mule"
+                         password="test"
+                         host="openssh${sftp.proxy.auth}"
+                         port="${sftp.proxy.auth}"
                          workingDir="/"
                          prngAlgorithm="SHA1PRNG"
                          connectionTimeout="200">
-            <sftp:sftp-proxy-config host="${proxy.host}"
-                                    port="${proxy.port}"
-                                    protocol="${proxy.protocol}"
-                                    username="${proxy.username}"
-                                    password="${proxy.password}"/>
+            <sftp:sftp-proxy-config host="localhost"
+                                    port="${squid.port.auth}"
+                                    protocol="${proxyProtocol}"
+                                    username="foo"
+                                    password="bar"/>
         </sftp:connection>
     </sftp:config>
 
-    <sftp:config name="proxy-bad-config">
-        <sftp:connection username="${sftp.username}"
-                         password="${sftp.password}"
-                         host="${sftp.host}"
-                         port="${sftp.port}"
+    <sftp:config name="proxy-config-error">
+        <sftp:connection username="mule"
+                         password="test"
+                         host="openssh${sftp.proxy.auth}"
+                         port="${sftp.proxy.auth}"
                          workingDir="/"
                          prngAlgorithm="SHA1PRNG"
                          connectionTimeout="200">
-            <sftp:sftp-proxy-config host="${proxy.host}"
-                                    port="${proxy.port}"
-                                    protocol="${proxy.protocol}"/>
+            <sftp:sftp-proxy-config host="localhost"
+                                    port="${squid.port.auth}"
+                                    protocol="${proxyProtocol}"/>
         </sftp:connection>
     </sftp:config>
 
@@ -73,7 +65,7 @@
 
     <munit:test name="sftp-proxy-connectivity-negative-test"  expectedErrorType = "SFTP:DISCONNECTED">
         <munit:validation>
-            <mtf:test-connectivity config-ref="proxy-bad-config"/>
+            <mtf:test-connectivity config-ref="proxy-config-error"/>
         </munit:validation>
     </munit:test>
 </mule>
