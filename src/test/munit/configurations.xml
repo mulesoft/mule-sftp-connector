@@ -14,8 +14,20 @@
     <munit:dynamic-port propertyName="sftp.server.port"/>
 
     <sftp:config name="config">
-        <sftp:connection username="muletest1" password="muletest1" host="localhost" port="${sftp.server.port}"
-                         workingDir="/" prngAlgorithm="SHA1PRNG">
+    <sftp:connection username="muletest1" password="muletest1" host="localhost" port="${sftp.server.port}"
+                     workingDir="/" prngAlgorithm="SHA1PRNG">
+        <pooling-profile exhaustedAction="WHEN_EXHAUSTED_WAIT" maxActive="7" maxIdle="3" maxWait="5000"/>
+    </sftp:connection>
+</sftp:config>
+
+    <sftp:config name="strict-KEX-enabled-config">
+        <sftp:connection username="mule" password="test" host="localhost" port="${sftp.listener.port}" prngAlgorithm="SHA1PRNG" kexHeader="true">
+            <pooling-profile exhaustedAction="WHEN_EXHAUSTED_WAIT" maxActive="7" maxIdle="3" maxWait="5000"/>
+        </sftp:connection>
+    </sftp:config>
+
+    <sftp:config name="strict-KEX-disabled-config">
+        <sftp:connection username="mule" password="test" host="localhost" port="${sftp.listener.port}" prngAlgorithm="SHA1PRNG" kexHeader="false">
             <pooling-profile exhaustedAction="WHEN_EXHAUSTED_WAIT" maxActive="7" maxIdle="3" maxWait="5000"/>
         </sftp:connection>
     </sftp:config>

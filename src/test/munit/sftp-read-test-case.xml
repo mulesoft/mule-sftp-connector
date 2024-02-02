@@ -13,6 +13,18 @@
         http://www.mulesoft.org/schema/mule/java http://www.mulesoft.org/schema/mule/java/current/mule-java.xsd">
 
     <munit:config name="sftp-read-test-case.xml"/>
+        <munit:parameterizations>
+            <munit:parameterization name="strict-KEX-enabled-config">
+                <munit:parameters>
+                    <munit:parameter propertyName="config" value="strict-KEX-enabled-config"/>
+                </munit:parameters>
+            </munit:parameterization>
+            <munit:parameterization name="strict-KEX-disabled-config">
+                <munit:parameters>
+                    <munit:parameter propertyName="config" value="strict-KEX-disabled-config"/>
+                </munit:parameters>
+            </munit:parameterization>
+        </munit:parameterizations>
 
     <sftp:config name="config-with-limited-pool">
         <sftp:connection username="muletest1" password="muletest1" host="localhost" port="${sftp.server.port}"

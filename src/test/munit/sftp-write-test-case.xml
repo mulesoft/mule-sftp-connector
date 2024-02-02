@@ -24,6 +24,16 @@
                     <munit:parameter propertyName="config" value="config-docker-without-home-directory"/>
                 </munit:parameters>
             </munit:parameterization>
+            <munit:parameterization name="strict-KEX-enabled-config">
+                <munit:parameters>
+                    <munit:parameter propertyName="config" value="strict-KEX-enabled-config"/>
+                </munit:parameters>
+            </munit:parameterization>
+            <munit:parameterization name="strict-KEX-disabled-config">
+                <munit:parameters>
+                    <munit:parameter propertyName="config" value="strict-KEX-disabled-config"/>
+                </munit:parameters>
+            </munit:parameterization>
         </munit:parameterizations>
     </munit:config>
 

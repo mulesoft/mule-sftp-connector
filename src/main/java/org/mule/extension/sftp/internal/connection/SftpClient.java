@@ -115,13 +115,16 @@ public class SftpClient {
    * @param host the host address
    * @param port the remote connection port
    */
+
+  public SftpClient(String host, int port, PRNGAlgorithm prngAlgorithm, SchedulerService schedulerService) {
+    this(host, port, prngAlgorithm, schedulerService, true);
+  }
+
   public SftpClient(String host, int port, PRNGAlgorithm prngAlgorithm, SchedulerService schedulerService, boolean kexHeader) {
     this.host = host;
     this.port = port;
     this.kexHeader = kexHeader;
     this.schedulerService = schedulerService;
-
-
 
     client = ClientBuilder.builder()
         .randomFactory(prngAlgorithm.getRandomFactory())
