@@ -104,7 +104,7 @@ public final class SftpConnectionSettings {
   @Optional(defaultValue = "true")
   @Summary("Enable KEX header if supported")
   @Placement(order = 8)
-  @DisplayName("KEX Enabled")
+  @DisplayName("Strict Kex")
   private boolean kexHeader;
 
   public int getPort() {
