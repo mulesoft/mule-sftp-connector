@@ -353,40 +353,6 @@
                     </execution>
                 </executions>
             </plugin>
-
-            <plugin>
-                <groupId>com.dkanejs.maven.plugins</groupId>
-                <artifactId>docker-compose-maven-plugin</artifactId>
-                <version>4.0.0</version>
-                <configuration>
-                    <composeFiles>
-                        <composeFile>${project.basedir}/src/test/resources/docker/docker-compose.yml</composeFile>
-                    </composeFiles>
-                    <envVars>
-                        <squidPortAuth>${squid.port.auth}</squidPortAuth>
-                        <sftpProxyAuth>${sftp.proxy.auth}</sftpProxyAuth>
-                    </envVars>
-                    <detachedMode>true</detachedMode>
-                    <skip>${docker.skip}</skip>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>docker-compose-up</id>
-                        <phase>generate-test-resources</phase>
-                        <goals>
-                            <goal>up</goal>
-                        </goals>
-                    </execution>
-                    <execution>
-                        <id>docker-compose-down</id>
-                        <phase>post-integration-test</phase>
-                        <goals>
-                            <goal>down</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-help-plugin</artifactId>
@@ -472,6 +438,24 @@
                     <failOnWarning>true</failOnWarning>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>com.mulesoft.connectors.maven</groupId>
+                <artifactId>connector-maven-plugin</artifactId>
+                <version>3.0.2</version>
+                <executions>
+                    <execution>
+                        <id>get-configuration-files</id>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>get-configuration-files</goal>
+                        </goals>
+                        <configuration>
+                            <folder>mule-sftp-connector</folder>
+                            <vaultBucket>connector-credentials</vaultBucket>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
 
@@ -511,6 +495,28 @@
                                         <volumes>
                                             <bind>
                                                 <volume>/config/test</volume>
+                                            </bind>
+                                        </volumes>
+                                    </run>
+                                </image>
+                                <image>
+                                    <name>robhaswell/squid-authenticated</name>
+                                    <alias>squidauth$-{squid.port.auth}</alias>
+                                    <run>
+                                        <containerNamePattern>%e</containerNamePattern>
+                                        <env>
+                                            <SQUID_USERNAME>foo</SQUID_USERNAME>
+                                            <SQUID_PASSWORD>bar</SQUID_PASSWORD>
+                                        </env>
+                                        <ports>
+                                            <port>${squid.port.auth}:3128</port>
+                                        </ports>
+                                        <log>
+                                            <enabled>true</enabled>
+                                        </log>
+                                        <volumes>
+                                            <bind>
+                                                <volume>src/test/resources/squid-auth.conf:/etc/squid3/squid.conf</volume>
                                             </bind>
                                         </volumes>
                                     </run>
