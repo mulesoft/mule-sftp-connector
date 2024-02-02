@@ -127,28 +127,6 @@ public class SftpClient {
         .randomFactory(prngAlgorithm.getRandomFactory())
         .build();
 
-    /* client.setCipherFactoriesNames("aes128-ctr,aes128-cbc");
-    client.getCipherFactoriesNames();
-    List<String> ciphersFactories = new ArrayList<>();
-    ciphersFactories.add("aes128-cbc");
-    ciphersFactories.add("aes128-ctr");
-    ciphersFactories.add("aes128-gcm@openssh.com");
-    ciphersFactories.add("none");
-    ciphersFactories.add("aes256-gcm@openssh.com");
-    ciphersFactories.add("aes192-cbc");
-    ciphersFactories.add("aes192-ctr");
-    ciphersFactories.add("aes256-cbc");
-    ciphersFactories.add("aes256-ctr");
-    ciphersFactories.add("arcfour128");
-    ciphersFactories.add("arcfour256");
-    ciphersFactories.add("blowfish-cbc");
-    ciphersFactories.add("3des-cbc");
-    
-    String concatenatedCiphersFactories = String.join(",", ciphersFactories);
-    
-    client.setCipherFactoriesNameList(concatenatedCiphersFactories);*/
-
-
     if (!this.kexHeader) {
       SessionFactory factory = new NoStrictKexSessionFactory(client);
       client.setSessionFactory(factory);
