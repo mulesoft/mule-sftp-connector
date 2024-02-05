@@ -23,6 +23,7 @@ import static org.apache.sshd.sftp.common.SftpConstants.SSH_FX_CONNECTION_LOST;
 import static org.apache.sshd.sftp.common.SftpConstants.SSH_FX_NO_CONNECTION;
 import static org.slf4j.LoggerFactory.getLogger;
 
+import net.i2p.crypto.eddsa.EdDSASecurityProvider;
 import org.mule.extension.sftp.api.FileWriteMode;
 import org.mule.extension.sftp.api.SftpFileAttributes;
 import org.mule.extension.sftp.api.SftpProxyConfig;
@@ -50,6 +51,7 @@ import java.nio.file.Paths;
 import java.security.GeneralSecurityException;
 import java.security.KeyPair;
 import java.security.PublicKey;
+import java.security.Security;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.Future;
@@ -308,13 +310,20 @@ public class SftpClient {
    * Closes the active session and severs the connection (if any of those were active)
    */
   public void disconnect() {
-    if (session != null) {
-      try {
-        session.close();
+    try {
+      if (sftp != null) {
         sftp.close();
-      } catch (IOException e) {
-        LOGGER.warn("Error while closing: {}", e, e);
       }
+      if (session != null) {
+        session.close();
+      }
+      if (client != null) {
+        client.stop();
+      }
+    } catch (IOException e) {
+      LOGGER.warn("Error while closing: {}", e, e);
+    } finally {
+      Security.removeProvider(EdDSASecurityProvider.PROVIDER_NAME);
     }
     if (LOGGER.isTraceEnabled()) {
       LOGGER.trace("Disconnected from {}:{}", host, port);
