@@ -121,6 +121,12 @@
         </dependency>
 
         <dependency>
+            <groupId>org.eclipse.jgit</groupId>
+            <artifactId>org.eclipse.jgit.ssh.apache</artifactId>
+            <version>5.13.2.202306221912-r</version>
+        </dependency>
+
+        <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
             <version>${slf4jApi.version}</version>
@@ -452,6 +458,11 @@
                         <configuration>
                             <folder>mule-sftp-connector</folder>
                             <vaultBucket>connector-credentials</vaultBucket>
+                            <folder>mule-sftp-connector</folder>
+                            <vaultBucket>connector-credentials</vaultBucket>
+                            <vaultAddress>https://vault.connectors.msap.io</vaultAddress>
+                            <vaultUser>${env.VAULT_USER}</vaultUser>
+                            <vaultPassword>${env.VAULT_PASSWORD}</vaultPassword>
                         </configuration>
                     </execution>
                 </executions>
