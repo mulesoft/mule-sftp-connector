@@ -18,7 +18,7 @@ class NoStrictKexSession extends ClientSessionImpl {
     super(client, ioSession);
   }
 
-  @Override
+
   protected Map<KexProposalOption, String> doStrictKexProposal(Map<KexProposalOption, String> proposal) {
     return proposal;
   }
