@@ -453,11 +453,6 @@
                         <configuration>
                             <folder>mule-sftp-connector</folder>
                             <vaultBucket>connector-credentials</vaultBucket>
-                            <folder>mule-sftp-connector</folder>
-                            <vaultBucket>connector-credentials</vaultBucket>
-                            <vaultAddress>https://vault.connectors.msap.io</vaultAddress>
-                            <vaultUser>${env.VAULT_USER}</vaultUser>
-                            <vaultPassword>${env.VAULT_PASSWORD}</vaultPassword>
                         </configuration>
                     </execution>
                 </executions>
