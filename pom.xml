@@ -441,11 +441,11 @@
             <plugin>
                 <groupId>com.mulesoft.connectors.maven</groupId>
                 <artifactId>connector-maven-plugin</artifactId>
-                <version>3.0.2</version>
+                <version>${connector.maven.plugin.version}</version>
                 <executions>
                     <execution>
                         <id>get-configuration-files</id>
-                        <phase>generate-sources</phase>
+                        <phase>pre-integration-test</phase>
                         <goals>
                             <goal>get-configuration-files</goal>
                         </goals>
