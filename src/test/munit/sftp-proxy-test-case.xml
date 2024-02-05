@@ -8,9 +8,7 @@
       xsi:schemaLocation="http://www.mulesoft.org/schema/mule/mtf  http://www.mulesoft.org/schema/mule/mtf/current/mule-mtf.xsd
 		http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
 		http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
-
-        http://www.mulesoft.org/schema/mule/sftp http://www.mulesoft.org/schema/mule/sftp/current/mule-sftp.xsd
-        http://www.mulesoft.org/schema/mule/java http://www.mulesoft.org/schema/mule/java/current/mule-java.xsd">
+        http://www.mulesoft.org/schema/mule/sftp http://www.mulesoft.org/schema/mule/sftp/current/mule-sftp.xsd">
 
     <munit:config name="sftp-proxy-test-case.xml">
         <munit:parameterizations>
@@ -25,6 +23,19 @@
                     <munit:parameter propertyName="proxy.username" value="foo"/>
                     <munit:parameter propertyName="proxy.password" value="bar"/>
                     <munit:parameter propertyName="proxy.protocol" value="HTTP"/>
+                </munit:parameters>
+            </munit:parameterization>
+            <munit:parameterization name="SOCKS5">
+                <munit:parameters>
+                    <munit:parameter propertyName="sftp.username" value="demo"/>
+                    <munit:parameter propertyName="sftp.password" value="password"/>
+                    <munit:parameter propertyName="sftp.host" value="test.rebex.net"/>
+                    <munit:parameter propertyName="sftp.port" value="22"/>
+                    <munit:parameter propertyName="proxy.host" value="localhost"/>
+                    <munit:parameter propertyName="proxy.port" value="${dante.proxy.port}"/>
+                    <munit:parameter propertyName="proxy.username" value="socks"/>
+                    <munit:parameter propertyName="proxy.password" value="proxy"/>
+                    <munit:parameter propertyName="proxy.protocol" value="SOCKS5"/>
                 </munit:parameters>
             </munit:parameterization>
         </munit:parameterizations>
@@ -71,7 +82,7 @@
         </munit:validation>
     </munit:test>
 
-    <munit:test name="sftp-proxy-connectivity-negative-test"  expectedErrorType = "SFTP:DISCONNECTED">
+    <munit:test name="sftp-proxy-connectivity-negative-test" expectedErrorType = "SFTP:DISCONNECTED">
         <munit:validation>
             <mtf:test-connectivity config-ref="proxy-bad-config"/>
         </munit:validation>

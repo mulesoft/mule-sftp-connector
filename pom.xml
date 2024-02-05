@@ -348,6 +348,7 @@
                                 <portName>sftp.listener.port</portName>
                                 <portName>squid.port.auth</portName>
                                 <portName>sftp.proxy.auth</portName>
+                                <portName>dante.proxy.port</portName>
                             </portNames>
                         </configuration>
                     </execution>
@@ -513,6 +514,19 @@
                                                 <volume>/config/test</volume>
                                             </bind>
                                         </volumes>
+                                    </run>
+                                </image>
+                                <image>
+                                    <name>dante:latest</name>
+                                    <alias>dante-proxy</alias>
+                                    <build>
+                                        <dockerFileDir>${project.basedir}/src/test/resources/docker/dante</dockerFileDir>
+                                    </build>
+                                    <run>
+                                        <ports>
+                                            <port>${dante.proxy.port}:1080</port>
+                                        </ports>
+                                        <containerNamePattern>danteserver-${dante.proxy.port}</containerNamePattern>
                                     </run>
                                 </image>
                             </images>
