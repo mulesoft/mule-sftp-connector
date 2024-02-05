@@ -16,6 +16,19 @@
                     <munit:parameter propertyName="proxyProtocol" value="HTTP"/>
                 </munit:parameters>
             </munit:parameterization>
+            <munit:parameterization name="SOCKS5">
+                <munit:parameters>
+                    <munit:parameter propertyName="sftp.username" value="demo"/>
+                    <munit:parameter propertyName="sftp.password" value="password"/>
+                    <munit:parameter propertyName="sftp.host" value="test.rebex.net"/>
+                    <munit:parameter propertyName="sftp.port" value="22"/>
+                    <munit:parameter propertyName="proxy.host" value="localhost"/>
+                    <munit:parameter propertyName="proxy.port" value="${dante.proxy.port}"/>
+                    <munit:parameter propertyName="proxy.username" value="socks"/>
+                    <munit:parameter propertyName="proxy.password" value="proxy"/>
+                    <munit:parameter propertyName="proxy.protocol" value="SOCKS5"/>
+                </munit:parameters>
+            </munit:parameterization>
         </munit:parameterizations>
     </munit:config>
 
@@ -53,7 +66,7 @@
         </munit:validation>
     </munit:test>
 
-    <munit:test name="sftp-proxy-connectivity-negative-test"  expectedErrorType = "SFTP:DISCONNECTED">
+    <munit:test name="sftp-proxy-connectivity-negative-test" expectedErrorType = "SFTP:DISCONNECTED">
         <munit:validation>
             <mtf:test-connectivity config-ref="proxy-config-error"/>
         </munit:validation>
