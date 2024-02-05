@@ -445,7 +445,7 @@
                 <executions>
                     <execution>
                         <id>get-configuration-files</id>
-                        <phase>pre-integration-test</phase>
+                        <phase>generate-resources</phase>
                         <goals>
                             <goal>get-configuration-files</goal>
                         </goals>
