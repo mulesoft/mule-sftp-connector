@@ -64,6 +64,7 @@
         <licenseYear>2023</licenseYear>
     </properties>
 
+
     <dependencies>
         <dependency>
             <groupId>org.mule.sdk</groupId>
