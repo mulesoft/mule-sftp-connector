@@ -114,7 +114,7 @@
     </sftp:config>
 
     <sftp:config name="config-docker-with-id-file">
-        <sftp:connection username="mule" password="test" host="localhost" port="52897"
+        <sftp:connection username="mule" password="test" host="localhost" port="${sftp.server.port}"
                          workingDir="/config" prngAlgorithm="SHA1PRNG"
                          identityFile="id_ed25519" passphrase="mulesoft">
             <pooling-profile exhaustedAction="WHEN_EXHAUSTED_WAIT" maxActive="7" maxIdle="3" maxWait="5000"/>
