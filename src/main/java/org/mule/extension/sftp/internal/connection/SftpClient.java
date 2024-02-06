@@ -327,7 +327,7 @@ public class SftpClient {
       }
     } catch (IOException e) {
       LOGGER.warn("Error while closing: {}", e, e);
-    } catch (SecurityException securityException){
+    } catch (SecurityException securityException) {
       LOGGER.warn("Error while removing providers: {}", securityException, securityException);
     }
     if (LOGGER.isTraceEnabled()) {
