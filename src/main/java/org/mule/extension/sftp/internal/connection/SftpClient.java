@@ -23,7 +23,9 @@ import static org.apache.sshd.sftp.common.SftpConstants.SSH_FX_CONNECTION_LOST;
 import static org.apache.sshd.sftp.common.SftpConstants.SSH_FX_NO_CONNECTION;
 import static org.slf4j.LoggerFactory.getLogger;
 
-import net.i2p.crypto.eddsa.EdDSASecurityProvider;
+//import net.i2p.crypto.eddsa.EdDSASecurityProvider;
+//import org.apache.sshd.common.util.security.AbstractSecurityProviderRegistrar;
+//import org.apache.sshd.common.util.security.eddsa.EdDSASecurityProviderUtils;
 import org.mule.extension.sftp.api.FileWriteMode;
 import org.mule.extension.sftp.api.SftpFileAttributes;
 import org.mule.extension.sftp.api.SftpProxyConfig;
@@ -320,10 +322,13 @@ public class SftpClient {
       if (client != null) {
         client.stop();
       }
+      if (SecurityUtils.isProviderRegistered(SecurityUtils.EDDSA)) {
+        Security.removeProvider(SecurityUtils.EDDSA);
+      }
     } catch (IOException e) {
       LOGGER.warn("Error while closing: {}", e, e);
-    } finally {
-      Security.removeProvider(EdDSASecurityProvider.PROVIDER_NAME);
+    } catch (SecurityException securityException){
+      LOGGER.warn("Error while removing providers: {}", securityException, securityException);
     }
     if (LOGGER.isTraceEnabled()) {
       LOGGER.trace("Disconnected from {}:{}", host, port);
