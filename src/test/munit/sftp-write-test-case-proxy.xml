@@ -14,14 +14,9 @@
 
     <munit:config name="sftp-write-test-case.xml">
         <munit:parameterizations>
-            <munit:parameterization name="config-docker-with-home-directory">
+            <munit:parameterization name="config-proxy-auth">
                 <munit:parameters>
-                    <munit:parameter propertyName="config" value="config-docker-with-home-directory"/>
-                </munit:parameters>
-            </munit:parameterization>
-            <munit:parameterization name="config-docker-without-home-directory">
-                <munit:parameters>
-                    <munit:parameter propertyName="config" value="config-docker-without-home-directory"/>
+                    <munit:parameter propertyName="config" value="config-proxy-auth"/>
                 </munit:parameters>
             </munit:parameterization>
         </munit:parameterizations>
