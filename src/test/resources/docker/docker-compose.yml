@@ -28,5 +28,19 @@ services:
     ports:
       - "${sftpProxyAuth}:2222"
     restart: unless-stopped
-
+  atmoz-sftp:
+    image: atmoz/sftp
+    container_name: atmozserver${sftpAtmozServer}
+    volumes:
+      - /config/test
+    ports:
+      - "${sftpAtmozServer}:22"
+    command: foo:pass:1001
+  dante-proxy:
+    build:
+      context: ./dante
+      dockerfile: Dockerfile
+    container_name: dante-proxy-${sftpProxyDante}
+    ports:
+      - "${sftpProxyDante}:1080"
 

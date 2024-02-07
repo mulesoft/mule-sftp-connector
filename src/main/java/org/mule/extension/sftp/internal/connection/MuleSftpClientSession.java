@@ -7,12 +7,15 @@
 
 package org.mule.extension.sftp.internal.connection;
 
+import org.apache.sshd.common.io.IoWriteFuture;
 import org.mule.extension.sftp.internal.proxy.StatefulProxyConnector;
 
 import org.apache.sshd.client.ClientFactoryManager;
 import org.apache.sshd.client.session.ClientSessionImpl;
 import org.apache.sshd.common.io.IoSession;
 import org.apache.sshd.common.util.Readable;
+
+import java.util.List;
 
 
 public class MuleSftpClientSession extends ClientSessionImpl {
@@ -56,5 +59,26 @@ public class MuleSftpClientSession extends ClientSessionImpl {
       super.messageReceived(buffer);
     }
   }
+
+  @Override
+  protected IoWriteFuture sendIdentification(String ident,
+                                             List<String> extraLines)
+      throws Exception {
+    StatefulProxyConnector proxy = proxyHandler;
+    if (proxy != null) {
+      // We must not block here; the framework starts reading messages
+      // from the peer only once the initial sendKexInit() following
+      // this call to sendIdentification() has returned!
+      proxy.runWhenDone(() -> {
+        MuleSftpClientSession.super.sendIdentification(ident, extraLines);
+        return null;
+      });
+      // Called only from the ClientSessionImpl constructor, where the
+      // return value is ignored.
+      return null;
+    }
+    return super.sendIdentification(ident, extraLines);
+  }
+
 
 }
