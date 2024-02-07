@@ -76,7 +76,7 @@
         </munit:validation>
     </munit:test>
 
-    <munit:test name="sftp-proxy-connectivity-negative-test" expectedErrorType = "SFTP:DISCONNECTED">
+    <munit:test name="sftp-proxy-connectivity-negative-test"  expectedErrorType = "SFTP:CONNECTIVITY">
         <munit:validation>
             <mtf:test-connectivity config-ref="proxy-config-error"/>
         </munit:validation>
