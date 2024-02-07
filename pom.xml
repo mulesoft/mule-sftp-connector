@@ -440,23 +440,34 @@
                 </configuration>
             </plugin>
             <plugin>
-                <groupId>com.mulesoft.connectors.maven</groupId>
-                <artifactId>connector-maven-plugin</artifactId>
-                <version>${connector.maven.plugin.version}</version>
+                <groupId>com.dkanejs.maven.plugins</groupId>
+                <artifactId>docker-compose-maven-plugin</artifactId>
+                <version>4.0.0</version>
+                <configuration>
+                    <composeFiles>
+                        <composeFile>${project.basedir}/src/test/resources/docker/docker-compose.yml</composeFile>
+                    </composeFiles>
+                    <envVars>
+                        <squidPortAuth>${squid.port.auth}</squidPortAuth>
+                        <sftpProxyAuth>${sftp.proxy.auth}</sftpProxyAuth>
+                    </envVars>
+                    <detachedMode>true</detachedMode>
+                    <skip>${docker.skip}</skip>
+                </configuration>
                 <executions>
                     <execution>
-                        <id>get-configuration-files</id>
-                        <phase>generate-resources</phase>
+                        <id>docker-compose-up</id>
+                        <phase>generate-test-resources</phase>
                         <goals>
-                            <goal>get-configuration-files</goal>
+                            <goal>up</goal>
                         </goals>
-                        <configuration>
-                            <folder>mule-sftp-connector</folder>
-                            <vaultBucket>connector-credentials</vaultBucket>
-                            <vaultAddress>https://vault.connectors.msap.io</vaultAddress>
-                            <vaultUser>${env.VAULT_USER}</vaultUser>
-                            <vaultPassword>${env.VAULT_PASSWORD}</vaultPassword>
-                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>docker-compose-down</id>
+                        <phase>post-integration-test</phase>
+                        <goals>
+                            <goal>down</goal>
+                        </goals>
                     </execution>
                 </executions>
             </plugin>
@@ -499,28 +510,6 @@
                                         <volumes>
                                             <bind>
                                                 <volume>/config/test</volume>
-                                            </bind>
-                                        </volumes>
-                                    </run>
-                                </image>
-                                <image>
-                                    <name>robhaswell/squid-authenticated</name>
-                                    <alias>squidauth$-{squid.port.auth}</alias>
-                                    <run>
-                                        <containerNamePattern>%e</containerNamePattern>
-                                        <env>
-                                            <SQUID_USERNAME>foo</SQUID_USERNAME>
-                                            <SQUID_PASSWORD>bar</SQUID_PASSWORD>
-                                        </env>
-                                        <ports>
-                                            <port>${squid.port.auth}:3128</port>
-                                        </ports>
-                                        <log>
-                                            <enabled>true</enabled>
-                                        </log>
-                                        <volumes>
-                                            <bind>
-                                                <volume>src/test/resources/squid-auth.conf:/etc/squid3/squid.conf</volume>
                                             </bind>
                                         </volumes>
                                     </run>
