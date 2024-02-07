@@ -4,10 +4,13 @@
       xmlns:mtf="http://www.mulesoft.org/schema/mule/mtf"
       xmlns="http://www.mulesoft.org/schema/mule/core"
       xmlns:sftp="http://www.mulesoft.org/schema/mule/sftp"
+      xmlns:java="http://www.mulesoft.org/schema/mule/java"
       xsi:schemaLocation="http://www.mulesoft.org/schema/mule/mtf  http://www.mulesoft.org/schema/mule/mtf/current/mule-mtf.xsd
 		http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
 		http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
-        http://www.mulesoft.org/schema/mule/sftp http://www.mulesoft.org/schema/mule/sftp/current/mule-sftp.xsd">
+
+        http://www.mulesoft.org/schema/mule/sftp http://www.mulesoft.org/schema/mule/sftp/current/mule-sftp.xsd
+        http://www.mulesoft.org/schema/mule/java http://www.mulesoft.org/schema/mule/java/current/mule-java.xsd">
 
     <munit:config name="sftp-proxy-test-case.xml">
         <munit:parameterizations>
@@ -19,10 +22,14 @@
         </munit:parameterizations>
     </munit:config>
 
-    <configuration-properties file="automation-credentials.properties"/>
+
+    <munit:dynamic-port propertyName="proxy.server.port"/>
 
     <sftp:config name="proxy-config">
-        <sftp:connection username="${sftp.user}" password="${sftp.password}" host="${sftp.host}" port="${sftp.port}"
+        <sftp:connection username="mule"
+                         password="test"
+                         host="openssh${sftp.proxy.auth}"
+                         port="2222"
                          workingDir="/"
                          prngAlgorithm="SHA1PRNG"
                          connectionTimeout="200">
@@ -35,7 +42,10 @@
     </sftp:config>
 
     <sftp:config name="proxy-config-error">
-        <sftp:connection username="${sftp.user}" password="${sftp.password}" host="${sftp.host}" port="${sftp.port}"
+        <sftp:connection username="mule"
+                         password="test"
+                         host="local-error"
+                         port="${sftp.proxy.auth}"
                          workingDir="/"
                          prngAlgorithm="SHA1PRNG"
                          connectionTimeout="200">
