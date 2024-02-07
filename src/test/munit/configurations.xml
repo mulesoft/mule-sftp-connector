@@ -13,8 +13,6 @@
 
     <munit:dynamic-port propertyName="sftp.server.port"/>
 
-    <configuration-properties file="automation-credentials.properties"/>
-
     <sftp:config name="config">
         <sftp:connection username="muletest1" password="muletest1" host="localhost" port="${sftp.server.port}"
                          workingDir="/" prngAlgorithm="SHA1PRNG">
