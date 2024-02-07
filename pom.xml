@@ -348,6 +348,8 @@
                                 <portName>sftp.listener.port</portName>
                                 <portName>squid.port.auth</portName>
                                 <portName>sftp.proxy.auth</portName>
+                                <portName>sftp.atmoz.port</portName>
+                                <portName>dante.proxy.port</portName>
                             </portNames>
                         </configuration>
                     </execution>
@@ -449,6 +451,8 @@
                     <envVars>
                         <squidPortAuth>${squid.port.auth}</squidPortAuth>
                         <sftpProxyAuth>${sftp.proxy.auth}</sftpProxyAuth>
+                        <sftpAtmozServer>${sftp.atmoz.port}</sftpAtmozServer>
+                        <sftpProxyDante>${dante.proxy.port}</sftpProxyDante>
                     </envVars>
                     <detachedMode>true</detachedMode>
                     <skip>${docker.skip}</skip>
