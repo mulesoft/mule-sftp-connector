@@ -130,16 +130,12 @@ public class MuleSftpClient extends org.apache.sshd.client.SshClient {
 
     switch (proxyConfig.getProtocol()) {
       case HTTP:
-        setClientProxyConnector(proxyConfig.getUsername() != null && proxyConfig.getPassword() != null
-            ? new HttpClientConnector(proxyAddress, remoteAddress, proxyConfig.getUsername(),
-                                      proxyConfig.getPassword().toCharArray())
-            : new HttpClientConnector(proxyAddress, remoteAddress));
+        setClientProxyConnector(new HttpClientConnector(proxyAddress, remoteAddress, proxyConfig.getUsername(),
+                                                        proxyConfig.getPassword().toCharArray()));
         break;
       case SOCKS5:
-        setClientProxyConnector(proxyConfig.getUsername() != null && proxyConfig.getPassword() != null
-            ? new Socks5ClientConnector(proxyAddress, remoteAddress, proxyConfig.getUsername(),
-                                        proxyConfig.getPassword().toCharArray())
-            : new Socks5ClientConnector(proxyAddress, remoteAddress));
+        setClientProxyConnector(new Socks5ClientConnector(proxyAddress, remoteAddress, proxyConfig.getUsername(),
+                                                          proxyConfig.getPassword().toCharArray()));
         break;
       default:
         // should never get here, except a new type was added to the enum and not handled
