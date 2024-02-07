@@ -93,9 +93,7 @@ public abstract class AbstractClientProxyConnector
       unregister.set(() -> s.setProxyHandler(null));
       s.setProxyHandler(this);
     } else {
-      // Internal error, no translation
-      throw new IllegalStateException(
-                                      "Not a JGit session: " + session.getClass().getName()); //$NON-NLS-1$
+      throw new IllegalStateException("Not a MuleSftp session: " + session.getClass().getName());
     }
   }
 

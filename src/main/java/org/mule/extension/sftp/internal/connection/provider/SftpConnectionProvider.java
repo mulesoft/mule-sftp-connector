@@ -154,10 +154,7 @@ public class SftpConnectionProvider extends FileSystemProvider<SftpFileSystemCon
         }
       } else if (e.getDisconnectCode() == 9) {
         throw new SftpConnectionException(getErrorMessage(connectionSettings, e.getMessage()), e, FileError.CANNOT_REACH);
-      } else {
-        throw new SftpConnectionException(e.getMessage(), e, FileError.CONNECTIVITY);
       }
-
     } catch (final IllegalStateException e) {
       throw new SftpConnectionException(getErrorMessage(connectionSettings, e.getMessage()), e, FileError.INVALID_CREDENTIALS);
     } catch (Exception e) {
