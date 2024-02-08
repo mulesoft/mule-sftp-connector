@@ -298,6 +298,8 @@ public class SftpClient {
   public void disconnect() {
     if (session != null) {
       try {
+        client.stop();
+        client.close();
         session.close();
         sftp.close();
       } catch (IOException e) {

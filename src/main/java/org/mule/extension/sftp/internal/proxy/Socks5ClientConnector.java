@@ -217,7 +217,7 @@ public class Socks5ClientConnector extends AbstractClientProxyConnector {
    *            to authenticate at the proxy with
    */
   public Socks5ClientConnector(InetSocketAddress proxyAddress, InetSocketAddress remoteAddress,
-                               String proxyUser, char[] proxyPassword) {
+                               String proxyUser, String proxyPassword) {
     super(proxyAddress, remoteAddress, proxyUser, proxyPassword);
     this.state = ProtocolState.NONE;
   }
