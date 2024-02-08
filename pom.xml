@@ -44,7 +44,7 @@
         <sshdVersion>2.10.0</sshdVersion>
         <formatterConfigPath>formatter.xml</formatterConfigPath>
         <settingsFile>${java.io.tmpdir}/effective-settings.xml</settingsFile>
-        <mtf.tools.version>1.2.0-SNAPSHOT</mtf.tools.version>
+        <mtf.tools.version>1.2.0</mtf.tools.version>
         <mtf.javaopts></mtf.javaopts>
         <jacoco.version>0.8.10</jacoco.version>
         <maven.impsort.plugin.version>1.6.2</maven.impsort.plugin.version>
