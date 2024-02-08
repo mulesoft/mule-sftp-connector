@@ -12,7 +12,7 @@
         http://www.mulesoft.org/schema/mule/sftp http://www.mulesoft.org/schema/mule/sftp/current/mule-sftp.xsd
         http://www.mulesoft.org/schema/mule/java http://www.mulesoft.org/schema/mule/java/current/mule-java.xsd">
 
-    <munit:config name="sftp-proxy-test-case.xml">
+    <munit:config name="sftp-proxy-socks-test-case.xml">
         <munit:parameterizations>
             <munit:parameterization name="SOCKS5">
                 <munit:parameters>

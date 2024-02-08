@@ -47,7 +47,7 @@
                          prngAlgorithm="SHA1PRNG"
                          connectionTimeout="200">
             <sftp:sftp-proxy-config host="localhost"
-                                    port="${squid.port.auth}"
+                                    port="5555"
                                     protocol="${proxyProtocol}"
                                     username="foo"
                                     password="bar"/>
