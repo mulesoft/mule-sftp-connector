@@ -82,7 +82,7 @@ public class SftpClient {
   private static final TimeUnit PWD_COMMAND_EXECUTION_TIMEOUT_UNIT = SECONDS;
   private static final String PWD_COMMAND = "pwd";
 
-  private final SshClient client;
+  private SshClient client;
   private org.apache.sshd.sftp.client.SftpClient sftp;
   private ClientSession session;
   private final String host;
@@ -296,18 +296,12 @@ public class SftpClient {
    * Closes the active session and severs the connection (if any of those were active)
    */
   public void disconnect() {
-    if (session != null) {
+    if (client != null) {
       try {
         client.stop();
-        client.close();
-        session.close();
-        sftp.close();
-      } catch (IOException e) {
-        LOGGER.warn("Error while closing: {}", e, e);
+      } finally {
+        client = null;
       }
-    }
-    if (LOGGER.isTraceEnabled()) {
-      LOGGER.trace("Disconnected from {}:{}", host, port);
     }
   }
 
