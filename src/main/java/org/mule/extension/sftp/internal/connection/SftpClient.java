@@ -303,6 +303,29 @@ public class SftpClient {
         client = null;
       }
     }
+
+    if (session != null && session.isOpen()) {
+      try {
+        session.close();
+      } catch (IOException e) {
+        LOGGER.warn("Error while closing: {}", e, e);
+      } finally {
+        session = null;
+      }
+    }
+
+    if (sftp != null && session.isOpen()) {
+      try {
+        session.close();
+      } catch (IOException e) {
+        LOGGER.warn("Error while closing: {}", e, e);
+      } finally {
+        session = null;
+      }
+    }
+    if (LOGGER.isTraceEnabled()) {
+      LOGGER.trace("Disconnected from {}:{}", host, port);
+    }
   }
 
   /**
