@@ -66,12 +66,12 @@ public abstract class AbstractClientProxyConnector
    */
   public AbstractClientProxyConnector(InetSocketAddress proxyAddress,
                                       InetSocketAddress remoteAddress, String proxyUser,
-                                      char[] proxyPassword) {
+                                      String proxyPassword) {
     this.proxyAddress = proxyAddress;
     this.remoteAddress = remoteAddress;
     this.proxyUser = proxyUser;
     this.proxyPassword = proxyPassword == null ? new char[0]
-        : proxyPassword;
+        : proxyPassword.toCharArray();
   }
 
   /**

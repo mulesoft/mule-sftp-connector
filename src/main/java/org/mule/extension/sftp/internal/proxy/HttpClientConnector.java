@@ -84,7 +84,7 @@ public class HttpClientConnector extends AbstractClientProxyConnector {
    *            to authenticate at the proxy with
    */
   public HttpClientConnector(InetSocketAddress proxyAddress, InetSocketAddress remoteAddress, String proxyUser,
-                             char[] proxyPassword) {
+                             String proxyPassword) {
     super(proxyAddress, remoteAddress, proxyUser, proxyPassword);
     basic = new HttpBasicAuthentication();
     negotiate = new NegotiateAuthentication();
