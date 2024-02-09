@@ -9,11 +9,41 @@
 		http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
         http://www.mulesoft.org/schema/mule/sftp http://www.mulesoft.org/schema/mule/sftp/current/mule-sftp.xsd">
 
-    <munit:config name="sftp-id-file-connection-test-case.xml"/>
+    <munit:config name="sftp-id-file-connection-test-case.xml">
+        <munit:parameterizations>
+            <munit:parameterization name="config-docker-with-id-file-1">
+                <munit:parameters>
+                    <munit:parameter propertyName="sftp.config" value="config-docker-with-id-file-1"/>
+                </munit:parameters>
+            </munit:parameterization>
+            <munit:parameterization name="config-docker-with-id-file-2">
+                <munit:parameters>
+                    <munit:parameter propertyName="sftp.config" value="config-docker-with-id-file-2"/>
+                </munit:parameters>
+            </munit:parameterization>
+        </munit:parameterizations>
+    </munit:config>
+
+    <sftp:config name="config-docker-with-id-file-1">
+        <sftp:connection username="mule" password="test" host="localhost" port="${sftp.listener.port}"
+                         workingDir="/config" prngAlgorithm="SHA1PRNG"
+                         identityFile="id_ed25519" passphrase="mulesoft">
+            <pooling-profile exhaustedAction="WHEN_EXHAUSTED_WAIT" maxActive="7" maxIdle="3" maxWait="5000"/>
+        </sftp:connection>
+    </sftp:config>
+
+    <sftp:config name="config-docker-with-id-file-2">
+        <sftp:connection username="mule" password="test" host="localhost" port="${sftp.listener.port}"
+                         workingDir="/config" prngAlgorithm="SHA1PRNG"
+                         identityFile="id_ed25519" passphrase="mulesoft">
+            <pooling-profile exhaustedAction="WHEN_EXHAUSTED_WAIT" maxActive="7" maxIdle="3" maxWait="5000"/>
+        </sftp:connection>
+    </sftp:config>
+
 
     <munit:test name="sftp-config-docker-with-id-file-connectivity-test">
         <munit:validation>
-            <mtf:test-connectivity config-ref="config-docker-with-id-file"/>
+            <mtf:test-connectivity config-ref="${sftp.config}"/>
         </munit:validation>
     </munit:test>
 

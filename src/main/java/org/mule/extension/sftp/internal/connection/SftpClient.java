@@ -23,9 +23,7 @@ import static org.apache.sshd.sftp.common.SftpConstants.SSH_FX_CONNECTION_LOST;
 import static org.apache.sshd.sftp.common.SftpConstants.SSH_FX_NO_CONNECTION;
 import static org.slf4j.LoggerFactory.getLogger;
 
-//import net.i2p.crypto.eddsa.EdDSASecurityProvider;
-//import org.apache.sshd.common.util.security.AbstractSecurityProviderRegistrar;
-//import org.apache.sshd.common.util.security.eddsa.EdDSASecurityProviderUtils;
+import org.apache.sshd.common.util.security.SecurityProviderRegistrar;
 import org.mule.extension.sftp.api.FileWriteMode;
 import org.mule.extension.sftp.api.SftpFileAttributes;
 import org.mule.extension.sftp.api.SftpProxyConfig;
@@ -49,11 +47,13 @@ import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.net.URI;
+import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.GeneralSecurityException;
 import java.security.KeyPair;
 import java.security.PublicKey;
 import java.security.Security;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.Future;
@@ -199,6 +199,10 @@ public class SftpClient {
     for (KeyPair kp : loader.loadKeyPairs(session, Paths.get(identityFile), passwordProvider)) {
       session.addPublicKeyIdentity(kp);
     }
+    if (SecurityUtils.isProviderRegistered(SecurityUtils.EDDSA)) {
+      SecurityProviderRegistrar registeredProvider = SecurityUtils.getRegisteredProvider(SecurityUtils.EDDSA);
+      Security.removeProvider(registeredProvider.getSecurityProvider().getName());
+    }
   }
 
   private void checkExists(String path) {
@@ -321,9 +325,6 @@ public class SftpClient {
       }
       if (client != null) {
         client.stop();
-      }
-      if (SecurityUtils.isProviderRegistered(SecurityUtils.EDDSA)) {
-        Security.removeProvider(SecurityUtils.EDDSA);
       }
     } catch (IOException e) {
       LOGGER.warn("Error while closing: {}", e, e);
