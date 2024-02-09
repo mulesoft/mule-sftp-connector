@@ -450,7 +450,7 @@
                     </composeFiles>
                     <envVars>
                         <squidPortAuth>5555</squidPortAuth>
-                        <sftpProxyAuth>${sftp.proxy.auth}</sftpProxyAuth>
+                        <sftpProxyAuth>5060</sftpProxyAuth>
                         <sftpAtmozServer>${sftp.atmoz.port}</sftpAtmozServer>
                         <sftpProxyDante>${dante.proxy.port}</sftpProxyDante>
                     </envVars>
