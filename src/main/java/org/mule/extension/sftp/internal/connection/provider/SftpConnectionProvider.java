@@ -141,10 +141,8 @@ public class SftpConnectionProvider extends FileSystemProvider<SftpFileSystemCon
       client.login(connectionSettings.getUsername());
     } catch (final SshException e) {
       if (e.getDisconnectCode() == SSH2_DISCONNECT_NO_MORE_AUTH_METHODS_AVAILABLE) {
-        client.disconnect();
         throw new SftpConnectionException(getErrorMessage(connectionSettings, e.getMessage()), e, FileError.INVALID_CREDENTIALS);
       } else if (e.getDisconnectCode() == 0) {
-        client.disconnect();
         if (e.getMessage().contains("timeout")) {
           throw new SftpConnectionException(getErrorMessage(connectionSettings, e.getMessage()), e, FileError.CONNECTION_TIMEOUT);
         } else if (e.getMessage().contains("Connection refused")) {
@@ -155,14 +153,11 @@ public class SftpConnectionProvider extends FileSystemProvider<SftpFileSystemCon
           throw new SftpConnectionException(getErrorMessage(connectionSettings, e.getMessage()), e, FileError.CONNECTIVITY);
         }
       } else if (e.getDisconnectCode() == 9) {
-        client.disconnect();
         throw new SftpConnectionException(getErrorMessage(connectionSettings, e.getMessage()), e, FileError.CANNOT_REACH);
       }
     } catch (final IllegalStateException e) {
-      client.disconnect();
       throw new SftpConnectionException(getErrorMessage(connectionSettings, e.getMessage()), e, FileError.INVALID_CREDENTIALS);
     } catch (Exception e) {
-      client.disconnect();
       throw new SftpConnectionException(getErrorMessage(connectionSettings, e.getMessage()), e, FileError.CONNECTIVITY);
     }
 
