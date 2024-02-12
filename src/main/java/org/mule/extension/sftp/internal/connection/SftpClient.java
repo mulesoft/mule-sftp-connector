@@ -102,6 +102,8 @@ public class SftpClient {
   private static final Object LOCK = new Object();
   private String home;
 
+  private PRNGAlgorithm prngAlgorithm;
+
   protected SchedulerService schedulerService;
 
   /**
@@ -116,25 +118,7 @@ public class SftpClient {
     this.port = port;
     this.schedulerService = schedulerService;
     this.proxyConfig = sftpProxyConfig;
-
-
-    if (nonNull(proxyConfig)) {
-      client = ClientBuilder.builder()
-          .factory(MuleSftpClient::new)
-          .randomFactory(prngAlgorithm.getRandomFactory())
-          .build();
-    } else {
-      client = ClientBuilder.builder()
-          .randomFactory(prngAlgorithm.getRandomFactory())
-          .build();
-    }
-
-
-    client.start();
-
-    if (nonNull(proxyConfig)) {
-      ((MuleSftpClient) client).setProxyConfig(proxyConfig);
-    }
+    this.prngAlgorithm = prngAlgorithm;
   }
 
 
@@ -188,8 +172,24 @@ public class SftpClient {
    * @param user the authentication user
    */
   public void login(String user) throws IOException, GeneralSecurityException {
-    configureSession(user);
+    if (nonNull(proxyConfig)) {
+      client = ClientBuilder.builder()
+          .factory(MuleSftpClient::new)
+          .randomFactory(this.prngAlgorithm.getRandomFactory())
+          .build();
+    } else {
+      client = ClientBuilder.builder()
+          .randomFactory(this.prngAlgorithm.getRandomFactory())
+          .build();
+    }
 
+    client.start();
+
+    if (nonNull(proxyConfig)) {
+      ((MuleSftpClient) client).setProxyConfig(proxyConfig);
+    }
+
+    configureSession(user);
 
     session.auth().verify(connectionTimeoutMillis);
 
