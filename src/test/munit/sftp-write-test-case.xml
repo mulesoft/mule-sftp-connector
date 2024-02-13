@@ -60,7 +60,7 @@
 
     <munit:test name="sftp-write">
         <munit:behavior>
-            <set-variable variableName="fileName" value="#['write-file' ++ now() as DateTime as String {format: 'yyyyMMddHHmmss'} ++'.txt']"/>
+            <set-variable variableName="fileName" value="write-file.txt"/>
             <set-variable variableName="mode" value="OVERWRITE"/>
             <set-variable variableName="createParent" value="true"/>
         </munit:behavior>
@@ -71,7 +71,7 @@
 
     <munit:test name="sftp-write-void-file">
         <munit:behavior>
-            <set-variable variableName="fileName" value="#['write-void' ++ now() as DateTime as String {format: 'yyyyMMddHHmmss'} ++'.txt']"/>
+            <set-variable variableName="fileName" value="write-void.txt"/>
             <set-variable variableName="mode" value="OVERWRITE"/>
             <set-variable variableName="createParent" value="true"/>
         </munit:behavior>
@@ -87,7 +87,7 @@
     <munit:test name="sftp-write-file-exists-with-createNewMode" description="It tries to create a new file when one with the same name already exists."
                 expectedErrorType="SFTP:FILE_ALREADY_EXISTS">
         <munit:behavior >
-            <set-variable variableName="fileName" value="#['createNewFail' ++ now() as DateTime as String {format: 'yyyyMMddHHmmss'} ++'.txt']"/>
+            <set-variable variableName="fileName" value="createNewFail.txt"/>
             <set-variable variableName="mode" value="CREATE_NEW"/>
             <sftp:write config-ref="${config}" path="#[vars.fileName]">
             </sftp:write>
@@ -100,7 +100,7 @@
 
     <munit:test name="sftp-write-with-createNewMode" description="Will create a new file with the CreateNew setting.">
         <munit:behavior >
-            <set-variable variableName="fileName" value="#['newFileToTest' ++ now() as DateTime as String {format: 'yyyyMMddHHmmss'} ++'.txt']"/>
+            <set-variable variableName="fileName" value="newFileToTest.txt"/>
             <set-variable variableName="mode" value="CREATE_NEW"/>
             <try>
                 <sftp:delete config-ref="${config}" path="#[vars.fileName]"/>
@@ -122,22 +122,20 @@
 
     <munit:test name="sftp-read-write">
         <munit:behavior>
-            <set-variable variableName="fileName" value="#['write-file' ++ now() as DateTime as String {format: 'yyyyMMddHHmmss'} ++'.txt']"/>
+            <set-variable variableName="fileName" value="write-file.txt"/>
             <set-variable variableName="mode" value="OVERWRITE"/>
             <set-variable variableName="createParent" value="true"/>
         </munit:behavior>
         <munit:execution>
-            <set-payload value="Hello World 1!" />
-            <sftp:write config-ref="${config}" path="#[vars.fileName]" mode="#[vars.mode]" createParentDirectories="#[vars.createParent]" />
             <sftp:read config-ref="${config}" path="#[vars.fileName]" />
-            <set-payload value="Hello World 2!" />
+            <set-payload value="Hello World!" />
             <sftp:write config-ref="${config}" path="#[vars.fileName]" mode="#[vars.mode]" createParentDirectories="#[vars.createParent]" />
         </munit:execution>
     </munit:test>
 
     <munit:test name="sftp-write-lock">
         <munit:behavior>
-            <set-variable variableName="fileName" value="#['write-file' ++ now() as DateTime as String {format: 'yyyyMMddHHmmss'} ++'.txt']"/>
+            <set-variable variableName="fileName" value="write-file.txt"/>
             <set-variable variableName="mode" value="OVERWRITE"/>
             <set-variable variableName="createParent" value="true"/>
         </munit:behavior>
@@ -149,7 +147,7 @@
     <munit:test name="sftp-write-big-file"
                 description="Perform a write operation with a big content" ignore="#[Munit::muleVersionPriorTo('4.3.0')]">
         <munit:behavior>
-            <set-variable variableName="fileName" value="#['filePath' ++ now() as DateTime as String {format: 'yyyyMMddHHmmss'} ++'.txt']"/>
+            <set-variable variableName="fileName" value="filePath.txt"/>
             <set-variable variableName="loopSize" value="500000"/>
             <set-variable variableName="singleLineSize" value="30"/>
             <set-variable variableName="overheadSize" value="2"/>
@@ -180,7 +178,7 @@
 
     <munit:test name="sftp-write-on-invalid-working-directory" expectedErrorType="SFTP:ILLEGAL_PATH">
         <munit:behavior>
-            <set-variable variableName="fileName" value="#['filePath' ++ now() as DateTime as String {format: 'yyyyMMddHHmmss'} ++'.txt']"/>
+            <set-variable variableName="fileName" value="filePath.txt"/>
         </munit:behavior>
         <munit:execution>
             <sftp:write config-ref="config-invalid-folder" path='#[vars.fileName]' createParentDirectories="false">
@@ -273,7 +271,7 @@
 
     <munit:test name="sftp-overwrite-cleaning-first-message">
         <munit:behavior>
-            <set-variable variableName="fileName" value="#['write-file' ++ now() as DateTime as String {format: 'yyyyMMddHHmmss'} ++'.txt']"/>
+            <set-variable variableName="fileName" value="write-file.txt"/>
             <set-variable variableName="mode" value="OVERWRITE"/>
             <set-variable variableName="createParent" value="true"/>
             <set-variable variableName="fileContent" value="this should be cleaned before writing the next one"/>
