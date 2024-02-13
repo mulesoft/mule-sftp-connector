@@ -151,9 +151,14 @@ public class SftpConnectionProvider extends FileSystemProvider<SftpFileSystemCon
           throw new SftpConnectionException(getErrorMessage(connectionSettings, e.getMessage()), e, FileError.UNKNOWN_HOST);
         } else if (e.getMessage().contains("Connection reset by peer")) {
           throw new SftpConnectionException(getErrorMessage(connectionSettings, e.getMessage()), e, FileError.CONNECTIVITY);
+        } else {
+          LOGGER.error(e.getMessage());
+          // throw new MuleRuntimeException(e);
         }
       } else if (e.getDisconnectCode() == 9) {
         throw new SftpConnectionException(getErrorMessage(connectionSettings, e.getMessage()), e, FileError.CANNOT_REACH);
+      } else {
+        LOGGER.error(e.getMessage());
       }
     } catch (final IllegalStateException e) {
       throw new SftpConnectionException(getErrorMessage(connectionSettings, e.getMessage()), e, FileError.INVALID_CREDENTIALS);
