@@ -102,8 +102,6 @@ public class SftpClient {
   private static final Object LOCK = new Object();
   private String home;
 
-  private PRNGAlgorithm prngAlgorithm;
-
   protected SchedulerService schedulerService;
 
   /**
@@ -118,7 +116,25 @@ public class SftpClient {
     this.port = port;
     this.schedulerService = schedulerService;
     this.proxyConfig = sftpProxyConfig;
-    this.prngAlgorithm = prngAlgorithm;
+
+
+    if (nonNull(proxyConfig)) {
+      client = ClientBuilder.builder()
+          .factory(MuleSftpClient::new)
+          .randomFactory(prngAlgorithm.getRandomFactory())
+          .build();
+    } else {
+      client = ClientBuilder.builder()
+          .randomFactory(prngAlgorithm.getRandomFactory())
+          .build();
+    }
+
+
+    client.start();
+
+    if (nonNull(proxyConfig)) {
+      ((MuleSftpClient) client).setProxyConfig(proxyConfig);
+    }
   }
 
 
@@ -172,24 +188,8 @@ public class SftpClient {
    * @param user the authentication user
    */
   public void login(String user) throws IOException, GeneralSecurityException {
-    if (nonNull(proxyConfig)) {
-      client = ClientBuilder.builder()
-          .factory(MuleSftpClient::new)
-          .randomFactory(this.prngAlgorithm.getRandomFactory())
-          .build();
-    } else {
-      client = ClientBuilder.builder()
-          .randomFactory(this.prngAlgorithm.getRandomFactory())
-          .build();
-    }
-
-    client.start();
-
-    if (nonNull(proxyConfig)) {
-      ((MuleSftpClient) client).setProxyConfig(proxyConfig);
-    }
-
     configureSession(user);
+
 
     session.auth().verify(connectionTimeoutMillis);
 
@@ -314,13 +314,13 @@ public class SftpClient {
       }
     }
 
-    if (sftp != null && session.isOpen()) {
+    if (sftp != null && sftp.isOpen()) {
       try {
-        session.close();
+        sftp.close();
       } catch (IOException e) {
         LOGGER.warn("Error while closing: {}", e, e);
       } finally {
-        session = null;
+        sftp = null;
       }
     }
     if (LOGGER.isTraceEnabled()) {
