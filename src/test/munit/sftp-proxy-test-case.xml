@@ -28,7 +28,7 @@
     <sftp:config name="proxy-config">
         <sftp:connection username="mule"
                          password="test"
-                         host="openssh5060"
+                         host="openssh${sftp.proxy.auth}"
                          port="2222"
                          workingDir="/"
                          prngAlgorithm="SHA1PRNG"
