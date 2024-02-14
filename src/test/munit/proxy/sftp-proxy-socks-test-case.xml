@@ -12,7 +12,7 @@
         http://www.mulesoft.org/schema/mule/sftp http://www.mulesoft.org/schema/mule/sftp/current/mule-sftp.xsd
         http://www.mulesoft.org/schema/mule/java http://www.mulesoft.org/schema/mule/java/current/mule-java.xsd">
 
-    <munit:config name="sftp-proxy-socks-test-case.xml">
+    <munit:config name="sftp-proxy-test-case.xml">
         <munit:parameterizations>
             <munit:parameterization name="SOCKS5">
                 <munit:parameters>
@@ -71,7 +71,8 @@
         </munit:validation>
     </munit:test>
 
-    <munit:test name="sftp-proxy-connectivity-negative-test"  expectedErrorType = "SFTP:CONNECTIVITY">
+    <!--TODO:W-14492587  [SPLITTED 2/2] SFTP Connector 2.x | edDSA identity file does not work after application is redeployed in standalone runtime-->
+    <munit:test name="sftp-proxy-connectivity-negative-test"  expectedErrorType = "SFTP:CONNECTIVITY"  ignore="true">
         <munit:validation>
             <mtf:test-connectivity config-ref="proxy-config-error"/>
         </munit:validation>

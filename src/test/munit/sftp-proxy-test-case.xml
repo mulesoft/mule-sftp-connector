@@ -3,14 +3,13 @@
 <mule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:munit="http://www.mulesoft.org/schema/mule/munit"
       xmlns:mtf="http://www.mulesoft.org/schema/mule/mtf"
       xmlns="http://www.mulesoft.org/schema/mule/core"
+      xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools"
       xmlns:sftp="http://www.mulesoft.org/schema/mule/sftp"
-      xmlns:java="http://www.mulesoft.org/schema/mule/java"
       xsi:schemaLocation="http://www.mulesoft.org/schema/mule/mtf  http://www.mulesoft.org/schema/mule/mtf/current/mule-mtf.xsd
 		http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
 		http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
-
-        http://www.mulesoft.org/schema/mule/sftp http://www.mulesoft.org/schema/mule/sftp/current/mule-sftp.xsd
-        http://www.mulesoft.org/schema/mule/java http://www.mulesoft.org/schema/mule/java/current/mule-java.xsd">
+	    http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd
+        http://www.mulesoft.org/schema/mule/sftp http://www.mulesoft.org/schema/mule/sftp/current/mule-sftp.xsd">
 
     <munit:config name="sftp-proxy-test-case.xml">
         <munit:parameterizations>
@@ -43,11 +42,11 @@
                          password="test"
                          host="openssh${sftp.proxy.auth}"
                          port="2222"
-                         workingDir="/"
+                         workingDir="/config"
                          prngAlgorithm="SHA1PRNG"
                          connectionTimeout="200">
             <sftp:sftp-proxy-config host="localhost"
-                                    port="5555"
+                                    port="${squid.port.auth}"
                                     protocol="${proxyProtocol}"
                                     username="foo"
                                     password="bar"/>
@@ -59,7 +58,7 @@
                          password="test"
                          host="local-error"
                          port="${sftp.proxy.auth}"
-                         workingDir="/"
+                         workingDir="/config"
                          prngAlgorithm="SHA1PRNG"
                          connectionTimeout="200">
             <sftp:sftp-proxy-config host="localhost"
@@ -67,8 +66,6 @@
                                     protocol="${proxyProtocol}"/>
         </sftp:connection>
     </sftp:config>
-
-
 
     <munit:test name="sftp-proxy-connectivity-test">
         <munit:validation>
@@ -79,6 +76,39 @@
     <munit:test name="sftp-proxy-connectivity-negative-test"  expectedErrorType = "SFTP:CONNECTIVITY">
         <munit:validation>
             <mtf:test-connectivity config-ref="proxy-config-error"/>
+        </munit:validation>
+    </munit:test>
+
+    <munit:test name="sftp-write">
+        <munit:behavior>
+            <set-variable variableName="fileName" value="write-file.txt"/>
+            <set-variable variableName="mode" value="OVERWRITE"/>
+            <set-variable variableName="createParent" value="true"/>
+        </munit:behavior>
+        <munit:execution>
+            <sftp:write config-ref="proxy-config" path="#[vars.fileName]" mode="#[vars.mode]" createParentDirectories="#[vars.createParent]" />
+        </munit:execution>
+    </munit:test>
+
+    <munit:test name="sftp-write-read">
+        <munit:behavior>
+            <set-variable variableName="fileName" value="write-file.txt"/>
+            <set-variable variableName="mode" value="OVERWRITE"/>
+            <set-variable variableName="createParent" value="true"/>
+        </munit:behavior>
+        <munit:execution>
+            <set-payload value="Hello World!" />
+            <sftp:write config-ref="proxy-config" path="#[vars.fileName]" mode="#[vars.mode]" createParentDirectories="#[vars.createParent]" />
+            <sftp:read config-ref="proxy-config" path="#[vars.fileName]" />
+        </munit:execution>
+        <munit:validation>
+            <munit-tools:assert>
+                <munit-tools:that><![CDATA[#[import * from dw::test::Asserts
+                                     ---
+                                    payload must equalTo("Hello World!")
+                                    ]]]>
+                </munit-tools:that>
+            </munit-tools:assert>
         </munit:validation>
     </munit:test>
 </mule>
