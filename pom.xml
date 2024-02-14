@@ -449,7 +449,7 @@
                         <composeFile>${project.basedir}/src/test/resources/docker/docker-compose.yml</composeFile>
                     </composeFiles>
                     <envVars>
-                        <squidPortAuth>5555</squidPortAuth>
+                        <squidPortAuth>${squid.port.auth}</squidPortAuth>
                         <sftpProxyAuth>${sftp.proxy.auth}</sftpProxyAuth>
                         <sftpAtmozServer>${sftp.atmoz.port}</sftpAtmozServer>
                         <sftpProxyDante>${dante.proxy.port}</sftpProxyDante>

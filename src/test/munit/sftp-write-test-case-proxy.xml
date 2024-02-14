@@ -12,42 +12,16 @@
         http://www.mulesoft.org/schema/mule/sftp http://www.mulesoft.org/schema/mule/sftp/current/mule-sftp.xsd
         http://www.mulesoft.org/schema/mule/java http://www.mulesoft.org/schema/mule/java/current/mule-java.xsd">
 
-    <munit:config name="sftp-write-test-case.xml">
+    <munit:config name="sftp-write-test-case-proxy.xml">
         <munit:parameterizations>
-            <munit:parameterization name="config-docker-with-home-directory">
+            <munit:parameterization name="config-proxy-auth">
                 <munit:parameters>
-                    <munit:parameter propertyName="config" value="config-docker-with-home-directory"/>
-                </munit:parameters>
-            </munit:parameterization>
-            <munit:parameterization name="config-docker-without-home-directory">
-                <munit:parameters>
-                    <munit:parameter propertyName="config" value="config-docker-without-home-directory"/>
+                    <munit:parameter propertyName="config" value="config-proxy-auth"/>
                 </munit:parameters>
             </munit:parameterization>
         </munit:parameterizations>
     </munit:config>
 
-
-
-    <munit:before-suite name="startSftpTestServerForWriting">
-        <java:invoke-static class="org.mule.extension.sftp.internal.lifecycle.SftpServerLifecycleManager"
-                            method="startSftpServer(String)">
-            <java:args>
-                #[{
-                arg0: ${sftp.server.port},
-                }]
-            </java:args>
-        </java:invoke-static>
-    </munit:before-suite>
-
-    <munit:after-suite name="clearSftpTestServerForWriting">
-        <java:invoke-static class="org.mule.extension.sftp.internal.lifecycle.SftpServerLifecycleManager"
-                            method="stopSftpServer()">
-            <java:args>
-                #[{}]
-            </java:args>
-        </java:invoke-static>
-    </munit:after-suite>
 
     <munit:before-test name="create-new-file-to-append">
         <flow-ref name="write-file-append"/>
@@ -219,72 +193,6 @@
         <sftp:write config-ref="${config}" path="write-file.txt"/>
     </flow>
 
-
-    <munit:test name="consecutive-writes-from-separate-flows-succeed-with-until-successful"  ignore="#[Munit::muleVersionPriorTo('4.1.5')]">
-        <munit:enable-flow-sources>
-            <munit:enable-flow-source value="write-number-collection-until-successful"/>
-        </munit:enable-flow-sources>
-        <munit:behavior>
-            <set-variable variableName="fileName" value="test/filePath.txt"/>
-            <set-variable variableName="fileSize" value="#[6]"/>
-            <set-variable variableName="expectedFileSize" value="#[vars.fileSize + 1]"/>
-        </munit:behavior>
-        <munit:execution>
-            <foreach collection="#[1 to vars.fileSize]">
-                <async>
-                    <flow-ref name="write-number-collection-until-successful"/>
-                </async>
-            </foreach>
-            <until-successful maxRetries="10" millisBetweenRetries="1000">
-                <sftp:write config-ref="${config}" path="#[vars.fileName]" lock="true" mode="APPEND">
-                    <sftp:content>7</sftp:content>
-                </sftp:write>
-            </until-successful>
-        </munit:execution>
-        <munit:validation>
-            <sftp:read config-ref="${config}" path='#[vars.fileName]'/>
-            <logger level="INFO" message="#[payload]" />
-            <munit-tools:assert>
-                <munit-tools:that><![CDATA[#[import * from dw::test::Asserts
-                                     ---
-                                     attributes.size must equalTo(vars.expectedFileSize)
-                                    ]]]>
-                </munit-tools:that>
-            </munit-tools:assert>
-        </munit:validation>
-    </munit:test>
-
-    <munit:test name="sftp-write-null-path" expectedErrorType="SFTP:ILLEGAL_PATH">
-        <munit:behavior>
-            <set-variable variableName="mode" value="OVERWRITE"/>
-            <set-variable variableName="createParent" value="true"/>
-        </munit:behavior>
-        <munit:execution>
-            <sftp:write config-ref="${config}" path='#[""]' mode="#[vars.mode]" createParentDirectories="#[vars.createParent]" />
-        </munit:execution>
-    </munit:test>
-
-    <munit:test name="sftp-overwrite-cleaning-first-message">
-        <munit:behavior>
-            <set-variable variableName="fileName" value="write-file.txt"/>
-            <set-variable variableName="mode" value="OVERWRITE"/>
-            <set-variable variableName="createParent" value="true"/>
-            <set-variable variableName="fileContent" value="this should be cleaned before writing the next one"/>
-            <set-variable variableName="fileContent2" value="Hi, message cleaned"/>
-        </munit:behavior>
-        <munit:execution>
-            <sftp:write config-ref="${config}" path="#[vars.fileName]" mode="#[vars.mode]" createParentDirectories="#[vars.createParent]">
-                <sftp:content>#[vars.fileContent]</sftp:content>
-            </sftp:write>
-            <sftp:write config-ref="${config}" path="#[vars.fileName]" mode="#[vars.mode]" createParentDirectories="#[vars.createParent]">
-                <sftp:content>#[vars.fileContent2]</sftp:content>
-            </sftp:write>
-            <sftp:read config-ref="${config}" path='#[vars.fileName]'/>
-        </munit:execution>
-        <munit:validation>
-            <munit-tools:assert-equals actual="#[payload]" expected="#[vars.fileContent2]"/>
-        </munit:validation>
-    </munit:test>
 
     <munit:after-test  name="delete-file-append" description="A description">
         <sftp:delete config-ref="${config}" path="test/filePath.txt"/>

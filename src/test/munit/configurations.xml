@@ -30,7 +30,7 @@
                          connectionTimeout="200">
             <pooling-profile exhaustedAction="WHEN_EXHAUSTED_WAIT" maxActive="7" maxIdle="3" maxWait="5000"/>
             <sftp:sftp-proxy-config host="localhost"
-                                    port="5555"
+                                    port="${squid.port.auth}"
                                     protocol="${proxyProtocol}"
                                     username="foo"
                                     password="bar"/>
