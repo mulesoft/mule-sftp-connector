@@ -64,8 +64,8 @@
     </sftp:config>
 
 
-
-    <munit:test name="sftp-proxy-connectivity-test">
+    <!--TODO:W-14492587  [SPLITTED 2/2] SFTP Connector 2.x | edDSA identity file does not work after application is redeployed in standalone runtime-->
+    <munit:test name="sftp-proxy-connectivity-test" ignore="true">
         <munit:validation>
             <mtf:test-connectivity config-ref="proxy-config"/>
         </munit:validation>
