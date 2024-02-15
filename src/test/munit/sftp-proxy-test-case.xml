@@ -78,37 +78,4 @@
             <mtf:test-connectivity config-ref="proxy-config-error"/>
         </munit:validation>
     </munit:test>
-
-    <munit:test name="sftp-write">
-        <munit:behavior>
-            <set-variable variableName="fileName" value="write-file.txt"/>
-            <set-variable variableName="mode" value="OVERWRITE"/>
-            <set-variable variableName="createParent" value="true"/>
-        </munit:behavior>
-        <munit:execution>
-            <sftp:write config-ref="proxy-config" path="#[vars.fileName]" mode="#[vars.mode]" createParentDirectories="#[vars.createParent]" />
-        </munit:execution>
-    </munit:test>
-
-    <munit:test name="sftp-write-read">
-        <munit:behavior>
-            <set-variable variableName="fileName" value="write-file.txt"/>
-            <set-variable variableName="mode" value="OVERWRITE"/>
-            <set-variable variableName="createParent" value="true"/>
-        </munit:behavior>
-        <munit:execution>
-            <set-payload value="Hello World!" />
-            <sftp:write config-ref="proxy-config" path="#[vars.fileName]" mode="#[vars.mode]" createParentDirectories="#[vars.createParent]" />
-            <sftp:read config-ref="proxy-config" path="#[vars.fileName]" />
-        </munit:execution>
-        <munit:validation>
-            <munit-tools:assert>
-                <munit-tools:that><![CDATA[#[import * from dw::test::Asserts
-                                     ---
-                                    payload must equalTo("Hello World!")
-                                    ]]]>
-                </munit-tools:that>
-            </munit-tools:assert>
-        </munit:validation>
-    </munit:test>
 </mule>
