@@ -60,7 +60,7 @@ public class SftpFileAttributes extends AbstractFileAttributes {
   public SftpFileAttributes(URI uri, Attributes attrs) {
     super(uri);
 
-    this.timestamp = (attrs.getModifyTime()!=null)?asDateTime(attrs.getModifyTime().toInstant()):null;
+    this.timestamp = (attrs.getModifyTime() != null) ? asDateTime(attrs.getModifyTime().toInstant()) : null;
     this.size = attrs.getSize();
     this.regularFile = attrs.isRegularFile();
     this.directory = attrs.isDirectory();

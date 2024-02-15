@@ -257,7 +257,7 @@ public class SftpDirectorySource extends PollingSource<InputStream, SftpFileAttr
         ctx.addVariable(ATTRIBUTES_CONTEXT_VAR, attributes);
         item.setResult(file).setId(attributes.getPath());
 
-        if (watermarkEnabled && attributes.getTimestamp()!=null) {
+        if (watermarkEnabled && attributes.getTimestamp() != null) {
           item.setWatermark(attributes.getTimestamp());
         }
       } catch (Throwable t) {
