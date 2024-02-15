@@ -49,4 +49,3 @@
         <sftp:delete config-ref="${config}" path="#[attributes.path]" />
     </flow>
 </mule>
-o
