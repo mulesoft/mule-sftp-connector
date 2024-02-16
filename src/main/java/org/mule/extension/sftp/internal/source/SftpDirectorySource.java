@@ -195,6 +195,12 @@ public class SftpDirectorySource extends PollingSource<InputStream, SftpFileAttr
         if (pollContext.isSourceStopping()) {
           return;
         }
+        if(!file.getAttributes().isPresent()) {
+          if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("Skipping file '{}' because attributes are not present");
+          }
+          continue;
+        }
         SftpFileAttributes attributes = file.getAttributes().get();
         if (attributes.isDirectory()) {
           continue;
@@ -205,6 +211,7 @@ public class SftpDirectorySource extends PollingSource<InputStream, SftpFileAttr
           }
           continue;
         }
+
         Result<InputStream, SftpFileAttributes> result =
             fileSystem.read(config, attributes.getPath(), true, timeBetweenSizeCheckInMillis);
         if (!processFile(result, pollContext)) {
@@ -257,7 +264,7 @@ public class SftpDirectorySource extends PollingSource<InputStream, SftpFileAttr
         ctx.addVariable(ATTRIBUTES_CONTEXT_VAR, attributes);
         item.setResult(file).setId(attributes.getPath());
 
-        if (watermarkEnabled && attributes.getTimestamp() != null) {
+        if (watermarkEnabled) {
           item.setWatermark(attributes.getTimestamp());
         }
       } catch (Throwable t) {
