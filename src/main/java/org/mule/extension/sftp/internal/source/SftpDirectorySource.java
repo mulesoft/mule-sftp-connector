@@ -195,7 +195,7 @@ public class SftpDirectorySource extends PollingSource<InputStream, SftpFileAttr
         if (pollContext.isSourceStopping()) {
           return;
         }
-        if(!file.getAttributes().isPresent()) {
+        if (!file.getAttributes().isPresent()) {
           if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("Skipping file '{}' because attributes are not present");
           }
