@@ -197,7 +197,8 @@ public class SftpDirectorySource extends PollingSource<InputStream, SftpFileAttr
         }
         if (!file.getAttributes().isPresent()) {
           if (LOGGER.isWarnEnabled()) {
-            LOGGER.warn("Skipping file because attributes are not present. Please check your server for errors or try enabling MDTM.");
+            LOGGER
+                .warn("Skipping file because attributes are not present. Please check your server for errors or try enabling MDTM.");
           }
           continue;
         }
