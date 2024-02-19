@@ -23,6 +23,7 @@ import static org.apache.sshd.sftp.common.SftpConstants.SSH_FX_CONNECTION_LOST;
 import static org.apache.sshd.sftp.common.SftpConstants.SSH_FX_NO_CONNECTION;
 import static org.slf4j.LoggerFactory.getLogger;
 
+import org.apache.sshd.common.keyprovider.FileKeyPairProvider;
 import org.apache.sshd.common.util.security.SecurityProviderRegistrar;
 import org.mule.extension.sftp.api.FileWriteMode;
 import org.mule.extension.sftp.api.SftpFileAttributes;
@@ -188,21 +189,16 @@ public class SftpClient {
     connect();
   }
 
-  private void setupIdentity() throws GeneralSecurityException, IOException {
+  private void setupIdentity() {
     FilePasswordProvider passwordProvider;
-    if (passphrase == null || "".equals(passphrase)) {
+    if (passphrase == null || passphrase.isEmpty()) {
       passwordProvider = FilePasswordProvider.EMPTY;
     } else {
       passwordProvider = FilePasswordProvider.of(passphrase);
     }
-    KeyPairResourceLoader loader = SecurityUtils.getKeyPairResourceParser();
-    for (KeyPair kp : loader.loadKeyPairs(session, Paths.get(identityFile), passwordProvider)) {
-      session.addPublicKeyIdentity(kp);
-    }
-    if (SecurityUtils.isProviderRegistered(SecurityUtils.EDDSA)) {
-      SecurityProviderRegistrar registeredProvider = SecurityUtils.getRegisteredProvider(SecurityUtils.EDDSA);
-      Security.removeProvider(registeredProvider.getSecurityProvider().getName());
-    }
+    FileKeyPairProvider provider = new FileKeyPairProvider(Paths.get(identityFile));
+    provider.setPasswordFinder(passwordProvider);
+    session.setKeyIdentityProvider(provider);
   }
 
   private void checkExists(String path) {
