@@ -4,17 +4,22 @@
  * license, a copy of which has been included with this distribution in the
  * LICENSE.txt file.
  */
+
 package org.mule.extension.sftp.internal.proxy;
 
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+
 /**
- * A simple representation of an authentication challenge as sent in a "WWW-Authenticate" or "Proxy-Authenticate" header. Such
- * challenges start with a mechanism name, followed either by one single token, or by a list of key=value pairs.
+ * A simple representation of an authentication challenge as sent in a
+ * "WWW-Authenticate" or "Proxy-Authenticate" header. Such challenges start with
+ * a mechanism name, followed either by one single token, or by a list of
+ * key=value pairs.
  *
- * @see <a href="https://tools.ietf.org/html/rfc7235#section-2.1">RFC 7235, sec. 2.1</a>
+ * @see <a href="https://tools.ietf.org/html/rfc7235#section-2.1">RFC 7235, sec.
+ *      2.1</a>
  */
 public class AuthenticationChallenge {
 
@@ -27,14 +32,16 @@ public class AuthenticationChallenge {
   /**
    * Create a new {@link AuthenticationChallenge} with the given mechanism.
    *
-   * @param mechanism for the challenge
+   * @param mechanism
+   *            for the challenge
    */
   public AuthenticationChallenge(String mechanism) {
     this.mechanism = mechanism;
   }
 
   /**
-   * Retrieves the authentication mechanism specified by this challenge, for instance "Basic".
+   * Retrieves the authentication mechanism specified by this challenge, for
+   * instance "Basic".
    *
    * @return the mechanism name
    */
@@ -56,7 +63,6 @@ public class AuthenticationChallenge {
    *
    * @return a possibly empty map of the key=value arguments of the challenge
    */
-
   public Map<String, String> getArguments() {
     return arguments == null ? Collections.emptyMap() : arguments;
   }
