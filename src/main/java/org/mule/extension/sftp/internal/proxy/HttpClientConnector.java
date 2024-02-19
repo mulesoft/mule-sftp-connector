@@ -4,15 +4,18 @@
  * license, a copy of which has been included with this distribution in the
  * LICENSE.txt file.
  */
-package org.mule.extension.sftp.internal.proxy.http;
+
+package org.mule.extension.sftp.internal.proxy;
 
 import static java.nio.charset.StandardCharsets.US_ASCII;
-import static java.lang.String.format;
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.text.MessageFormat.format;
 
-import org.mule.extension.sftp.internal.proxy.AbstractClientProxyConnector;
-import org.mule.extension.sftp.internal.proxy.AuthenticationChallenge;
-import org.mule.extension.sftp.internal.proxy.HttpParser;
-import org.mule.extension.sftp.internal.proxy.StatusLine;
+import org.mule.extension.sftp.internal.auth.AuthenticationHandler;
+import org.mule.extension.sftp.internal.auth.BasicAuthentication;
+import org.mule.extension.sftp.internal.auth.GssApiAuthentication;
+import org.mule.extension.sftp.internal.auth.GssApiMechanisms;
+import org.mule.runtime.core.api.util.Base64;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
@@ -28,6 +31,8 @@ import org.apache.sshd.common.util.Readable;
 import org.apache.sshd.common.util.buffer.Buffer;
 import org.apache.sshd.common.util.buffer.ByteArrayBuffer;
 
+import org.ietf.jgss.GSSContext;
+
 /**
  * Simple HTTP proxy connector using Basic Authentication.
  */
@@ -36,8 +41,6 @@ public class HttpClientConnector extends AbstractClientProxyConnector {
   private static final String HTTP_HEADER_PROXY_AUTHENTICATION = "Proxy-Authentication:"; //$NON-NLS-1$
 
   private static final String HTTP_HEADER_PROXY_AUTHORIZATION = "Proxy-Authorization:"; //$NON-NLS-1$
-
-  private static final String ERROR_MSG_UNEXPECTED_RESPONSE = "Unexpected HTTP proxy response from %s: %s";
 
   private HttpAuthenticationHandler basic;
 
@@ -52,32 +55,39 @@ public class HttpClientConnector extends AbstractClientProxyConnector {
   private boolean ongoing;
 
   /**
-   * Creates a new {@link HttpClientConnector}. The connector supports anonymous proxy connections as well as Basic and Negotiate
+   * Creates a new {@link HttpClientConnector}. The connector supports
+   * anonymous proxy connections as well as Basic and Negotiate
    * authentication.
    *
-   * @param proxyAddress  of the proxy server we're connecting to
-   * @param remoteAddress of the target server to connect to
+   * @param proxyAddress
+   *            of the proxy server we're connecting to
+   * @param remoteAddress
+   *            of the target server to connect to
    */
-  public HttpClientConnector(InetSocketAddress proxyAddress,
-                             InetSocketAddress remoteAddress) {
+  public HttpClientConnector(InetSocketAddress proxyAddress, InetSocketAddress remoteAddress) {
     this(proxyAddress, remoteAddress, null, null);
   }
 
   /**
-   * Creates a new {@link HttpClientConnector}. The connector supports anonymous proxy connections as well as Basic and Negotiate
-   * authentication. If a user name and password are given, the connector tries pre-emptive Basic authentication.
+   * Creates a new {@link HttpClientConnector}. The connector supports
+   * anonymous proxy connections as well as Basic and Negotiate
+   * authentication. If a user name and password are given, the connector
+   * tries pre-emptive Basic authentication.
    *
-   * @param proxyAddress  of the proxy server we're connecting to
-   * @param remoteAddress of the target server to connect to
-   * @param proxyUser     to authenticate at the proxy with
-   * @param proxyPassword to authenticate at the proxy with
+   * @param proxyAddress
+   *            of the proxy server we're connecting to
+   * @param remoteAddress
+   *            of the target server to connect to
+   * @param proxyUser
+   *            to authenticate at the proxy with
+   * @param proxyPassword
+   *            to authenticate at the proxy with
    */
-  public HttpClientConnector(InetSocketAddress proxyAddress,
-                             InetSocketAddress remoteAddress, String proxyUser,
-                             char[] proxyPassword) {
+  public HttpClientConnector(InetSocketAddress proxyAddress, InetSocketAddress remoteAddress, String proxyUser,
+                             String proxyPassword) {
     super(proxyAddress, remoteAddress, proxyUser, proxyPassword);
-    basic = new HttpBasicAuthentication(this);
-    negotiate = new NegotiateAuthentication(this);
+    basic = new HttpBasicAuthentication();
+    negotiate = new NegotiateAuthentication();
     availableAuthentications = new ArrayList<>(2);
     availableAuthentications.add(negotiate);
     availableAuthentications.add(basic);
@@ -129,8 +139,7 @@ public class HttpClientConnector extends AbstractClientProxyConnector {
     // Persistent connections are the default in HTTP 1.1 (see RFC 2616),
     // but let's be explicit.
     return msg.append(format(
-                             "CONNECT HOST %s:%s HTTP/1.1%nProxy-Connection: keep-alive%nConnection: keep-alive%n",
-                             // $NON-NLS-1$
+                             "CONNECT {0}:{1} HTTP/1.1\r\nProxy-Connection: keep-alive\r\nConnection: keep-alive\r\nHost: {0}:{1}\r\n", //$NON-NLS-1$
                              remoteAddress.getHostString(),
                              Integer.toString(remoteAddress.getPort())));
   }
@@ -144,7 +153,9 @@ public class HttpClientConnector extends AbstractClientProxyConnector {
     return msg.append('\r').append('\n');
   }
 
-  public void messageReceived(IoSession session, Readable buffer) throws Exception {
+  @Override
+  public void messageReceived(IoSession session, Readable buffer)
+      throws Exception {
     try {
       int length = buffer.available();
       byte[] data = new byte[length];
@@ -170,14 +181,17 @@ public class HttpClientConnector extends AbstractClientProxyConnector {
   private void handleMessage(IoSession session, List<String> reply)
       throws Exception {
     if (reply.isEmpty() || reply.get(0).isEmpty()) {
-      throw new IOException(format(ERROR_MSG_UNEXPECTED_RESPONSE, proxyAddress.getAddress(),
-                                   Integer.toString(proxyAddress.getPort()))); // $NON-NLS-1$
+      throw new IOException(
+                            format("Unexpected HTTP proxy response from {0}: {1}",
+                                   proxyAddress, "<empty>")); //$NON-NLS-1$
     }
     try {
       StatusLine status = HttpParser.parseStatusLine(reply.get(0));
       if (!ongoing) {
-        throw new IOException(format(ERROR_MSG_UNEXPECTED_RESPONSE, proxyAddress,
-                                     Integer.toString(status.getResultCode()), status.getReason()));
+        throw new IOException(format(
+                                     "Unexpected HTTP proxy response from {0}: {1}", proxyAddress,
+                                     Integer.toString(status.getResultCode()),
+                                     status.getReason()));
       }
       switch (status.getResultCode()) {
         case HttpURLConnection.HTTP_OK:
@@ -189,23 +203,33 @@ public class HttpClientConnector extends AbstractClientProxyConnector {
           setDone(true);
           break;
         case HttpURLConnection.HTTP_PROXY_AUTH:
-          List<AuthenticationChallenge> challenges = HttpParser.getAuthenticationHeaders(reply, HTTP_HEADER_PROXY_AUTHENTICATION);
+          List<AuthenticationChallenge> challenges = HttpParser
+              .getAuthenticationHeaders(reply,
+                                        HTTP_HEADER_PROXY_AUTHENTICATION);
           authenticator = selectProtocol(challenges, authenticator);
           if (authenticator == null) {
-            throw new IOException(format("Cannot authenticate to proxy %s", proxyAddress));
+            throw new IOException(
+                                  format("Cannot authenticate to proxy {0}",
+                                         proxyAddress));
           }
           String token = authenticator.getToken();
           if (token == null) {
-            throw new IOException(format("Cannot authenticate to proxy %s", proxyAddress));
+            throw new IOException(
+                                  format("Cannot authenticate to proxy {0}",
+                                         proxyAddress));
           }
           send(authenticate(connect(), token), session);
           break;
         default:
-          throw new IOException(format("HTTP Proxy connection to %s failed with code %s: %s", proxyAddress,
-                                       Integer.toString(status.getResultCode()), status.getReason()));
+          throw new IOException(format("HTTP Proxy connection to {0} failed with code {1}: {2}",
+                                       proxyAddress, Integer.toString(status.getResultCode()),
+                                       status.getReason()));
       }
     } catch (HttpParser.ParseException e) {
-      throw new IOException(format(ERROR_MSG_UNEXPECTED_RESPONSE, proxyAddress, reply.get(0)), e);
+      throw new IOException(
+                            format("Unexpected HTTP proxy response from {0}: {1}",
+                                   proxyAddress, reply.get(0)),
+                            e);
     }
   }
 
@@ -246,5 +270,100 @@ public class HttpClientConnector extends AbstractClientProxyConnector {
     return challenges.stream()
         .filter(c -> c.getMechanism().equalsIgnoreCase(name))
         .findFirst().orElse(null);
+  }
+
+  private interface HttpAuthenticationHandler
+      extends AuthenticationHandler<AuthenticationChallenge, String> {
+
+    public String getName();
+  }
+
+  /**
+   * @see <a href="https://tools.ietf.org/html/rfc7617">RFC 7617</a>
+   */
+  private class HttpBasicAuthentication
+      extends BasicAuthentication<AuthenticationChallenge, String>
+      implements HttpAuthenticationHandler {
+
+    private boolean asked;
+
+    public HttpBasicAuthentication() {
+      super(proxyAddress, proxyUser, proxyPassword);
+    }
+
+    @Override
+    public String getName() {
+      return "Basic"; //$NON-NLS-1$
+    }
+
+    @Override
+    protected void askCredentials() {
+      // We ask only once.
+      if (asked) {
+        throw new IllegalStateException(
+                                        "Basic auth: already asked user for password"); //$NON-NLS-1$
+      }
+      asked = true;
+      super.askCredentials();
+      done = true;
+    }
+
+    @Override
+    public String getToken() throws Exception {
+      if (user.indexOf(':') >= 0) {
+        throw new IOException(format(
+                                     "HTTP Proxy connection to {0} failed with code {1}: {2}", proxy, user));
+      }
+      byte[] rawUser = user.getBytes(UTF_8);
+      byte[] toEncode = new byte[rawUser.length + 1 + password.length];
+      System.arraycopy(rawUser, 0, toEncode, 0, rawUser.length);
+      toEncode[rawUser.length] = ':';
+      System.arraycopy(password, 0, toEncode, rawUser.length + 1,
+                       password.length);
+      Arrays.fill(password, (byte) 0);
+      String result = Base64.encodeBytes(toEncode);
+      Arrays.fill(toEncode, (byte) 0);
+      return getName() + ' ' + result;
+    }
+
+  }
+
+  /**
+   * @see <a href="https://tools.ietf.org/html/rfc4559">RFC 4559</a>
+   */
+  private class NegotiateAuthentication
+      extends GssApiAuthentication<AuthenticationChallenge, String>
+      implements HttpAuthenticationHandler {
+
+    public NegotiateAuthentication() {
+      super(proxyAddress);
+    }
+
+    @Override
+    public String getName() {
+      return "Negotiate"; //$NON-NLS-1$
+    }
+
+    @Override
+    public String getToken() throws Exception {
+      return getName() + ' ' + Base64.encodeBytes(token);
+    }
+
+    @Override
+    protected GSSContext createContext() throws Exception {
+      return GssApiMechanisms.createContext(GssApiMechanisms.SPNEGO,
+                                            GssApiMechanisms.getCanonicalName(proxyAddress));
+    }
+
+    @Override
+    protected byte[] extractToken(AuthenticationChallenge input)
+        throws Exception {
+      String received = input.getToken();
+      if (received == null) {
+        return new byte[0];
+      }
+      return Base64.decode(received);
+    }
+
   }
 }
