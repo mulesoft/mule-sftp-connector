@@ -517,19 +517,6 @@
                                         </volumes>
                                     </run>
                                 </image>
-                                <image>
-                                    <name>dante:latest</name>
-                                    <alias>dante-proxy</alias>
-                                    <build>
-                                        <dockerFileDir>${project.basedir}/src/test/resources/docker/dante</dockerFileDir>
-                                    </build>
-                                    <run>
-                                        <ports>
-                                            <port>${dante.proxy.port}:1080</port>
-                                        </ports>
-                                        <containerNamePattern>danteserver-${dante.proxy.port}</containerNamePattern>
-                                    </run>
-                                </image>
                             </images>
                             <verbose>true</verbose>
                         </configuration>
