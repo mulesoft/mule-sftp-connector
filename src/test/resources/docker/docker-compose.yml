@@ -1,0 +1,46 @@
+version: "3.3"
+services:
+  squidauth:
+    image: "robhaswell/squid-authenticated"
+    container_name: squidauth${squidPortAuth}
+    ports:
+      - "${squidPortAuth}:3128"
+    environment:
+      SQUID_USERNAME: "foo"
+      SQUID_PASSWORD: "bar"
+    volumes:
+      - ./squid-auth.conf:/etc/squid3/squid.conf
+      - /config/test
+  openssh-server:
+    image: lscr.io/linuxserver/openssh-server:latest
+    container_name: openssh${sftpProxyAuth}
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+      - SUDO_ACCESS=true #optional
+      - PASSWORD_ACCESS=true #optional
+      - USER_PASSWORD=test #optional
+      - USER_NAME=mule #optional
+      - VIRTUAL_HOST=sftp.localhost
+    volumes:
+      - /config/test
+    ports:
+      - "${sftpProxyAuth}:2222"
+    restart: unless-stopped
+  atmoz-sftp:
+    image: atmoz/sftp
+    container_name: atmozserver${sftpAtmozServer}
+    volumes:
+      - /config/test
+    ports:
+      - "${sftpAtmozServer}:22"
+    command: foo:pass:1001
+  dante-proxy:
+    build:
+      context: ./dante
+      dockerfile: Dockerfile
+    container_name: dante-proxy-${sftpProxyDante}
+    ports:
+      - "${sftpProxyDante}:1080"
+

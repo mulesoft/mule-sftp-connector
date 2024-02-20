@@ -24,9 +24,6 @@
 
     <munit:test name="sftp-write-deleted-file" description="Use the list operation to get the file content and try to write it but it was deleted before and should expect exception"
                 expectedErrorType="SFTP:FILE_DOESNT_EXIST">
-        <munit:enable-flow-sources>
-            <munit:enable-flow-source value="delete-created-files"/>
-        </munit:enable-flow-sources>
         <munit:behavior>
             <sftp:write config-ref="${config}" path="test/will-be-deleted.txt" >
                 <sftp:content>test content</sftp:content>
@@ -34,6 +31,7 @@
         </munit:behavior>
         <munit:execution>
             <sftp:read config-ref="${config}" path="test/will-be-deleted.txt" />
+            <sftp:delete config-ref="${config}" path="#[attributes.path]" />
             <flow-ref name="wait-2-seconds"/>
             <flow-ref name="wait-2-seconds"/>
             <sftp:write config-ref="${config}" path="test/copy-of-will-be-deleted.txt" createParentDirectories="false" >
