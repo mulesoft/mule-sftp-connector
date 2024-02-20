@@ -24,6 +24,7 @@ import static org.apache.sshd.sftp.common.SftpConstants.SSH_FX_CONNECTION_LOST;
 import static org.apache.sshd.sftp.common.SftpConstants.SSH_FX_NO_CONNECTION;
 import static org.slf4j.LoggerFactory.getLogger;
 
+import org.apache.sshd.common.keyprovider.FileKeyPairProvider;
 import org.mule.extension.sftp.api.FileWriteMode;
 import org.mule.extension.sftp.api.SftpFileAttributes;
 import org.mule.extension.sftp.api.SftpProxyConfig;
@@ -46,7 +47,6 @@ import java.net.SocketAddress;
 import java.net.URI;
 import java.nio.file.Paths;
 import java.security.GeneralSecurityException;
-import java.security.KeyPair;
 import java.security.PublicKey;
 import java.util.Collection;
 import java.util.List;
@@ -59,9 +59,7 @@ import org.apache.sshd.client.keyverifier.KnownHostsServerKeyVerifier;
 import org.apache.sshd.client.keyverifier.RejectAllServerKeyVerifier;
 import org.apache.sshd.client.session.ClientSession;
 import org.apache.sshd.common.config.keys.FilePasswordProvider;
-import org.apache.sshd.common.config.keys.loader.KeyPairResourceLoader;
 import org.apache.sshd.common.util.GenericUtils;
-import org.apache.sshd.common.util.security.SecurityUtils;
 import org.apache.sshd.core.CoreModuleProperties;
 import org.apache.sshd.sftp.client.SftpClient.OpenMode;
 import org.apache.sshd.sftp.common.SftpConstants;
@@ -196,17 +194,16 @@ public class SftpClient {
     connect();
   }
 
-  private void setupIdentity() throws GeneralSecurityException, IOException {
+  private void setupIdentity() {
     FilePasswordProvider passwordProvider;
-    if (passphrase == null || "".equals(passphrase)) {
+    if (passphrase == null || passphrase.isEmpty()) {
       passwordProvider = FilePasswordProvider.EMPTY;
     } else {
       passwordProvider = FilePasswordProvider.of(passphrase);
     }
-    KeyPairResourceLoader loader = SecurityUtils.getKeyPairResourceParser();
-    for (KeyPair kp : loader.loadKeyPairs(session, Paths.get(identityFile), passwordProvider)) {
-      session.addPublicKeyIdentity(kp);
-    }
+    FileKeyPairProvider provider = new FileKeyPairProvider(Paths.get(identityFile));
+    provider.setPasswordFinder(passwordProvider);
+    session.setKeyIdentityProvider(provider);
   }
 
   private void checkExists(String path) {
