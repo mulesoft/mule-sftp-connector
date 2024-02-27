@@ -24,6 +24,7 @@ import static org.apache.sshd.sftp.common.SftpConstants.SSH_FX_CONNECTION_LOST;
 import static org.apache.sshd.sftp.common.SftpConstants.SSH_FX_NO_CONNECTION;
 import static org.slf4j.LoggerFactory.getLogger;
 
+import org.apache.sshd.common.SshException;
 import org.apache.sshd.common.keyprovider.FileKeyPairProvider;
 import org.mule.extension.sftp.api.FileWriteMode;
 import org.mule.extension.sftp.api.SftpFileAttributes;
@@ -127,9 +128,6 @@ public class SftpClient {
           .build();
     }
 
-
-    client.start();
-
     if (nonNull(proxyConfig)) {
       ((MuleSftpClient) client).setProxyConfig(proxyConfig);
     }
@@ -188,7 +186,6 @@ public class SftpClient {
   public void login(String user) throws IOException, GeneralSecurityException {
     configureSession(user);
 
-
     session.auth().verify(connectionTimeoutMillis);
 
     connect();
@@ -223,9 +220,17 @@ public class SftpClient {
       CoreModuleProperties.PREFERRED_AUTHS.set(client, this.preferredAuthenticationMethods.toLowerCase());
     }
 
-    session = client.connect(user, host, port)
-        .verify(connectionTimeoutMillis)
-        .getSession();
+    try {
+      client.start();
+      session = client.connect(user, host, port)
+          .verify(connectionTimeoutMillis)
+          .getSession();
+    } catch (SshException e) {
+      LOGGER.error("Cannot create SSH Session: " + e.getMessage());
+      client.stop();
+      LOGGER.info("SSH Client stopped: " + e.getMessage());
+      throw e;
+    }
 
     if (!isEmpty(password)) {
       session.addPasswordIdentity(password);
