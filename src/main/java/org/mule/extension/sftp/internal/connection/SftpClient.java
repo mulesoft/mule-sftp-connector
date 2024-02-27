@@ -24,7 +24,6 @@ import static org.apache.sshd.sftp.common.SftpConstants.SSH_FX_CONNECTION_LOST;
 import static org.apache.sshd.sftp.common.SftpConstants.SSH_FX_NO_CONNECTION;
 import static org.slf4j.LoggerFactory.getLogger;
 
-import org.apache.sshd.common.keyprovider.FileKeyPairProvider;
 import org.mule.extension.sftp.api.FileWriteMode;
 import org.mule.extension.sftp.api.SftpFileAttributes;
 import org.mule.extension.sftp.api.SftpProxyConfig;
@@ -53,12 +52,14 @@ import java.util.List;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.sshd.client.ClientBuilder;
 import org.apache.sshd.client.SshClient;
 import org.apache.sshd.client.keyverifier.KnownHostsServerKeyVerifier;
 import org.apache.sshd.client.keyverifier.RejectAllServerKeyVerifier;
 import org.apache.sshd.client.session.ClientSession;
 import org.apache.sshd.common.config.keys.FilePasswordProvider;
+import org.apache.sshd.common.keyprovider.FileKeyPairProvider;
 import org.apache.sshd.common.util.GenericUtils;
 import org.apache.sshd.core.CoreModuleProperties;
 import org.apache.sshd.sftp.client.SftpClient.OpenMode;
@@ -378,14 +379,20 @@ public class SftpClient {
    * @param stream the content to be written
    * @param mode   the write mode
    */
-  public void write(String path, InputStream stream, FileWriteMode mode) throws IOException {
-    try (OutputStream out = getOutputStream(path, mode)) {
-      byte[] buf = new byte[8192];
-      int n;
-      while ((n = stream.read(buf)) != -1) {
-        out.write(buf, 0, n);
-      }
+  public void write(String path, InputStream stream, FileWriteMode mode, long offSet) throws IOException {
+    byte[] buf = new byte[8192];
+    try (org.apache.sshd.sftp.client.SftpClient.CloseableHandle handle =
+        sftp.open(normalizeRemotePath(path), toApacheSshdModes(mode))) {
+      sftp.write(handle, offSet, IOUtils.toByteArray(stream));
+
     }
+    //    try (OutputStream out = getOutputStream(path, mode)) {
+    //      byte[] buf = new byte[8192];
+    //      int n;
+    //      while ((n = stream.read(buf)) != -1) {
+    //        out.write(buf, 0, n);
+    //      }
+    //    }
   }
 
   /**
