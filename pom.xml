@@ -41,7 +41,7 @@
         <munit.extensions.maven.plugin.version>1.2.0</munit.extensions.maven.plugin.version>
         <munit.version>3.1.0</munit.version>
         <mavenResources.version>3.3.1</mavenResources.version>
-        <sshdVersion>2.10.0</sshdVersion>
+        <sshdVersion>2.12.0</sshdVersion>
         <formatterConfigPath>formatter.xml</formatterConfigPath>
         <settingsFile>${java.io.tmpdir}/effective-settings.xml</settingsFile>
         <mtf.tools.version>1.2.0</mtf.tools.version>
