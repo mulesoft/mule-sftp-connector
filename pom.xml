@@ -535,6 +535,14 @@
                         </dependencies>
                         <executions>
                             <execution>
+                                <id>cleanup</id>
+                                <phase>compile</phase>
+                                <goals>
+                                    <goal>stop</goal>
+                                    <goal>remove</goal>
+                                </goals>
+                            </execution>
+                            <execution>
                                 <id>start</id>
                                 <phase>generate-test-resources</phase>
                                 <goals>
