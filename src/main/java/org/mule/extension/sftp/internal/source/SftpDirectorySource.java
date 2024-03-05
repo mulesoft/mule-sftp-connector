@@ -18,6 +18,7 @@ import static java.lang.String.format;
 import org.mule.extension.sftp.api.SftpFileAttributes;
 import org.mule.extension.sftp.api.SftpFileMatcher;
 import org.mule.extension.sftp.api.matcher.NullFilePayloadPredicate;
+import org.mule.extension.sftp.internal.exception.IllegalPathException;
 import org.mule.extension.sftp.internal.extension.SftpConnector;
 import org.mule.extension.sftp.internal.connection.SftpFileSystemConnection;
 import org.mule.runtime.api.connection.ConnectionException;
@@ -183,11 +184,12 @@ public class SftpDirectorySource extends PollingSource<InputStream, SftpFileAttr
                    e);
       return;
     }
+    SftpFileAttributes attributes = null;
     try {
       Long timeBetweenSizeCheckInMillis =
-          config.getTimeBetweenSizeCheckInMillis(timeBetweenSizeCheck, timeBetweenSizeCheckUnit).orElse(null);
+              config.getTimeBetweenSizeCheckInMillis(timeBetweenSizeCheck, timeBetweenSizeCheckUnit).orElse(null);
       List<Result<String, SftpFileAttributes>> files =
-          fileSystem.list(config, directoryUri.getPath(), recursive, matcher, timeBetweenSizeCheckInMillis);
+              fileSystem.list(config, directoryUri.getPath(), recursive, matcher, timeBetweenSizeCheckInMillis);
       if (files.isEmpty()) {
         return;
       }
@@ -195,7 +197,7 @@ public class SftpDirectorySource extends PollingSource<InputStream, SftpFileAttr
         if (pollContext.isSourceStopping()) {
           return;
         }
-        SftpFileAttributes attributes = file.getAttributes().get();
+        attributes = file.getAttributes().get();
         if (attributes.isDirectory()) {
           continue;
         }
@@ -205,12 +207,15 @@ public class SftpDirectorySource extends PollingSource<InputStream, SftpFileAttr
           }
           continue;
         }
-        Result<InputStream, SftpFileAttributes> result =
-            fileSystem.read(config, attributes.getPath(), true, timeBetweenSizeCheckInMillis);
+        Result<InputStream, SftpFileAttributes> result = fileSystem.read(config, attributes.getPath(), true, timeBetweenSizeCheckInMillis);
+
         if (!processFile(result, pollContext)) {
           break;
         }
       }
+
+    } catch (IllegalPathException ex){
+      LOGGER.debug("The File with path '%s' was polled but not exist anymore", attributes.getPath());
     } catch (Exception e) {
       LOGGER.error(format("Found exception trying to poll directory '%s'. Will try again on the next poll. ",
                           directoryUri.getPath()),
