@@ -105,12 +105,12 @@ public class SftpFileMatcher extends FileMatcher<SftpFileMatcher, SftpFileAttrib
 
     if (timestampSince != null) {
       predicate = predicate.and(attributes -> attributes.getTimestamp() == null
-          || FILE_TIME_SINCE.apply(timestampSince, attributes.getTimestamp()));
+          || fileTimeSince.apply(timestampSince, attributes.getTimestamp()));
     }
 
     if (timestampUntil != null) {
       predicate = predicate.and(attributes -> attributes.getTimestamp() == null
-          || FILE_TIME_UNTIL.apply(timestampUntil, attributes.getTimestamp()));
+          || fileTimeUntil.apply(timestampUntil, attributes.getTimestamp()));
     }
 
     // We want to make sure that the same time is used when comparing multiple files consecutively.
@@ -120,7 +120,7 @@ public class SftpFileMatcher extends FileMatcher<SftpFileMatcher, SftpFileAttrib
       predicate = predicate.and(attributes -> {
         checkTimestampPrecision(attributes);
         return attributes.getTimestamp() == null
-            || FILE_TIME_UNTIL.apply(minusTime(now, notUpdatedInTheLast, timeUnit), attributes.getTimestamp());
+            || fileTimeUntil.apply(minusTime(now, notUpdatedInTheLast, timeUnit), attributes.getTimestamp());
       });
     }
 
@@ -128,7 +128,7 @@ public class SftpFileMatcher extends FileMatcher<SftpFileMatcher, SftpFileAttrib
       predicate = predicate.and(attributes -> {
         checkTimestampPrecision(attributes);
         return attributes.getTimestamp() == null
-            || FILE_TIME_SINCE.apply(minusTime(now, updatedInTheLast, timeUnit), attributes.getTimestamp());
+            || fileTimeSince.apply(minusTime(now, updatedInTheLast, timeUnit), attributes.getTimestamp());
       });
     }
 
@@ -137,7 +137,8 @@ public class SftpFileMatcher extends FileMatcher<SftpFileMatcher, SftpFileAttrib
 
   private void checkTimestampPrecision(SftpFileAttributes attributes) {
     if (LOGGER.isWarnEnabled() && alreadyLoggedWarning.compareAndSet(false, true) && isSecondsOrLower(timeUnit)
-        && attributes.getTimestamp().getSecond() == 0 && attributes.getTimestamp().getNano() == 0) {
+        && (attributes.getTimestamp() == null
+            || attributes.getTimestamp().getSecond() == 0 && attributes.getTimestamp().getNano() == 0)) {
       LOGGER
           .warn(format("The required timestamp precision %s cannot be met. The server may not support it.",
                        timeUnit));

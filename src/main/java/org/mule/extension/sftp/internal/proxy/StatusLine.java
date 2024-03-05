@@ -4,6 +4,7 @@
  * license, a copy of which has been included with this distribution in the
  * LICENSE.txt file.
  */
+
 package org.mule.extension.sftp.internal.proxy;
 
 /**
@@ -18,11 +19,15 @@ public class StatusLine {
   private final String reason;
 
   /**
-   * Create a new {@link StatusLine} with the given response code and reason string.
+   * Create a new {@link StatusLine} with the given response code and reason
+   * string.
    *
-   * @param version    the version string (normally "HTTP/1.1" or "HTTP/1.0")
-   * @param resultCode the HTTP response code (200, 401, etc.)
-   * @param reason     the reason phrase for the code
+   * @param version
+   *            the version string (normally "HTTP/1.1" or "HTTP/1.0")
+   * @param resultCode
+   *            the HTTP response code (200, 401, etc.)
+   * @param reason
+   *            the reason phrase for the code
    */
   public StatusLine(String version, int resultCode, String reason) {
     this.version = version;
