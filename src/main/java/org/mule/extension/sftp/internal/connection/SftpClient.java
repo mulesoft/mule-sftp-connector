@@ -13,17 +13,19 @@ import static org.mule.extension.sftp.internal.util.UriUtils.createUri;
 import static org.mule.runtime.api.i18n.I18nMessageFactory.createStaticMessage;
 import static org.mule.runtime.api.util.collection.Collectors.toImmutableList;
 import static org.mule.runtime.core.api.util.StringUtils.isEmpty;
-
-import static java.util.concurrent.TimeUnit.SECONDS;
 import static java.lang.String.format;
 import static java.util.Collections.emptyList;
 import static java.util.Objects.nonNull;
+import static java.util.concurrent.TimeUnit.SECONDS;
+
 import static org.apache.commons.collections.CollectionUtils.isEmpty;
 import static org.apache.sshd.sftp.common.SftpConstants.SSH_FX_CONNECTION_LOST;
 import static org.apache.sshd.sftp.common.SftpConstants.SSH_FX_NO_CONNECTION;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import org.apache.sshd.client.session.SessionFactory;
+import org.apache.sshd.common.SshException;
+import org.apache.sshd.common.keyprovider.FileKeyPairProvider;
 import org.mule.extension.sftp.api.FileWriteMode;
 import org.mule.extension.sftp.api.SftpFileAttributes;
 import org.mule.extension.sftp.api.SftpProxyConfig;
@@ -32,8 +34,6 @@ import org.mule.extension.sftp.internal.error.FileError;
 import org.mule.extension.sftp.internal.exception.FileAccessDeniedException;
 import org.mule.extension.sftp.internal.exception.IllegalPathException;
 import org.mule.extension.sftp.internal.exception.SftpConnectionException;
-import org.mule.extension.sftp.internal.proxy.http.HttpClientConnector;
-import org.mule.extension.sftp.internal.proxy.socks5.Socks5ClientConnector;
 import org.mule.runtime.api.connection.ConnectionException;
 import org.mule.runtime.api.exception.MuleRuntimeException;
 import org.mule.runtime.api.scheduler.Scheduler;
@@ -44,12 +44,10 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.net.URI;
 import java.nio.file.Paths;
 import java.security.GeneralSecurityException;
-import java.security.KeyPair;
 import java.security.PublicKey;
 import java.util.Collection;
 import java.util.List;
@@ -62,9 +60,7 @@ import org.apache.sshd.client.keyverifier.KnownHostsServerKeyVerifier;
 import org.apache.sshd.client.keyverifier.RejectAllServerKeyVerifier;
 import org.apache.sshd.client.session.ClientSession;
 import org.apache.sshd.common.config.keys.FilePasswordProvider;
-import org.apache.sshd.common.config.keys.loader.KeyPairResourceLoader;
 import org.apache.sshd.common.util.GenericUtils;
-import org.apache.sshd.common.util.security.SecurityUtils;
 import org.apache.sshd.core.CoreModuleProperties;
 import org.apache.sshd.sftp.client.SftpClient.OpenMode;
 import org.apache.sshd.sftp.common.SftpConstants;
@@ -79,13 +75,13 @@ import org.slf4j.Logger;
 public class SftpClient {
 
   private static final Logger LOGGER = getLogger(SftpClient.class);
-  protected static final OpenMode[] CREATE_MODES = {OpenMode.Write, OpenMode.Create};
+  protected static final OpenMode[] CREATE_MODES = {OpenMode.Write, OpenMode.Create, OpenMode.Truncate};
   protected static final OpenMode[] APPEND_MODES = {OpenMode.Write, OpenMode.Append};
   private static final Long PWD_COMMAND_EXECUTION_TIMEOUT = 30L;
   private static final TimeUnit PWD_COMMAND_EXECUTION_TIMEOUT_UNIT = SECONDS;
   private static final String PWD_COMMAND = "pwd";
 
-  private final SshClient client;
+  private SshClient client;
   private org.apache.sshd.sftp.client.SftpClient sftp;
   private ClientSession session;
   private final String host;
@@ -115,20 +111,28 @@ public class SftpClient {
    * @param host the host address
    * @param port the remote connection port
    */
-
   public SftpClient(String host, int port, PRNGAlgorithm prngAlgorithm, SchedulerService schedulerService) {
-    this(host, port, prngAlgorithm, schedulerService, true);
+      this(host, port, prngAlgorithm, schedulerService, true, null);
   }
 
-  public SftpClient(String host, int port, PRNGAlgorithm prngAlgorithm, SchedulerService schedulerService, boolean kexHeader) {
-    this.host = host;
-    this.port = port;
-    this.kexHeader = kexHeader;
-    this.schedulerService = schedulerService;
+    public SftpClient(String host, int port, PRNGAlgorithm prngAlgorithm, SchedulerService schedulerService, boolean kexHeader,SftpProxyConfig sftpProxyConfig) {
+        this.host = host;
+        this.port = port;
+        this.kexHeader = kexHeader;
+        this.schedulerService = schedulerService;
+        this.proxyConfig = sftpProxyConfig;
 
-    client = ClientBuilder.builder()
-        .randomFactory(prngAlgorithm.getRandomFactory())
-        .build();
+
+    if (nonNull(proxyConfig)) {
+      client = ClientBuilder.builder()
+          .factory(MuleSftpClient::new)
+          .randomFactory(prngAlgorithm.getRandomFactory())
+          .build();
+    } else {
+      client = ClientBuilder.builder()
+          .randomFactory(prngAlgorithm.getRandomFactory())
+          .build();
+    }
 
     if (!this.kexHeader) {
       SessionFactory factory = new NoStrictKexSessionFactory(client);
@@ -136,6 +140,9 @@ public class SftpClient {
     }
 
     client.start();
+    if (nonNull(proxyConfig)) {
+      ((MuleSftpClient) client).setProxyConfig(proxyConfig);
+    }
   }
 
 
@@ -191,23 +198,21 @@ public class SftpClient {
   public void login(String user) throws IOException, GeneralSecurityException {
     configureSession(user);
 
-
     session.auth().verify(connectionTimeoutMillis);
 
     connect();
   }
 
-  private void setupIdentity() throws GeneralSecurityException, IOException {
+  private void setupIdentity() {
     FilePasswordProvider passwordProvider;
-    if (passphrase == null || "".equals(passphrase)) {
+    if (passphrase == null || passphrase.isEmpty()) {
       passwordProvider = FilePasswordProvider.EMPTY;
     } else {
       passwordProvider = FilePasswordProvider.of(passphrase);
     }
-    KeyPairResourceLoader loader = SecurityUtils.getKeyPairResourceParser();
-    for (KeyPair kp : loader.loadKeyPairs(session, Paths.get(identityFile), passwordProvider)) {
-      session.addPublicKeyIdentity(kp);
-    }
+    FileKeyPairProvider provider = new FileKeyPairProvider(Paths.get(identityFile));
+    provider.setPasswordFinder(passwordProvider);
+    session.setKeyIdentityProvider(provider);
   }
 
   private void checkExists(String path) {
@@ -226,9 +231,18 @@ public class SftpClient {
     if (this.preferredAuthenticationMethods != null && !this.preferredAuthenticationMethods.isEmpty()) {
       CoreModuleProperties.PREFERRED_AUTHS.set(client, this.preferredAuthenticationMethods.toLowerCase());
     }
-    session = client.connect(user, host, port)
-        .verify(connectionTimeoutMillis)
-        .getSession();
+
+    try {
+      client.start();
+      session = client.connect(user, host, port)
+          .verify(connectionTimeoutMillis)
+          .getSession();
+    } catch (SshException e) {
+      LOGGER.error("Cannot create SSH Session: " + e.getMessage());
+      client.stop();
+      LOGGER.info("SSH Client stopped: " + e.getMessage());
+      throw e;
+    }
 
     if (!isEmpty(password)) {
       session.addPasswordIdentity(password);
@@ -237,7 +251,6 @@ public class SftpClient {
     if (!isEmpty(identityFile)) {
       setupIdentity();
     }
-    configureProxy(session);
   }
 
   private void configureHostChecking() {
@@ -256,30 +269,6 @@ public class SftpClient {
               return super.acceptKnownHostEntries(clientSession, remoteAddress, serverKey, knownHosts);
             }
           });
-    }
-  }
-
-  private void configureProxy(ClientSession session) {
-    if (proxyConfig != null) {
-      InetSocketAddress proxyAddress = new InetSocketAddress(proxyConfig.getHost(), proxyConfig.getPort());
-      InetSocketAddress remoteAddress = new InetSocketAddress(this.host, this.port);
-      switch (proxyConfig.getProtocol()) {
-        case HTTP:
-          session.setClientProxyConnector(proxyConfig.getUsername() != null && proxyConfig.getPassword() != null
-              ? new HttpClientConnector(proxyAddress, remoteAddress, proxyConfig.getUsername(),
-                                        proxyConfig.getPassword().toCharArray())
-              : new HttpClientConnector(proxyAddress, remoteAddress));
-          break;
-        case SOCKS5:
-          session.setClientProxyConnector(proxyConfig.getUsername() != null && proxyConfig.getPassword() != null
-              ? new Socks5ClientConnector(proxyAddress, remoteAddress, proxyConfig.getUsername(),
-                                          proxyConfig.getPassword().toCharArray())
-              : new Socks5ClientConnector(proxyAddress, remoteAddress));
-          break;
-        default:
-          // should never get here, except a new type was added to the enum and not handled
-          throw new IllegalArgumentException(format("Proxy protocol %s not recognized", proxyConfig.getProtocol()));
-      }
     }
   }
 
@@ -321,12 +310,31 @@ public class SftpClient {
    * Closes the active session and severs the connection (if any of those were active)
    */
   public void disconnect() {
-    if (session != null) {
+    if (client != null) {
+      try {
+        client.stop();
+      } finally {
+        client = null;
+      }
+    }
+
+    if (session != null && session.isOpen()) {
       try {
         session.close();
+      } catch (IOException e) {
+        LOGGER.warn("Error while closing: {}", e, e);
+      } finally {
+        session = null;
+      }
+    }
+
+    if (sftp != null && sftp.isOpen()) {
+      try {
         sftp.close();
       } catch (IOException e) {
         LOGGER.warn("Error while closing: {}", e, e);
+      } finally {
+        sftp = null;
       }
     }
     if (LOGGER.isTraceEnabled()) {

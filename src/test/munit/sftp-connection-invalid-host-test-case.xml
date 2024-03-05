@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:munit="http://www.mulesoft.org/schema/mule/munit"
+      xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools"
+      xmlns="http://www.mulesoft.org/schema/mule/core"
+      xmlns:sftp="http://www.mulesoft.org/schema/mule/sftp"
+      xsi:schemaLocation="
+		http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+		http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
+		http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd
+        http://www.mulesoft.org/schema/mule/sftp http://www.mulesoft.org/schema/mule/sftp/current/mule-sftp.xsd">
+
+    <munit:config name="sftp-connection-invalid-host-test-case.xml" />
+
+    <!-- CONFIGS -->
+    <sftp:config name="config-invalid-local-host" >
+        <sftp:connection username="mule" password="test" host="invalidlocalhost" port="${sftp.listener.port}"
+                         workingDir="/config" >
+            <pooling-profile />
+            <sftp:preferred-authentication-methods >
+                <sftp:preferred-authentication-method value="PASSWORD" />
+            </sftp:preferred-authentication-methods>
+        </sftp:connection>
+    </sftp:config>
+
+
+    <!-- TESTS -->
+    <munit:test name="sftp-invalid-host-error"
+                description="Test invalid host"
+                expectedErrorType="SFTP:UNKNOWN_HOST">
+        <munit:execution>
+            <sftp:list config-ref="config-invalid-local-host"
+                       directoryPath="test/" recursive="true"/>
+        </munit:execution>
+    </munit:test>
+
+</mule>

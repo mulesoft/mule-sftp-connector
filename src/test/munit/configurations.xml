@@ -32,6 +32,23 @@
         </sftp:connection>
     </sftp:config>
 
+    <sftp:config name="config-proxy-auth">
+        <sftp:connection username="mule"
+                         password="test"
+                         host="openssh${sftp.proxy.auth}"
+                         port="2222"
+                         workingDir="/config"
+                         prngAlgorithm="SHA1PRNG"
+                         connectionTimeout="200">
+            <pooling-profile exhaustedAction="WHEN_EXHAUSTED_WAIT" maxActive="7" maxIdle="3" maxWait="5000"/>
+            <sftp:sftp-proxy-config host="localhost"
+                                    port="${squid.port.auth}"
+                                    protocol="${proxyProtocol}"
+                                    username="foo"
+                                    password="bar"/>
+        </sftp:connection>
+    </sftp:config>
+
     <sftp:config name="config-invalid-password">
         <sftp:connection username="muletest1" password="INVALID" host="localhost" port="${sftp.server.port}"
                          workingDir="/" prngAlgorithm="SHA1PRNG">
@@ -121,6 +138,14 @@
     <sftp:config name="config-invalid-folder">
         <sftp:connection username="muletest1" password="muletest1" host="localhost" port="${sftp.server.port}"
                          workingDir="/invalid" prngAlgorithm="SHA1PRNG">
+            <pooling-profile exhaustedAction="WHEN_EXHAUSTED_WAIT" maxActive="7" maxIdle="3" maxWait="5000"/>
+        </sftp:connection>
+    </sftp:config>
+
+    <sftp:config name="config-docker-with-id-file">
+        <sftp:connection username="mule" password="test" host="localhost" port="${sftp.listener.port}"
+                         workingDir="/config" prngAlgorithm="SHA1PRNG"
+                         identityFile="id_ed25519" passphrase="mulesoft">
             <pooling-profile exhaustedAction="WHEN_EXHAUSTED_WAIT" maxActive="7" maxIdle="3" maxWait="5000"/>
         </sftp:connection>
     </sftp:config>

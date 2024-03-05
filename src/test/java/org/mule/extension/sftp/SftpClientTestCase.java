@@ -63,7 +63,7 @@ public class SftpClientTestCase {
   protected SchedulerService schedulerService;
 
   @InjectMocks
-  private SftpClient client = new SftpClient(EMPTY, 0, PRNGAlgorithm.SHA1PRNG, schedulerService, true);
+  private SftpClient client = new SftpClient(EMPTY, 0, PRNGAlgorithm.SHA1PRNG, schedulerService, true, null);
 
   @Test
   public void returnNullOnUnexistingFile() throws Exception {

@@ -6,6 +6,8 @@
  */
 package org.mule.extension.sftp.internal.connection;
 
+import org.mule.extension.sftp.api.SftpProxyConfig;
+import org.mule.extension.sftp.api.SftpProxyConfig;
 import org.mule.extension.sftp.api.random.alg.PRNGAlgorithm;
 import org.mule.runtime.api.scheduler.SchedulerService;
 
@@ -24,8 +26,7 @@ public class SftpClientFactory {
    * @param port the remote connection port
    * @return a {@link SftpClient}
    */
-  public SftpClient createInstance(String host, int port, PRNGAlgorithm prngAlgorithm, SchedulerService schedulerService,
-                                   boolean kexHeader) {
-    return new SftpClient(host, port, prngAlgorithm, schedulerService, kexHeader);
+  public SftpClient createInstance(String host, int port, PRNGAlgorithm prngAlgorithm, SchedulerService schedulerService, SftpProxyConfig sftpProxyConfig, boolean kexHeader) {
+    return new SftpClient(host, port, prngAlgorithm, schedulerService, kexHeader, sftpProxyConfig);
   }
 }

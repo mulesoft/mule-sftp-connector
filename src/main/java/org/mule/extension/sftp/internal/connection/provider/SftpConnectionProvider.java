@@ -128,8 +128,7 @@ public class SftpConnectionProvider extends FileSystemProvider<SftpFileSystemCon
       LOGGER.debug(format("Connecting to host: '%s' at port: '%d'", connectionSettings.getHost(), connectionSettings.getPort()));
     }
     SftpClient client = clientFactory.createInstance(connectionSettings.getHost(), connectionSettings.getPort(),
-                                                     connectionSettings.getPrngAlgorithm(), schedulerService,
-                                                     connectionSettings.isKexHeader());
+                                                         connectionSettings.getPrngAlgorithm(), schedulerService, proxyConfig, connectionSettings.isKexHeader());
     client.setConnectionTimeoutMillis(getConnectionTimeoutUnit().toMillis(getConnectionTimeout()));
     client.setPassword(connectionSettings.getPassword());
     client.setIdentity(connectionSettings.getIdentityFile(), connectionSettings.getPassphrase());
@@ -143,8 +142,7 @@ public class SftpConnectionProvider extends FileSystemProvider<SftpFileSystemCon
     } catch (final SshException e) {
       if (e.getDisconnectCode() == SSH2_DISCONNECT_NO_MORE_AUTH_METHODS_AVAILABLE) {
         throw new SftpConnectionException(getErrorMessage(connectionSettings, e.getMessage()), e, FileError.INVALID_CREDENTIALS);
-      }
-      if (e.getDisconnectCode() == 0) {
+      } else if (e.getDisconnectCode() == 0) {
         if (e.getMessage().contains("timeout")) {
           throw new SftpConnectionException(getErrorMessage(connectionSettings, e.getMessage()), e, FileError.CONNECTION_TIMEOUT);
         } else if (e.getMessage().contains("Connection refused")) {
@@ -153,10 +151,14 @@ public class SftpConnectionProvider extends FileSystemProvider<SftpFileSystemCon
           throw new SftpConnectionException(getErrorMessage(connectionSettings, e.getMessage()), e, FileError.UNKNOWN_HOST);
         } else if (e.getMessage().contains("Connection reset by peer")) {
           throw new SftpConnectionException(getErrorMessage(connectionSettings, e.getMessage()), e, FileError.CONNECTIVITY);
+        } else {
+          LOGGER.error(e.getMessage());
+          // throw new MuleRuntimeException(e);
         }
-      }
-      if (e.getDisconnectCode() == 9) {
+      } else if (e.getDisconnectCode() == 9) {
         throw new SftpConnectionException(getErrorMessage(connectionSettings, e.getMessage()), e, FileError.CANNOT_REACH);
+      } else {
+        LOGGER.error(e.getMessage());
       }
     } catch (final IllegalStateException e) {
       throw new SftpConnectionException(getErrorMessage(connectionSettings, e.getMessage()), e, FileError.INVALID_CREDENTIALS);

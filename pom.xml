@@ -38,13 +38,13 @@
         <!-- Remove when a new parent version with MTF is available -->
         <munit.input.directory>src/test/munit</munit.input.directory>
         <munit.output.directory>${basedir}/target/test-mule/munit</munit.output.directory>
-        <munit.extensions.maven.plugin.version>1.2.0-SNAPSHOT</munit.extensions.maven.plugin.version>
-        <munit.version>3.1.0-SNAPSHOT</munit.version>
+        <munit.extensions.maven.plugin.version>1.2.0</munit.extensions.maven.plugin.version>
+        <munit.version>3.1.0</munit.version>
         <mavenResources.version>3.3.1</mavenResources.version>
-        <sshdVersion>2.12.0</sshdVersion>
+        <sshdVersion>2.12.1</sshdVersion>
         <formatterConfigPath>formatter.xml</formatterConfigPath>
         <settingsFile>${java.io.tmpdir}/effective-settings.xml</settingsFile>
-        <mtf.tools.version>1.2.0-SNAPSHOT</mtf.tools.version>
+        <mtf.tools.version>1.2.0</mtf.tools.version>
         <mtf.javaopts></mtf.javaopts>
         <jacoco.version>0.8.10</jacoco.version>
         <maven.impsort.plugin.version>1.6.2</maven.impsort.plugin.version>
@@ -267,7 +267,7 @@
                     <runtimeConfiguration>
                         <discoverRuntimes>
                             <product>ALL</product>
-                            <includeSnapshots>true</includeSnapshots>
+                            <includeSnapshots>false</includeSnapshots>
                             <minMuleVersion>${minVersion}</minMuleVersion>
                         </discoverRuntimes>
                     </runtimeConfiguration>
@@ -346,6 +346,10 @@
                         <configuration>
                             <portNames>
                                 <portName>sftp.listener.port</portName>
+                                <portName>squid.port.auth</portName>
+                                <portName>sftp.proxy.auth</portName>
+                                <portName>sftp.atmoz.port</portName>
+                                <portName>dante.proxy.port</portName>
                             </portNames>
                         </configuration>
                     </execution>
@@ -436,6 +440,41 @@
                     <failOnWarning>true</failOnWarning>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>com.dkanejs.maven.plugins</groupId>
+                <artifactId>docker-compose-maven-plugin</artifactId>
+                <version>4.0.0</version>
+                <configuration>
+                    <projectName>${squid.port.auth}_${sftp.proxy.auth}</projectName>
+                    <composeFiles>
+                        <composeFile>${project.basedir}/src/test/resources/docker/docker-compose.yml</composeFile>
+                    </composeFiles>
+                    <envVars>
+                        <squidPortAuth>${squid.port.auth}</squidPortAuth>
+                        <sftpProxyAuth>${sftp.proxy.auth}</sftpProxyAuth>
+                        <sftpAtmozServer>${sftp.atmoz.port}</sftpAtmozServer>
+                        <sftpProxyDante>${dante.proxy.port}</sftpProxyDante>
+                    </envVars>
+                    <detachedMode>true</detachedMode>
+                    <skip>${docker.skip}</skip>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>docker-compose-up</id>
+                        <phase>generate-test-resources</phase>
+                        <goals>
+                            <goal>up</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>docker-compose-down</id>
+                        <phase>post-integration-test</phase>
+                        <goals>
+                            <goal>down</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
 
@@ -495,6 +534,14 @@
                             </dependency>
                         </dependencies>
                         <executions>
+                            <execution>
+                                <id>cleanup</id>
+                                <phase>compile</phase>
+                                <goals>
+                                    <goal>stop</goal>
+                                    <goal>remove</goal>
+                                </goals>
+                            </execution>
                             <execution>
                                 <id>start</id>
                                 <phase>generate-test-resources</phase>
