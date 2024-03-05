@@ -217,12 +217,10 @@ public class SftpDirectorySource extends PollingSource<InputStream, SftpFileAttr
 
         Result<InputStream, SftpFileAttributes> result =
             fileSystem.read(config, attributes.getPath(), true, timeBetweenSizeCheckInMillis);
-
         if (!processFile(result, pollContext)) {
           break;
         }
       }
-
     } catch (IllegalPathException ex) {
       LOGGER.debug("The File with path '%s' was polled but not exist anymore", attributes.getPath());
     } catch (Exception e) {
