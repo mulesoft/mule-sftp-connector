@@ -128,7 +128,8 @@ public class SftpConnectionProvider extends FileSystemProvider<SftpFileSystemCon
       LOGGER.debug(format("Connecting to host: '%s' at port: '%d'", connectionSettings.getHost(), connectionSettings.getPort()));
     }
     SftpClient client = clientFactory.createInstance(connectionSettings.getHost(), connectionSettings.getPort(),
-                                                     connectionSettings.getPrngAlgorithm(), schedulerService, proxyConfig);
+                                                     connectionSettings.getPrngAlgorithm(), schedulerService, proxyConfig,
+                                                     connectionSettings.isKexHeader());
     client.setConnectionTimeoutMillis(getConnectionTimeoutUnit().toMillis(getConnectionTimeout()));
     client.setPassword(connectionSettings.getPassword());
     client.setIdentity(connectionSettings.getIdentityFile(), connectionSettings.getPassphrase());

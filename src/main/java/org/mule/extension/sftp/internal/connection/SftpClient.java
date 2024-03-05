@@ -13,7 +13,6 @@ import static org.mule.extension.sftp.internal.util.UriUtils.createUri;
 import static org.mule.runtime.api.i18n.I18nMessageFactory.createStaticMessage;
 import static org.mule.runtime.api.util.collection.Collectors.toImmutableList;
 import static org.mule.runtime.core.api.util.StringUtils.isEmpty;
-
 import static java.lang.String.format;
 import static java.util.Collections.emptyList;
 import static java.util.Objects.nonNull;
@@ -24,6 +23,7 @@ import static org.apache.sshd.sftp.common.SftpConstants.SSH_FX_CONNECTION_LOST;
 import static org.apache.sshd.sftp.common.SftpConstants.SSH_FX_NO_CONNECTION;
 import static org.slf4j.LoggerFactory.getLogger;
 
+import org.apache.sshd.client.session.SessionFactory;
 import org.apache.sshd.common.SshException;
 import org.apache.sshd.common.keyprovider.FileKeyPairProvider;
 import org.mule.extension.sftp.api.FileWriteMode;
@@ -91,6 +91,8 @@ public class SftpClient {
   private String passphrase;
   private String knownHostsFile;
 
+  private boolean kexHeader;
+
   private String preferredAuthenticationMethods;
   private long connectionTimeoutMillis = Long.MAX_VALUE;
   private SftpProxyConfig proxyConfig;
@@ -109,10 +111,15 @@ public class SftpClient {
    * @param host the host address
    * @param port the remote connection port
    */
-  public SftpClient(String host, int port, PRNGAlgorithm prngAlgorithm, SchedulerService schedulerService,
+  public SftpClient(String host, int port, PRNGAlgorithm prngAlgorithm, SchedulerService schedulerService) {
+    this(host, port, prngAlgorithm, schedulerService, true, null);
+  }
+
+  public SftpClient(String host, int port, PRNGAlgorithm prngAlgorithm, SchedulerService schedulerService, boolean kexHeader,
                     SftpProxyConfig sftpProxyConfig) {
     this.host = host;
     this.port = port;
+    this.kexHeader = kexHeader;
     this.schedulerService = schedulerService;
     this.proxyConfig = sftpProxyConfig;
 
@@ -128,6 +135,12 @@ public class SftpClient {
           .build();
     }
 
+    if (!this.kexHeader) {
+      SessionFactory factory = new NoStrictKexSessionFactory(client);
+      client.setSessionFactory(factory);
+    }
+
+    client.start();
     if (nonNull(proxyConfig)) {
       ((MuleSftpClient) client).setProxyConfig(proxyConfig);
     }
