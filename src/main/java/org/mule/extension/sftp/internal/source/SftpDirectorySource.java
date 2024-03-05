@@ -18,6 +18,7 @@ import static java.lang.String.format;
 import org.mule.extension.sftp.api.SftpFileAttributes;
 import org.mule.extension.sftp.api.SftpFileMatcher;
 import org.mule.extension.sftp.api.matcher.NullFilePayloadPredicate;
+import org.mule.extension.sftp.internal.exception.IllegalPathException;
 import org.mule.extension.sftp.internal.extension.SftpConnector;
 import org.mule.extension.sftp.internal.connection.SftpFileSystemConnection;
 import org.mule.runtime.api.connection.ConnectionException;
@@ -183,6 +184,7 @@ public class SftpDirectorySource extends PollingSource<InputStream, SftpFileAttr
                    e);
       return;
     }
+    SftpFileAttributes attributes = null;
     try {
       Long timeBetweenSizeCheckInMillis =
           config.getTimeBetweenSizeCheckInMillis(timeBetweenSizeCheck, timeBetweenSizeCheckUnit).orElse(null);
@@ -195,6 +197,7 @@ public class SftpDirectorySource extends PollingSource<InputStream, SftpFileAttr
         if (pollContext.isSourceStopping()) {
           return;
         }
+        attributes = file.getAttributes().get();
         if (!file.getAttributes().isPresent()) {
           if (LOGGER.isWarnEnabled()) {
             LOGGER
@@ -202,7 +205,6 @@ public class SftpDirectorySource extends PollingSource<InputStream, SftpFileAttr
           }
           continue;
         }
-        SftpFileAttributes attributes = file.getAttributes().get();
         if (attributes.isDirectory()) {
           continue;
         }
@@ -219,6 +221,8 @@ public class SftpDirectorySource extends PollingSource<InputStream, SftpFileAttr
           break;
         }
       }
+    } catch (IllegalPathException ex) {
+      LOGGER.debug("The File with path '%s' was polled but not exist anymore", attributes.getPath());
     } catch (Exception e) {
       LOGGER.error(format("Found exception trying to poll directory '%s'. Will try again on the next poll. ",
                           directoryUri.getPath()),
