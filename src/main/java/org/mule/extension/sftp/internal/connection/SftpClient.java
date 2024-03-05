@@ -112,15 +112,16 @@ public class SftpClient {
    * @param port the remote connection port
    */
   public SftpClient(String host, int port, PRNGAlgorithm prngAlgorithm, SchedulerService schedulerService) {
-      this(host, port, prngAlgorithm, schedulerService, true, null);
+    this(host, port, prngAlgorithm, schedulerService, true, null);
   }
 
-    public SftpClient(String host, int port, PRNGAlgorithm prngAlgorithm, SchedulerService schedulerService, boolean kexHeader,SftpProxyConfig sftpProxyConfig) {
-        this.host = host;
-        this.port = port;
-        this.kexHeader = kexHeader;
-        this.schedulerService = schedulerService;
-        this.proxyConfig = sftpProxyConfig;
+  public SftpClient(String host, int port, PRNGAlgorithm prngAlgorithm, SchedulerService schedulerService, boolean kexHeader,
+                    SftpProxyConfig sftpProxyConfig) {
+    this.host = host;
+    this.port = port;
+    this.kexHeader = kexHeader;
+    this.schedulerService = schedulerService;
+    this.proxyConfig = sftpProxyConfig;
 
 
     if (nonNull(proxyConfig)) {
