@@ -59,7 +59,7 @@
         <muleConnectionTestModule.version>1.0.0</muleConnectionTestModule.version>
 
         <mulesoftLicenseVersion>1.4.0</mulesoftLicenseVersion>
-        <license.maven.plugin.version>4.2</license.maven.plugin.version>
+        <license.maven.plugin.version>4.3</license.maven.plugin.version>
         <licensePath>LICENSE_HEADER_CPAL.txt</licensePath>
         <licenseYear>2023</licenseYear>
     </properties>
