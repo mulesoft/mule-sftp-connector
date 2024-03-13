@@ -8,6 +8,7 @@ package org.mule.extension.sftp.internal.operation;
 
 import static java.lang.String.format;
 
+import static org.mule.extension.sftp.internal.util.UriUtils.createUri;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import org.mule.extension.sftp.api.FileAttributes;
