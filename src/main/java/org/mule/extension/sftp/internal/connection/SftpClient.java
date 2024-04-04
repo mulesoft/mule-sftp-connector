@@ -76,7 +76,7 @@ public class SftpClient {
 
   private static final Logger LOGGER = getLogger(SftpClient.class);
   protected static final OpenMode[] CREATE_MODES = {OpenMode.Write, OpenMode.Create, OpenMode.Truncate};
-  protected static final OpenMode[] APPEND_MODES = {OpenMode.Write, OpenMode.Append};
+  protected static final OpenMode[] APPEND_MODES = {OpenMode.Write, OpenMode.Append, OpenMode.Create};
   private static final Long PWD_COMMAND_EXECUTION_TIMEOUT = 30L;
   private static final TimeUnit PWD_COMMAND_EXECUTION_TIMEOUT_UNIT = SECONDS;
   private static final String PWD_COMMAND = "pwd";
