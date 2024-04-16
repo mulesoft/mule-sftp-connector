@@ -48,7 +48,7 @@
         <mtf.javaopts></mtf.javaopts>
         <jacoco.version>0.8.10</jacoco.version>
         <maven.impsort.plugin.version>1.6.2</maven.impsort.plugin.version>
-        <maven.checkstyle.plugin.version>3.1.2</maven.checkstyle.plugin.version>
+        <maven.checkstyle.plugin.version>3.3.1</maven.checkstyle.plugin.version>
         <importGoal>check</importGoal>
         <eddsa.version>0.3.0</eddsa.version>
         <slf4jApi.version>2.0.7</slf4jApi.version>
