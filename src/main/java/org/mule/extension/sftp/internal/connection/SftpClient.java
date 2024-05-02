@@ -24,7 +24,7 @@ import static org.apache.sshd.sftp.common.SftpConstants.SSH_FX_NO_CONNECTION;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import org.apache.sshd.client.session.SessionFactory;
-import org.apache.sshd.common.util.security.SecurityUtils;
+//import org.apache.sshd.common.util.security.SecurityUtils;
 import org.apache.sshd.common.SshException;
 import org.apache.sshd.common.keyprovider.FileKeyPairProvider;
 import org.mule.extension.sftp.api.FileWriteMode;
@@ -50,7 +50,7 @@ import java.net.URI;
 import java.nio.file.Paths;
 import java.security.GeneralSecurityException;
 import java.security.PublicKey;
-import java.security.Security;
+//import java.security.Security;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.Future;
@@ -82,8 +82,8 @@ public class SftpClient {
   private static final Long PWD_COMMAND_EXECUTION_TIMEOUT = 30L;
   private static final TimeUnit PWD_COMMAND_EXECUTION_TIMEOUT_UNIT = SECONDS;
   private static final String PWD_COMMAND = "pwd";
-  public static final String MULE_SECURITY_MODEL = "mule.security.model";
-  public static final String FIPS_140_2_MODEL = "fips140-2";
+  //  public static final String MULE_SECURITY_MODEL = "mule.security.model";
+  //  public static final String FIPS_140_2_MODEL = "fips140-2";
 
   private SshClient client;
   private org.apache.sshd.sftp.client.SftpClient sftp;
@@ -109,13 +109,13 @@ public class SftpClient {
 
   protected SchedulerService schedulerService;
 
-  static {
-    if (FIPS_140_2_MODEL.equals(System.getProperty(MULE_SECURITY_MODEL))) {
-      LOGGER.info("Running in fips mode so disabling EdDSA provider");
-      SecurityUtils.setAPrioriDisabledProvider(SecurityUtils.EDDSA, true);
-      Security.removeProvider(SecurityUtils.EDDSA);
-    }
-  }
+  //  static {
+  //    if (FIPS_140_2_MODEL.equals(System.getProperty(MULE_SECURITY_MODEL))) {
+  //      LOGGER.info("Running in fips mode so disabling EdDSA provider");
+  //      SecurityUtils.setAPrioriDisabledProvider(SecurityUtils.EDDSA, true);
+  //      Security.removeProvider(SecurityUtils.EDDSA);
+  //    }
+  //  }
 
   /**
    * Creates a new instance which connects to a server on a given {@code host} and {@code port}
@@ -245,11 +245,11 @@ public class SftpClient {
       CoreModuleProperties.PREFERRED_AUTHS.set(client, this.preferredAuthenticationMethods.toLowerCase());
     }
 
-    if (FIPS_140_2_MODEL.equals(System.getProperty(MULE_SECURITY_MODEL))) {
-      LOGGER.info("Running in fips mode so disabling EdDSA provider");
-      SecurityUtils.setAPrioriDisabledProvider(SecurityUtils.EDDSA, true);
-      Security.removeProvider(SecurityUtils.EDDSA);
-    }
+    //    if (FIPS_140_2_MODEL.equals(System.getProperty(MULE_SECURITY_MODEL))) {
+    //      LOGGER.info("Running in fips mode so disabling EdDSA provider");
+    //      SecurityUtils.setAPrioriDisabledProvider(SecurityUtils.EDDSA, true);
+    //      Security.removeProvider(SecurityUtils.EDDSA);
+    //    }
 
     try {
       client.start();
