@@ -22,7 +22,6 @@ import org.apache.sshd.server.auth.password.PasswordAuthenticator;
 import org.apache.sshd.server.auth.pubkey.PublickeyAuthenticator;
 import org.apache.sshd.server.keyprovider.SimpleGeneratorHostKeyProvider;
 import org.apache.sshd.sftp.server.SftpSubsystemFactory;
-import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 public class SftpServer {
 
@@ -35,7 +34,6 @@ public class SftpServer {
   public SftpServer(int port, Path path) {
     this.port = port;
     this.path = path;
-    configureSecurityProvider();
     SftpSubsystemFactory factory = createFtpSubsystemFactory();
     sshdServer = SshServer.setUpDefaultServer();
     configureSshdServer(factory);
@@ -63,10 +61,6 @@ public class SftpServer {
 
   private SftpSubsystemFactory createFtpSubsystemFactory() {
     return new SftpSubsystemFactory();
-  }
-
-  private void configureSecurityProvider() {
-    Security.addProvider(new BouncyCastleProvider());
   }
 
   private static PasswordAuthenticator passwordAuthenticator() {

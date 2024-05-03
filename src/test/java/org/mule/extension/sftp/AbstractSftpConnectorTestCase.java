@@ -17,9 +17,7 @@ import org.mule.test.runner.ArtifactClassLoaderRunnerConfig;
         "org.apache.sshd:sshd-sftp",
         "org.apache.sshd:sshd-common",
         "org.apache.sshd:sshd-scp",
-        "org.apache.sshd:sshd-core",
-        "org.bouncycastle:bcprov-jdk15on",
-        "net.i2p.crypto:eddsa"
+        "org.apache.sshd:sshd-core"
     },
     applicationRuntimeLibs = {"org.slf4j:slf4j-api"},
     exportPluginClasses = {SftpClientFactory.class, SftpClient.class, SftpUtils.class})
