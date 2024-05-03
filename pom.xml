@@ -46,11 +46,10 @@
         <settingsFile>${java.io.tmpdir}/effective-settings.xml</settingsFile>
         <mtf.tools.version>1.2.0</mtf.tools.version>
 <!--        <mtf.javaopts></mtf.javaopts>-->
-        <jacoco.version>0.8.10</jacoco.version>
+        <jacoco.version>0.8.12</jacoco.version>
         <maven.impsort.plugin.version>1.6.2</maven.impsort.plugin.version>
         <maven.checkstyle.plugin.version>3.1.2</maven.checkstyle.plugin.version>
         <importGoal>check</importGoal>
-        <eddsa.version>0.3.0</eddsa.version>
         <slf4jApi.version>2.0.12</slf4jApi.version>
         <tikaCore.version>2.9.1</tikaCore.version>
         <bcprovJDK15on.version>1.59</bcprovJDK15on.version>
