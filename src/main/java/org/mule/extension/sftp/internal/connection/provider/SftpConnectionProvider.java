@@ -63,8 +63,8 @@ import org.slf4j.Logger;
  */
 @DisplayName("SFTP Connection")
 @ExternalLib(name = "EDDSA Provider", description = "An EDDSA provider which provides support for ed25519 curve",
-        nameRegexpMatcher = PROVIDER_FILE_NAME_PATTERN, requiredClassName = EDDSA_PROVIDER_CLASS, type = JAR,
-        coordinates = EDDSA_GAV)
+    nameRegexpMatcher = PROVIDER_FILE_NAME_PATTERN, requiredClassName = EDDSA_PROVIDER_CLASS, type = JAR,
+    coordinates = EDDSA_GAV, optional = true)
 public class SftpConnectionProvider extends FileSystemProvider<SftpFileSystemConnection>
     implements PoolingConnectionProvider<SftpFileSystemConnection> {
 
@@ -74,7 +74,7 @@ public class SftpConnectionProvider extends FileSystemProvider<SftpFileSystemCon
   private static final String SFTP_ERROR_MESSAGE_MASK =
       "Could not establish SFTP connection with host: '%s' at port: '%d' - %s";
   static final String PROVIDER_FILE_NAME_PATTERN = "(.*)\\.jar";
-  static final String EDDSA_GAV = "eddsa:net.i2p.crypto:0.3.0";
+  static final String EDDSA_GAV = "net.i2p.crypto:eddsa:0.3.0";
   static final String EDDSA_PROVIDER_CLASS = "net.i2p.crypto.eddsa.EdDSASecurityProvider";
 
   private static AtomicBoolean alreadyLoggedConnectionTimeoutWarning = new AtomicBoolean(false);
