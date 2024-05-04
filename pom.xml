@@ -45,12 +45,11 @@
         <formatterConfigPath>formatter.xml</formatterConfigPath>
         <settingsFile>${java.io.tmpdir}/effective-settings.xml</settingsFile>
         <mtf.tools.version>1.2.0</mtf.tools.version>
-        <mtf.javaopts></mtf.javaopts>
-        <jacoco.version>0.8.10</jacoco.version>
+<!--        <mtf.javaopts></mtf.javaopts>-->
+        <jacoco.version>0.8.12</jacoco.version>
         <maven.impsort.plugin.version>1.6.2</maven.impsort.plugin.version>
         <maven.checkstyle.plugin.version>3.1.2</maven.checkstyle.plugin.version>
         <importGoal>check</importGoal>
-        <eddsa.version>0.3.0</eddsa.version>
         <slf4jApi.version>2.0.7</slf4jApi.version>
         <tikaCore.version>2.8.0</tikaCore.version>
         <bcprovJDK15on.version>1.59</bcprovJDK15on.version>
@@ -115,12 +114,6 @@
         </dependency>
 
         <dependency>
-            <groupId>net.i2p.crypto</groupId>
-            <artifactId>eddsa</artifactId>
-            <version>${eddsa.version}</version>
-        </dependency>
-
-        <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
             <version>${slf4jApi.version}</version>
@@ -150,6 +143,10 @@
                     <groupId>org.apache.sshd</groupId>
                     <artifactId>sshd-core</artifactId>
                 </exclusion>
+                <exclusion>
+                    <artifactId>bcprov-jdk15on</artifactId>
+                    <groupId>org.bouncycastle</groupId>
+                </exclusion>
             </exclusions>
         </dependency>
 
@@ -158,13 +155,6 @@
             <artifactId>mule-tests-component-plugin</artifactId>
             <version>${muleTestsComponentPlugin}</version>
             <classifier>mule-plugin</classifier>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.bouncycastle</groupId>
-            <artifactId>bcprov-jdk15on</artifactId>
-            <version>${bcprovJDK15on.version}</version>
             <scope>test</scope>
         </dependency>
 
@@ -276,11 +266,11 @@
                             -javaagent:${settings.localRepository}/org/jacoco/org.jacoco.agent/${jacoco.version}/org.jacoco.agent-${jacoco.version}-runtime.jar=destfile=${session.executionRootDirectory}/target/jacoco-munit.exec
                         </argLine>
                     </argLines>
-                    <environmentVariables>
-                        <!-- Toggles the JDK17 style flag -->
-                        <!-- ugly hack -->
-                        <_JAVA_OPTIONS>-XX:+PrintCommandLineFlags ${mtf.javaopts}</_JAVA_OPTIONS>
-                    </environmentVariables>
+<!--                    <environmentVariables>-->
+<!--                        &lt;!&ndash; Toggles the JDK17 style flag &ndash;&gt;-->
+<!--                        &lt;!&ndash; ugly hack &ndash;&gt;-->
+<!--                        <_JAVA_OPTIONS>-XX:+PrintCommandLineFlags ${mtf.javaopts}</_JAVA_OPTIONS>-->
+<!--                    </environmentVariables>-->
                 </configuration>
                 <dependencies>
                     <dependency>
