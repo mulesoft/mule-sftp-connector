@@ -12,6 +12,8 @@ import static org.mule.sdk.api.meta.JavaVersion.JAVA_11;
 import static org.mule.sdk.api.meta.JavaVersion.JAVA_17;
 import static org.mule.sdk.api.meta.JavaVersion.JAVA_8;
 
+import org.apache.sshd.common.util.security.SecurityUtils;
+import org.mule.extension.sftp.api.registrar.BouncyCastleFipsSecurityProviderRegistrar;
 import org.mule.extension.sftp.internal.operation.SftpOperations;
 import org.mule.extension.sftp.internal.config.FileConnectorConfig;
 import org.mule.extension.sftp.internal.error.FileError;
@@ -47,6 +49,10 @@ import javax.inject.Inject;
 @Xml(prefix = "sftp")
 @JavaVersionSupport({JAVA_8, JAVA_11, JAVA_17})
 public class SftpConnector extends FileConnectorConfig {
+
+  static {
+    SecurityUtils.registerSecurityProvider(new BouncyCastleFipsSecurityProviderRegistrar());
+  }
 
   @Inject
   private ConnectionManager connectionManager;
