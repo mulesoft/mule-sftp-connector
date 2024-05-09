@@ -300,6 +300,30 @@
         <sftp:delete config-ref="${config}" path="test/filePath.txt"/>
     </munit:after-test>
 
+    <munit:test name="sftp-write-in-append-mode-when-file-does-not-exist">
+        <munit:behavior>
+            <set-variable variableName="fileName" value="does-not-exist-file.txt"/>
+            <set-variable variableName="mode" value="APPEND"/>
+            <set-variable variableName="createParent" value="true"/>
+            <set-variable variableName="fileContent" value="Hi, this content is appended to the file"/>
+            <try>
+                <sftp:delete config-ref="${config}" path="#[vars.fileName]"/>
+                <error-handler >
+                    <on-error-continue enableNotifications="false" logException="false" type="SFTP:ILLEGAL_PATH"/>
+                </error-handler>
+            </try>
+        </munit:behavior>
+        <munit:execution>
+            <sftp:write config-ref="${config}" path="#[vars.fileName]" mode="#[vars.mode]" createParentDirectories="#[vars.createParent]">
+                <sftp:content>#[vars.fileContent]</sftp:content>
+            </sftp:write>
+            <sftp:read config-ref="${config}" path='#[vars.fileName]'/>
+        </munit:execution>
+        <munit:validation>
+            <munit-tools:assert-equals actual="#[payload]" expected="#[vars.fileContent]"/>
+        </munit:validation>
+    </munit:test>
+
     <flow name="delete-created-files">
         <sftp:listener config-ref="${config}" directory="test">
             <scheduling-strategy>
