@@ -159,6 +159,7 @@ public class SftpClient {
     Map<String, String> envVars = System.getenv();
     configKeyList.stream().filter(envVars::containsKey)
         .forEach(key -> properties.setProperty(key, envVars.get(key)));
+    LOGGER.info("Properties read from the env {}", properties);
     SshClientConfigFileReader.configure(client, PropertyResolverUtils.toPropertyResolver(properties), true, true);
   }
 
