@@ -81,6 +81,7 @@ import org.slf4j.Logger;
  */
 public class SftpClient {
 
+  private static final String CONFIG_FILE_NAME = "mule_sshd_config";
   private static final Logger LOGGER = getLogger(SftpClient.class);
   protected static final OpenMode[] CREATE_MODES = {OpenMode.Write, OpenMode.Create, OpenMode.Truncate};
   protected static final OpenMode[] APPEND_MODES = {OpenMode.Write, OpenMode.Append};
@@ -157,13 +158,13 @@ public class SftpClient {
 
   private void configureWithExternalSources() {
     try {
-      Path path = PublicKeyEntry.getDefaultKeysFolderPath().resolve("mule_sshd_config");
+      Path path = PublicKeyEntry.getDefaultKeysFolderPath().resolve(CONFIG_FILE_NAME);
       if (Files.exists(path)) {
         Properties properties = ConfigFileReaderSupport.readConfigFile(path);
         SshClientConfigFileReader.configure(client, PropertyResolverUtils.toPropertyResolver(properties), true, true);
       }
     } catch (IOException e) {
-      throw new RuntimeException(e);
+      throw handleException("Could not read values from config file", e);
     }
   }
 
