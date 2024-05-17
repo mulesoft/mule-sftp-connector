@@ -161,6 +161,7 @@ public class SftpClient {
       Path path = PublicKeyEntry.getDefaultKeysFolderPath().resolve(CONFIG_FILE_NAME);
       if (Files.exists(path)) {
         Properties properties = ConfigFileReaderSupport.readConfigFile(path);
+        LOGGER.info("Read the config file {} with the props {}", path.getFileName(), properties);
         SshClientConfigFileReader.configure(client, PropertyResolverUtils.toPropertyResolver(properties), true, true);
       }
     } catch (IOException e) {
