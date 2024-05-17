@@ -27,8 +27,8 @@ import org.apache.sshd.client.config.SshClientConfigFileReader;
 import org.apache.sshd.client.session.SessionFactory;
 import org.apache.sshd.common.PropertyResolverUtils;
 import org.apache.sshd.common.SshException;
-//import org.apache.sshd.common.config.ConfigFileReaderSupport;
-//import org.apache.sshd.common.config.keys.PublicKeyEntry;
+import org.apache.sshd.common.config.ConfigFileReaderSupport;
+import org.apache.sshd.common.config.keys.PublicKeyEntry;
 import org.apache.sshd.common.keyprovider.FileKeyPairProvider;
 import org.mule.extension.sftp.api.FileWriteMode;
 import org.mule.extension.sftp.api.SftpFileAttributes;
@@ -50,7 +50,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.SocketAddress;
 import java.net.URI;
-//import java.nio.file.Path;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.GeneralSecurityException;
 import java.security.PublicKey;
@@ -59,7 +60,6 @@ import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
-//import java.util.stream.Collectors;
 
 import org.apache.sshd.client.ClientBuilder;
 import org.apache.sshd.client.SshClient;
@@ -157,14 +157,12 @@ public class SftpClient {
 
   private void configureWithExternalSources() {
     try {
-      //      Path path = PublicKeyEntry.getDefaultKeysFolderPath().resolve("mule_sshd_config");
-      //      Properties properties = ConfigFileReaderSupport.readConfigFile(path);
-      Properties properties = new Properties();
-      if (System.getenv().containsKey("KexAlgorithms")) {
-        properties.setProperty("KexAlgorithms", System.getenv("KexAlgorithms"));
+      Path path = PublicKeyEntry.getDefaultKeysFolderPath().resolve("mule_sshd_config");
+      if (Files.exists(path)) {
+        Properties properties = ConfigFileReaderSupport.readConfigFile(path);
+        SshClientConfigFileReader.configure(client, PropertyResolverUtils.toPropertyResolver(properties), true, true);
       }
-      SshClientConfigFileReader.configure(client, PropertyResolverUtils.toPropertyResolver(properties), true, true);
-    } catch (Exception e) {
+    } catch (IOException e) {
       throw new RuntimeException(e);
     }
   }
