@@ -20,6 +20,7 @@ import static org.apache.sshd.common.SshConstants.SSH2_DISCONNECT_NO_MORE_AUTH_M
 import static org.slf4j.LoggerFactory.getLogger;
 
 import org.mule.extension.sftp.api.SftpAuthenticationMethod;
+import org.mule.extension.sftp.internal.connection.FileBasedConfigProvider;
 import org.mule.extension.sftp.internal.exception.SftpConnectionException;
 import org.mule.extension.sftp.api.SftpProxyConfig;
 import org.mule.extension.sftp.internal.connection.SftpClient;
@@ -140,7 +141,7 @@ public class SftpConnectionProvider extends FileSystemProvider<SftpFileSystemCon
     }
     SftpClient client = clientFactory.createInstance(connectionSettings.getHost(), connectionSettings.getPort(),
                                                      connectionSettings.getPrngAlgorithm(), schedulerService, proxyConfig,
-                                                     connectionSettings.isKexHeader());
+                                                     connectionSettings.isKexHeader(), new FileBasedConfigProvider(null));
     client.setConnectionTimeoutMillis(getConnectionTimeoutUnit().toMillis(getConnectionTimeout()));
     client.setPassword(connectionSettings.getPassword());
     client.setIdentity(connectionSettings.getIdentityFile(), connectionSettings.getPassphrase());

@@ -27,8 +27,6 @@ import org.apache.sshd.client.config.SshClientConfigFileReader;
 import org.apache.sshd.client.session.SessionFactory;
 import org.apache.sshd.common.PropertyResolverUtils;
 import org.apache.sshd.common.SshException;
-import org.apache.sshd.common.config.ConfigFileReaderSupport;
-import org.apache.sshd.common.config.keys.PublicKeyEntry;
 import org.apache.sshd.common.keyprovider.FileKeyPairProvider;
 import org.mule.extension.sftp.api.FileWriteMode;
 import org.mule.extension.sftp.api.SftpFileAttributes;
@@ -50,8 +48,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.SocketAddress;
 import java.net.URI;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.GeneralSecurityException;
 import java.security.PublicKey;
@@ -120,11 +116,11 @@ public class SftpClient {
    * @param port the remote connection port
    */
   public SftpClient(String host, int port, PRNGAlgorithm prngAlgorithm, SchedulerService schedulerService) {
-    this(host, port, prngAlgorithm, schedulerService, true, null);
+    this(host, port, prngAlgorithm, schedulerService, true, null, Properties::new);
   }
 
   public SftpClient(String host, int port, PRNGAlgorithm prngAlgorithm, SchedulerService schedulerService, boolean kexHeader,
-                    SftpProxyConfig sftpProxyConfig) {
+                    SftpProxyConfig sftpProxyConfig, ExternalConfigProvider externalConfigProvider) {
     this.host = host;
     this.port = port;
     this.kexHeader = kexHeader;
@@ -143,7 +139,7 @@ public class SftpClient {
           .build();
     }
 
-    configureWithExternalSources();
+    configureWithExternalSources(externalConfigProvider);
 
     if (!this.kexHeader) {
       SessionFactory factory = new NoStrictKexSessionFactory(client);
@@ -156,17 +152,14 @@ public class SftpClient {
     }
   }
 
-  private void configureWithExternalSources() {
-    try {
-      Path path = PublicKeyEntry.getDefaultKeysFolderPath().resolve(CONFIG_FILE_NAME);
-      if (Files.exists(path)) {
-        Properties properties = ConfigFileReaderSupport.readConfigFile(path);
-        LOGGER.info("Read the config file {} with the props {}", path.getFileName(), properties);
-        SshClientConfigFileReader.configure(client, PropertyResolverUtils.toPropertyResolver(properties), true, true);
-      }
-    } catch (IOException e) {
-      throw handleException("Could not read values from config file", e);
-    }
+  /**
+   * Contains the code to configure / overwrite crypto factories required during creation of {@link SshClient}
+   * If the externalConfigs provided doesn't contain a particular factory or crypto algo, then it will use the default.
+   * @param externalConfigProvider Provides the way to inject external configuration
+   */
+  private void configureWithExternalSources(ExternalConfigProvider externalConfigProvider) {
+    Properties properties = externalConfigProvider.getConfigProperties();
+    SshClientConfigFileReader.configure(client, PropertyResolverUtils.toPropertyResolver(properties), true, true);
   }
 
   /**
