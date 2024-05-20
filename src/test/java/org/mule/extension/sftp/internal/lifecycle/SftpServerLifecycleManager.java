@@ -34,7 +34,7 @@ public class SftpServerLifecycleManager {
   private static void setUpServer(int port) {
     sftpServer = new SftpServer(port, temporaryFolder.getRoot().toPath());
     sftpServer.setPasswordAuthenticator();
-    sftpServer.start();
+    sftpServer.start(null);
   }
 
   public static void stopSftpServer() throws Exception {

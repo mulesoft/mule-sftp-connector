@@ -118,11 +118,11 @@ public class SftpClient {
    * @param port the remote connection port
    */
   public SftpClient(String host, int port, PRNGAlgorithm prngAlgorithm, SchedulerService schedulerService) {
-    this(host, port, prngAlgorithm, schedulerService, true, null);
+    this(host, port, prngAlgorithm, schedulerService, true, null, System::getenv);
   }
 
   public SftpClient(String host, int port, PRNGAlgorithm prngAlgorithm, SchedulerService schedulerService, boolean kexHeader,
-                    SftpProxyConfig sftpProxyConfig) {
+                    SftpProxyConfig sftpProxyConfig, ExternalConfigProvider externalConfigProvider) {
     this.host = host;
     this.port = port;
     this.kexHeader = kexHeader;
@@ -141,7 +141,7 @@ public class SftpClient {
           .build();
     }
 
-    configureWithExternalSources();
+    configureWithExternalSources(externalConfigProvider);
 
     if (!this.kexHeader) {
       SessionFactory factory = new NoStrictKexSessionFactory(client);
@@ -154,12 +154,18 @@ public class SftpClient {
     }
   }
 
-  private void configureWithExternalSources() {
+  /**
+   * Contains the code to configure / overwrite crypto factories required during creation of {@link SshClient}
+   * If the externalConfigs provided doesn't contain a particular factory or crypto algo, then it will use the default.
+   * @param externalConfigProvider Provides the way to inject external configuration,
+   *                               default one is getting this from System env.
+   */
+  private void configureWithExternalSources(ExternalConfigProvider externalConfigProvider) {
     Properties properties = new Properties();
-    Map<String, String> envVars = System.getenv();
-    configKeyList.stream().filter(envVars::containsKey)
-        .forEach(key -> properties.setProperty(key, envVars.get(key)));
-    LOGGER.info("Properties read from the env {}", properties);
+    Map<String, String> configs = externalConfigProvider.getExternalConfigAsMap();
+    configKeyList.stream().filter(configs::containsKey)
+        .forEach(key -> properties.setProperty(key, configs.get(key)));
+    LOGGER.info("Properties read from the config {}", properties);
     SshClientConfigFileReader.configure(client, PropertyResolverUtils.toPropertyResolver(properties), true, true);
   }
 

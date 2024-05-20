@@ -140,7 +140,7 @@ public class SftpConnectionProvider extends FileSystemProvider<SftpFileSystemCon
     }
     SftpClient client = clientFactory.createInstance(connectionSettings.getHost(), connectionSettings.getPort(),
                                                      connectionSettings.getPrngAlgorithm(), schedulerService, proxyConfig,
-                                                     connectionSettings.isKexHeader());
+                                                     connectionSettings.isKexHeader(), System::getenv);
     client.setConnectionTimeoutMillis(getConnectionTimeoutUnit().toMillis(getConnectionTimeout()));
     client.setPassword(connectionSettings.getPassword());
     client.setIdentity(connectionSettings.getIdentityFile(), connectionSettings.getPassphrase());
