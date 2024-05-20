@@ -43,7 +43,7 @@ public class FileBasedConfigProvider implements ExternalConfigProvider {
       if (Files.exists(path)) {
         Properties properties = ConfigFileReaderSupport.readConfigFile(path);
         properties.entrySet().stream().filter(entry -> configKeyList.contains((String) entry.getKey()))
-                        .forEach(entry -> result.put(entry.getKey(), entry.getValue()));
+            .forEach(entry -> result.put(entry.getKey(), entry.getValue()));
         LOGGER.info("Read the config file {} with the props {}", path.getFileName(), properties);
       }
     } catch (IOException e) {
