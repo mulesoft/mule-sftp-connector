@@ -77,7 +77,6 @@ import org.slf4j.Logger;
  */
 public class SftpClient {
 
-  private static final String CONFIG_FILE_NAME = "mule_sshd_config";
   private static final Logger LOGGER = getLogger(SftpClient.class);
   protected static final OpenMode[] CREATE_MODES = {OpenMode.Write, OpenMode.Create, OpenMode.Truncate};
   protected static final OpenMode[] APPEND_MODES = {OpenMode.Write, OpenMode.Append};

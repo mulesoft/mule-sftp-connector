@@ -16,15 +16,17 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Properties;
+import java.util.Set;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
 public class FileBasedConfigProvider implements ExternalConfigProvider {
 
-  private static final List<String> configKeyList = Arrays.asList("KexAlgorithms", "Ciphers", "HostKeyAlgorithms", "MACs");
+  private static final List<String> CONFIG_KEY_LIST = Arrays.asList("KexAlgorithms", "Ciphers", "HostKeyAlgorithms", "MACs");
   private static final Logger LOGGER = getLogger(FileBasedConfigProvider.class);
   private static final String CONFIG_FILE_NAME = "mule_sshd_config";
   private final Path path;
@@ -42,13 +44,26 @@ public class FileBasedConfigProvider implements ExternalConfigProvider {
     try {
       if (Files.exists(path)) {
         Properties properties = ConfigFileReaderSupport.readConfigFile(path);
-        properties.entrySet().stream().filter(entry -> configKeyList.contains((String) entry.getKey()))
-            .forEach(entry -> result.put(entry.getKey(), entry.getValue()));
+        Set<String> unsupportedKeys = new HashSet<>();
+        populateSupportedProperties(properties, result, unsupportedKeys);
+        if (!unsupportedKeys.isEmpty()) {
+          LOGGER.warn("Config keys found but ignored: {}", unsupportedKeys);
+        }
         LOGGER.info("Read the config file {} with the props {}", path.getFileName(), properties);
       }
     } catch (IOException e) {
-      LOGGER.warn("Could not read values from config file", e);
+      LOGGER.warn("Could not read values from config file: " + path.getFileName(), e);
     }
     return result;
+  }
+
+  private void populateSupportedProperties(Properties properties, Properties result, Set<String> unsupportedKeys) {
+    properties.forEach((key, value) -> {
+      if (CONFIG_KEY_LIST.contains((String) key)) {
+        result.put(key, value);
+      } else {
+        unsupportedKeys.add((String) key);
+      }
+    });
   }
 }
