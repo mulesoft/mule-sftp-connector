@@ -42,6 +42,7 @@ import java.net.URI;
 import java.nio.file.Paths;
 import java.security.GeneralSecurityException;
 import java.util.List;
+import java.util.Properties;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
@@ -94,7 +95,7 @@ public class SftpTestHarness extends AbstractSftpTestHarness {
    */
   @Override
   protected void doBefore() throws Exception {
-    setupClientAndServer(null, System::getenv);
+    setupClientAndServer(null, Properties::new);
   }
 
   public void setupClientAndServer(List<KeyExchangeFactory> keyExchangeFactoryList, ExternalConfigProvider externalConfigProvider)

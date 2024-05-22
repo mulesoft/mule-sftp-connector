@@ -16,9 +16,8 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.Properties;
 
 public class SftpClientWithExternalConfigTestCase {
 
@@ -31,9 +30,9 @@ public class SftpClientWithExternalConfigTestCase {
     List<KeyExchangeFactory> keyExchangeFactoryList =
         NamedFactory.setUpTransformedFactories(true, Collections.singletonList(BuiltinDHFactories.dhg14), ServerBuilder.DH2KEX);
     try {
-      Map<String, String> cipherEnvMap = new HashMap<>();
-      cipherEnvMap.put("KexAlgorithms", "diffie-hellman-group14-sha1");
-      sftpTestHarness.setupClientAndServer(keyExchangeFactoryList, () -> cipherEnvMap);
+      Properties properties = new Properties();
+      properties.put("KexAlgorithms", "diffie-hellman-group14-sha1");
+      sftpTestHarness.setupClientAndServer(keyExchangeFactoryList, () -> properties);
     } finally {
       sftpTestHarness.doAfter();
     }
@@ -47,7 +46,7 @@ public class SftpClientWithExternalConfigTestCase {
     List<KeyExchangeFactory> keyExchangeFactoryList =
         NamedFactory.setUpTransformedFactories(true, Collections.singletonList(BuiltinDHFactories.dhg14), ServerBuilder.DH2KEX);
     try {
-      sftpTestHarness.setupClientAndServer(keyExchangeFactoryList, System::getenv);
+      sftpTestHarness.setupClientAndServer(keyExchangeFactoryList, Properties::new);
     } finally {
       sftpTestHarness.doAfter();
     }

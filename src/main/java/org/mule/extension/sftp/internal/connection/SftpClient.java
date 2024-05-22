@@ -51,10 +51,8 @@ import java.net.URI;
 import java.nio.file.Paths;
 import java.security.GeneralSecurityException;
 import java.security.PublicKey;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
@@ -79,7 +77,6 @@ import org.slf4j.Logger;
  */
 public class SftpClient {
 
-  private static final List<String> configKeyList = Arrays.asList("KexAlgorithms", "Ciphers", "HostKeyAlgorithms", "MACs");
   private static final Logger LOGGER = getLogger(SftpClient.class);
   protected static final OpenMode[] CREATE_MODES = {OpenMode.Write, OpenMode.Create, OpenMode.Truncate};
   protected static final OpenMode[] APPEND_MODES = {OpenMode.Write, OpenMode.Append};
@@ -118,7 +115,7 @@ public class SftpClient {
    * @param port the remote connection port
    */
   public SftpClient(String host, int port, PRNGAlgorithm prngAlgorithm, SchedulerService schedulerService) {
-    this(host, port, prngAlgorithm, schedulerService, true, null, System::getenv);
+    this(host, port, prngAlgorithm, schedulerService, true, null, Properties::new);
   }
 
   public SftpClient(String host, int port, PRNGAlgorithm prngAlgorithm, SchedulerService schedulerService, boolean kexHeader,
@@ -158,14 +155,10 @@ public class SftpClient {
    * Contains the code to configure / overwrite crypto factories required during creation of {@link SshClient}
    * If the externalConfigs provided doesn't contain a particular factory or crypto algo, then it will use the default.
    * @param externalConfigProvider Provides the way to inject external configuration,
-   *                               default one is getting this from System env.
+   *                               default one is getting this from System properties.
    */
   private void configureWithExternalSources(ExternalConfigProvider externalConfigProvider) {
-    Properties properties = new Properties();
-    Map<String, String> configs = externalConfigProvider.getExternalConfigAsMap();
-    configKeyList.stream().filter(configs::containsKey)
-        .forEach(key -> properties.setProperty(key, configs.get(key)));
-    LOGGER.info("Properties read from the config {}", properties);
+    Properties properties = externalConfigProvider.getConfigProperties();
     SshClientConfigFileReader.configure(client, PropertyResolverUtils.toPropertyResolver(properties), true, true);
   }
 

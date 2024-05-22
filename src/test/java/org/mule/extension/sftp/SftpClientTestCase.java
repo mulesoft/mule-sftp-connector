@@ -19,6 +19,7 @@ import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.when;
 
 import org.mule.extension.sftp.api.random.alg.PRNGAlgorithm;
+import org.mule.extension.sftp.internal.connection.PropertyBasedConfigProvider;
 import org.mule.extension.sftp.internal.connection.SftpClient;
 import org.mule.runtime.api.connection.ConnectionException;
 import org.mule.runtime.api.exception.MuleRuntimeException;
@@ -27,6 +28,7 @@ import org.mule.tck.size.SmallTest;
 
 import javax.inject.Inject;
 import java.net.URI;
+import java.util.Properties;
 
 import org.apache.sshd.client.SshClient;
 import org.apache.sshd.client.session.ClientSession;
@@ -63,7 +65,8 @@ public class SftpClientTestCase {
   protected SchedulerService schedulerService;
 
   @InjectMocks
-  private SftpClient client = new SftpClient(EMPTY, 0, PRNGAlgorithm.SHA1PRNG, schedulerService, true, null, System::getenv);
+  private SftpClient client =
+      new SftpClient(EMPTY, 0, PRNGAlgorithm.SHA1PRNG, schedulerService, true, null, Properties::new);
 
   @Test
   public void returnNullOnUnexistingFile() throws Exception {

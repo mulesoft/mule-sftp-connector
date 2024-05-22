@@ -6,11 +6,11 @@
  */
 package org.mule.extension.sftp.internal.connection;
 
-import java.util.Map;
+import java.util.Properties;
 
 @FunctionalInterface
 public interface ExternalConfigProvider {
 
-  Map<String, String> getExternalConfigAsMap();
+  Properties getConfigProperties();
 
 }
