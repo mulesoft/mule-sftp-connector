@@ -49,7 +49,8 @@ public class FileBasedConfigProvider implements ExternalConfigProvider {
         if (!unsupportedKeys.isEmpty()) {
           LOGGER.warn("Config keys found but ignored: {}", unsupportedKeys);
         }
-        LOGGER.info("Read the config file {} with the props {}", path.getFileName(), properties);
+        trimUnwantedWhitespace(result);
+        LOGGER.info("Read the config file {} with the props {}", path.getFileName(), result);
       }
     } catch (IOException e) {
       LOGGER.warn("Could not read values from config file: " + path.getFileName(), e);
@@ -57,13 +58,22 @@ public class FileBasedConfigProvider implements ExternalConfigProvider {
     return result;
   }
 
-  private void populateSupportedProperties(Properties properties, Properties result, Set<String> unsupportedKeys) {
+  private void populateSupportedProperties(Properties properties, Properties supportedProperties, Set<String> unsupportedKeys) {
     properties.forEach((key, value) -> {
       if (CONFIG_KEY_LIST.contains((String) key)) {
-        result.put(key, value);
+        supportedProperties.put(key, value);
       } else {
         unsupportedKeys.add((String) key);
       }
+    });
+  }
+
+  private void trimUnwantedWhitespace(Properties supportedProperties) {
+    supportedProperties.forEach((key, value) -> {
+      String[] values = Arrays.stream(((String) value).split(","))
+          .map(String::trim)
+          .toArray(String[]::new);
+      supportedProperties.setProperty((String) key, StringUtils.join(values, ','));
     });
   }
 }
