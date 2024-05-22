@@ -25,7 +25,7 @@ public class SftpClientWithExternalConfigTestCase {
   public ExpectedException expectedException = ExpectedException.none();
 
   @Test
-  public void testConnectionWithEnvironmentVars() throws Exception {
+  public void testConnectionWithSystemProperties() throws Exception {
     SftpTestHarness sftpTestHarness = new SftpTestHarness();
     List<KeyExchangeFactory> keyExchangeFactoryList =
         NamedFactory.setUpTransformedFactories(true, Collections.singletonList(BuiltinDHFactories.dhg14), ServerBuilder.DH2KEX);
@@ -39,7 +39,7 @@ public class SftpClientWithExternalConfigTestCase {
   }
 
   @Test
-  public void testConnectionWithoutEnvironmentVars() throws Exception {
+  public void testConnectionWithoutSystemProperties() throws Exception {
     expectedException.expect(SshException.class);
     expectedException.expectMessage("Unable to negotiate key exchange for kex algorithms");
     SftpTestHarness sftpTestHarness = new SftpTestHarness();
