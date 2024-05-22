@@ -11,6 +11,10 @@ import java.util.Properties;
 @FunctionalInterface
 public interface ExternalConfigProvider {
 
+  /**
+   * Provides the properties as fetched by individual config providers.
+   * @return Properties Contains the property map provided by the external config.
+   */
   Properties getConfigProperties();
 
 }
