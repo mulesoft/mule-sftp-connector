@@ -8,13 +8,10 @@ package org.mule.extension.sftp.internal.connection;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.sshd.common.config.ConfigFileReaderSupport;
-import org.apache.sshd.common.config.keys.PublicKeyEntry;
 import org.slf4j.Logger;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.io.InputStream;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -28,34 +25,52 @@ public class FileBasedConfigProvider implements ExternalConfigProvider {
 
   private static final List<String> CONFIG_KEY_LIST = Arrays.asList("KexAlgorithms", "Ciphers", "HostKeyAlgorithms", "MACs");
   private static final Logger LOGGER = getLogger(FileBasedConfigProvider.class);
-  private static final String CONFIG_FILE_NAME = "mule_sshd_config";
-  private final Path path;
+  public static final String CONFIG_FILE_PATH_PROPERTY = "config.file.path";
+  private static final String DEFAULT_CONFIG_FILE_PATH = "mule_sshd_config";
+  private final String configFilePath;
 
-  public FileBasedConfigProvider(String filepath) {
-    path = Optional.ofNullable(filepath)
+  public FileBasedConfigProvider() {
+    configFilePath = Optional.ofNullable(System.getProperty(CONFIG_FILE_PATH_PROPERTY))
         .filter(StringUtils::isNotBlank)
-        .map(Paths::get)
-        .orElseGet(() -> PublicKeyEntry.getDefaultKeysFolderPath().resolve(CONFIG_FILE_NAME));
+        .orElse(DEFAULT_CONFIG_FILE_PATH);
   }
 
   @Override
   public Properties getConfigProperties() {
     Properties result = new Properties();
     try {
-      if (Files.exists(path)) {
-        Properties properties = ConfigFileReaderSupport.readConfigFile(path);
-        Set<String> unsupportedKeys = new HashSet<>();
-        populateSupportedProperties(properties, result, unsupportedKeys);
-        if (!unsupportedKeys.isEmpty()) {
-          LOGGER.warn("Config keys found but ignored: {}", unsupportedKeys);
-        }
-        trimUnwantedWhitespace(result);
-        LOGGER.info("Read the config file {} with the props {}", path.getFileName(), result);
+      Properties properties = readConfigFile(configFilePath);
+      Set<String> unsupportedKeys = new HashSet<>();
+      populateSupportedProperties(properties, result, unsupportedKeys);
+      if (!unsupportedKeys.isEmpty()) {
+        LOGGER.warn("Config keys found but ignored: {}", unsupportedKeys);
       }
+      trimUnwantedWhitespace(result);
+      LOGGER.info("Read the config file {} with the props {}", configFilePath, result);
     } catch (IOException e) {
-      LOGGER.warn("Could not read values from config file: " + path.getFileName(), e);
+      LOGGER.warn("Could not read values from config file: " + configFilePath, e);
     }
     return result;
+  }
+
+  private Properties readConfigFile(String configFilePath) throws IOException {
+    InputStream inputStream = this.getClass().getClassLoader().getResourceAsStream(configFilePath);
+    Properties properties = new Properties();
+    if (inputStream != null) {
+      try {
+        properties = ConfigFileReaderSupport.readConfigFile(inputStream, true);
+      } catch (Throwable throwable) {
+        try {
+          inputStream.close();
+        } catch (Throwable th) {
+          throwable.addSuppressed(th);
+        }
+        throw throwable;
+      } finally {
+        inputStream.close();
+      }
+    }
+    return properties;
   }
 
   private void populateSupportedProperties(Properties properties, Properties supportedProperties, Set<String> unsupportedKeys) {
