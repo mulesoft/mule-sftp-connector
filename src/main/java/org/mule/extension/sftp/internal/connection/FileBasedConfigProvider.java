@@ -15,6 +15,7 @@ import java.io.InputStream;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
@@ -39,13 +40,13 @@ public class FileBasedConfigProvider implements ExternalConfigProvider {
   public Properties getConfigProperties() {
     Properties result = new Properties();
     try {
-      Properties properties = readConfigFile(configFilePath);
-      Set<String> unsupportedKeys = new HashSet<>();
-      populateSupportedProperties(properties, result, unsupportedKeys);
-      if (!unsupportedKeys.isEmpty()) {
-        LOGGER.warn("Config keys found but ignored: {}", unsupportedKeys);
+      InputStream inputStream = this.getClass().getClassLoader().getResourceAsStream(configFilePath);
+      if (Objects.isNull(inputStream)) {
+        LOGGER.warn("Couldn't locate config file {}", configFilePath);
+        return result;
       }
-      trimUnwantedWhitespace(result);
+      Properties properties = readConfigFile(inputStream);
+      populateSupportedProperties(properties, result);
       LOGGER.info("Read the config file {} with the props {}", configFilePath, result);
     } catch (IOException e) {
       LOGGER.warn("Could not read values from config file: " + configFilePath, e);
@@ -53,42 +54,42 @@ public class FileBasedConfigProvider implements ExternalConfigProvider {
     return result;
   }
 
-  private Properties readConfigFile(String configFilePath) throws IOException {
-    InputStream inputStream = this.getClass().getClassLoader().getResourceAsStream(configFilePath);
-    Properties properties = new Properties();
-    if (inputStream != null) {
+  private Properties readConfigFile(InputStream inputStream) throws IOException {
+    Properties properties;
+    try {
+      properties = ConfigFileReaderSupport.readConfigFile(inputStream, true);
+    } catch (Throwable throwable) {
       try {
-        properties = ConfigFileReaderSupport.readConfigFile(inputStream, true);
-      } catch (Throwable throwable) {
-        try {
-          inputStream.close();
-        } catch (Throwable th) {
-          throwable.addSuppressed(th);
-        }
-        throw throwable;
-      } finally {
         inputStream.close();
+      } catch (Throwable th) {
+        throwable.addSuppressed(th);
       }
+      throw throwable;
+    } finally {
+      inputStream.close();
     }
     return properties;
   }
 
-  private void populateSupportedProperties(Properties properties, Properties supportedProperties, Set<String> unsupportedKeys) {
+  private void populateSupportedProperties(Properties properties, Properties supportedProperties) {
+    Set<String> unsupportedKeys = new HashSet<>();
     properties.forEach((key, value) -> {
       if (CONFIG_KEY_LIST.contains((String) key)) {
-        supportedProperties.put(key, value);
+        String trimmedVal = trimUnwantedWhitespace((String) value);
+        supportedProperties.put(key, trimmedVal);
       } else {
         unsupportedKeys.add((String) key);
       }
     });
+    if (!unsupportedKeys.isEmpty()) {
+      LOGGER.warn("Config keys found but ignored: {}", unsupportedKeys);
+    }
   }
 
-  private void trimUnwantedWhitespace(Properties supportedProperties) {
-    supportedProperties.forEach((key, value) -> {
-      String[] values = Arrays.stream(((String) value).split(","))
-          .map(String::trim)
-          .toArray(String[]::new);
-      supportedProperties.setProperty((String) key, StringUtils.join(values, ','));
-    });
+  private String trimUnwantedWhitespace(String value) {
+    String[] values = Arrays.stream(value.split(","))
+        .map(String::trim)
+        .toArray(String[]::new);
+    return StringUtils.join(values, ',');
   }
 }
