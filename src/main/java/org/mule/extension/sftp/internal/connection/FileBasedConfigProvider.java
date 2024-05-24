@@ -16,7 +16,6 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
 
@@ -26,30 +25,30 @@ public class FileBasedConfigProvider implements ExternalConfigProvider {
 
   private static final List<String> CONFIG_KEY_LIST = Arrays.asList("KexAlgorithms", "Ciphers", "HostKeyAlgorithms", "MACs");
   private static final Logger LOGGER = getLogger(FileBasedConfigProvider.class);
-  public static final String CONFIG_FILE_PATH_PROPERTY = "config.file.path";
-  private static final String DEFAULT_CONFIG_FILE_PATH = "mule_sshd_config";
   private final String configFilePath;
 
-  public FileBasedConfigProvider() {
-    configFilePath = Optional.ofNullable(System.getProperty(CONFIG_FILE_PATH_PROPERTY))
-        .filter(StringUtils::isNotBlank)
-        .orElse(DEFAULT_CONFIG_FILE_PATH);
+  public FileBasedConfigProvider(String configFilePath) {
+    this.configFilePath = configFilePath;
   }
 
   @Override
   public Properties getConfigProperties() {
     Properties result = new Properties();
-    try {
-      InputStream inputStream = this.getClass().getClassLoader().getResourceAsStream(configFilePath);
-      if (Objects.isNull(inputStream)) {
-        LOGGER.warn("Couldn't locate config file {}", configFilePath);
-        return result;
+    if (StringUtils.isNotBlank(configFilePath)) {
+      try {
+        InputStream inputStream = this.getClass().getClassLoader().getResourceAsStream(configFilePath);
+        if (Objects.isNull(inputStream)) {
+          LOGGER.warn("Couldn't locate config file {}", configFilePath);
+          return result;
+        }
+        Properties properties = readConfigFile(inputStream);
+        populateSupportedProperties(properties, result);
+        LOGGER.info("Read the config file {} with the props {}", configFilePath, result);
+      } catch (IOException e) {
+        LOGGER.warn("Could not read values from config file: " + configFilePath, e);
       }
-      Properties properties = readConfigFile(inputStream);
-      populateSupportedProperties(properties, result);
-      LOGGER.info("Read the config file {} with the props {}", configFilePath, result);
-    } catch (IOException e) {
-      LOGGER.warn("Could not read values from config file: " + configFilePath, e);
+    } else {
+      LOGGER.info("SSHD Config file not provided");
     }
     return result;
   }
