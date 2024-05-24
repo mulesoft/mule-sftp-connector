@@ -8,11 +8,14 @@ package org.mule.extension.sftp;
 
 import static java.util.Arrays.asList;
 
+import org.apache.sshd.common.kex.KeyExchangeFactory;
 import org.mule.runtime.api.exception.MuleRuntimeException;
 
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
+import java.util.Optional;
 
 import org.apache.sshd.common.file.virtualfs.VirtualFileSystemFactory;
 import org.apache.sshd.scp.server.ScpCommandFactory;
@@ -31,11 +34,15 @@ public class SftpServer {
   private Path path;
 
   public SftpServer(int port, Path path) {
+    this(port, path, null);
+  }
+
+  public SftpServer(int port, Path path, List<KeyExchangeFactory> keyExchangeFactoryList) {
     this.port = port;
     this.path = path;
     SftpSubsystemFactory factory = createFtpSubsystemFactory();
     sshdServer = SshServer.setUpDefaultServer();
-    configureSshdServer(factory);
+    configureSshdServer(factory, keyExchangeFactoryList);
   }
 
   public void setPasswordAuthenticator(PasswordAuthenticator passwordAuthenticator) {
@@ -50,12 +57,13 @@ public class SftpServer {
     sshdServer.setPublickeyAuthenticator(publicKeyAuthenticator);
   }
 
-  private void configureSshdServer(SftpSubsystemFactory factory) {
+  private void configureSshdServer(SftpSubsystemFactory factory, List<KeyExchangeFactory> keyExchangeFactoryList) {
     sshdServer.setPort(port);
     sshdServer.setKeyPairProvider(new SimpleGeneratorHostKeyProvider(Paths.get("src", "test", "resources", "hostkey.ser")));
     sshdServer.setSubsystemFactories(asList(factory));
     sshdServer.setCommandFactory(new ScpCommandFactory());
     sshdServer.setFileSystemFactory(new VirtualFileSystemFactory(path));
+    Optional.ofNullable(keyExchangeFactoryList).ifPresent(list -> sshdServer.setKeyExchangeFactories(list));
   }
 
   private SftpSubsystemFactory createFtpSubsystemFactory() {
@@ -66,11 +74,11 @@ public class SftpServer {
     return (arg0, arg1, arg2) -> USERNAME.equals(arg0) && PASSWORD.equals(arg1);
   }
 
-  public void start() {
+  public void start(List<KeyExchangeFactory> keyExchangeFactoryList) {
     try {
       if (sshdServer == null) {
         sshdServer = SshServer.setUpDefaultServer();
-        configureSshdServer(createFtpSubsystemFactory());
+        configureSshdServer(createFtpSubsystemFactory(), keyExchangeFactoryList);
       }
       sshdServer.start();
     } catch (IOException e) {

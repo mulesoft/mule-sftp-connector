@@ -22,10 +22,12 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
+import org.apache.sshd.common.kex.KeyExchangeFactory;
 import org.mule.extension.AbstractSftpTestHarness;
 import org.mule.extension.sftp.api.FileAttributes;
 import org.mule.extension.sftp.api.SftpFileAttributes;
 import org.mule.extension.sftp.api.random.alg.PRNGAlgorithm;
+import org.mule.extension.sftp.internal.connection.ExternalConfigProvider;
 import org.mule.extension.sftp.internal.connection.SftpClient;
 import org.mule.extension.sftp.internal.connection.SftpClientFactory;
 import org.mule.runtime.api.scheduler.SchedulerService;
@@ -40,6 +42,7 @@ import java.net.URI;
 import java.nio.file.Paths;
 import java.security.GeneralSecurityException;
 import java.util.List;
+import java.util.Properties;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
@@ -92,9 +95,14 @@ public class SftpTestHarness extends AbstractSftpTestHarness {
    */
   @Override
   protected void doBefore() throws Exception {
+    setupClientAndServer(null, Properties::new);
+  }
+
+  public void setupClientAndServer(List<KeyExchangeFactory> keyExchangeFactoryList, ExternalConfigProvider externalConfigProvider)
+      throws Exception {
     temporaryFolder.create();
-    setUpServer();
-    sftpClient = createDefaultSftpClient();
+    setUpServer(keyExchangeFactoryList);
+    sftpClient = createDefaultSftpClient(externalConfigProvider);
     sftpClient.mkdir(WORKING_DIR);
     sftpClient.changeWorkingDirectory(WORKING_DIR);
     System.setProperty(WORKING_DIR_SYSTEM_PROPERTY, sftpClient.getWorkingDirectory());
@@ -119,10 +127,11 @@ public class SftpTestHarness extends AbstractSftpTestHarness {
     }
   }
 
-  private SftpClient createDefaultSftpClient() throws IOException, GeneralSecurityException {
+  private SftpClient createDefaultSftpClient(ExternalConfigProvider externalConfigProvider)
+      throws IOException, GeneralSecurityException {
     SftpClient sftpClient =
         new SftpClientFactory().createInstance("localhost", sftpPort.getNumber(), PRNGAlgorithm.SHA1PRNG, schedulerService, null,
-                                               true);
+                                               true, externalConfigProvider);
     clientAuthConfigurator.configure(sftpClient);
 
     sftpClient.setPassword(PASSWORD);
@@ -130,10 +139,10 @@ public class SftpTestHarness extends AbstractSftpTestHarness {
     return sftpClient;
   }
 
-  public void setUpServer() {
-    sftpServer = new SftpServer(sftpPort.getNumber(), temporaryFolder.getRoot().toPath());
+  public void setUpServer(List<KeyExchangeFactory> keyExchangeFactoryList) {
+    sftpServer = new SftpServer(sftpPort.getNumber(), temporaryFolder.getRoot().toPath(), keyExchangeFactoryList);
     serverAuthConfigurator.configure(sftpServer);
-    sftpServer.start();
+    sftpServer.start(keyExchangeFactoryList);
   }
 
   /**

@@ -23,7 +23,9 @@ import static org.apache.sshd.sftp.common.SftpConstants.SSH_FX_CONNECTION_LOST;
 import static org.apache.sshd.sftp.common.SftpConstants.SSH_FX_NO_CONNECTION;
 import static org.slf4j.LoggerFactory.getLogger;
 
+import org.apache.sshd.client.config.SshClientConfigFileReader;
 import org.apache.sshd.client.session.SessionFactory;
+import org.apache.sshd.common.PropertyResolverUtils;
 import org.apache.sshd.common.SshException;
 import org.apache.sshd.common.keyprovider.FileKeyPairProvider;
 import org.mule.extension.sftp.api.FileWriteMode;
@@ -51,6 +53,7 @@ import java.security.GeneralSecurityException;
 import java.security.PublicKey;
 import java.util.Collection;
 import java.util.List;
+import java.util.Properties;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
@@ -112,11 +115,11 @@ public class SftpClient {
    * @param port the remote connection port
    */
   public SftpClient(String host, int port, PRNGAlgorithm prngAlgorithm, SchedulerService schedulerService) {
-    this(host, port, prngAlgorithm, schedulerService, true, null);
+    this(host, port, prngAlgorithm, schedulerService, true, null, Properties::new);
   }
 
   public SftpClient(String host, int port, PRNGAlgorithm prngAlgorithm, SchedulerService schedulerService, boolean kexHeader,
-                    SftpProxyConfig sftpProxyConfig) {
+                    SftpProxyConfig sftpProxyConfig, ExternalConfigProvider externalConfigProvider) {
     this.host = host;
     this.port = port;
     this.kexHeader = kexHeader;
@@ -135,6 +138,8 @@ public class SftpClient {
           .build();
     }
 
+    configureWithExternalSources(externalConfigProvider);
+
     if (!this.kexHeader) {
       SessionFactory factory = new NoStrictKexSessionFactory(client);
       client.setSessionFactory(factory);
@@ -146,6 +151,16 @@ public class SftpClient {
     }
   }
 
+  /**
+   * Contains the code to configure / overwrite crypto factories required during creation of {@link SshClient}
+   * If the externalConfigs provided doesn't contain a particular factory or crypto algo, then it will use the default.
+   * @param externalConfigProvider Provides the way to inject external configuration,
+   *                               default one is getting this from System properties.
+   */
+  private void configureWithExternalSources(ExternalConfigProvider externalConfigProvider) {
+    Properties properties = externalConfigProvider.getConfigProperties();
+    SshClientConfigFileReader.configure(client, PropertyResolverUtils.toPropertyResolver(properties), true, true);
+  }
 
   /**
    * @return the current working directory
