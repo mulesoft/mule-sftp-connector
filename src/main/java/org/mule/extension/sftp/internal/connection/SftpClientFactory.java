@@ -27,7 +27,8 @@ public class SftpClientFactory {
    * @return a {@link SftpClient}
    */
   public SftpClient createInstance(String host, int port, PRNGAlgorithm prngAlgorithm, SchedulerService schedulerService,
-                                   SftpProxyConfig sftpProxyConfig, boolean kexHeader) {
-    return new SftpClient(host, port, prngAlgorithm, schedulerService, kexHeader, sftpProxyConfig);
+                                   SftpProxyConfig sftpProxyConfig, boolean kexHeader,
+                                   ExternalConfigProvider externalConfigProvider) {
+    return new SftpClient(host, port, prngAlgorithm, schedulerService, kexHeader, sftpProxyConfig, externalConfigProvider);
   }
 }

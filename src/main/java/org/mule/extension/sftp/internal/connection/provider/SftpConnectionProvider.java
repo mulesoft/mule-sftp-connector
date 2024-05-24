@@ -29,6 +29,8 @@ import org.mule.extension.sftp.internal.connection.SftpFileSystemConnection;
 import org.mule.extension.sftp.internal.error.FileError;
 import org.mule.extension.sftp.api.random.alg.PRNGAlgorithm;
 import org.mule.extension.sftp.internal.extension.SftpConnector;
+import org.mule.extension.sftp.internal.connection.ParameterBasedConfigProvider;
+import org.mule.extension.sftp.internal.connection.SecuritySettings;
 import org.mule.extension.sftp.internal.connection.TimeoutSettings;
 import org.mule.runtime.api.connection.ConnectionException;
 import org.mule.runtime.api.connection.ConnectionValidationResult;
@@ -71,6 +73,8 @@ public class SftpConnectionProvider extends FileSystemProvider<SftpFileSystemCon
   private static final Logger LOGGER = getLogger(SftpConnectionProvider.class);
 
   private static final String TIMEOUT_CONFIGURATION = "Timeout Configuration";
+
+  private static final String SECURITY_CONFIGURATION = "Security Configuration";
   private static final String SFTP_ERROR_MESSAGE_MASK =
       "Could not establish SFTP connection with host: '%s' at port: '%d' - %s";
   static final String PROVIDER_FILE_NAME_PATTERN = "(.*)\\.jar";
@@ -98,6 +102,9 @@ public class SftpConnectionProvider extends FileSystemProvider<SftpFileSystemCon
 
   @ParameterGroup(name = TIMEOUT_CONFIGURATION)
   private TimeoutSettings timeoutSettings = new TimeoutSettings();
+
+  @ParameterGroup(name = SECURITY_CONFIGURATION)
+  private final SecuritySettings securitySettings = new SecuritySettings();
 
   @ParameterGroup(name = CONNECTION)
   private SftpConnectionSettings connectionSettings = new SftpConnectionSettings();
@@ -140,7 +147,8 @@ public class SftpConnectionProvider extends FileSystemProvider<SftpFileSystemCon
     }
     SftpClient client = clientFactory.createInstance(connectionSettings.getHost(), connectionSettings.getPort(),
                                                      connectionSettings.getPrngAlgorithm(), schedulerService, proxyConfig,
-                                                     connectionSettings.isKexHeader());
+                                                     connectionSettings.isKexHeader(),
+                                                     new ParameterBasedConfigProvider(securitySettings));
     client.setConnectionTimeoutMillis(getConnectionTimeoutUnit().toMillis(getConnectionTimeout()));
     client.setPassword(connectionSettings.getPassword());
     client.setIdentity(connectionSettings.getIdentityFile(), connectionSettings.getPassphrase());
@@ -275,6 +283,34 @@ public class SftpConnectionProvider extends FileSystemProvider<SftpFileSystemCon
     timeoutSettings.setResponseTimeoutUnit(responseTimeoutUnit);
   }
 
+  protected String getKexAlgorithms() {
+    return securitySettings.getKexAlgorithms();
+  }
+
+  protected String getCiphers() {
+    return securitySettings.getCiphers();
+  }
+
+  protected String getHostKeyAlgorithms() {
+    return securitySettings.getHostKeyAlgorithms();
+  }
+
+  protected String getMacs() {
+    return securitySettings.getMacs();
+  }
+
+  public void setKexAlgorithms(String kexAlgorithms) {
+    securitySettings.setKexAlgorithms(kexAlgorithms);
+  }
+
+  public void setHostKeyAlgorithms(String hostKeyAlgorithms) {
+    securitySettings.setHostKeyAlgorithms(hostKeyAlgorithms);
+  }
+
+  public void setMacs(String macs) {
+    securitySettings.setMacs(macs);
+  }
+
   private String getErrorMessage(SftpConnectionSettings connectionSettings, String message) {
     return format(SFTP_ERROR_MESSAGE_MASK, connectionSettings.getHost(), connectionSettings.getPort(), message);
   }
@@ -299,13 +335,14 @@ public class SftpConnectionProvider extends FileSystemProvider<SftpFileSystemCon
         Objects.equals(connectionSettings, that.connectionSettings) &&
         Objects.equals(preferredAuthenticationMethods, that.preferredAuthenticationMethods) &&
         Objects.equals(knownHostsFile, that.knownHostsFile) &&
-        Objects.equals(proxyConfig, that.proxyConfig);
+        Objects.equals(proxyConfig, that.proxyConfig) &&
+        Objects.equals(securitySettings, that.securitySettings);
   }
 
   @Override
   public int hashCode() {
     return Objects.hash(super.hashCode(), workingDir, timeoutSettings, connectionSettings, preferredAuthenticationMethods,
-                        knownHostsFile, proxyConfig);
+                        knownHostsFile, proxyConfig, securitySettings);
   }
 
   private void checkConnectionTimeoutPrecision() {
