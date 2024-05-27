@@ -173,6 +173,8 @@ public class SftpConnectionProvider extends FileSystemProvider<SftpFileSystemCon
           LOGGER.error(e.getMessage());
           // throw new MuleRuntimeException(e);
         }
+      } else if (e.getDisconnectCode() == 3) {
+        throw new SftpConnectionException(getErrorMessage(connectionSettings, e.getMessage()), e, FileError.NEGOTIATION_FAILED);
       } else if (e.getDisconnectCode() == 9) {
         throw new SftpConnectionException(getErrorMessage(connectionSettings, e.getMessage()), e, FileError.CANNOT_REACH);
       } else {

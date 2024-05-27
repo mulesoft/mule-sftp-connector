@@ -8,11 +8,16 @@ package org.mule.extension.sftp;
 
 import static java.util.Arrays.asList;
 
+import org.apache.sshd.common.NamedFactory;
+import org.apache.sshd.common.kex.BuiltinDHFactories;
+import org.apache.sshd.common.kex.KeyExchangeFactory;
+import org.apache.sshd.server.ServerBuilder;
 import org.mule.runtime.api.exception.MuleRuntimeException;
 
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 
 import org.apache.sshd.common.file.virtualfs.VirtualFileSystemFactory;
 import org.apache.sshd.scp.server.ScpCommandFactory;
@@ -67,14 +72,28 @@ public class SftpServer {
   }
 
   public void start() {
+    start(null);
+  }
+
+  public void start(String kexAlgoList) {
     try {
       if (sshdServer == null) {
         sshdServer = SshServer.setUpDefaultServer();
         configureSshdServer(createFtpSubsystemFactory());
       }
+      configureWithSecurityParams(kexAlgoList);
       sshdServer.start();
     } catch (IOException e) {
       throw new MuleRuntimeException(e);
+    }
+  }
+
+  private void configureWithSecurityParams(String kexAlgoList) {
+    if (kexAlgoList != null) {
+      BuiltinDHFactories.ParseResult result = BuiltinDHFactories.parseDHFactoriesList(kexAlgoList);
+      List<KeyExchangeFactory> keyExchangeFactoryList =
+          NamedFactory.setUpTransformedFactories(true, result.getParsedFactories(), ServerBuilder.DH2KEX);
+      sshdServer.setKeyExchangeFactories(keyExchangeFactoryList);
     }
   }
 

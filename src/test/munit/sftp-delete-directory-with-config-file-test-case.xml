@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:munit="http://www.mulesoft.org/schema/mule/munit"
+      xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools"
+      xmlns="http://www.mulesoft.org/schema/mule/core"
+      xmlns:sftp="http://www.mulesoft.org/schema/mule/sftp"
+      xmlns:java="http://www.mulesoft.org/schema/mule/java" xmlns:test="http://www.mulesoft.org/schema/mule/test"
+      xsi:schemaLocation="
+		http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+		http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
+		http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd
+        http://www.mulesoft.org/schema/mule/sftp http://www.mulesoft.org/schema/mule/sftp/current/mule-sftp.xsd
+        http://www.mulesoft.org/schema/mule/java http://www.mulesoft.org/schema/mule/java/current/mule-java.xsd">
+
+    <munit:config name="sftp-delete-directory-with-config-file-test-case.xml"/>
+
+
+
+    <munit:before-suite name="before-sftp-delete-directory-test-case">
+        <java:invoke-static class="org.mule.extension.sftp.internal.lifecycle.SftpServerLifecycleManager"
+                            method="startSftpServer(String,String)">
+            <java:args>
+                #[{
+                arg0: ${sftp.server.port},
+                arg1: "diffie-hellman-group14-sha1"
+                }]
+            </java:args>
+        </java:invoke-static>
+    </munit:before-suite>
+
+    <munit:after-suite name="after-sftp-delete-directory-test-case">
+        <java:invoke-static class="org.mule.extension.sftp.internal.lifecycle.SftpServerLifecycleManager"
+                            method="stopSftpServer()">
+            <java:args>
+                #[{}]
+            </java:args>
+        </java:invoke-static>
+    </munit:after-suite>
+
+    <munit:after-test name="after-test-sftp-delete-directory-test-case">
+        <try>
+            <sftp:delete config-ref="file-enabled-config" path="test/created-to-eliminate"/>
+            <error-handler >
+                <on-error-continue type="SFTP:ILLEGAL_PATH"/>
+            </error-handler>
+        </try>
+    </munit:after-test>
+
+    <munit:test name="sftp-delete-void-and-subdirectory"
+                description="We create two empty subdirectories, one is deleted, then the content of the parent directory is listed,
+                 it is expected to have a single element">
+        <munit:behavior >
+            <sftp:create-directory config-ref="file-enabled-config" directoryPath="test/created-to-eliminate/eliminated-01"/>
+            <sftp:create-directory config-ref="file-enabled-config" directoryPath="test/created-to-eliminate/eliminated-02"/>
+        </munit:behavior>
+        <munit:execution>
+            <sftp:delete config-ref="file-enabled-config" path="test/created-to-eliminate/eliminated-02"/>
+            <sftp:list config-ref="file-enabled-config" directoryPath="test/created-to-eliminate"/>
+        </munit:execution>
+        <munit:validation>
+            <munit-tools:assert-equals actual="#[sizeOf(payload)]" expected="#[1]"/>
+        </munit:validation>
+    </munit:test>
+
+
+
+</mule>
