@@ -12,8 +12,20 @@
         http://www.mulesoft.org/schema/mule/sftp http://www.mulesoft.org/schema/mule/sftp/current/mule-sftp.xsd
         http://www.mulesoft.org/schema/mule/java http://www.mulesoft.org/schema/mule/java/current/mule-java.xsd">
 
-    <munit:config name="sftp-delete-directory-test-case.xml"/>
-
+    <munit:config name="sftp-delete-directory-test-case.xml">
+        <munit:parameterizations>
+            <munit:parameterization name="config">
+                <munit:parameters>
+                    <munit:parameter propertyName="config" value="config"/>
+                </munit:parameters>
+            </munit:parameterization>
+            <munit:parameterization name="unknown-file-enabled-config">
+                <munit:parameters>
+                    <munit:parameter propertyName="config" value="unknown-file-enabled-config"/>
+                </munit:parameters>
+            </munit:parameterization>
+        </munit:parameterizations>
+    </munit:config>
 
 
     <munit:before-suite name="before-sftp-delete-directory-test-case">
@@ -38,7 +50,7 @@
 
     <munit:after-test name="after-test-sftp-delete-directory-test-case">
         <try>
-            <sftp:delete config-ref="config" path="test/created-to-eliminate"/>
+            <sftp:delete config-ref="${config}" path="test/created-to-eliminate"/>
             <error-handler >
                 <on-error-continue type="SFTP:ILLEGAL_PATH"/>
             </error-handler>
@@ -48,7 +60,7 @@
     <munit:test name="sftp-delete-not-exist-directory" description="Test that tries to remove a non-existent directory, it expects an error SFTP:ILLEGAL_PATH"
                 expectedErrorType="SFTP:ILLEGAL_PATH">
         <munit:execution>
-            <sftp:delete config-ref="config" path="created-to-eliminate"/>
+            <sftp:delete config-ref="${config}" path="created-to-eliminate"/>
         </munit:execution>
     </munit:test>
 
@@ -56,12 +68,12 @@
                 description="We create two empty subdirectories, one is deleted, then the content of the parent directory is listed,
                  it is expected to have a single element">
         <munit:behavior >
-            <sftp:create-directory config-ref="config" directoryPath="test/created-to-eliminate/eliminated-01"/>
-            <sftp:create-directory config-ref="config" directoryPath="test/created-to-eliminate/eliminated-02"/>
+            <sftp:create-directory config-ref="${config}" directoryPath="test/created-to-eliminate/eliminated-01"/>
+            <sftp:create-directory config-ref="${config}" directoryPath="test/created-to-eliminate/eliminated-02"/>
         </munit:behavior>
         <munit:execution>
-            <sftp:delete config-ref="config" path="test/created-to-eliminate/eliminated-02"/>
-            <sftp:list config-ref="config" directoryPath="test/created-to-eliminate"/>
+            <sftp:delete config-ref="${config}" path="test/created-to-eliminate/eliminated-02"/>
+            <sftp:list config-ref="${config}" directoryPath="test/created-to-eliminate"/>
         </munit:execution>
         <munit:validation>
             <munit-tools:assert-equals actual="#[sizeOf(payload)]" expected="#[1]"/>

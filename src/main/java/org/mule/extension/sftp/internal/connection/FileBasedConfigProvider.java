@@ -12,6 +12,8 @@ import org.slf4j.Logger;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.OpenOption;
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -53,6 +55,13 @@ public class FileBasedConfigProvider implements ExternalConfigProvider {
     return result;
   }
 
+  /**
+   * This method is almost a replica of {@link ConfigFileReaderSupport#readConfigFile(Path, OpenOption...)}
+   * Only difference being that we are getting the inputStream from the resources here instead of a separate file.
+   * @param inputStream of the file to search for config properties.
+   * @return Properties fetched from the file.
+   * @throws IOException while handing the file input stream.
+   */
   private Properties readConfigFile(InputStream inputStream) throws IOException {
     Properties properties;
     try {
