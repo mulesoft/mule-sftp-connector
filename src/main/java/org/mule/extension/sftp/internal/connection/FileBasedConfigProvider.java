@@ -36,7 +36,7 @@ public class FileBasedConfigProvider implements ExternalConfigProvider {
   public Properties getConfigProperties() {
     Properties result = new Properties();
     if (StringUtils.isBlank(configFilePath)) {
-      LOGGER.info("SSHD Config file not provided");
+      LOGGER.info("SSHD Config file not provided, proceeding with defaults");
       return result;
     }
     try (InputStream inputStream = Files.newInputStream(Paths.get(configFilePath))) {
