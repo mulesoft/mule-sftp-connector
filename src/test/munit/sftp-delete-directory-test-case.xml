@@ -14,7 +14,7 @@
 
     <munit:config name="sftp-delete-directory-test-case.xml">
         <munit:parameterizations>
-            <munit:parameterization name="config">
+            <munit:parameterization name="default-without-file-config">
                 <munit:parameters>
                     <munit:parameter propertyName="config" value="config"/>
                 </munit:parameters>

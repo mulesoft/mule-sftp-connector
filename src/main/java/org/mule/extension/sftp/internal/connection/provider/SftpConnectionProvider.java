@@ -6,6 +6,7 @@
  */
 package org.mule.extension.sftp.internal.connection.provider;
 
+import static org.apache.sshd.common.SshConstants.SSH2_DISCONNECT_KEY_EXCHANGE_FAILED;
 import static org.mule.extension.sftp.internal.connection.provider.SftpConnectionProvider.EDDSA_GAV;
 import static org.mule.extension.sftp.internal.connection.provider.SftpConnectionProvider.EDDSA_PROVIDER_CLASS;
 import static org.mule.extension.sftp.internal.connection.provider.SftpConnectionProvider.PROVIDER_FILE_NAME_PATTERN;
@@ -173,8 +174,8 @@ public class SftpConnectionProvider extends FileSystemProvider<SftpFileSystemCon
           LOGGER.error(e.getMessage());
           // throw new MuleRuntimeException(e);
         }
-      } else if (e.getDisconnectCode() == 3) {
-        throw new SftpConnectionException(getErrorMessage(connectionSettings, e.getMessage()), e, FileError.NEGOTIATION_FAILED);
+      } else if (e.getDisconnectCode() == SSH2_DISCONNECT_KEY_EXCHANGE_FAILED) {
+        throw new SftpConnectionException(getErrorMessage(connectionSettings, e.getMessage()), e, FileError.KEY_EXCHANGE_FAILED);
       } else if (e.getDisconnectCode() == 9) {
         throw new SftpConnectionException(getErrorMessage(connectionSettings, e.getMessage()), e, FileError.CANNOT_REACH);
       } else {

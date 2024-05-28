@@ -45,8 +45,8 @@
     </munit:after-suite>
 
 
-    <munit:test name="sftp-delete-not-exist-directory" description="Test that tries to remove a non-existent directory, it expects an error SFTP:NEGOTIATION_FAILED"
-                expectedErrorType="SFTP:NEGOTIATION_FAILED">
+    <munit:test name="sftp-delete-not-exist-directory" description="Test when tries to establish an SSH Connection results in SFTP:KEY_EXCHANGE_FAILED in negotiation"
+                expectedErrorType="SFTP:KEY_EXCHANGE_FAILED">
         <munit:execution>
             <sftp:delete config-ref="${config}" path="created-to-eliminate"/>
         </munit:execution>
