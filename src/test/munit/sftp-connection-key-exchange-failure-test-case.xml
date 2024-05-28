@@ -12,7 +12,7 @@
         http://www.mulesoft.org/schema/mule/sftp http://www.mulesoft.org/schema/mule/sftp/current/mule-sftp.xsd
         http://www.mulesoft.org/schema/mule/java http://www.mulesoft.org/schema/mule/java/current/mule-java.xsd">
 
-    <munit:config name="sftp-delete-directory-with-config-file-test-case.xml">
+    <munit:config name="sftp-connection-key-exchange-failure-test-case.xml">
         <munit:parameterizations>
             <munit:parameterization name="file-enabled-config">
                 <munit:parameters>
@@ -24,7 +24,7 @@
 
 
 
-    <munit:before-suite name="before-sftp-delete-directory-test-case">
+    <munit:before-suite name="before-sftp-kex-negotiation-failure-test-case">
         <java:invoke-static class="org.mule.extension.sftp.internal.lifecycle.SftpServerLifecycleManager"
                             method="startSftpServer(String)">
             <java:args>
@@ -35,7 +35,7 @@
         </java:invoke-static>
     </munit:before-suite>
 
-    <munit:after-suite name="after-sftp-delete-directory-test-case">
+    <munit:after-suite name="after-sftp-kex-negotiation-failure-test-case">
         <java:invoke-static class="org.mule.extension.sftp.internal.lifecycle.SftpServerLifecycleManager"
                             method="stopSftpServer()">
             <java:args>
@@ -45,7 +45,7 @@
     </munit:after-suite>
 
 
-    <munit:test name="sftp-delete-not-exist-directory" description="Test when tries to establish an SSH Connection results in SFTP:KEY_EXCHANGE_FAILED in negotiation"
+    <munit:test name="sftp-connection-kex-negotiation-failure" description="Test when tries to establish an SSH Connection results in SFTP:KEY_EXCHANGE_FAILED due to kex negotiation failure"
                 expectedErrorType="SFTP:KEY_EXCHANGE_FAILED">
         <munit:execution>
             <sftp:delete config-ref="${config}" path="created-to-eliminate"/>

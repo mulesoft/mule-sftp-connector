@@ -37,7 +37,7 @@ public class FileBasedConfigProvider implements ExternalConfigProvider {
       LOGGER.info("SSHD Config file not provided");
       return result;
     }
-    try(InputStream inputStream = this.getClass().getClassLoader().getResourceAsStream(configFilePath)) {
+    try (InputStream inputStream = this.getClass().getClassLoader().getResourceAsStream(configFilePath)) {
       if (Objects.isNull(inputStream)) {
         LOGGER.warn("Couldn't locate config file {}", configFilePath);
         return result;
