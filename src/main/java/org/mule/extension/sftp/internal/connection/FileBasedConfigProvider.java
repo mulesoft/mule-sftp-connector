@@ -10,10 +10,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.sshd.common.config.ConfigFileReaderSupport;
 import org.slf4j.Logger;
 
-import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.OpenOption;
-import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -36,47 +33,23 @@ public class FileBasedConfigProvider implements ExternalConfigProvider {
   @Override
   public Properties getConfigProperties() {
     Properties result = new Properties();
-    if (StringUtils.isNotBlank(configFilePath)) {
-      try {
-        InputStream inputStream = this.getClass().getClassLoader().getResourceAsStream(configFilePath);
-        if (Objects.isNull(inputStream)) {
-          LOGGER.warn("Couldn't locate config file {}", configFilePath);
-          return result;
-        }
-        Properties properties = readConfigFile(inputStream);
-        populateSupportedProperties(properties, result);
-        LOGGER.info("Read the config file {} with the props {}", configFilePath, result);
-      } catch (IOException e) {
-        LOGGER.warn("Could not read values from config file: " + configFilePath, e);
-      }
-    } else {
+    if (StringUtils.isBlank(configFilePath)) {
       LOGGER.info("SSHD Config file not provided");
+      return result;
     }
-    return result;
-  }
-
-  /**
-   * This method is almost a replica of {@link ConfigFileReaderSupport#readConfigFile(Path, OpenOption...)}
-   * Only difference being that we are getting the inputStream from the resources here instead of a separate file.
-   * @param inputStream of the file to search for config properties.
-   * @return Properties fetched from the file.
-   * @throws IOException while handing the file input stream.
-   */
-  private Properties readConfigFile(InputStream inputStream) throws IOException {
-    Properties properties;
-    try {
-      properties = ConfigFileReaderSupport.readConfigFile(inputStream, true);
-    } catch (Throwable throwable) {
-      try {
-        inputStream.close();
-      } catch (Throwable th) {
-        throwable.addSuppressed(th);
+    try(InputStream inputStream = this.getClass().getClassLoader().getResourceAsStream(configFilePath)) {
+      if (Objects.isNull(inputStream)) {
+        LOGGER.warn("Couldn't locate config file {}", configFilePath);
+        return result;
       }
-      throw throwable;
-    } finally {
-      inputStream.close();
+      Properties properties = ConfigFileReaderSupport.readConfigFile(inputStream, true);
+      populateSupportedProperties(properties, result);
+    } catch (Exception e) {
+      LOGGER.warn("Could not read values from config file: " + configFilePath, e);
+      return result;
     }
-    return properties;
+    LOGGER.info("Read the config file {} with the props {}", configFilePath, result);
+    return result;
   }
 
   private void populateSupportedProperties(Properties properties, Properties supportedProperties) {

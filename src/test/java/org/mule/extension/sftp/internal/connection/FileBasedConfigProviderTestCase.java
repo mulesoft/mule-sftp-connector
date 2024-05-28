@@ -7,7 +7,9 @@
 package org.mule.extension.sftp.internal.connection;
 
 import org.junit.Test;
+import org.mockito.Mockito;
 
+import java.io.IOException;
 import java.util.Properties;
 
 import static org.junit.Assert.assertEquals;
