@@ -15,7 +15,7 @@ public class FileBasedConfigProviderTestCase {
 
   @Test
   public void testFetchConfigFileProperties() {
-    FileBasedConfigProvider fileBasedConfigProvider = new FileBasedConfigProvider("mule_sshd_config");
+    FileBasedConfigProvider fileBasedConfigProvider = new FileBasedConfigProvider("src/test/resources/mule_sshd_config");
     Properties properties = fileBasedConfigProvider.getConfigProperties();
     assertEquals(1, properties.size());
     assertEquals("diffie-hellman-group14-sha1,diffie-hellman-group-exchange-sha512@ssh.com,diffie-hellman-group1-sha1",

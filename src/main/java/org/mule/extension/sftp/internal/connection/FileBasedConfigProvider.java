@@ -11,10 +11,12 @@ import org.apache.sshd.common.config.ConfigFileReaderSupport;
 import org.slf4j.Logger;
 
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Objects;
 import java.util.Properties;
 import java.util.Set;
 
@@ -37,13 +39,12 @@ public class FileBasedConfigProvider implements ExternalConfigProvider {
       LOGGER.info("SSHD Config file not provided");
       return result;
     }
-    try (InputStream inputStream = this.getClass().getClassLoader().getResourceAsStream(configFilePath)) {
-      if (Objects.isNull(inputStream)) {
-        LOGGER.warn("Couldn't locate config file {}", configFilePath);
-        return result;
-      }
+    try (InputStream inputStream = Files.newInputStream(Paths.get(configFilePath))) {
       Properties properties = ConfigFileReaderSupport.readConfigFile(inputStream, true);
       populateSupportedProperties(properties, result);
+    } catch (NoSuchFileException e) {
+      LOGGER.warn("Couldn't locate config file {}, please provide the correct file path", configFilePath);
+      return result;
     } catch (Exception e) {
       LOGGER.warn("Could not read values from config file: " + configFilePath, e);
       return result;

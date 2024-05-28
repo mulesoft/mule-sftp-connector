@@ -9,9 +9,11 @@ package org.mule.extension.sftp.internal.connection.provider;
 import org.mule.runtime.extension.api.annotation.param.Optional;
 import org.mule.runtime.extension.api.annotation.param.Parameter;
 import org.mule.runtime.extension.api.annotation.param.display.DisplayName;
+import org.mule.runtime.extension.api.annotation.param.display.Path;
 import org.mule.runtime.extension.api.annotation.param.display.Placement;
 import org.mule.runtime.extension.api.annotation.param.display.Summary;
 
+import static org.mule.runtime.api.meta.model.display.PathModel.Type.FILE;
 import static org.mule.runtime.extension.api.annotation.param.display.Placement.ADVANCED_TAB;
 
 public class SecuritySettings {
@@ -21,6 +23,7 @@ public class SecuritySettings {
   @Placement(tab = ADVANCED_TAB)
   @Summary("Path to the file with the ssh override configurations")
   @DisplayName("SSH Config Override File")
+  @Path(type = FILE)
   private String sshConfigOverride;
 
   public String getSshConfigOverride() {
