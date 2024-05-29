@@ -6,6 +6,10 @@
  */
 package org.mule.extension.sftp.internal.connection.provider;
 
+import static org.mule.extension.sftp.internal.connection.provider.SftpConnectionProvider.EDDSA_GAV;
+import static org.mule.extension.sftp.internal.connection.provider.SftpConnectionProvider.EDDSA_PROVIDER_CLASS;
+import static org.mule.extension.sftp.internal.connection.provider.SftpConnectionProvider.PROVIDER_FILE_NAME_PATTERN;
+import static org.mule.runtime.api.meta.ExternalLibraryType.JAR;
 import static org.mule.runtime.api.meta.model.display.PathModel.Type.FILE;
 import static org.mule.runtime.extension.api.annotation.param.ParameterGroup.CONNECTION;
 
@@ -32,6 +36,7 @@ import org.mule.runtime.api.connection.PoolingConnectionProvider;
 import org.mule.runtime.api.lock.LockFactory;
 import org.mule.runtime.api.scheduler.SchedulerService;
 import org.mule.runtime.extension.api.annotation.Alias;
+import org.mule.runtime.extension.api.annotation.ExternalLib;
 import org.mule.runtime.extension.api.annotation.param.NullSafe;
 import org.mule.runtime.extension.api.annotation.param.Optional;
 import org.mule.runtime.extension.api.annotation.param.Parameter;
@@ -57,6 +62,9 @@ import org.slf4j.Logger;
  * @since 1.0
  */
 @DisplayName("SFTP Connection")
+@ExternalLib(name = "EDDSA Provider", description = "An EDDSA provider which provides support for ed25519 curve",
+    nameRegexpMatcher = PROVIDER_FILE_NAME_PATTERN, requiredClassName = EDDSA_PROVIDER_CLASS, type = JAR,
+    coordinates = EDDSA_GAV, optional = true)
 public class SftpConnectionProvider extends FileSystemProvider<SftpFileSystemConnection>
     implements PoolingConnectionProvider<SftpFileSystemConnection> {
 
@@ -65,6 +73,9 @@ public class SftpConnectionProvider extends FileSystemProvider<SftpFileSystemCon
   private static final String TIMEOUT_CONFIGURATION = "Timeout Configuration";
   private static final String SFTP_ERROR_MESSAGE_MASK =
       "Could not establish SFTP connection with host: '%s' at port: '%d' - %s";
+  static final String PROVIDER_FILE_NAME_PATTERN = "(.*)\\.jar";
+  static final String EDDSA_GAV = "net.i2p.crypto:eddsa:0.3.0";
+  static final String EDDSA_PROVIDER_CLASS = "net.i2p.crypto.eddsa.EdDSASecurityProvider";
 
   private static AtomicBoolean alreadyLoggedConnectionTimeoutWarning = new AtomicBoolean(false);
   private static AtomicBoolean alreadyLoggedResponseTimeoutWarning = new AtomicBoolean(false);
