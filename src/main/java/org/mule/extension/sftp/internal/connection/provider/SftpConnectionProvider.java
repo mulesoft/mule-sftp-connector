@@ -6,6 +6,7 @@
  */
 package org.mule.extension.sftp.internal.connection.provider;
 
+import static org.apache.sshd.common.SshConstants.SSH2_DISCONNECT_KEY_EXCHANGE_FAILED;
 import static org.mule.extension.sftp.internal.connection.provider.SftpConnectionProvider.EDDSA_GAV;
 import static org.mule.extension.sftp.internal.connection.provider.SftpConnectionProvider.EDDSA_PROVIDER_CLASS;
 import static org.mule.extension.sftp.internal.connection.provider.SftpConnectionProvider.PROVIDER_FILE_NAME_PATTERN;
@@ -20,6 +21,7 @@ import static org.apache.sshd.common.SshConstants.SSH2_DISCONNECT_NO_MORE_AUTH_M
 import static org.slf4j.LoggerFactory.getLogger;
 
 import org.mule.extension.sftp.api.SftpAuthenticationMethod;
+import org.mule.extension.sftp.internal.connection.FileBasedConfigProvider;
 import org.mule.extension.sftp.internal.exception.SftpConnectionException;
 import org.mule.extension.sftp.api.SftpProxyConfig;
 import org.mule.extension.sftp.internal.connection.SftpClient;
@@ -71,6 +73,7 @@ public class SftpConnectionProvider extends FileSystemProvider<SftpFileSystemCon
   private static final Logger LOGGER = getLogger(SftpConnectionProvider.class);
 
   private static final String TIMEOUT_CONFIGURATION = "Timeout Configuration";
+  private static final String SECURITY_CONFIGURATION = "Security Configuration";
   private static final String SFTP_ERROR_MESSAGE_MASK =
       "Could not establish SFTP connection with host: '%s' at port: '%d' - %s";
   static final String PROVIDER_FILE_NAME_PATTERN = "(.*)\\.jar";
@@ -98,6 +101,9 @@ public class SftpConnectionProvider extends FileSystemProvider<SftpFileSystemCon
 
   @ParameterGroup(name = TIMEOUT_CONFIGURATION)
   private TimeoutSettings timeoutSettings = new TimeoutSettings();
+
+  @ParameterGroup(name = SECURITY_CONFIGURATION)
+  private final SecuritySettings securitySettings = new SecuritySettings();
 
   @ParameterGroup(name = CONNECTION)
   private SftpConnectionSettings connectionSettings = new SftpConnectionSettings();
@@ -140,7 +146,8 @@ public class SftpConnectionProvider extends FileSystemProvider<SftpFileSystemCon
     }
     SftpClient client = clientFactory.createInstance(connectionSettings.getHost(), connectionSettings.getPort(),
                                                      connectionSettings.getPrngAlgorithm(), schedulerService, proxyConfig,
-                                                     connectionSettings.isKexHeader());
+                                                     connectionSettings.isKexHeader(),
+                                                     new FileBasedConfigProvider(securitySettings.getSshConfigOverride()));
     client.setConnectionTimeoutMillis(getConnectionTimeoutUnit().toMillis(getConnectionTimeout()));
     client.setPassword(connectionSettings.getPassword());
     client.setIdentity(connectionSettings.getIdentityFile(), connectionSettings.getPassphrase());
@@ -167,6 +174,8 @@ public class SftpConnectionProvider extends FileSystemProvider<SftpFileSystemCon
           LOGGER.error(e.getMessage());
           // throw new MuleRuntimeException(e);
         }
+      } else if (e.getDisconnectCode() == SSH2_DISCONNECT_KEY_EXCHANGE_FAILED) {
+        throw new SftpConnectionException(getErrorMessage(connectionSettings, e.getMessage()), e, FileError.KEY_EXCHANGE_FAILED);
       } else if (e.getDisconnectCode() == 9) {
         throw new SftpConnectionException(getErrorMessage(connectionSettings, e.getMessage()), e, FileError.CANNOT_REACH);
       } else {
