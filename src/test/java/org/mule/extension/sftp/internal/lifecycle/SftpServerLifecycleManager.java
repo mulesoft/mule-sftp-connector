@@ -23,18 +23,22 @@ public class SftpServerLifecycleManager {
   }
 
   public static void startSftpServer(String port) throws Exception {
-    createAndStartServer(Integer.valueOf(port));
+    createAndStartServer(Integer.valueOf(port), null);
   }
 
-  private static void createAndStartServer(Integer port) throws IOException {
+  public static void startSftpServer(String port, String kexAlgoList) throws Exception {
+    createAndStartServer(Integer.valueOf(port), kexAlgoList);
+  }
+
+  private static void createAndStartServer(Integer port, String kexAlgoList) throws IOException {
     temporaryFolder.create();
-    setUpServer(port);
+    setUpServer(port, kexAlgoList);
   }
 
-  private static void setUpServer(int port) {
+  private static void setUpServer(int port, String kexAlgoList) {
     sftpServer = new SftpServer(port, temporaryFolder.getRoot().toPath());
     sftpServer.setPasswordAuthenticator();
-    sftpServer.start();
+    sftpServer.start(kexAlgoList);
   }
 
   public static void stopSftpServer() throws Exception {
