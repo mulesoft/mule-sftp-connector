@@ -324,9 +324,9 @@
         </munit:validation>
     </munit:test>
 
-    <munit:test name="sftp-write-in-append-mode">
+    <munit:test name="sftp-write-in-append-mode-for-existing-file">
         <munit:behavior>
-            <set-variable variableName="fileName" value="does-not-exist-file.txt"/>
+            <set-variable variableName="fileName" value="exist-file.txt"/>
             <set-variable variableName="mode" value="APPEND"/>
             <set-variable variableName="createParent" value="true"/>
             <set-variable variableName="fileContent" value="Hi, this content is appended to the file \n"/>
