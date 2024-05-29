@@ -40,6 +40,7 @@ import java.net.URI;
 import java.nio.file.Paths;
 import java.security.GeneralSecurityException;
 import java.util.List;
+import java.util.Properties;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
@@ -122,7 +123,7 @@ public class SftpTestHarness extends AbstractSftpTestHarness {
   private SftpClient createDefaultSftpClient() throws IOException, GeneralSecurityException {
     SftpClient sftpClient =
         new SftpClientFactory().createInstance("localhost", sftpPort.getNumber(), PRNGAlgorithm.SHA1PRNG, schedulerService, null,
-                                               true);
+                                               true, Properties::new);
     clientAuthConfigurator.configure(sftpClient);
 
     sftpClient.setPassword(PASSWORD);
