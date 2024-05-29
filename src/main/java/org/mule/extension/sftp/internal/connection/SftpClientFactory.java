@@ -7,7 +7,6 @@
 package org.mule.extension.sftp.internal.connection;
 
 import org.mule.extension.sftp.api.SftpProxyConfig;
-import org.mule.extension.sftp.api.SftpProxyConfig;
 import org.mule.extension.sftp.api.random.alg.PRNGAlgorithm;
 import org.mule.runtime.api.scheduler.SchedulerService;
 
@@ -23,11 +22,12 @@ public class SftpClientFactory {
    *
    * @param host the host address
    * @param port the remote connection port
-   * @param port the remote connection port
+   * @param externalConfigProvider external config for overwriting the default crypto factories in {@link org.apache.sshd.client.SshClient}
    * @return a {@link SftpClient}
    */
   public SftpClient createInstance(String host, int port, PRNGAlgorithm prngAlgorithm, SchedulerService schedulerService,
-                                   SftpProxyConfig sftpProxyConfig, boolean kexHeader) {
-    return new SftpClient(host, port, prngAlgorithm, schedulerService, kexHeader, sftpProxyConfig);
+                                   SftpProxyConfig sftpProxyConfig, boolean kexHeader,
+                                   ExternalConfigProvider externalConfigProvider) {
+    return new SftpClient(host, port, prngAlgorithm, schedulerService, kexHeader, sftpProxyConfig, externalConfigProvider);
   }
 }
