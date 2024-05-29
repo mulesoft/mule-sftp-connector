@@ -1,0 +1,2 @@
+KexAlgorithms diffie-hellman-group14-sha1,    diffie-hellman-group-exchange-sha512@ssh.com,diffie-hellman-group1-sha1
+NewKey value1,value2
