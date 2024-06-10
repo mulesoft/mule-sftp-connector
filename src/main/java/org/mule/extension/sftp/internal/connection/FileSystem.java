@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.concurrent.locks.Lock;
 import java.util.function.Predicate;
 
-import org.apache.tika.Tika;
+//import org.apache.tika.Tika;
 
 /**
  * Represents an abstract file system and the operations which can be performed on it.
@@ -96,7 +96,7 @@ public interface FileSystem<A extends FileAttributes> {
    * of {@code this} instance or even mule. For some other file systems that might be simply not possible and no extra assumptions
    * are to be taken.
    * <p>
-   * This method also makes a best effort to determine the mime type of the file being read. A {@link Tika} instance will be used
+   * This method also makes a best effort to determine the mime type of the file being read. A  instance will be used
    * to make an educated guess on the file's mime type
    *
    * @param config               the config that is parameterizing this operation

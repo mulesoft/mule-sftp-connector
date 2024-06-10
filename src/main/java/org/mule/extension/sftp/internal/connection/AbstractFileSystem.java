@@ -34,7 +34,7 @@ import java.util.function.Predicate;
 
 import javax.inject.Inject;
 
-import org.apache.tika.Tika;
+//import org.apache.tika.Tika;
 
 /**
  * Base class for implementations of {@link FileSystem}
@@ -43,7 +43,7 @@ import org.apache.tika.Tika;
  */
 public abstract class AbstractFileSystem<A extends org.mule.extension.sftp.api.FileAttributes> implements FileSystem<A> {
 
-  private final Tika tika = new Tika();
+  //private final Tika tika = new Tika();
 
 
   @Inject
@@ -211,7 +211,8 @@ public abstract class AbstractFileSystem<A extends org.mule.extension.sftp.api.F
    */
   @Override
   public MediaType getFileMessageMediaType(FileAttributes attributes) {
-    return MediaType.parse(tika.detect(attributes.getPath()));
+    //return MediaType.parse(tika.detect(attributes.getPath()));
+    return MediaType.ANY;
   }
 
   /**

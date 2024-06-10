@@ -32,7 +32,7 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.function.Predicate;
 
-import org.apache.tika.Tika;
+//import org.apache.tika.Tika;
 
 /**
  * Basic set of operations and templates for extensions which perform operations over a generic file system
@@ -79,7 +79,7 @@ public abstract class BaseFileSystemOperations {
    * system, its behavior might change depending on the mounted drive and the operation system on which mule is running. Take that
    * into consideration before blindly relying on this lock.
    * <p>
-   * This method also makes a best effort to determine the mime type of the file being read. A {@link Tika} instance will be used
+   * This method also makes a best effort to determine the mime type of the file being read. A  instance will be used
    * to make an educated guess on the file's mime type. The user also has the chance to force the output ?encoding and mimeType
    * through the {@code outputEncoding} and {@code outputMimeType} optional parameters.
    *
