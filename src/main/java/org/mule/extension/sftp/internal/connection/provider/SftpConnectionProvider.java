@@ -164,7 +164,7 @@ public class SftpConnectionProvider extends FileSystemProvider<SftpFileSystemCon
       } else if (e.getDisconnectCode() == 0) {
         if (e.getMessage().contains("timeout")) {
           throw new SftpConnectionException(getErrorMessage(connectionSettings, e.getMessage()), e, FileError.CONNECTION_TIMEOUT);
-        } else if (e.getMessage().contains("Connection refused")) {
+        } else if (e.getMessage().contains("Connection refused") || e.getMessage().contains("refused the network connection")) {
           throw new SftpConnectionException(getErrorMessage(connectionSettings, e.getMessage()), e, FileError.CANNOT_REACH);
         } else if (e.getMessage().contains("UnresolvedAddressException")) {
           throw new SftpConnectionException(getErrorMessage(connectionSettings, e.getMessage()), e, FileError.UNKNOWN_HOST);
