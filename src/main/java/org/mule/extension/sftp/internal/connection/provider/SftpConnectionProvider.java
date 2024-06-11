@@ -172,7 +172,7 @@ public class SftpConnectionProvider extends FileSystemProvider<SftpFileSystemCon
           throw new SftpConnectionException(getErrorMessage(connectionSettings, e.getMessage()), e, FileError.CONNECTIVITY);
         } else {
           LOGGER.error(e.getMessage());
-          // throw new MuleRuntimeException(e);
+          throw new SftpConnectionException(getErrorMessage(connectionSettings, e.getMessage()), e, FileError.UNKNOWN);
         }
       } else if (e.getDisconnectCode() == SSH2_DISCONNECT_KEY_EXCHANGE_FAILED) {
         throw new SftpConnectionException(getErrorMessage(connectionSettings, e.getMessage()), e, FileError.KEY_EXCHANGE_FAILED);
