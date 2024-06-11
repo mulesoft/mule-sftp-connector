@@ -14,7 +14,7 @@
     <groupId>org.mule.connectors</groupId>
     <artifactId>mule-sftp-connector</artifactId>
     <packaging>mule-extension</packaging>
-    <version>2.1.0-SNAPSHOT</version>
+    <version>2.1.4-SNAPSHOT</version>
 
     <name>SFTP Connector - Mule 4</name>
     <description>A Mule extension that provides functionality to manage files in an SFTP server</description>
@@ -22,11 +22,13 @@
     <properties>
         <docker.maven.plugin.version>0.43.3</docker.maven.plugin.version>
         <maven.helper.plugin.version>3.4.0</maven.helper.plugin.version>
+        <exec.maven.plugin.version>1.6.0</exec.maven.plugin.version>
         <apache.maven.help.plugin.version>3.4.0</apache.maven.help.plugin.version>
         <commonsIoVersion>2.13.0</commonsIoVersion>
         <commonsLangVersion>3.12.0</commonsLangVersion>
         <commonsCollectionsVersion>3.2.2</commonsCollectionsVersion>
         <connector.maven.plugin.version>3.0.2</connector.maven.plugin.version>
+        <mule.extensions.shade.plugin.version>1.0.4</mule.extensions.shade.plugin.version>
 
 
         <muleTestsComponentPlugin>${mule.version}</muleTestsComponentPlugin>
@@ -55,6 +57,7 @@
         <muleJavaModule.version>1.2.10</muleJavaModule.version>
         <maven.invoker.plugin.version>3.6.0</maven.invoker.plugin.version>
         <muleConnectionTestModule.version>1.0.0</muleConnectionTestModule.version>
+        <maven.repo.local>${settings.localRepository}</maven.repo.local>
 
         <mulesoftLicenseVersion>1.4.0</mulesoftLicenseVersion>
         <license.maven.plugin.version>4.2</license.maven.plugin.version>
@@ -201,6 +204,78 @@
 
     <build>
         <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>${exec.maven.plugin.version}</version>
+                <executions>
+                    <execution>
+                        <id>build-mule-shaders-module</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <workingDirectory>mule-shaders-module</workingDirectory>
+                            <executable>mvn</executable>
+                            <arguments>
+                                <argument>install</argument>
+                                <argument>-Dmaven.repo.local=${maven.repo.local}</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.mule.runtime.plugins</groupId>
+                <artifactId>mule-extensions-shade-plugin</artifactId>
+                <version>${mule.extensions.shade.plugin.version}</version>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.mule.modules</groupId>
+                        <artifactId>mule-shaders-module</artifactId>
+                        <version>1.0.0</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.apache.tika</groupId>
+                        <artifactId>tika-core</artifactId>
+                        <version>${tikaCore.version}</version>
+                    </dependency>
+                </dependencies>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <createDependencyReducedPom>false</createDependencyReducedPom>
+                    <shaderHint>ReflectiveAccessShader</shaderHint>
+                    <artifactSet>
+                        <includes>
+                            <include>org.apache.tika:*</include>
+                        </includes>
+                    </artifactSet>
+                    <relocations>
+                        <relocation>
+                            <pattern>org.apache.tika</pattern>
+                            <shadedPattern>org.mule.extension.sftp.internal.shaded.org.apache.tika</shadedPattern>
+                        </relocation>
+                    </relocations>
+                    <transformers>
+                        <transformer implementation="org.mule.module.shaders.api.ReflectiveAccessShaderTransformer">
+                            <members>
+                                <classMember>
+                                    <className>org.apache.tika.mime.MimeTypes</className>
+                                    <memberName>CLASSLOADER_SPECIFIC_DEFAULT_TYPES</memberName>
+                                </classMember>
+                            </members>
+                        </transformer>
+                    </transformers>
+                </configuration>
+            </plugin>
             <plugin>
                 <groupId>com.mycila</groupId>
                 <artifactId>license-maven-plugin</artifactId>

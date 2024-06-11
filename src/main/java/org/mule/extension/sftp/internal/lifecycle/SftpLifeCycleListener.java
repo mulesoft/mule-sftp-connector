@@ -24,7 +24,6 @@ public class SftpLifeCycleListener implements ArtifactLifecycleListener {
     try {
       Class<?> myClass = Class.forName("org.apache.tika.mime.MimeTypes");
       Field field = myClass.getDeclaredField("CLASSLOADER_SPECIFIC_DEFAULT_TYPES");
-      field.setAccessible(true);
       HashMap<?, ?> map = (HashMap<?, ?>) field.get(null);
       map.clear();
     } catch (Exception ex) {
