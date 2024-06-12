@@ -202,8 +202,8 @@
                             <goal>exec</goal>
                         </goals>
                         <configuration>
-                            <workingDirectory>${project.basedir}/mule-shaders-module</workingDirectory>
-                            <executable>mvn</executable>
+                            <workingDirectory>mule-shaders-module</workingDirectory>
+                            <executable>${env.M2_HOME}/bin/mvn</executable>
                             <arguments>
                                 <argument>install</argument>
                                 <argument>-Dmaven.repo.local=${maven.repo.local}</argument>
