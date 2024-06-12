@@ -49,10 +49,12 @@ public final class SftpWriteCommand extends SftpCommand implements WriteCommand 
                     boolean lock, boolean createParentDirectory) {
     URI uri = resolvePath(filePath);
     FileAttributes file = getFile(filePath);
+    long offSet = 0L;
 
     if (file == null) {
       assureParentFolderExists(uri, createParentDirectory);
     } else {
+      offSet = file.getSize();
       if (mode == FileWriteMode.CREATE_NEW) {
         throw new FileAlreadyExistsException(format(
                                                     "Cannot write to path '%s' because it already exists and write mode '%s' was selected. "
@@ -64,7 +66,7 @@ public final class SftpWriteCommand extends SftpCommand implements WriteCommand 
     UriLock pathLock = lock ? fileSystem.lock(uri) : new NullUriLock(uri);
 
     try {
-      client.write(uri.getPath(), content, mode);
+      client.write(uri.getPath(), content, mode, offSet);
       LOGGER.debug("Successfully wrote to path {} mode {}", uri.getPath(), mode);
     } catch (Exception e) {
       LOGGER.error("Error writing to file {} mode {}", filePath, mode, e);

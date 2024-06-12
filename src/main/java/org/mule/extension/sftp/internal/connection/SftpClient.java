@@ -23,6 +23,7 @@ import static org.apache.sshd.sftp.common.SftpConstants.SSH_FX_CONNECTION_LOST;
 import static org.apache.sshd.sftp.common.SftpConstants.SSH_FX_NO_CONNECTION;
 import static org.slf4j.LoggerFactory.getLogger;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.sshd.client.config.SshClientConfigFileReader;
 import org.apache.sshd.client.session.SessionFactory;
 import org.apache.sshd.common.PropertyResolverUtils;
@@ -410,13 +411,15 @@ public class SftpClient {
    * @param path   the path to write into
    * @param stream the content to be written
    * @param mode   the write mode
+   * @param offSet the offset to start writing from
    */
-  public void write(String path, InputStream stream, FileWriteMode mode) throws IOException {
-    try (OutputStream out = getOutputStream(path, mode)) {
-      byte[] buf = new byte[8192];
-      int n;
-      while ((n = stream.read(buf)) != -1) {
-        out.write(buf, 0, n);
+  public void write(String path, InputStream stream, FileWriteMode mode, long offSet) throws IOException {
+    try (org.apache.sshd.sftp.client.SftpClient.CloseableHandle handle =
+        sftp.open(normalizeRemotePath(path), toApacheSshdModes(mode))) {
+      if (mode == FileWriteMode.OVERWRITE || mode == FileWriteMode.CREATE_NEW) {
+        sftp.write(handle, 0, IOUtils.toByteArray(stream));
+      } else {
+        sftp.write(handle, offSet, IOUtils.toByteArray(stream));
       }
     }
   }
