@@ -203,7 +203,7 @@
                         </goals>
                         <configuration>
                             <workingDirectory>mule-shaders-module</workingDirectory>
-                            <executable>mvn</executable>
+                            <executable>${env.M2_HOME}/bin/mvn</executable>
                             <arguments>
                                 <argument>install</argument>
                                 <argument>-Dmaven.repo.local=${maven.repo.local}</argument>
