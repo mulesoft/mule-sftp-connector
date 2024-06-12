@@ -202,7 +202,7 @@
                             <goal>exec</goal>
                         </goals>
                         <configuration>
-                            <workingDirectory>mule-shaders-module</workingDirectory>
+                            <workingDirectory>${project.basedir}/mule-shaders-module</workingDirectory>
                             <executable>mvn</executable>
                             <arguments>
                                 <argument>install</argument>
