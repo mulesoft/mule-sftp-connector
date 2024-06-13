@@ -168,7 +168,7 @@ public class SftpConnectionProvider extends FileSystemProvider<SftpFileSystemCon
           throw new SftpConnectionException(getErrorMessage(connectionSettings, e.getMessage()), e, FileError.CANNOT_REACH);
         } else if (e.getMessage().contains("UnresolvedAddressException")) {
           throw new SftpConnectionException(getErrorMessage(connectionSettings, e.getMessage()), e, FileError.UNKNOWN_HOST);
-        } else if (e.getMessage().contains("Connection reset by peer")) {
+        } else if (e.getMessage().contains("Connection reset by peer") || e.getMessage().contains("Connection reset")) {
           throw new SftpConnectionException(getErrorMessage(connectionSettings, e.getMessage()), e, FileError.CONNECTIVITY);
         } else {
           LOGGER.error(e.getMessage());
