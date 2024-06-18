@@ -46,7 +46,9 @@ public enum FileError implements ErrorTypeDefinition<FileError> {
 
   SERVICE_NOT_AVAILABLE(CONNECTIVITY),
 
-  DISCONNECTED(CONNECTIVITY);
+  DISCONNECTED(CONNECTIVITY),
+
+  UNKNOWN(CONNECTIVITY);
 
   private ErrorTypeDefinition<? extends Enum<?>> parentError;
 

@@ -164,15 +164,15 @@ public class SftpConnectionProvider extends FileSystemProvider<SftpFileSystemCon
       } else if (e.getDisconnectCode() == 0) {
         if (e.getMessage().contains("timeout")) {
           throw new SftpConnectionException(getErrorMessage(connectionSettings, e.getMessage()), e, FileError.CONNECTION_TIMEOUT);
-        } else if (e.getMessage().contains("Connection refused")) {
+        } else if (e.getMessage().contains("Connection refused") || e.getMessage().contains("refused the network connection")) {
           throw new SftpConnectionException(getErrorMessage(connectionSettings, e.getMessage()), e, FileError.CANNOT_REACH);
         } else if (e.getMessage().contains("UnresolvedAddressException")) {
           throw new SftpConnectionException(getErrorMessage(connectionSettings, e.getMessage()), e, FileError.UNKNOWN_HOST);
-        } else if (e.getMessage().contains("Connection reset by peer")) {
+        } else if (e.getMessage().contains("Connection reset by peer") || e.getMessage().contains("Connection reset")) {
           throw new SftpConnectionException(getErrorMessage(connectionSettings, e.getMessage()), e, FileError.CONNECTIVITY);
         } else {
           LOGGER.error(e.getMessage());
-          // throw new MuleRuntimeException(e);
+          throw new SftpConnectionException(getErrorMessage(connectionSettings, e.getMessage()), e, FileError.UNKNOWN);
         }
       } else if (e.getDisconnectCode() == SSH2_DISCONNECT_KEY_EXCHANGE_FAILED) {
         throw new SftpConnectionException(getErrorMessage(connectionSettings, e.getMessage()), e, FileError.KEY_EXCHANGE_FAILED);
