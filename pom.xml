@@ -237,7 +237,7 @@
                     </execution>
                 </executions>
                 <configuration>
-                    <createDependencyReducedPom>false</createDependencyReducedPom>
+                    <createDependencyReducedPom>true</createDependencyReducedPom>
                     <shaderHint>ReflectiveAccessShader</shaderHint>
                     <artifactSet>
                         <includes>
