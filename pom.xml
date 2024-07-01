@@ -58,6 +58,7 @@
         <muleJavaModule.version>1.2.13</muleJavaModule.version>
         <maven.invoker.plugin.version>3.6.0</maven.invoker.plugin.version>
         <muleConnectionTestModule.version>1.0.0</muleConnectionTestModule.version>
+        <junit.version>4.12</junit.version>
         <maven.repo.local>${settings.localRepository}</maven.repo.local>
 
         <mulesoftLicenseVersion>1.4.0</mulesoftLicenseVersion>
@@ -353,6 +354,11 @@
                         <artifactId>munit-runner</artifactId>
                         <version>${munit.version}</version>
                         <classifier>mule-plugin</classifier>
+                    </dependency>
+                    <dependency>
+                        <groupId>junit</groupId>
+                        <artifactId>junit</artifactId>
+                        <version>${junit.version}</version>
                     </dependency>
                     <dependency>
                         <groupId>com.mulesoft.munit</groupId>
