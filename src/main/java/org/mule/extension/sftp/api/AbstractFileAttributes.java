@@ -84,6 +84,14 @@ public abstract class AbstractFileAttributes implements FileAttributes, Serializ
     this.fileName = fileName;
   }
 
+  public String getFileName() {
+    return fileName;
+  }
+
+  public void setFileName(String fileName) {
+    this.fileName = fileName;
+  }
+
   @Override
   public String toString() {
     return ReflectionToStringBuilder.toString(this, SHORT_PREFIX_STYLE);
