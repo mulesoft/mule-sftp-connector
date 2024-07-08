@@ -136,6 +136,19 @@ public class AbstractFileAttributesTestCase {
     assertFileName(path);
   }
 
+  @Test
+  public void bothConstructorAssignEqualGetFileNamesForSimplePath() {
+    path = "/root";
+    assertGetFileName(path);
+  }
+
+  private void assertGetFileName(String path) {
+    ConcreteFileAttributes pathAttributes = new ConcreteFileAttributes(Paths.get(path));
+    ConcreteFileAttributes uriAttributes = new ConcreteFileAttributes(createUri(path));
+
+    assertThat(pathAttributes.getFileName(), equalTo(uriAttributes.getFileName()));
+  }
+
   private void assertFileName(String path) {
     ConcreteFileAttributes pathAttributes = new ConcreteFileAttributes(Paths.get(path));
     ConcreteFileAttributes uriAttributes = new ConcreteFileAttributes(createUri(path));
