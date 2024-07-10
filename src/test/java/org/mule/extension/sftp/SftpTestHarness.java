@@ -160,7 +160,8 @@ public class SftpTestHarness extends AbstractSftpTestHarness {
    */
   @Override
   public void createBinaryFile() throws Exception {
-    sftpClient.write(BINARY_FILE_NAME, new ByteArrayInputStream(HELLO_WORLD.getBytes()), OVERWRITE, 0);
+    sftpClient.write(BINARY_FILE_NAME, new ByteArrayInputStream(HELLO_WORLD.getBytes()), OVERWRITE, BINARY_FILE_NAME,
+                     createUri(BINARY_FILE_NAME));
   }
 
   /**
@@ -197,7 +198,7 @@ public class SftpTestHarness extends AbstractSftpTestHarness {
   @Override
   public void write(String path, String content) throws Exception {
     // Does the append also create a file before????
-    sftpClient.write(path, new ByteArrayInputStream(content.getBytes()), CREATE_NEW, 0);
+    sftpClient.write(path, new ByteArrayInputStream(content.getBytes()), CREATE_NEW, path, createUri(path));
   }
 
   /**
