@@ -8,6 +8,7 @@ package org.mule.extension.sftp.internal.operation;
 
 import static java.lang.String.format;
 
+import static org.mule.extension.sftp.internal.util.SftpUtils.normalizePath;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import org.mule.extension.sftp.api.FileAttributes;
@@ -47,7 +48,7 @@ public final class SftpWriteCommand extends SftpCommand implements WriteCommand 
   @Override
   public void write(String filePath, InputStream content, FileWriteMode mode,
                     boolean lock, boolean createParentDirectory) {
-    URI uri = resolvePath(filePath);
+    URI uri = resolvePath(normalizePath(filePath));
     FileAttributes file = getFile(filePath);
     long offSet = 0L;
 
@@ -66,7 +67,7 @@ public final class SftpWriteCommand extends SftpCommand implements WriteCommand 
     UriLock pathLock = lock ? fileSystem.lock(uri) : new NullUriLock(uri);
 
     try {
-      client.write(uri.getPath(), content, mode, offSet);
+      client.write(uri.getPath(), content, mode, filePath, uri);
       LOGGER.debug("Successfully wrote to path {} mode {}", uri.getPath(), mode);
     } catch (Exception e) {
       LOGGER.error("Error writing to file {} mode {}", filePath, mode, e);

@@ -29,6 +29,7 @@ import org.apache.sshd.client.session.SessionFactory;
 import org.apache.sshd.common.PropertyResolverUtils;
 import org.apache.sshd.common.SshException;
 import org.apache.sshd.common.keyprovider.FileKeyPairProvider;
+import org.mule.extension.sftp.api.FileAttributes;
 import org.mule.extension.sftp.api.FileWriteMode;
 import org.mule.extension.sftp.api.SftpFileAttributes;
 import org.mule.extension.sftp.api.SftpProxyConfig;
@@ -413,15 +414,38 @@ public class SftpClient {
    * @param mode   the write mode
    * @param offSet the offset to start writing from
    */
-  public void write(String path, InputStream stream, FileWriteMode mode, long offSet) throws IOException {
+  public void write(String path, InputStream stream, FileWriteMode mode, String filePath, URI uri) throws IOException {
     try (org.apache.sshd.sftp.client.SftpClient.CloseableHandle handle =
         sftp.open(normalizeRemotePath(path), toApacheSshdModes(mode))) {
       if (mode == FileWriteMode.OVERWRITE || mode == FileWriteMode.CREATE_NEW) {
         sftp.write(handle, 0, IOUtils.toByteArray(stream));
       } else {
+        FileAttributes file = getFile(filePath, uri);
+        long offSet = 0L;
+        offSet = file.getSize();
         sftp.write(handle, offSet, IOUtils.toByteArray(stream));
       }
     }
+  }
+
+  protected SftpFileAttributes getFile(String filePath, URI uri) {
+    if (LOGGER.isTraceEnabled()) {
+      LOGGER.trace("Get file attributes for path {}", uri);
+    }
+    SftpFileAttributes attributes;
+    try {
+      attributes = getAttributes(uri);
+    } catch (Exception e) {
+      throw handleException("Found exception trying to obtain path " + uri.getPath(), e);
+    }
+
+    if (LOGGER.isTraceEnabled()) {
+      LOGGER.trace("Obtained file attributes {}", attributes);
+    }
+    if (attributes != null) {
+      return attributes;
+    }
+    return null;
   }
 
   /**
