@@ -139,7 +139,7 @@ public class AbstractFileAttributesTestCase {
   @Test
   public void testGetFileNameForSimplePath() {
     String filename = "abc.txt";
-    String path = "/root/"+filename;
+    String path = "/root/" + filename;
 
     ConcreteFileAttributes pathAttributes = new ConcreteFileAttributes(Paths.get(path));
     assertThat(filename, equalTo(pathAttributes.getFileName()));
@@ -148,7 +148,7 @@ public class AbstractFileAttributesTestCase {
   @Test
   public void testSetFileNameForSimplePath() {
     String filename = "abc.txt";
-    String path = "/root/"+filename;
+    String path = "/root/" + filename;
 
     ConcreteFileAttributes pathAttributes = new ConcreteFileAttributes(Paths.get(path));
     pathAttributes.setFileName(filename);
