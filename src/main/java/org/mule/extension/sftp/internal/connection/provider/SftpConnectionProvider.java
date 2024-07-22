@@ -181,6 +181,7 @@ public class SftpConnectionProvider extends FileSystemProvider<SftpFileSystemCon
       } else {
         LOGGER.error(e.getMessage());
       }
+      throw new SftpConnectionException(getErrorMessage(connectionSettings, e.getMessage()), e, FileError.DISCONNECTED);
     } catch (final IllegalStateException e) {
       throw new SftpConnectionException(getErrorMessage(connectionSettings, e.getMessage()), e, FileError.INVALID_CREDENTIALS);
     } catch (Exception e) {
