@@ -25,6 +25,7 @@ import static org.junit.Assert.fail;
 import org.mule.extension.AbstractSftpTestHarness;
 import org.mule.extension.sftp.api.FileAttributes;
 import org.mule.extension.sftp.api.SftpFileAttributes;
+import org.mule.extension.sftp.api.WriteOptions;
 import org.mule.extension.sftp.api.random.alg.PRNGAlgorithm;
 import org.mule.extension.sftp.internal.connection.SftpClient;
 import org.mule.extension.sftp.internal.connection.SftpClientFactory;
@@ -160,8 +161,8 @@ public class SftpTestHarness extends AbstractSftpTestHarness {
    */
   @Override
   public void createBinaryFile() throws Exception {
-    sftpClient.write(BINARY_FILE_NAME, new ByteArrayInputStream(HELLO_WORLD.getBytes()), OVERWRITE, BINARY_FILE_NAME,
-                     createUri(BINARY_FILE_NAME));
+    sftpClient.write(BINARY_FILE_NAME, new ByteArrayInputStream(HELLO_WORLD.getBytes()), OVERWRITE,
+                     createUri(BINARY_FILE_NAME), WriteOptions.FALSE, 1024);
   }
 
   /**
@@ -198,7 +199,7 @@ public class SftpTestHarness extends AbstractSftpTestHarness {
   @Override
   public void write(String path, String content) throws Exception {
     // Does the append also create a file before????
-    sftpClient.write(path, new ByteArrayInputStream(content.getBytes()), CREATE_NEW, path, createUri(path));
+    sftpClient.write(path, new ByteArrayInputStream(content.getBytes()), CREATE_NEW, createUri(path), WriteOptions.FALSE, 1024);
   }
 
   /**

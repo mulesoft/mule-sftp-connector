@@ -10,6 +10,7 @@ import org.mule.extension.sftp.api.FileAttributes;
 import org.mule.extension.sftp.api.FileWriteMode;
 import org.mule.extension.sftp.internal.config.FileConnectorConfig;
 import org.mule.extension.sftp.internal.lock.PathLock;
+import org.mule.extension.sftp.api.WriteOptions;
 import org.mule.extension.sftp.internal.subset.SubsetList;
 import org.mule.runtime.api.message.Message;
 import org.mule.runtime.api.metadata.DataType;
@@ -143,7 +144,8 @@ public interface FileSystem<A extends FileAttributes> {
    * 
    * @throws IllegalArgumentException if an illegal combination of arguments is supplied
    */
-  void write(String filePath, InputStream content, FileWriteMode mode, boolean lock, boolean createParentDirectories);
+  void write(String filePath, InputStream content, FileWriteMode mode, boolean lock, boolean createParentDirectories,
+             WriteOptions advancedWrite, int bufferSizeForAdvancedWrite);
 
 
 

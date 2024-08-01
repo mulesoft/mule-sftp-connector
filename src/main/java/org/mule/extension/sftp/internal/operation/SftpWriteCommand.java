@@ -18,12 +18,12 @@ import org.mule.extension.sftp.internal.exception.FileAlreadyExistsException;
 import org.mule.extension.sftp.internal.exception.FileDoesNotExistsException;
 import org.mule.extension.sftp.internal.connection.SftpClient;
 import org.mule.extension.sftp.internal.connection.SftpFileSystemConnection;
-import org.mule.extension.sftp.internal.lock.NullUriLock;
 import org.mule.extension.sftp.internal.lock.UriLock;
 
 import java.io.InputStream;
 import java.net.URI;
 
+import org.mule.extension.sftp.api.WriteOptions;
 import org.slf4j.Logger;
 
 /**
@@ -47,15 +47,13 @@ public final class SftpWriteCommand extends SftpCommand implements WriteCommand 
    */
   @Override
   public void write(String filePath, InputStream content, FileWriteMode mode,
-                    boolean lock, boolean createParentDirectory) {
+                    boolean lock, boolean createParentDirectory, WriteOptions advancedWrite, int bufferSizeForAdvancedWrite) {
     URI uri = resolvePath(normalizePath(filePath));
     FileAttributes file = getFile(filePath);
-    long offSet = 0L;
 
     if (file == null) {
       assureParentFolderExists(uri, createParentDirectory);
     } else {
-      offSet = file.getSize();
       if (mode == FileWriteMode.CREATE_NEW) {
         throw new FileAlreadyExistsException(format(
                                                     "Cannot write to path '%s' because it already exists and write mode '%s' was selected. "
@@ -64,10 +62,11 @@ public final class SftpWriteCommand extends SftpCommand implements WriteCommand 
       }
     }
 
-    UriLock pathLock = lock ? fileSystem.lock(uri) : new NullUriLock(uri);
+    //    UriLock pathLock = lock ? fileSystem.lock(uri) : new NullUriLock(uri);
+    UriLock pathLock = fileSystem.lock(uri);
 
     try {
-      client.write(uri.getPath(), content, mode, filePath, uri);
+      client.write(uri.getPath(), content, mode, uri, advancedWrite, bufferSizeForAdvancedWrite);
       LOGGER.debug("Successfully wrote to path {} mode {}", uri.getPath(), mode);
     } catch (Exception e) {
       LOGGER.error("Error writing to file {} mode {}", filePath, mode, e);

@@ -23,7 +23,6 @@ import static org.apache.sshd.sftp.common.SftpConstants.SSH_FX_CONNECTION_LOST;
 import static org.apache.sshd.sftp.common.SftpConstants.SSH_FX_NO_CONNECTION;
 import static org.slf4j.LoggerFactory.getLogger;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.sshd.client.config.SshClientConfigFileReader;
 import org.apache.sshd.client.session.SessionFactory;
 import org.apache.sshd.common.PropertyResolverUtils;
@@ -38,6 +37,7 @@ import org.mule.extension.sftp.internal.error.FileError;
 import org.mule.extension.sftp.internal.exception.FileAccessDeniedException;
 import org.mule.extension.sftp.internal.exception.IllegalPathException;
 import org.mule.extension.sftp.internal.exception.SftpConnectionException;
+import org.mule.extension.sftp.api.WriteOptions;
 import org.mule.runtime.api.connection.ConnectionException;
 import org.mule.runtime.api.exception.MuleRuntimeException;
 import org.mule.runtime.api.scheduler.Scheduler;
@@ -412,18 +412,30 @@ public class SftpClient {
    * @param path   the path to write into
    * @param stream the content to be written
    * @param mode   the write mode
-   * @param offSet the offset to start writing from
+   * @param uri    the uri of the file
    */
-  public void write(String path, InputStream stream, FileWriteMode mode, String filePath, URI uri) throws IOException {
-    try (org.apache.sshd.sftp.client.SftpClient.CloseableHandle handle =
-        sftp.open(normalizeRemotePath(path), toApacheSshdModes(mode))) {
-      if (mode == FileWriteMode.OVERWRITE || mode == FileWriteMode.CREATE_NEW) {
-        sftp.write(handle, 0, IOUtils.toByteArray(stream));
-      } else {
-        FileAttributes file = getFile(filePath, uri);
-        long offSet = 0L;
-        offSet = file.getSize();
-        sftp.write(handle, offSet, IOUtils.toByteArray(stream));
+  public void write(String path, InputStream stream, FileWriteMode mode, URI uri, WriteOptions advancedWrite,
+                    int bufferSizeForAdvancedWrite)
+      throws IOException {
+    if (advancedWrite == WriteOptions.FALSE) {
+      try (OutputStream out = getOutputStream(path, mode)) {
+        byte[] buf = new byte[8192];
+        int n;
+        while ((n = stream.read(buf)) != -1) {
+          out.write(buf, 0, n);
+        }
+      }
+    } else {
+      try (org.apache.sshd.sftp.client.SftpClient.CloseableHandle handle =
+          sftp.open(normalizeRemotePath(path), toApacheSshdModes(mode))) {
+        byte[] buf = new byte[bufferSizeForAdvancedWrite];
+        FileAttributes file = getFile(path, uri);
+        long offSet = file.getSize();
+        int n;
+        while ((n = stream.read(buf)) != -1) {
+          sftp.write(handle, offSet, buf, 0, n);
+          offSet += n;
+        }
       }
     }
   }
