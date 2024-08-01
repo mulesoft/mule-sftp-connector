@@ -8,6 +8,7 @@ package org.mule.extension.sftp.internal.operation;
 
 import org.mule.extension.sftp.api.FileWriteMode;
 import org.mule.extension.sftp.internal.connection.FileSystem;
+import org.mule.extension.sftp.api.WriteOptions;
 
 import java.io.InputStream;
 
@@ -30,5 +31,6 @@ public interface WriteCommand {
    * @param createParentDirectory whether or not to attempt creating the parent directory if it doesn't exist.
    * @throws IllegalArgumentException if an illegal combination of arguments is supplied
    */
-  void write(String filePath, InputStream content, FileWriteMode mode, boolean lock, boolean createParentDirectory);
+  void write(String filePath, InputStream content, FileWriteMode mode, boolean lock, boolean createParentDirectory,
+             WriteOptions advancedWrite, int bufferSizeForAdvancedWrite);
 }

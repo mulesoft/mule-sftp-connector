@@ -22,6 +22,7 @@ import org.mule.extension.sftp.internal.operation.RenameCommand;
 import org.mule.extension.sftp.internal.operation.WriteCommand;
 import org.mule.extension.sftp.internal.lock.PathLock;
 import org.mule.extension.sftp.internal.subset.SubsetList;
+import org.mule.extension.sftp.api.WriteOptions;
 import org.mule.runtime.api.lock.LockFactory;
 import org.mule.runtime.api.metadata.MediaType;
 import org.mule.runtime.extension.api.runtime.operation.Result;
@@ -134,8 +135,8 @@ public abstract class AbstractFileSystem<A extends org.mule.extension.sftp.api.F
    */
   @Override
   public void write(String filePath, InputStream content, FileWriteMode mode,
-                    boolean lock, boolean createParentDirectories) {
-    getWriteCommand().write(filePath, content, mode, lock, createParentDirectories);
+                    boolean lock, boolean createParentDirectories, WriteOptions advancedWrite, int bufferSizeForAdvancedWrite) {
+    getWriteCommand().write(filePath, content, mode, lock, createParentDirectories, advancedWrite, bufferSizeForAdvancedWrite);
   }
 
   /**
