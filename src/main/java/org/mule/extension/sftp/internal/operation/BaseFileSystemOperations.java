@@ -20,6 +20,7 @@ import org.mule.extension.sftp.internal.config.FileConnectorConfig;
 import org.mule.extension.sftp.internal.connection.FileSystem;
 import org.mule.extension.sftp.internal.exception.IllegalContentException;
 import org.mule.extension.sftp.internal.exception.IllegalPathException;
+import org.mule.extension.sftp.api.WriteOptions;
 import org.mule.runtime.api.message.Message;
 import org.mule.runtime.extension.api.annotation.param.Config;
 import org.mule.runtime.extension.api.annotation.param.Connection;
@@ -123,7 +124,8 @@ public abstract class BaseFileSystemOperations {
    */
   protected void doWrite(FileConnectorConfig config,
                          FileSystem fileSystem, String path, InputStream content,
-                         boolean createParentDirectories, boolean lock, FileWriteMode mode) {
+                         boolean createParentDirectories, boolean lock, FileWriteMode mode, WriteOptions advancedWrite,
+                         int bufferSizeForAdvancedWrite) {
     if (content == null) {
       throw new IllegalContentException("Cannot write a null content");
     }
@@ -131,7 +133,7 @@ public abstract class BaseFileSystemOperations {
     validatePath(path, "path");
     fileSystem.changeToBaseDir();
 
-    fileSystem.write(path, content, mode, lock, createParentDirectories);
+    fileSystem.write(path, content, mode, lock, createParentDirectories, advancedWrite, bufferSizeForAdvancedWrite);
   }
 
   /**
