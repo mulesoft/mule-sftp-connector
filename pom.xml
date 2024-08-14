@@ -40,14 +40,13 @@
         <!-- Remove when a new parent version with MTF is available -->
         <munit.input.directory>src/test/munit</munit.input.directory>
         <munit.output.directory>${basedir}/target/test-mule/munit</munit.output.directory>
-        <munit.extensions.maven.plugin.version>1.2.0</munit.extensions.maven.plugin.version>
-        <munit.version>3.2.0</munit.version>
+        <munit.extensions.maven.plugin.version>1.4.0-SNAPSHOT</munit.extensions.maven.plugin.version>
+        <munit.version>3.3.0-SNAPSHOT</munit.version>
         <mavenResources.version>3.3.1</mavenResources.version>
         <sshdVersion>2.12.1</sshdVersion>
         <formatterConfigPath>formatter.xml</formatterConfigPath>
         <settingsFile>${java.io.tmpdir}/effective-settings.xml</settingsFile>
         <mtf.tools.version>1.2.0</mtf.tools.version>
-        <mtf.javaopts></mtf.javaopts>
         <jacoco.version>0.8.12</jacoco.version>
         <maven.impsort.plugin.version>1.6.2</maven.impsort.plugin.version>
         <maven.checkstyle.plugin.version>3.1.2</maven.checkstyle.plugin.version>
@@ -342,11 +341,6 @@
                             -javaagent:${settings.localRepository}/org/jacoco/org.jacoco.agent/${jacoco.version}/org.jacoco.agent-${jacoco.version}-runtime.jar=destfile=${session.executionRootDirectory}/target/jacoco-munit.exec
                         </argLine>
                     </argLines>
-                    <environmentVariables>
-                        <!-- Toggles the JDK17 style flag -->
-                        <!-- ugly hack -->
-                        <_JAVA_OPTIONS>-XX:+PrintCommandLineFlags ${mtf.javaopts}</_JAVA_OPTIONS>
-                    </environmentVariables>
                 </configuration>
                 <dependencies>
                     <dependency>
