@@ -159,6 +159,7 @@ public class SftpConnectionProvider extends FileSystemProvider<SftpFileSystemCon
     try {
       client.login(connectionSettings.getUsername());
     } catch (final SshException e) {
+      client.disconnect();
       if (e.getDisconnectCode() == SSH2_DISCONNECT_NO_MORE_AUTH_METHODS_AVAILABLE) {
         throw new SftpConnectionException(getErrorMessage(connectionSettings, e.getMessage()), e, FileError.INVALID_CREDENTIALS);
       } else if (e.getDisconnectCode() == 0) {
@@ -183,8 +184,10 @@ public class SftpConnectionProvider extends FileSystemProvider<SftpFileSystemCon
       }
       throw new SftpConnectionException(getErrorMessage(connectionSettings, e.getMessage()), e, FileError.DISCONNECTED);
     } catch (final IllegalStateException e) {
+      client.disconnect();
       throw new SftpConnectionException(getErrorMessage(connectionSettings, e.getMessage()), e, FileError.INVALID_CREDENTIALS);
     } catch (Exception e) {
+      client.disconnect();
       throw new SftpConnectionException(getErrorMessage(connectionSettings, e.getMessage()), e, FileError.CONNECTIVITY);
     }
 
