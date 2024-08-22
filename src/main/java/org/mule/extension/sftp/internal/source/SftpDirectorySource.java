@@ -185,6 +185,7 @@ public class SftpDirectorySource extends PollingSource<InputStream, SftpFileAttr
       return;
     }
     SftpFileAttributes attributes = null;
+    boolean canDisconnect = true;
     try {
       Long timeBetweenSizeCheckInMillis =
           config.getTimeBetweenSizeCheckInMillis(timeBetweenSizeCheck, timeBetweenSizeCheckUnit).orElse(null);
@@ -217,7 +218,12 @@ public class SftpDirectorySource extends PollingSource<InputStream, SftpFileAttr
 
         Result<InputStream, SftpFileAttributes> result =
             fileSystem.read(config, attributes.getPath(), true, timeBetweenSizeCheckInMillis);
-        if (!processFile(result, pollContext)) {
+        PollItemStatus pollItemStatus = processFile(result, pollContext);
+        if (canDisconnect && pollItemStatus == PollItemStatus.ACCEPTED) {
+          LOGGER.debug("The file {} is in ACCEPTED state", file.getAttributes().get().getFileName());
+          canDisconnect = false;
+        }
+        if (pollItemStatus == SOURCE_STOPPING) {
           break;
         }
       }
@@ -229,7 +235,10 @@ public class SftpDirectorySource extends PollingSource<InputStream, SftpFileAttr
                    e.getMessage(), e);
       extractConnectionException(e).ifPresent(pollContext::onConnectionException);
     } finally {
-      fileSystemProvider.disconnect(fileSystem);
+      if (canDisconnect) {
+        LOGGER.debug("Closing the connection since no file is in ACCEPTED state.");
+        fileSystemProvider.disconnect(fileSystem);
+      }
     }
   }
 
@@ -254,8 +263,8 @@ public class SftpDirectorySource extends PollingSource<InputStream, SftpFileAttr
     return fileSystem;
   }
 
-  private boolean processFile(Result<InputStream, SftpFileAttributes> file,
-                              PollContext<InputStream, SftpFileAttributes> pollContext) {
+  private PollItemStatus processFile(Result<InputStream, SftpFileAttributes> file,
+                                     PollContext<InputStream, SftpFileAttributes> pollContext) {
     SftpFileAttributes attributes = file.getAttributes().get();
     String fullPath = attributes.getPath();
     if (LOGGER.isTraceEnabled()) {
@@ -284,8 +293,8 @@ public class SftpDirectorySource extends PollingSource<InputStream, SftpFileAttr
         throw new MuleRuntimeException(t);
       }
     });
-
-    return status != SOURCE_STOPPING;
+    LOGGER.debug("The status of file {} is {}", file.getAttributes().get().getFileName(), status);
+    return status;
   }
 
   @Override
@@ -307,6 +316,7 @@ public class SftpDirectorySource extends PollingSource<InputStream, SftpFileAttr
                         attrs.getPath()));
       } finally {
         if (fileSystem != null) {
+          LOGGER.debug("Post action is invoked and closing the connection for file {}", attrs.getFileName());
           fileSystemProvider.disconnect(fileSystem);
         }
       }
