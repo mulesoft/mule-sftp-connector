@@ -50,7 +50,7 @@
         <mtf.javaopts></mtf.javaopts>
         <jacoco.version>0.8.12</jacoco.version>
         <maven.impsort.plugin.version>1.6.2</maven.impsort.plugin.version>
-        <maven.checkstyle.plugin.version>3.1.2</maven.checkstyle.plugin.version>
+        <maven.checkstyle.plugin.version>3.5.0</maven.checkstyle.plugin.version>
         <importGoal>check</importGoal>
         <slf4jApi.version>2.0.7</slf4jApi.version>
         <tikaCore.version>2.8.0</tikaCore.version>
