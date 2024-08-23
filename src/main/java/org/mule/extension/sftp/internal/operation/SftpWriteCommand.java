@@ -13,6 +13,7 @@ import static org.slf4j.LoggerFactory.getLogger;
 
 import org.mule.extension.sftp.api.FileAttributes;
 import org.mule.extension.sftp.api.FileWriteMode;
+import org.mule.extension.sftp.api.WriteStrategy;
 import org.mule.extension.sftp.internal.exception.DeletedFileWhileReadException;
 import org.mule.extension.sftp.internal.exception.FileAlreadyExistsException;
 import org.mule.extension.sftp.internal.exception.FileDoesNotExistsException;
@@ -23,7 +24,6 @@ import org.mule.extension.sftp.internal.lock.UriLock;
 import java.io.InputStream;
 import java.net.URI;
 
-import org.mule.extension.sftp.api.WriteOptions;
 import org.slf4j.Logger;
 
 /**
@@ -47,7 +47,7 @@ public final class SftpWriteCommand extends SftpCommand implements WriteCommand 
    */
   @Override
   public void write(String filePath, InputStream content, FileWriteMode mode,
-                    boolean lock, boolean createParentDirectory, WriteOptions advancedWrite, int bufferSizeForAdvancedWrite) {
+                    boolean lock, boolean createParentDirectory, WriteStrategy writeStrategy, int bufferSizeForWriteStrategy) {
     URI uri = resolvePath(normalizePath(filePath));
     FileAttributes file = getFile(filePath);
 
@@ -66,7 +66,7 @@ public final class SftpWriteCommand extends SftpCommand implements WriteCommand 
     UriLock pathLock = fileSystem.lock(uri);
 
     try {
-      client.write(uri.getPath(), content, mode, uri, advancedWrite, bufferSizeForAdvancedWrite);
+      client.write(uri.getPath(), content, mode, uri, writeStrategy, bufferSizeForWriteStrategy);
       LOGGER.debug("Successfully wrote to path {} mode {}", uri.getPath(), mode);
     } catch (Exception e) {
       LOGGER.error("Error writing to file {} mode {}", filePath, mode, e);

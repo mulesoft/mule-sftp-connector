@@ -17,6 +17,7 @@ import org.mule.extension.sftp.api.FileAttributes;
 import org.mule.extension.sftp.api.FileWriteMode;
 import org.mule.extension.sftp.api.SftpFileAttributes;
 import org.mule.extension.sftp.api.SftpFileMatcher;
+import org.mule.extension.sftp.api.WriteStrategy;
 import org.mule.extension.sftp.internal.connection.FileSystem;
 import org.mule.extension.sftp.internal.connection.SftpFileSystemConnection;
 import org.mule.extension.sftp.internal.error.provider.FileCopyErrorTypeProvider;
@@ -28,7 +29,6 @@ import org.mule.extension.sftp.internal.error.provider.FileWriteErrorTypeProvide
 import org.mule.extension.sftp.internal.exception.IllegalContentException;
 import org.mule.extension.sftp.internal.exception.IllegalPathException;
 import org.mule.extension.sftp.internal.extension.SftpConnector;
-import org.mule.extension.sftp.api.WriteOptions;
 import org.mule.runtime.api.message.Message;
 import org.mule.runtime.extension.api.annotation.error.Throws;
 import org.mule.runtime.extension.api.annotation.param.Config;
@@ -160,8 +160,8 @@ public final class SftpOperations extends BaseFileSystemOperations {
                     @Optional(defaultValue = "true") boolean createParentDirectories,
                     @Optional(defaultValue = "false") boolean lock, @Optional(
                         defaultValue = "OVERWRITE") @Summary("How the file is going to be written") @DisplayName("Write Mode") FileWriteMode mode,
-                    @Placement(tab = ADVANCED_TAB) @Optional(defaultValue = "FALSE") WriteOptions advancedWrite,
-                    @Placement(tab = ADVANCED_TAB) @Optional(defaultValue = "1024") int bufferSizeForAdvancedWrite) {
+                    @Placement(tab = ADVANCED_TAB) @Optional(defaultValue = "STANDARD") WriteStrategy writeStrategy,
+                    @Placement(tab = ADVANCED_TAB) @Optional(defaultValue = "1024") int bufferSizeForWriteStrategy) {
     // TODO: Revert changes after removing changeToBaseDir() calls in File Commons (MULE-17483).
     if (content == null) {
       throw new IllegalContentException("Cannot write a null content");
@@ -171,7 +171,7 @@ public final class SftpOperations extends BaseFileSystemOperations {
       throw new IllegalPathException("path cannot be null nor blank");
     }
 
-    fileSystem.write(path, content, mode, lock, createParentDirectories, advancedWrite, bufferSizeForAdvancedWrite);
+    fileSystem.write(path, content, mode, lock, createParentDirectories, writeStrategy, bufferSizeForWriteStrategy);
   }
 
   /**

@@ -11,13 +11,13 @@ package org.mule.extension.sftp.api;
  *
  * @since 2.3
  */
-public enum WriteOptions {
+public enum WriteStrategy {
   /**
-   * Means that if the file to be written already exists, then it should be overwritten
+   * Means that the standard write function is used where the file write mode is honoured
    */
-  TRUE,
+  STANDARD,
   /**
-   * Means that if the file to be written already exists, then it should be overwritten
+   * Means that a different write function is used to write to files where offset is manually calculated
    */
-  FALSE
+  CUSTOM
 }

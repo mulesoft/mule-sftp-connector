@@ -32,12 +32,12 @@ import org.mule.extension.sftp.api.FileAttributes;
 import org.mule.extension.sftp.api.FileWriteMode;
 import org.mule.extension.sftp.api.SftpFileAttributes;
 import org.mule.extension.sftp.api.SftpProxyConfig;
+import org.mule.extension.sftp.api.WriteStrategy;
 import org.mule.extension.sftp.api.random.alg.PRNGAlgorithm;
 import org.mule.extension.sftp.internal.error.FileError;
 import org.mule.extension.sftp.internal.exception.FileAccessDeniedException;
 import org.mule.extension.sftp.internal.exception.IllegalPathException;
 import org.mule.extension.sftp.internal.exception.SftpConnectionException;
-import org.mule.extension.sftp.api.WriteOptions;
 import org.mule.runtime.api.connection.ConnectionException;
 import org.mule.runtime.api.exception.MuleRuntimeException;
 import org.mule.runtime.api.scheduler.Scheduler;
@@ -414,10 +414,10 @@ public class SftpClient {
    * @param mode   the write mode
    * @param uri    the uri of the file
    */
-  public void write(String path, InputStream stream, FileWriteMode mode, URI uri, WriteOptions advancedWrite,
-                    int bufferSizeForAdvancedWrite)
+  public void write(String path, InputStream stream, FileWriteMode mode, URI uri, WriteStrategy writeStrategy,
+                    int bufferSizeForWriteStrategy)
       throws IOException {
-    if (advancedWrite == WriteOptions.FALSE) {
+    if (writeStrategy == WriteStrategy.STANDARD) {
       try (OutputStream out = getOutputStream(path, mode)) {
         byte[] buf = new byte[8192];
         int n;
@@ -428,7 +428,7 @@ public class SftpClient {
     } else {
       try (org.apache.sshd.sftp.client.SftpClient.CloseableHandle handle =
           sftp.open(normalizeRemotePath(path), toApacheSshdModes(mode))) {
-        byte[] buf = new byte[bufferSizeForAdvancedWrite];
+        byte[] buf = new byte[bufferSizeForWriteStrategy];
         FileAttributes file = getFile(path, uri);
         long offSet = file.getSize();
         int n;

@@ -8,9 +8,9 @@ package org.mule.extension.sftp.internal.connection;
 
 import org.mule.extension.sftp.api.FileAttributes;
 import org.mule.extension.sftp.api.FileWriteMode;
+import org.mule.extension.sftp.api.WriteStrategy;
 import org.mule.extension.sftp.internal.config.FileConnectorConfig;
 import org.mule.extension.sftp.internal.lock.PathLock;
-import org.mule.extension.sftp.api.WriteOptions;
 import org.mule.extension.sftp.internal.subset.SubsetList;
 import org.mule.runtime.api.message.Message;
 import org.mule.runtime.api.metadata.DataType;
@@ -141,11 +141,12 @@ public interface FileSystem<A extends FileAttributes> {
    * @param mode                    a {@link FileWriteMode}
    * @param lock                    whether or not to lock the file
    * @param createParentDirectories whether or not to attempt creating any parent directories which don't exists.
-   * 
-   * @throws IllegalArgumentException if an illegal combination of arguments is supplied
+   * @param writeStrategy               a {@link WriteStrategy}
+   * @param bufferSizeForWriteStrategy  the size of the buffer to be used to write to files using the customWriteStrategy
+   * @throws IllegalArgumentException   if an illegal combination of arguments is supplied
    */
   void write(String filePath, InputStream content, FileWriteMode mode, boolean lock, boolean createParentDirectories,
-             WriteOptions advancedWrite, int bufferSizeForAdvancedWrite);
+             WriteStrategy writeStrategy, int bufferSizeForWriteStrategy);
 
 
 
