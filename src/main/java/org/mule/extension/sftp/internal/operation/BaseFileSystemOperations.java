@@ -14,13 +14,13 @@ import static java.nio.file.Paths.get;
 
 import org.mule.extension.sftp.api.FileAttributes;
 import org.mule.extension.sftp.api.FileWriteMode;
+import org.mule.extension.sftp.api.WriteStrategy;
 import org.mule.extension.sftp.api.matcher.FileMatcher;
 import org.mule.extension.sftp.api.matcher.NullFilePayloadPredicate;
 import org.mule.extension.sftp.internal.config.FileConnectorConfig;
 import org.mule.extension.sftp.internal.connection.FileSystem;
 import org.mule.extension.sftp.internal.exception.IllegalContentException;
 import org.mule.extension.sftp.internal.exception.IllegalPathException;
-import org.mule.extension.sftp.api.WriteOptions;
 import org.mule.runtime.api.message.Message;
 import org.mule.runtime.extension.api.annotation.param.Config;
 import org.mule.runtime.extension.api.annotation.param.Connection;
@@ -120,12 +120,14 @@ public abstract class BaseFileSystemOperations {
    * @param createParentDirectories whether or not to attempt creating any parent directories which don't exists.
    * @param lock                    whether or not to lock the file. Defaults to false
    * @param mode                    a {@link org.mule.extension.sftp.api.FileWriteMode}. Defaults to {@code OVERWRITE}
-   * @throws IllegalArgumentException if an illegal combination of arguments is supplied
+   * @param writeStrategy               a {@link WriteStrategy}
+   * @param bufferSizeForWriteStrategy  the size of the buffer to be used to write to files using the customWriteStrategy
+   * @throws IllegalArgumentException   if an illegal combination of arguments is supplied
    */
   protected void doWrite(FileConnectorConfig config,
                          FileSystem fileSystem, String path, InputStream content,
-                         boolean createParentDirectories, boolean lock, FileWriteMode mode, WriteOptions advancedWrite,
-                         int bufferSizeForAdvancedWrite) {
+                         boolean createParentDirectories, boolean lock, FileWriteMode mode, WriteStrategy writeStrategy,
+                         int bufferSizeForWriteStrategy) {
     if (content == null) {
       throw new IllegalContentException("Cannot write a null content");
     }
@@ -133,7 +135,7 @@ public abstract class BaseFileSystemOperations {
     validatePath(path, "path");
     fileSystem.changeToBaseDir();
 
-    fileSystem.write(path, content, mode, lock, createParentDirectories, advancedWrite, bufferSizeForAdvancedWrite);
+    fileSystem.write(path, content, mode, lock, createParentDirectories, writeStrategy, bufferSizeForWriteStrategy);
   }
 
   /**
