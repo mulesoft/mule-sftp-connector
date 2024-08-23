@@ -20,6 +20,7 @@ import org.mule.extension.sftp.internal.exception.FileDoesNotExistsException;
 import org.mule.extension.sftp.internal.connection.SftpClient;
 import org.mule.extension.sftp.internal.connection.SftpFileSystemConnection;
 import org.mule.extension.sftp.internal.lock.UriLock;
+import org.mule.extension.sftp.internal.lock.NullUriLock;
 
 import java.io.InputStream;
 import java.net.URI;
@@ -62,8 +63,7 @@ public final class SftpWriteCommand extends SftpCommand implements WriteCommand 
       }
     }
 
-    //UriLock pathLock = lock ? fileSystem.lock(uri) : new NullUriLock(uri);
-    UriLock pathLock = fileSystem.lock(uri);
+    UriLock pathLock = lock ? fileSystem.lock(uri) : new NullUriLock(uri);
 
     try {
       client.write(uri.getPath(), content, mode, uri, writeStrategy, bufferSizeForWriteStrategy);
