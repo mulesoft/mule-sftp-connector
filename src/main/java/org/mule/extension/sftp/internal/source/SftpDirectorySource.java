@@ -15,6 +15,7 @@ import static org.mule.sdk.api.annotation.source.SourceClusterSupport.DEFAULT_PR
 
 import static java.lang.String.format;
 
+import org.mule.extension.sftp.api.FileAttributes;
 import org.mule.extension.sftp.api.SftpFileAttributes;
 import org.mule.extension.sftp.api.SftpFileMatcher;
 import org.mule.extension.sftp.api.matcher.NullFilePayloadPredicate;
@@ -47,7 +48,9 @@ import org.mule.sdk.api.annotation.source.ClusterSupport;
 
 import java.io.InputStream;
 import java.net.URI;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
 
@@ -144,6 +147,9 @@ public class SftpDirectorySource extends PollingSource<InputStream, SftpFileAttr
   private URI directoryUri;
   private Predicate<SftpFileAttributes> matcher;
 
+  private static final Map<String, SftpFileSystemConnection> OPEN_CONNECTIONS = new HashMap<>();
+  private static final Map<SftpFileSystemConnection, Integer> FREQUENCY_OF_OPEN_CONNECTION = new HashMap<>();
+
   @Override
   protected void doStart() {
     refreshMatcher();
@@ -153,12 +159,14 @@ public class SftpDirectorySource extends PollingSource<InputStream, SftpFileAttr
   @OnSuccess
   public void onSuccess(@ParameterGroup(name = POST_PROCESSING_GROUP_NAME) PostActionGroup postAction,
                         SourceCallbackContext ctx) {
+    ctx.<SftpFileAttributes>getVariable(ATTRIBUTES_CONTEXT_VAR).ifPresent(this::closeConnectionPostAction);
     postAction(postAction, ctx);
   }
 
   @OnError
   public void onError(@ParameterGroup(name = POST_PROCESSING_GROUP_NAME) PostActionGroup postAction,
                       SourceCallbackContext ctx) {
+    ctx.<SftpFileAttributes>getVariable(ATTRIBUTES_CONTEXT_VAR).ifPresent(this::closeConnectionPostAction);
     if (postAction.isApplyPostActionWhenFailed()) {
       postAction(postAction, ctx);
     }
@@ -226,6 +234,7 @@ public class SftpDirectorySource extends PollingSource<InputStream, SftpFileAttr
         if (pollItemStatus == SOURCE_STOPPING) {
           break;
         }
+        updateConnectionMaps(attributes.getPath(), fileSystem, pollItemStatus);
       }
     } catch (IllegalPathException ex) {
       LOGGER.debug("The File with path '%s' was polled but not exist anymore", attributes.getPath());
@@ -305,6 +314,7 @@ public class SftpDirectorySource extends PollingSource<InputStream, SftpFileAttr
 
   private void postAction(PostActionGroup postAction, SourceCallbackContext ctx) {
     ctx.<SftpFileAttributes>getVariable(ATTRIBUTES_CONTEXT_VAR).ifPresent(attrs -> {
+      LOGGER.debug("PostAction getting called for file {}", attrs.getPath());
       SftpFileSystemConnection fileSystem = null;
       try {
         fileSystem = fileSystemProvider.connect();
@@ -343,6 +353,27 @@ public class SftpDirectorySource extends PollingSource<InputStream, SftpFileAttr
                                                        directory, e.getMessage()));
       LOGGER.error(message.getMessage(), e);
       throw new MuleRuntimeException(message, e);
+    }
+  }
+
+  private void closeConnectionPostAction(FileAttributes attributes) {
+    SftpFileSystemConnection connection = OPEN_CONNECTIONS.get(attributes.getPath());
+    if (connection != null) {
+      int frequency = FREQUENCY_OF_OPEN_CONNECTION.getOrDefault(connection, 0);
+      if (frequency == 1) {
+        fileSystemProvider.disconnect(connection);
+        FREQUENCY_OF_OPEN_CONNECTION.remove(connection);
+      } else {
+        FREQUENCY_OF_OPEN_CONNECTION.put(connection, FREQUENCY_OF_OPEN_CONNECTION.get(connection) - 1);
+      }
+      OPEN_CONNECTIONS.remove(attributes.getPath());
+    }
+  }
+
+  private void updateConnectionMaps(String filepath, SftpFileSystemConnection fileSystem, PollItemStatus pollItemStatus) {
+    if (pollItemStatus == PollItemStatus.ACCEPTED) {
+      FREQUENCY_OF_OPEN_CONNECTION.put(fileSystem, FREQUENCY_OF_OPEN_CONNECTION.getOrDefault(fileSystem, 0) + 1);
+      OPEN_CONNECTIONS.put(filepath, fileSystem);
     }
   }
 }
