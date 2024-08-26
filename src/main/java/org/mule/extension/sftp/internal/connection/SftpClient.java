@@ -414,28 +414,39 @@ public class SftpClient {
    * @param mode   the write mode
    * @param uri    the uri of the file
    */
+  public void write(String path, InputStream stream, FileWriteMode mode, URI uri)
+      throws IOException {
+    try (OutputStream out = getOutputStream(path, mode)) {
+      byte[] buf = new byte[8192];
+      int n;
+      while ((n = stream.read(buf)) != -1) {
+        out.write(buf, 0, n);
+      }
+    }
+  }
+
+  /**
+   * Writes the contents of the {@code stream} into the file at the given {@code path}
+   *
+   * @param path   the path to write into
+   * @param stream the content to be written
+   * @param mode   the write mode
+   * @param uri    the uri of the file
+   * @param writeStrategy the writeStrategy
+   * @param bufferSizeForWriteStrategy bufferSize for customWrite
+   */
   public void write(String path, InputStream stream, FileWriteMode mode, URI uri, WriteStrategy writeStrategy,
                     int bufferSizeForWriteStrategy)
       throws IOException {
-    if (writeStrategy == WriteStrategy.STANDARD) {
-      try (OutputStream out = getOutputStream(path, mode)) {
-        byte[] buf = new byte[8192];
-        int n;
-        while ((n = stream.read(buf)) != -1) {
-          out.write(buf, 0, n);
-        }
-      }
-    } else {
-      try (org.apache.sshd.sftp.client.SftpClient.CloseableHandle handle =
-          sftp.open(normalizeRemotePath(path), toApacheSshdModes(mode))) {
-        byte[] buf = new byte[bufferSizeForWriteStrategy];
-        FileAttributes file = getFile(path, uri);
-        long offSet = file.getSize();
-        int n;
-        while ((n = stream.read(buf)) != -1) {
-          sftp.write(handle, offSet, buf, 0, n);
-          offSet += n;
-        }
+    try (org.apache.sshd.sftp.client.SftpClient.CloseableHandle handle =
+        sftp.open(normalizeRemotePath(path), toApacheSshdModes(mode))) {
+      byte[] buf = new byte[bufferSizeForWriteStrategy];
+      FileAttributes file = getFile(path, uri);
+      long offSet = file.getSize();
+      int n;
+      while ((n = stream.read(buf)) != -1) {
+        sftp.write(handle, offSet, buf, 0, n);
+        offSet += n;
       }
     }
   }
