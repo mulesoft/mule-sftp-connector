@@ -8,6 +8,7 @@ package org.mule.extension.sftp.internal.operation;
 
 import static java.lang.String.format;
 
+import org.mule.extension.sftp.api.CustomWriteBufferSize;
 import org.mule.extension.sftp.api.FileAttributes;
 import org.mule.extension.sftp.api.FileWriteMode;
 import org.mule.extension.sftp.api.WriteStrategy;
@@ -139,7 +140,8 @@ public abstract class AbstractSftpCopyDelegate implements SftpCopyDelegate {
                          SftpFileSystemConnection writerConnection)
       throws IOException {
     final FileWriteMode mode = overwrite ? FileWriteMode.OVERWRITE : FileWriteMode.CREATE_NEW;
-    writerConnection.write(targetPath, inputStream, mode, false, true, WriteStrategy.STANDARD, 1024);
+    writerConnection.write(targetPath, inputStream, mode, false, true, WriteStrategy.STANDARD,
+                           CustomWriteBufferSize.BUFFER_SIZE_1KB);
   }
 
   private ConnectionHandler<SftpFileSystemConnection> getWriterConnection(FileConnectorConfig config) throws ConnectionException {
