@@ -6,33 +6,31 @@
  */
 package org.mule.extension.sftp.internal.connection;
 
-import static org.mule.extension.sftp.internal.error.FileError.CONNECTIVITY;
-import static org.mule.extension.sftp.internal.util.SftpUtils.normalizePath;
-import static org.mule.extension.sftp.internal.util.SftpUtils.resolvePathOrResource;
-import static org.mule.extension.sftp.internal.util.UriUtils.createUri;
-import static org.mule.runtime.api.i18n.I18nMessageFactory.createStaticMessage;
-import static org.mule.runtime.api.util.collection.Collectors.toImmutableList;
-import static org.mule.runtime.core.api.util.StringUtils.isEmpty;
-import static java.lang.String.format;
-import static java.util.Collections.emptyList;
-import static java.util.Objects.nonNull;
-import static java.util.concurrent.TimeUnit.SECONDS;
-
-import static org.apache.commons.collections.CollectionUtils.isEmpty;
-import static org.apache.sshd.sftp.common.SftpConstants.SSH_FX_CONNECTION_LOST;
-import static org.apache.sshd.sftp.common.SftpConstants.SSH_FX_NO_CONNECTION;
-import static org.slf4j.LoggerFactory.getLogger;
-
+import org.apache.sshd.client.ClientBuilder;
+import org.apache.sshd.client.SshClient;
 import org.apache.sshd.client.config.SshClientConfigFileReader;
+import org.apache.sshd.client.keyverifier.KnownHostsServerKeyVerifier;
+import org.apache.sshd.client.keyverifier.RejectAllServerKeyVerifier;
+import org.apache.sshd.client.session.ClientSession;
 import org.apache.sshd.client.session.SessionFactory;
 import org.apache.sshd.common.PropertyResolverUtils;
 import org.apache.sshd.common.SshException;
+import org.apache.sshd.common.config.keys.FilePasswordProvider;
 import org.apache.sshd.common.keyprovider.FileKeyPairProvider;
+import org.apache.sshd.common.util.GenericUtils;
+import org.apache.sshd.core.CoreModuleProperties;
+import org.apache.sshd.sftp.client.SftpClient.OpenMode;
+import org.apache.sshd.sftp.common.SftpConstants;
+import org.apache.sshd.sftp.common.SftpException;
+import org.mule.extension.sftp.api.CustomWriteBufferSize;
 import org.mule.extension.sftp.api.FileAttributes;
 import org.mule.extension.sftp.api.FileWriteMode;
 import org.mule.extension.sftp.api.SftpFileAttributes;
 import org.mule.extension.sftp.api.SftpProxyConfig;
+import org.mule.extension.sftp.api.WriteStrategy;
 import org.mule.extension.sftp.api.random.alg.PRNGAlgorithm;
+import org.mule.extension.sftp.internal.connection.write.SftpWriteStrategyHelper;
+import org.mule.extension.sftp.internal.connection.write.SftpWriter;
 import org.mule.extension.sftp.internal.error.FileError;
 import org.mule.extension.sftp.internal.exception.FileAccessDeniedException;
 import org.mule.extension.sftp.internal.exception.IllegalPathException;
@@ -42,6 +40,7 @@ import org.mule.runtime.api.exception.MuleRuntimeException;
 import org.mule.runtime.api.scheduler.Scheduler;
 import org.mule.runtime.api.scheduler.SchedulerConfig;
 import org.mule.runtime.api.scheduler.SchedulerService;
+import org.slf4j.Logger;
 
 import java.io.File;
 import java.io.IOException;
@@ -58,18 +57,21 @@ import java.util.Properties;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.sshd.client.ClientBuilder;
-import org.apache.sshd.client.SshClient;
-import org.apache.sshd.client.keyverifier.KnownHostsServerKeyVerifier;
-import org.apache.sshd.client.keyverifier.RejectAllServerKeyVerifier;
-import org.apache.sshd.client.session.ClientSession;
-import org.apache.sshd.common.config.keys.FilePasswordProvider;
-import org.apache.sshd.common.util.GenericUtils;
-import org.apache.sshd.core.CoreModuleProperties;
-import org.apache.sshd.sftp.client.SftpClient.OpenMode;
-import org.apache.sshd.sftp.common.SftpConstants;
-import org.apache.sshd.sftp.common.SftpException;
-import org.slf4j.Logger;
+import static java.lang.String.format;
+import static java.util.Collections.emptyList;
+import static java.util.Objects.nonNull;
+import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.apache.commons.collections.CollectionUtils.isEmpty;
+import static org.apache.sshd.sftp.common.SftpConstants.SSH_FX_CONNECTION_LOST;
+import static org.apache.sshd.sftp.common.SftpConstants.SSH_FX_NO_CONNECTION;
+import static org.mule.extension.sftp.internal.error.FileError.CONNECTIVITY;
+import static org.mule.extension.sftp.internal.util.SftpUtils.normalizePath;
+import static org.mule.extension.sftp.internal.util.SftpUtils.resolvePathOrResource;
+import static org.mule.extension.sftp.internal.util.UriUtils.createUri;
+import static org.mule.runtime.api.i18n.I18nMessageFactory.createStaticMessage;
+import static org.mule.runtime.api.util.collection.Collectors.toImmutableList;
+import static org.mule.runtime.core.api.util.StringUtils.isEmpty;
+import static org.slf4j.LoggerFactory.getLogger;
 
 /**
  * Wrapper around apache sshd library which provides access to basic sftp commands.
@@ -408,13 +410,19 @@ public class SftpClient {
   /**
    * Writes the contents of the {@code stream} into the file at the given {@code path}
    *
-   * @param path   the path to write into
-   * @param stream the content to be written
-   * @param mode   the write mode
-   * @param uri    the uri of the file
+   * @param path                       the path to write into
+   * @param stream                     the content to be written
+   * @param mode                       the write mode
+   * @param uri                        the uri of the file
+   * @param writeStrategy
+   * @param bufferSizeForWriteStrategy
    */
-  public void write(String path, InputStream stream, FileWriteMode mode, URI uri)
+  public void write(String path, InputStream stream, FileWriteMode mode, URI uri, WriteStrategy writeStrategy, CustomWriteBufferSize bufferSizeForWriteStrategy)
       throws IOException {
+
+    SftpWriter sftpWriter = SftpWriteStrategyHelper.getStrategy(this, this.sftp, writeStrategy, bufferSizeForWriteStrategy);
+    sftpWriter.write(path, stream, mode, uri);
+
     try (OutputStream out = getOutputStream(path, mode)) {
       byte[] buf = new byte[8192];
       int n;
@@ -449,7 +457,7 @@ public class SftpClient {
     }
   }
 
-  private SftpFileAttributes getFile(URI uri) {
+  public SftpFileAttributes getFile(URI uri) {
     if (LOGGER.isTraceEnabled()) {
       LOGGER.trace("Get file attributes for path {}", uri);
     }
@@ -650,11 +658,15 @@ public class SftpClient {
     this.owner = owner;
   }
 
-  private String normalizeRemotePath(String path) {
+  public String normalizeRemotePath(String path) {
     if (path.length() > 0 && path.charAt(0) == '/') {
       return normalizePath(path);
     } else {
       return normalizePath((cwd.equals("/") ? "" : cwd) + "/" + path);
     }
+  }
+
+  public org.apache.sshd.sftp.client.SftpClient.CloseableHandle open(String path, FileWriteMode writeMode) throws IOException {
+    return sftp.open(normalizeRemotePath(path), toApacheSshdModes(writeMode));
   }
 }
