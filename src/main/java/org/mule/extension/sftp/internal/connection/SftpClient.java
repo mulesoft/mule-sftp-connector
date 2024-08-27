@@ -32,7 +32,6 @@ import org.mule.extension.sftp.api.FileAttributes;
 import org.mule.extension.sftp.api.FileWriteMode;
 import org.mule.extension.sftp.api.SftpFileAttributes;
 import org.mule.extension.sftp.api.SftpProxyConfig;
-import org.mule.extension.sftp.api.WriteStrategy;
 import org.mule.extension.sftp.api.random.alg.PRNGAlgorithm;
 import org.mule.extension.sftp.internal.error.FileError;
 import org.mule.extension.sftp.internal.exception.FileAccessDeniedException;
@@ -432,17 +431,16 @@ public class SftpClient {
    * @param stream the content to be written
    * @param mode   the write mode
    * @param uri    the uri of the file
-   * @param writeStrategy the writeStrategy
    * @param bufferSizeForWriteStrategy bufferSize for customWrite
    */
-  public void write(String path, InputStream stream, FileWriteMode mode, URI uri, WriteStrategy writeStrategy,
+  public void write(String path, InputStream stream, FileWriteMode mode, URI uri,
                     int bufferSizeForWriteStrategy)
       throws IOException {
     try (org.apache.sshd.sftp.client.SftpClient.CloseableHandle handle =
         sftp.open(normalizeRemotePath(path), toApacheSshdModes(mode))) {
       byte[] buf = new byte[bufferSizeForWriteStrategy];
-      FileAttributes file = getFile(path, uri);
-      long offSet = file.getSize();
+      FileAttributes file = getFile(uri);
+      long offSet = file != null ? file.getSize() : 0;
       int n;
       while ((n = stream.read(buf)) != -1) {
         sftp.write(handle, offSet, buf, 0, n);
@@ -451,7 +449,7 @@ public class SftpClient {
     }
   }
 
-  protected SftpFileAttributes getFile(String filePath, URI uri) {
+  private SftpFileAttributes getFile(URI uri) {
     if (LOGGER.isTraceEnabled()) {
       LOGGER.trace("Get file attributes for path {}", uri);
     }
@@ -636,7 +634,7 @@ public class SftpClient {
   public void setProxyConfig(SftpProxyConfig proxyConfig) throws ConnectionException {
     if (proxyConfig != null) {
       if (proxyConfig.getHost() == null || proxyConfig.getPort() == null) {
-        throw new SftpConnectionException("SFTP Proxy must have both \"host\" and \"port\" set", FileError.CONNECTIVITY);
+        throw new SftpConnectionException("SFTP Proxy must have both \"host\" and \"port\" set", CONNECTIVITY);
       }
 
       if ((proxyConfig.getUsername() == null) != (proxyConfig.getPassword() == null)) {
