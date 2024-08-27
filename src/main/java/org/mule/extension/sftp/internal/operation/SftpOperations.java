@@ -173,11 +173,8 @@ public final class SftpOperations extends BaseFileSystemOperations {
       throw new IllegalPathException("path cannot be null nor blank");
     }
 
-    if (writeStrategy == WriteStrategy.CUSTOM) {
-      fileSystem.write(path, content, mode, lock, createParentDirectories, writeStrategy, bufferSizeForWriteStrategy);
-    } else {
-      fileSystem.write(path, content, mode, lock, createParentDirectories);
-    }
+    SftpWriteContext sftpWriteContext = new SftpWriteContext(bufferSizeForWriteStrategy);
+    sftpWriteContext.write(writeStrategy, fileSystem, path, content, mode, lock, createParentDirectories);
 
   }
 
