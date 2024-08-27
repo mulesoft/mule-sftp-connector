@@ -11,7 +11,6 @@ import static java.lang.String.format;
 import org.mule.extension.sftp.api.CustomWriteBufferSize;
 import org.mule.extension.sftp.api.FileAttributes;
 import org.mule.extension.sftp.api.FileWriteMode;
-import org.mule.extension.sftp.api.WriteStrategy;
 import org.mule.extension.sftp.internal.exception.FileLockedException;
 import org.mule.extension.sftp.internal.config.FileConnectorConfig;
 import org.mule.extension.sftp.internal.operation.CopyCommand;
@@ -136,9 +135,8 @@ public abstract class AbstractFileSystem<A extends org.mule.extension.sftp.api.F
    */
   @Override
   public void write(String filePath, InputStream content, FileWriteMode mode,
-                    boolean lock, boolean createParentDirectories, WriteStrategy writeStrategy,
-                    CustomWriteBufferSize bufferSizeForWriteStrategy) {
-    getWriteCommand().write(filePath, content, mode, lock, createParentDirectories, writeStrategy, bufferSizeForWriteStrategy);
+                    boolean lock, boolean createParentDirectories, CustomWriteBufferSize bufferSizeForWriteStrategy) {
+    getWriteCommand().write(filePath, content, mode, lock, createParentDirectories, bufferSizeForWriteStrategy);
   }
 
   /**

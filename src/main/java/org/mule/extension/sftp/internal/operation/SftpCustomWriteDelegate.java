@@ -8,7 +8,6 @@ package org.mule.extension.sftp.internal.operation;
 
 import org.mule.extension.sftp.api.CustomWriteBufferSize;
 import org.mule.extension.sftp.api.FileWriteMode;
-import org.mule.extension.sftp.api.WriteStrategy;
 import org.mule.extension.sftp.internal.connection.SftpFileSystemConnection;
 
 import java.io.InputStream;
@@ -27,6 +26,6 @@ public class SftpCustomWriteDelegate implements SftpWriteDelegate {
   @Override
   public void write(SftpFileSystemConnection fileSystem, String filePath, InputStream content, FileWriteMode mode, boolean lock,
                     boolean createParentDirectories) {
-    fileSystem.write(filePath, content, mode, lock, createParentDirectories, WriteStrategy.CUSTOM, customWriteBufferSize);
+    fileSystem.write(filePath, content, mode, lock, createParentDirectories, customWriteBufferSize);
   }
 }
