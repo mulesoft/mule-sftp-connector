@@ -143,9 +143,8 @@ public interface FileSystem<A extends FileAttributes> {
    * @param mode                    a {@link FileWriteMode}
    * @param lock                    whether or not to lock the file
    * @param writeStrategy           a {@link WriteStrategy} defaults to STANDARD
-   * @param bufferSizeForWriteStrategy the buffer size for the custom write
+   * @param bufferSizeForWriteStrategy  a {@link CustomWriteBufferSize}. Defaults to 8192
    * @param createParentDirectories whether or not to attempt creating any parent directories which don't exists.
-   *    * @param bufferSizeForWriteStrategy  a {@link CustomWriteBufferSize}. Defaults to 1024
    * @throws IllegalArgumentException   if an illegal combination of arguments is supplied
    */
   void write(String filePath, InputStream content, FileWriteMode mode, boolean lock, boolean createParentDirectories,

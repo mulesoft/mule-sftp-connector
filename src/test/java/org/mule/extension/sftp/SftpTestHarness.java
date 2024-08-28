@@ -23,12 +23,16 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
 import org.mule.extension.AbstractSftpTestHarness;
-import org.mule.extension.sftp.api.*;
+import org.mule.extension.sftp.api.FileAttributes;
+import org.mule.extension.sftp.api.SftpFileAttributes;
 import org.mule.extension.sftp.api.random.alg.PRNGAlgorithm;
 import org.mule.extension.sftp.internal.connection.SftpClient;
 import org.mule.extension.sftp.internal.connection.SftpClientFactory;
 import org.mule.runtime.api.scheduler.SchedulerService;
 import org.mule.tck.junit4.rule.DynamicPort;
+import org.mule.extension.sftp.api.FileTestHarness;
+import org.mule.extension.sftp.api.CustomWriteBufferSize;
+import org.mule.extension.sftp.api.WriteStrategy;
 
 import javax.inject.Inject;
 import java.io.ByteArrayInputStream;
@@ -159,7 +163,7 @@ public class SftpTestHarness extends AbstractSftpTestHarness {
   @Override
   public void createBinaryFile() throws Exception {
     sftpClient.write(BINARY_FILE_NAME, new ByteArrayInputStream(HELLO_WORLD.getBytes()), OVERWRITE,
-                     createUri(BINARY_FILE_NAME), WriteStrategy.STANDARD, CustomWriteBufferSize.BUFFER_SIZE_1KB);
+                     createUri(BINARY_FILE_NAME), WriteStrategy.STANDARD, CustomWriteBufferSize.BUFFER_SIZE_8KB);
   }
 
   /**

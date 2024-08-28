@@ -44,6 +44,9 @@ public final class SftpWriteCommand extends SftpCommand implements WriteCommand 
     super(fileSystem, client);
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void write(String filePath, InputStream content, FileWriteMode mode, boolean lock, boolean createParentDirectory,
                     WriteStrategy writeStrategy, CustomWriteBufferSize bufferSizeForWriteStrategy) {
@@ -66,6 +69,7 @@ public final class SftpWriteCommand extends SftpCommand implements WriteCommand 
 
     try {
       client.write(uri.getPath(), content, mode, uri, writeStrategy, bufferSizeForWriteStrategy);
+      LOGGER.debug("Successfully wrote to path {} mode {}", uri.getPath(), mode);
     } catch (Exception e) {
       LOGGER.error("Error writing to file {} mode {}", filePath, mode, e);
       if (e instanceof DeletedFileWhileReadException) {

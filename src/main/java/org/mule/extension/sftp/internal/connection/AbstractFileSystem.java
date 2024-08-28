@@ -141,7 +141,6 @@ public abstract class AbstractFileSystem<A extends org.mule.extension.sftp.api.F
     getWriteCommand().write(filePath, content, mode, lock, createParentDirectories, writeStrategy, bufferSizeForWriteStrategy);
   }
 
-
   /**
    * {@inheritDoc}
    */

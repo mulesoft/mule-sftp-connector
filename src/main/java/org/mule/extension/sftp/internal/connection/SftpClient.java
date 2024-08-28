@@ -415,8 +415,8 @@ public class SftpClient {
    * @param stream the content to be written
    * @param mode   the write mode
    * @param uri    the uri of the file
-   * @param writeStrategy write strategy
-   * @param bufferSizeForWriteStrategy bufferSize for customWrite
+   * @param writeStrategy           a {@link WriteStrategy} defaults to STANDARD
+   * @param bufferSizeForWriteStrategy  a {@link CustomWriteBufferSize}. Defaults to 8192
    */
   public void write(String path, InputStream stream, FileWriteMode mode, URI uri,
                     WriteStrategy writeStrategy, CustomWriteBufferSize bufferSizeForWriteStrategy)
@@ -610,7 +610,7 @@ public class SftpClient {
   public void setProxyConfig(SftpProxyConfig proxyConfig) throws ConnectionException {
     if (proxyConfig != null) {
       if (proxyConfig.getHost() == null || proxyConfig.getPort() == null) {
-        throw new SftpConnectionException("SFTP Proxy must have both \"host\" and \"port\" set", CONNECTIVITY);
+        throw new SftpConnectionException("SFTP Proxy must have both \"host\" and \"port\" set", FileError.CONNECTIVITY);
       }
 
       if ((proxyConfig.getUsername() == null) != (proxyConfig.getPassword() == null)) {

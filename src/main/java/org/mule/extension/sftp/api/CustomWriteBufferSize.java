@@ -13,9 +13,9 @@ package org.mule.extension.sftp.api;
  */
 public enum CustomWriteBufferSize {
   /**
-   * The buffer size for custom write
+   * The buffer size options for custom write
    */
-  BUFFER_SIZE_1KB(1024), BUFFER_SIZE_2KB(2048), BUFFER_SIZE_4KB(4096), BUFFER_SIZE_8KB(8192);
+  BUFFER_SIZE_1KB(1024), BUFFER_SIZE_2KB(2048), BUFFER_SIZE_4KB(4096), BUFFER_SIZE_8KB(8192), BUFFER_SIZE_16KB(16384);
 
   private final int customWriteBufferSize;
 

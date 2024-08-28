@@ -17,7 +17,7 @@ public enum WriteStrategy {
    */
   STANDARD,
   /**
-   * Means that a different write function is used to write to files where offset is manually calculated
+   * Means that a custom write function is used to write to files where offset is manually calculated
    */
   CUSTOM
 }
