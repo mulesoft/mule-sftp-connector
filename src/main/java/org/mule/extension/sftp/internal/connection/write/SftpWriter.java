@@ -12,8 +12,21 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 
+/**
+ * This interface acts as a facade which allows implementing the different write strategies to be used for writing to a file.
+ *
+ * @since 2.3.0
+ */
 public interface SftpWriter {
 
+  /**
+   * Writes to a file
+   *
+   * @param path                        the path of the file to be written
+   * @param stream                      the content to be written into the file
+   * @param mode                        a {@link FileWriteMode}
+   * @param uri                         the URI of the file to be written
+   */
   void write(String path, InputStream stream, FileWriteMode mode, URI uri) throws IOException;
 
 }

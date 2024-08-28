@@ -15,6 +15,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 
+/**
+ * A {@link SftpWriter} contract
+ *
+ * @since 2.3
+ */
 public class SftpCustomWriter implements SftpWriter {
 
   private SftpClient muleSftpClient;
@@ -29,6 +34,9 @@ public class SftpCustomWriter implements SftpWriter {
     this.bufferSizeForWriteStrategy = bufferSizeForWriteStrategy;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void write(String path, InputStream stream, FileWriteMode mode, URI uri) throws IOException {
     try (org.apache.sshd.sftp.client.SftpClient.CloseableHandle handle =

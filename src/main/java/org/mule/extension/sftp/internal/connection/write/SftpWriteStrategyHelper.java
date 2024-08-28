@@ -9,8 +9,21 @@ package org.mule.extension.sftp.internal.connection.write;
 import org.mule.extension.sftp.api.CustomWriteBufferSize;
 import org.mule.extension.sftp.api.WriteStrategy;
 
+/**
+ * A strategy helper class to pick the WriteStrategy
+ *
+ * @since 2.3
+ */
 public class SftpWriteStrategyHelper {
 
+  /**
+   * Gets the strategy for the write method
+   *
+   * @param muleSftpClient              the SftpClient Instance for writing to the file
+   * @param apacheSftpClient            the Apache client instance for writing to the file
+   * @param writeStrategy               a {@link WriteStrategy}. Defaults to STANDARD
+   * @param bufferSizeForWriteStrategy  a {@link CustomWriteBufferSize}. Defaults to 8192
+   */
   public static SftpWriter getStrategy(org.mule.extension.sftp.internal.connection.SftpClient muleSftpClient,
                                        org.apache.sshd.sftp.client.SftpClient apacheSftpClient,
                                        WriteStrategy writeStrategy, CustomWriteBufferSize bufferSizeForWriteStrategy) {

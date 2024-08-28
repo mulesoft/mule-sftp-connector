@@ -14,6 +14,11 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URI;
 
+/**
+ * A {@link SftpWriter} contract
+ *
+ * @since 2.3
+ */
 public class SftpStandardWriter implements SftpWriter {
 
   private SftpClient sftpClient;
@@ -22,6 +27,9 @@ public class SftpStandardWriter implements SftpWriter {
     this.sftpClient = sftpClient;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
   public void write(String path, InputStream stream, FileWriteMode mode, URI uri) throws IOException {
     try (OutputStream out = sftpClient.getOutputStream(path, mode)) {
