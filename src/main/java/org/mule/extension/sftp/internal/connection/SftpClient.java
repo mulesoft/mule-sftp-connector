@@ -28,11 +28,14 @@ import org.apache.sshd.client.session.SessionFactory;
 import org.apache.sshd.common.PropertyResolverUtils;
 import org.apache.sshd.common.SshException;
 import org.apache.sshd.common.keyprovider.FileKeyPairProvider;
-import org.mule.extension.sftp.api.FileAttributes;
+import org.mule.extension.sftp.api.WriteStrategy;
 import org.mule.extension.sftp.api.FileWriteMode;
 import org.mule.extension.sftp.api.SftpFileAttributes;
 import org.mule.extension.sftp.api.SftpProxyConfig;
+import org.mule.extension.sftp.api.CustomWriteBufferSize;
 import org.mule.extension.sftp.api.random.alg.PRNGAlgorithm;
+import org.mule.extension.sftp.internal.connection.write.SftpWriteStrategyHelper;
+import org.mule.extension.sftp.internal.connection.write.SftpWriter;
 import org.mule.extension.sftp.internal.error.FileError;
 import org.mule.extension.sftp.internal.exception.FileAccessDeniedException;
 import org.mule.extension.sftp.internal.exception.IllegalPathException;
@@ -412,44 +415,17 @@ public class SftpClient {
    * @param stream the content to be written
    * @param mode   the write mode
    * @param uri    the uri of the file
-   */
-  public void write(String path, InputStream stream, FileWriteMode mode, URI uri)
-      throws IOException {
-    try (OutputStream out = getOutputStream(path, mode)) {
-      byte[] buf = new byte[8192];
-      int n;
-      while ((n = stream.read(buf)) != -1) {
-        out.write(buf, 0, n);
-      }
-    }
-  }
-
-  /**
-   * Writes the contents of the {@code stream} into the file at the given {@code path}
-   *
-   * @param path   the path to write into
-   * @param stream the content to be written
-   * @param mode   the write mode
-   * @param uri    the uri of the file
+   * @param writeStrategy write strategy
    * @param bufferSizeForWriteStrategy bufferSize for customWrite
    */
   public void write(String path, InputStream stream, FileWriteMode mode, URI uri,
-                    int bufferSizeForWriteStrategy)
+                    WriteStrategy writeStrategy, CustomWriteBufferSize bufferSizeForWriteStrategy)
       throws IOException {
-    try (org.apache.sshd.sftp.client.SftpClient.CloseableHandle handle =
-        sftp.open(normalizeRemotePath(path), toApacheSshdModes(mode))) {
-      byte[] buf = new byte[bufferSizeForWriteStrategy];
-      FileAttributes file = getFile(uri);
-      long offSet = file != null ? file.getSize() : 0;
-      int n;
-      while ((n = stream.read(buf)) != -1) {
-        sftp.write(handle, offSet, buf, 0, n);
-        offSet += n;
-      }
-    }
+    SftpWriter sftpWriter = SftpWriteStrategyHelper.getStrategy(this, this.sftp, writeStrategy, bufferSizeForWriteStrategy);
+    sftpWriter.write(path, stream, mode, uri);
   }
 
-  private SftpFileAttributes getFile(URI uri) {
+  public SftpFileAttributes getFile(URI uri) {
     if (LOGGER.isTraceEnabled()) {
       LOGGER.trace("Get file attributes for path {}", uri);
     }
@@ -650,11 +626,15 @@ public class SftpClient {
     this.owner = owner;
   }
 
-  private String normalizeRemotePath(String path) {
+  public String normalizeRemotePath(String path) {
     if (path.length() > 0 && path.charAt(0) == '/') {
       return normalizePath(path);
     } else {
       return normalizePath((cwd.equals("/") ? "" : cwd) + "/" + path);
     }
+  }
+
+  public org.apache.sshd.sftp.client.SftpClient.CloseableHandle open(String path, FileWriteMode writeMode) throws IOException {
+    return sftp.open(normalizeRemotePath(path), toApacheSshdModes(writeMode));
   }
 }

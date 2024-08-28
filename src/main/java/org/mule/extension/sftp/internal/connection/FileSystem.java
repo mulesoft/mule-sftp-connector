@@ -9,6 +9,7 @@ package org.mule.extension.sftp.internal.connection;
 import org.mule.extension.sftp.api.CustomWriteBufferSize;
 import org.mule.extension.sftp.api.FileAttributes;
 import org.mule.extension.sftp.api.FileWriteMode;
+import org.mule.extension.sftp.api.WriteStrategy;
 import org.mule.extension.sftp.internal.config.FileConnectorConfig;
 import org.mule.extension.sftp.internal.lock.PathLock;
 import org.mule.extension.sftp.internal.subset.SubsetList;
@@ -135,52 +136,20 @@ public interface FileSystem<A extends FileAttributes> {
    * This method also supports locking support depending on the value of the {@code lock} argument, but following the same rules
    * and considerations as described in the {@link #read(FileConnectorConfig, String, boolean, Long)} (FileConnectorConfig,
    * String, boolean)} method
-   *
-   * @param filePath                the path of the file to be written
-   * @param content                 the content to be written into the file
-   * @param mode                    a {@link FileWriteMode}
-   * @param lock                    whether or not to lock the file
-   * @param createParentDirectories whether or not to attempt creating any parent directories which don't exists.
-   * @throws IllegalArgumentException   if an illegal combination of arguments is supplied
-   */
-  void write(String filePath, InputStream content, FileWriteMode mode, boolean lock, boolean createParentDirectories);
-
-  /**
-   * Writes the {@code content} into the file pointed by {@code filePath}.
-   * <p>
-   * The {@code content} can be of any of the given types:
-   * <ul>
-   * <li>{@link String}</li>
-   * <li>{@code String[]}</li>
-   * <li>{@code byte}</li>
-   * <li>{@code byte[]}</li>
-   * <li>{@link OutputHandler}</li>
-   * <li>{@link Iterable}</li>
-   * <li>{@link Iterator}</li>
-   * </ul>
-   * <p>
-   * {@code null} contents are not allowed and will result in an {@link IllegalArgumentException}.
-   * <p>
-   * If the directory on which the file is attempting to be written doesn't exist, then the operation will either throw
-   * {@link IllegalArgumentException} or create such folder depending on the value of the {@code createParentDirectory}.
-   * <p>
-   * If the file itself already exists, then the behavior depends on the supplied {@code mode}.
-   * <p>
-   * This method also supports locking support depending on the value of the {@code lock} argument, but following the same rules
-   * and considerations as described in the {@link #read(FileConnectorConfig, String, boolean, Long)} (FileConnectorConfig,
-   * String, boolean)} method
    * This method is a custom write method call that takes the offset value manually.
    *
    * @param filePath                the path of the file to be written
    * @param content                 the content to be written into the file
    * @param mode                    a {@link FileWriteMode}
    * @param lock                    whether or not to lock the file
+   * @param writeStrategy           a {@link WriteStrategy} defaults to STANDARD
+   * @param bufferSizeForWriteStrategy the buffer size for the custom write
    * @param createParentDirectories whether or not to attempt creating any parent directories which don't exists.
    *    * @param bufferSizeForWriteStrategy  a {@link CustomWriteBufferSize}. Defaults to 1024
    * @throws IllegalArgumentException   if an illegal combination of arguments is supplied
    */
   void write(String filePath, InputStream content, FileWriteMode mode, boolean lock, boolean createParentDirectories,
-             CustomWriteBufferSize bufferSizeForWriteStrategy);
+             WriteStrategy writeStrategy, CustomWriteBufferSize bufferSizeForWriteStrategy);
 
 
   /**
