@@ -359,11 +359,11 @@ public class SftpDirectorySource extends PollingSource<InputStream, SftpFileAttr
     SftpFileSystemConnection connection = OPEN_CONNECTIONS.get(attributes.getPath());
     if (connection != null) {
       int frequency = FREQUENCY_OF_OPEN_CONNECTION.getOrDefault(connection, 0);
-      if (frequency == 1) {
+      if (frequency > 1) {
+        FREQUENCY_OF_OPEN_CONNECTION.put(connection, frequency - 1);
+      } else {
         fileSystemProvider.disconnect(connection);
         FREQUENCY_OF_OPEN_CONNECTION.remove(connection);
-      } else {
-        FREQUENCY_OF_OPEN_CONNECTION.put(connection, FREQUENCY_OF_OPEN_CONNECTION.get(connection) - 1);
       }
       OPEN_CONNECTIONS.remove(attributes.getPath());
     }
