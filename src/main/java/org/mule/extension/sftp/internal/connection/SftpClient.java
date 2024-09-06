@@ -60,6 +60,7 @@ import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import org.apache.sshd.client.ClientBuilder;
 import org.apache.sshd.client.SshClient;
@@ -468,17 +469,21 @@ public class SftpClient {
    * The solution at the moment is to add a timeout with the tools provided by mule sdk.
    */
   private String executePWDCommandWithTimeout() throws IOException {
+    Future<String> future = null;
     try {
       Scheduler getHomeScheduler =
           schedulerService.cpuLightScheduler(SchedulerConfig.config().withShutdownTimeout(PWD_COMMAND_EXECUTION_TIMEOUT,
                                                                                           PWD_COMMAND_EXECUTION_TIMEOUT_UNIT));
-      Future<String> submit = getHomeScheduler.submit(() -> session.executeRemoteCommand(PWD_COMMAND));
-      return submit.get().trim();
+      future = getHomeScheduler.submit(() -> session.executeRemoteCommand(PWD_COMMAND));
+      return future.get(PWD_COMMAND_EXECUTION_TIMEOUT, PWD_COMMAND_EXECUTION_TIMEOUT_UNIT).trim();
     } catch (InterruptedException e) {
       throw new MuleRuntimeException(e);
-    } catch (Exception ex) {
+    } catch (TimeoutException e) {
+      future.cancel(true);
       throw new IllegalPathException("Unable to resolve the working directory from server timed out. Please configure a valid working directory or use absolute paths on your operation.",
-                                     ex);
+                                     e);
+    } catch (Exception ex) {
+      throw new MuleRuntimeException(ex);
     }
   }
 
