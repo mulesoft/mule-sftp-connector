@@ -456,7 +456,8 @@ public class SftpClient {
       throw new MuleRuntimeException(e);
     } catch (TimeoutException e) {
       future.cancel(true);
-      throw new IllegalPathException("Unable to resolve the working directory from server timed out. Please configure a valid working directory or use absolute paths on your operation.",
+      LOGGER.error("Execution of 'pwd' command timed out");
+      throw new IllegalPathException("Unable to resolve the working directory from server. Please configure a valid working directory or use absolute paths on your operation.",
                                      e);
     } catch (Exception ex) {
       throw new MuleRuntimeException(ex);
