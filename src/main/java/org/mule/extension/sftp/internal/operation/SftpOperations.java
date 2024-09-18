@@ -162,9 +162,9 @@ public final class SftpOperations extends BaseFileSystemOperations {
                     @Optional(defaultValue = "false") boolean lock, @Optional(
                         defaultValue = "OVERWRITE") @Summary("How the file is going to be written") @DisplayName("Write Mode") FileWriteMode mode,
                     @Placement(tab = ADVANCED_TAB) @Optional(
-                        defaultValue = "STANDARD") @Summary("What Strategy is to be used to write the file") WriteStrategy writeStrategy,
+                        defaultValue = "STANDARD") @Summary("Strategy to write the file.") WriteStrategy writeStrategy,
                     @Placement(tab = ADVANCED_TAB) @Optional(
-                        defaultValue = "BUFFER_SIZE_8KB") @Summary("What should be the buffer size for the custom write") CustomWriteBufferSize bufferSizeForWriteStrategy) {
+                        defaultValue = "BUFFER_SIZE_8KB") @Summary("Buffer size for the custom write.") CustomWriteBufferSize bufferSizeForWriteStrategy) {
     // TODO: Revert changes after removing changeToBaseDir() calls in File Commons (MULE-17483).
     if (content == null) {
       throw new IllegalContentException("Cannot write a null content");
