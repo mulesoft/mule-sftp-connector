@@ -60,9 +60,9 @@ public class LazyInputStreamProxy extends InputStream {
 
   @Override
   public void close() throws IOException {
-    InputStream inputStream = getDelegate();
-    if (inputStream != null) {
-      inputStream.close();
+    InputStream is = getDelegate();
+    if (is != null) {
+      is.close();
     }
   }
 
