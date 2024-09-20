@@ -440,10 +440,7 @@ public class SftpClient {
     if (LOGGER.isTraceEnabled()) {
       LOGGER.trace("Obtained file attributes {}", attributes);
     }
-    if (attributes != null) {
-      return attributes;
-    }
-    return null;
+    return attributes;
   }
 
   /**

@@ -14,6 +14,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URI;
 
+import static org.mule.extension.sftp.api.CustomWriteBufferSize.BUFFER_SIZE_8KB;
+
 /**
  * A {@link SftpWriter} contract
  *
@@ -33,7 +35,7 @@ public class SftpStandardWriter implements SftpWriter {
   @Override
   public void write(String path, InputStream stream, FileWriteMode mode, URI uri) throws IOException {
     try (OutputStream out = sftpClient.getOutputStream(path, mode)) {
-      byte[] buf = new byte[8192];
+      byte[] buf = new byte[BUFFER_SIZE_8KB.getCustomWriteBufferSize()];
       int n;
       while ((n = stream.read(buf)) != -1) {
         out.write(buf, 0, n);
