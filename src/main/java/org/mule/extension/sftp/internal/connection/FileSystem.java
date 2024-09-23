@@ -6,8 +6,10 @@
  */
 package org.mule.extension.sftp.internal.connection;
 
+import org.mule.extension.sftp.api.CustomWriteBufferSize;
 import org.mule.extension.sftp.api.FileAttributes;
 import org.mule.extension.sftp.api.FileWriteMode;
+import org.mule.extension.sftp.api.WriteStrategy;
 import org.mule.extension.sftp.internal.config.FileConnectorConfig;
 import org.mule.extension.sftp.internal.lock.PathLock;
 import org.mule.extension.sftp.internal.subset.SubsetList;
@@ -134,17 +136,19 @@ public interface FileSystem<A extends FileAttributes> {
    * This method also supports locking support depending on the value of the {@code lock} argument, but following the same rules
    * and considerations as described in the {@link #read(FileConnectorConfig, String, boolean, Long)} (FileConnectorConfig,
    * String, boolean)} method
+   * This method is a custom write method call that takes the offset value manually.
    *
    * @param filePath                the path of the file to be written
    * @param content                 the content to be written into the file
    * @param mode                    a {@link FileWriteMode}
    * @param lock                    whether or not to lock the file
+   * @param writeStrategy           a {@link WriteStrategy} defaults to STANDARD
+   * @param bufferSizeForWriteStrategy  a {@link CustomWriteBufferSize}. Defaults to 8192
    * @param createParentDirectories whether or not to attempt creating any parent directories which don't exists.
-   * 
-   * @throws IllegalArgumentException if an illegal combination of arguments is supplied
+   * @throws IllegalArgumentException   if an illegal combination of arguments is supplied
    */
-  void write(String filePath, InputStream content, FileWriteMode mode, boolean lock, boolean createParentDirectories);
-
+  void write(String filePath, InputStream content, FileWriteMode mode, boolean lock, boolean createParentDirectories,
+             WriteStrategy writeStrategy, CustomWriteBufferSize bufferSizeForWriteStrategy);
 
 
   /**
