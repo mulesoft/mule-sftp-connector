@@ -12,8 +12,10 @@ import static org.mule.runtime.extension.api.annotation.param.display.Placement.
 import static java.lang.String.format;
 import static java.nio.file.Paths.get;
 
+import org.mule.extension.sftp.api.CustomWriteBufferSize;
 import org.mule.extension.sftp.api.FileAttributes;
 import org.mule.extension.sftp.api.FileWriteMode;
+import org.mule.extension.sftp.api.WriteStrategy;
 import org.mule.extension.sftp.api.matcher.FileMatcher;
 import org.mule.extension.sftp.api.matcher.NullFilePayloadPredicate;
 import org.mule.extension.sftp.internal.config.FileConnectorConfig;
@@ -119,7 +121,7 @@ public abstract class BaseFileSystemOperations {
    * @param createParentDirectories whether or not to attempt creating any parent directories which don't exists.
    * @param lock                    whether or not to lock the file. Defaults to false
    * @param mode                    a {@link org.mule.extension.sftp.api.FileWriteMode}. Defaults to {@code OVERWRITE}
-   * @throws IllegalArgumentException if an illegal combination of arguments is supplied
+   * @throws IllegalArgumentException   if an illegal combination of arguments is supplied
    */
   protected void doWrite(FileConnectorConfig config,
                          FileSystem fileSystem, String path, InputStream content,
@@ -131,7 +133,8 @@ public abstract class BaseFileSystemOperations {
     validatePath(path, "path");
     fileSystem.changeToBaseDir();
 
-    fileSystem.write(path, content, mode, lock, createParentDirectories);
+    fileSystem.write(path, content, mode, lock, createParentDirectories, WriteStrategy.STANDARD,
+                     CustomWriteBufferSize.BUFFER_SIZE_8KB);
   }
 
   /**
