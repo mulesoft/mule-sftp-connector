@@ -30,6 +30,7 @@ import org.apache.sshd.common.SshException;
 import org.apache.sshd.common.keyprovider.FileKeyPairProvider;
 import org.mule.extension.sftp.api.WriteStrategy;
 import org.mule.extension.sftp.api.FileWriteMode;
+import org.mule.extension.sftp.api.SftpAuthenticationMethod;
 import org.mule.extension.sftp.api.SftpFileAttributes;
 import org.mule.extension.sftp.api.SftpProxyConfig;
 import org.mule.extension.sftp.api.CustomWriteBufferSize;
@@ -251,6 +252,9 @@ public class SftpClient {
     configureHostChecking();
     if (this.preferredAuthenticationMethods != null && !this.preferredAuthenticationMethods.isEmpty()) {
       CoreModuleProperties.PREFERRED_AUTHS.set(client, this.preferredAuthenticationMethods.toLowerCase());
+    } else {
+      CoreModuleProperties.PREFERRED_AUTHS.set(client, SftpAuthenticationMethod.PUBLIC_KEY + "," +
+          SftpAuthenticationMethod.PASSWORD + "," + SftpAuthenticationMethod.GSSAPI_WITH_MIC);
     }
 
     try {
