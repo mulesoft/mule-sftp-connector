@@ -253,7 +253,7 @@ public class SftpClient {
     if (this.preferredAuthenticationMethods != null && !this.preferredAuthenticationMethods.isEmpty()) {
       CoreModuleProperties.PREFERRED_AUTHS.set(client, this.preferredAuthenticationMethods.toLowerCase());
     } else {
-      LOGGER.debug("Default authentication methods are being applied: [PUBLIC_KEY, PASSWORD, GSSAPI_WITH_MIC].");
+      LOGGER.info("Default authentication methods are being applied: [PUBLIC_KEY, PASSWORD, GSSAPI_WITH_MIC].");
       CoreModuleProperties.PREFERRED_AUTHS.set(client, SftpAuthenticationMethod.PUBLIC_KEY + "," +
           SftpAuthenticationMethod.PASSWORD + "," + SftpAuthenticationMethod.GSSAPI_WITH_MIC);
     }
