@@ -29,7 +29,7 @@
 
     <sftp:config name="config-with-limited-pool">
         <sftp:connection username="muletest1" password="muletest1" host="localhost" port="${sftp.server.port}"
-                         workingDir="/" prngAlgorithm="SHA1PRNG">
+                         workingDir="/" prngAlgorithm="NativePRNG">
             <pooling-profile exhaustedAction="WHEN_EXHAUSTED_WAIT" maxActive="1" maxIdle="1" maxWait="5000"/>
         </sftp:connection>
     </sftp:config>
