@@ -30,7 +30,7 @@
                          host="openssh${sftp.proxy.auth}"
                          port="2222"
                          workingDir="/config"
-                         prngAlgorithm="SHA1PRNG"
+                         prngAlgorithm="NativePRNG"
                          connectionTimeout="200">
             <sftp:sftp-proxy-config host="localhost"
                                     port="${squid.port.auth}"
@@ -46,7 +46,7 @@
                          host="local-error"
                          port="${sftp.proxy.auth}"
                          workingDir="/config"
-                         prngAlgorithm="SHA1PRNG"
+                         prngAlgorithm="NativePRNG"
                          connectionTimeout="200">
             <sftp:sftp-proxy-config host="localhost"
                                     port="${squid.port.auth}"
