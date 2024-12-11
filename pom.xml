@@ -60,6 +60,7 @@
         <muleConnectionTestModule.version>1.0.0</muleConnectionTestModule.version>
         <junit.version>4.12</junit.version>
         <maven.repo.local>${settings.localRepository}</maven.repo.local>
+        <orgJson.version>20231013</orgJson.version>
 
         <mulesoftLicenseVersion>1.4.0</mulesoftLicenseVersion>
         <license.maven.plugin.version>4.2</license.maven.plugin.version>
@@ -127,6 +128,12 @@
             <groupId>org.apache.tika</groupId>
             <artifactId>tika-core</artifactId>
             <version>${tikaCore.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.json</groupId>
+            <artifactId>json</artifactId>
+            <version>${orgJson.version}</version>
         </dependency>
 
         <!--Test Dependencies-->
