@@ -36,8 +36,8 @@ public class PostActionGroup extends AbstractPostActionGroup {
   private String moveToDirectory;
 
   /**
-   * This parameter works in tandem with {@code moveToDirectory}. Use this parameter to enter the name under which the file should
-   * be moved. Do not set this parameter if {@code moveToDirectory} hasn't been set as well.
+   * This parameter works stand-alone or in tandem with {@code moveToDirectory}. Use this parameter to enter the name under
+   * which the file should be moved.
    */
   @Parameter
   @Optional
