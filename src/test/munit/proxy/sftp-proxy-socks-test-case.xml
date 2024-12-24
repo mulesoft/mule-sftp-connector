@@ -39,7 +39,7 @@
                          host="${sftp.host}"
                          port="${sftp.port}"
                          workingDir="/"
-                         prngAlgorithm="SHA1PRNG"
+                         prngAlgorithm="NativePRNG"
                          connectionTimeout="200">
             <sftp:sftp-proxy-config host="localhost"
                                     port="${proxy.port}"
@@ -55,7 +55,7 @@
                          host="local-error"
                          port="${sftp.port}"
                          workingDir="/"
-                         prngAlgorithm="SHA1PRNG"
+                         prngAlgorithm="NativePRNG"
                          connectionTimeout="200">
             <sftp:sftp-proxy-config host="localhost"
                                     port="${proxy.port}"
