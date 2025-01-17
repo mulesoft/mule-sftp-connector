@@ -34,7 +34,7 @@
 
         <muleTestsComponentPlugin>${mule.version}</muleTestsComponentPlugin>
         <muleTestsRunnerVersion>4.1.5</muleTestsRunnerVersion>
-        <muleSdkApiVersion>0.8.0</muleSdkApiVersion>
+        <muleSdkApiVersion>0.7.0</muleSdkApiVersion>
         <muleSdkCompatibilityApiVersion>0.5.0</muleSdkCompatibilityApiVersion>
 
         <!-- Remove when a new parent version with MTF is available -->
@@ -42,7 +42,7 @@
         <munit.output.directory>${basedir}/target/test-mule/munit</munit.output.directory>
         <munit.extensions.maven.plugin.version>1.4.0</munit.extensions.maven.plugin.version>
         <munit.version>3.3.1</munit.version>
-        <mavenResources.version>3.3.1</mavenResources.version>
+        <mavenResources.version>3.3.2</mavenResources.version>
         <sshdVersion>2.13.2</sshdVersion>
         <formatterConfigPath>formatter.xml</formatterConfigPath>
         <settingsFile>${java.io.tmpdir}/effective-settings.xml</settingsFile>
