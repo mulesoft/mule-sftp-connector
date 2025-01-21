@@ -5,4 +5,4 @@ additionalTestConfigs:
     mavenAdditionalArgs: -Dtest=none -DfailIfNoTests=false -DruntimeVersion="4.4.0-20240215" -DadditionalRuntimeVersions="4.3.0-20231026"
   jdk17:
     testJdkTool: TEMURIN-JDK17
-    mavenAdditionalArgs: -Dtest=none -DfailIfNoTests=false -DruntimeVersion=4.9.0-rc2 -DruntimeProduct=MULE_EE
+    mavenAdditionalArgs: -Dtest=none -DfailIfNoTests=false -DruntimeVersion=4.6.10 -DruntimeProduct=MULE_EE
