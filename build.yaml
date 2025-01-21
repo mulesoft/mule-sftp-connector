@@ -2,7 +2,7 @@ projectType: extension
 additionalTestConfigs:
   jdk11:
     testJdkTool: TEMURIN-JDK11
-    mavenAdditionalArgs: -Dtest=none -DfailIfNoTests=false -DruntimeVersion="4.4.0-20240215" -DadditionalRuntimeVersions="4.3.0-20231026"
+    mavenAdditionalArgs: -Dtest=none -DfailIfNoTests=false -DruntimeVersion="4.6.10" -DadditionalRuntimeVersions="4.3.0-20231026"
   jdk17:
     testJdkTool: TEMURIN-JDK17
-    mavenAdditionalArgs: -Dtest=none -DfailIfNoTests=false -DruntimeVersion=4.6.0-rc3 -DruntimeProduct=MULE_EE
+    mavenAdditionalArgs: -Dtest=none -DfailIfNoTests=false -DruntimeVersion=4.6.10 -DruntimeProduct=MULE_EE
