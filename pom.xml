@@ -25,7 +25,7 @@
         <exec.maven.plugin.version>1.6.0</exec.maven.plugin.version>
         <apache.maven.help.plugin.version>3.4.0</apache.maven.help.plugin.version>
         <maven.jdeps.plugin.version>3.1.2</maven.jdeps.plugin.version>
-        <commonsIoVersion>2.14.0</commonsIoVersion>
+        <commonsIoVersion>2.18.0</commonsIoVersion>
         <commonsLangVersion>3.12.0</commonsLangVersion>
         <commonsCollectionsVersion>3.2.2</commonsCollectionsVersion>
         <connector.maven.plugin.version>3.0.2</connector.maven.plugin.version>
