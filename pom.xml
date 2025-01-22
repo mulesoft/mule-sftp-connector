@@ -60,7 +60,7 @@
         <muleConnectionTestModule.version>1.0.0</muleConnectionTestModule.version>
         <junit.version>4.12</junit.version>
         <maven.repo.local>${settings.localRepository}</maven.repo.local>
-        <orgJson.version>20231013</orgJson.version>
+        <orgJson.version>20250107</orgJson.version>
 
         <mulesoftLicenseVersion>1.4.0</mulesoftLicenseVersion>
         <license.maven.plugin.version>4.2</license.maven.plugin.version>
