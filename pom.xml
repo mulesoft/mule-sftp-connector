@@ -179,7 +179,7 @@
                     <artifactId>commons-collections</artifactId>
                 </exclusion>
             </exclusions>
-<!--            <type>test-jar</type>-->
+            <type>test-jar</type>
             <scope>provided</scope>
         </dependency>
 
