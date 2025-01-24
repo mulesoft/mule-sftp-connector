@@ -6,6 +6,11 @@
  */
 package org.mule.extension.sftp.internal.connection.provider;
 
+import static org.apache.sshd.common.SshConstants.SSH2_DISCONNECT_KEY_EXCHANGE_FAILED;
+import static org.mule.extension.sftp.internal.connection.provider.SftpConnectionProvider.EDDSA_GAV;
+import static org.mule.extension.sftp.internal.connection.provider.SftpConnectionProvider.EDDSA_PROVIDER_CLASS;
+import static org.mule.extension.sftp.internal.connection.provider.SftpConnectionProvider.PROVIDER_FILE_NAME_PATTERN;
+import static org.mule.runtime.api.meta.ExternalLibraryType.JAR;
 import static org.mule.runtime.api.meta.model.display.PathModel.Type.FILE;
 import static org.mule.runtime.extension.api.annotation.param.ParameterGroup.CONNECTION;
 
@@ -16,6 +21,7 @@ import static org.apache.sshd.common.SshConstants.SSH2_DISCONNECT_NO_MORE_AUTH_M
 import static org.slf4j.LoggerFactory.getLogger;
 
 import org.mule.extension.sftp.api.SftpAuthenticationMethod;
+import org.mule.extension.sftp.internal.connection.FileBasedConfigProvider;
 import org.mule.extension.sftp.internal.exception.SftpConnectionException;
 import org.mule.extension.sftp.api.SftpProxyConfig;
 import org.mule.extension.sftp.internal.connection.SftpClient;
@@ -32,6 +38,7 @@ import org.mule.runtime.api.connection.PoolingConnectionProvider;
 import org.mule.runtime.api.lock.LockFactory;
 import org.mule.runtime.api.scheduler.SchedulerService;
 import org.mule.runtime.extension.api.annotation.Alias;
+import org.mule.runtime.extension.api.annotation.ExternalLib;
 import org.mule.runtime.extension.api.annotation.param.NullSafe;
 import org.mule.runtime.extension.api.annotation.param.Optional;
 import org.mule.runtime.extension.api.annotation.param.Parameter;
@@ -57,14 +64,21 @@ import org.slf4j.Logger;
  * @since 1.0
  */
 @DisplayName("SFTP Connection")
+@ExternalLib(name = "EDDSA Provider", description = "An EDDSA provider which provides support for ed25519 curve",
+    nameRegexpMatcher = PROVIDER_FILE_NAME_PATTERN, requiredClassName = EDDSA_PROVIDER_CLASS, type = JAR,
+    coordinates = EDDSA_GAV, optional = true)
 public class SftpConnectionProvider extends FileSystemProvider<SftpFileSystemConnection>
     implements PoolingConnectionProvider<SftpFileSystemConnection> {
 
   private static final Logger LOGGER = getLogger(SftpConnectionProvider.class);
 
   private static final String TIMEOUT_CONFIGURATION = "Timeout Configuration";
+  private static final String SECURITY_CONFIGURATION = "Security Configuration";
   private static final String SFTP_ERROR_MESSAGE_MASK =
       "Could not establish SFTP connection with host: '%s' at port: '%d' - %s";
+  static final String PROVIDER_FILE_NAME_PATTERN = "(.*)\\.jar";
+  static final String EDDSA_GAV = "net.i2p.crypto:eddsa:0.3.0";
+  static final String EDDSA_PROVIDER_CLASS = "net.i2p.crypto.eddsa.EdDSASecurityProvider";
 
   private static AtomicBoolean alreadyLoggedConnectionTimeoutWarning = new AtomicBoolean(false);
   private static AtomicBoolean alreadyLoggedResponseTimeoutWarning = new AtomicBoolean(false);
@@ -88,11 +102,14 @@ public class SftpConnectionProvider extends FileSystemProvider<SftpFileSystemCon
   @ParameterGroup(name = TIMEOUT_CONFIGURATION)
   private TimeoutSettings timeoutSettings = new TimeoutSettings();
 
+  @ParameterGroup(name = SECURITY_CONFIGURATION)
+  private final SecuritySettings securitySettings = new SecuritySettings();
+
   @ParameterGroup(name = CONNECTION)
   private SftpConnectionSettings connectionSettings = new SftpConnectionSettings();
 
   /**
-   * Set of authentication methods used by the SFTP client. Valid values are: GSSAPI_WITH_MIC, PUBLIC_KEY, KEYBOARD_INTERACTIVE
+   * Set of authentication methods used by the SFTP client. Valid values are: GSSAPI_WITH_MIC, PUBLIC_KEY
    * and PASSWORD.
    */
   @Parameter
@@ -129,7 +146,8 @@ public class SftpConnectionProvider extends FileSystemProvider<SftpFileSystemCon
     }
     SftpClient client = clientFactory.createInstance(connectionSettings.getHost(), connectionSettings.getPort(),
                                                      connectionSettings.getPrngAlgorithm(), schedulerService, proxyConfig,
-                                                     connectionSettings.isKexHeader());
+                                                     connectionSettings.isKexHeader(),
+                                                     new FileBasedConfigProvider(securitySettings.getSshConfigOverride()));
     client.setConnectionTimeoutMillis(getConnectionTimeoutUnit().toMillis(getConnectionTimeout()));
     client.setPassword(connectionSettings.getPassword());
     client.setIdentity(connectionSettings.getIdentityFile(), connectionSettings.getPassphrase());
@@ -141,29 +159,35 @@ public class SftpConnectionProvider extends FileSystemProvider<SftpFileSystemCon
     try {
       client.login(connectionSettings.getUsername());
     } catch (final SshException e) {
+      client.disconnect();
       if (e.getDisconnectCode() == SSH2_DISCONNECT_NO_MORE_AUTH_METHODS_AVAILABLE) {
         throw new SftpConnectionException(getErrorMessage(connectionSettings, e.getMessage()), e, FileError.INVALID_CREDENTIALS);
       } else if (e.getDisconnectCode() == 0) {
         if (e.getMessage().contains("timeout")) {
           throw new SftpConnectionException(getErrorMessage(connectionSettings, e.getMessage()), e, FileError.CONNECTION_TIMEOUT);
-        } else if (e.getMessage().contains("Connection refused")) {
+        } else if (e.getMessage().contains("Connection refused") || e.getMessage().contains("refused the network connection")) {
           throw new SftpConnectionException(getErrorMessage(connectionSettings, e.getMessage()), e, FileError.CANNOT_REACH);
         } else if (e.getMessage().contains("UnresolvedAddressException")) {
           throw new SftpConnectionException(getErrorMessage(connectionSettings, e.getMessage()), e, FileError.UNKNOWN_HOST);
-        } else if (e.getMessage().contains("Connection reset by peer")) {
+        } else if (e.getMessage().contains("Connection reset by peer") || e.getMessage().contains("Connection reset")) {
           throw new SftpConnectionException(getErrorMessage(connectionSettings, e.getMessage()), e, FileError.CONNECTIVITY);
         } else {
           LOGGER.error(e.getMessage());
-          // throw new MuleRuntimeException(e);
+          throw new SftpConnectionException(getErrorMessage(connectionSettings, e.getMessage()), e, FileError.UNKNOWN);
         }
+      } else if (e.getDisconnectCode() == SSH2_DISCONNECT_KEY_EXCHANGE_FAILED) {
+        throw new SftpConnectionException(getErrorMessage(connectionSettings, e.getMessage()), e, FileError.KEY_EXCHANGE_FAILED);
       } else if (e.getDisconnectCode() == 9) {
         throw new SftpConnectionException(getErrorMessage(connectionSettings, e.getMessage()), e, FileError.CANNOT_REACH);
       } else {
         LOGGER.error(e.getMessage());
       }
+      throw new SftpConnectionException(getErrorMessage(connectionSettings, e.getMessage()), e, FileError.DISCONNECTED);
     } catch (final IllegalStateException e) {
+      client.disconnect();
       throw new SftpConnectionException(getErrorMessage(connectionSettings, e.getMessage()), e, FileError.INVALID_CREDENTIALS);
     } catch (Exception e) {
+      client.disconnect();
       throw new SftpConnectionException(getErrorMessage(connectionSettings, e.getMessage()), e, FileError.CONNECTIVITY);
     }
 

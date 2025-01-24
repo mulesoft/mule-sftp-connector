@@ -42,9 +42,13 @@ public enum FileError implements ErrorTypeDefinition<FileError> {
 
   UNKNOWN_HOST(CONNECTIVITY),
 
+  KEY_EXCHANGE_FAILED(CONNECTIVITY),
+
   SERVICE_NOT_AVAILABLE(CONNECTIVITY),
 
-  DISCONNECTED(CONNECTIVITY);
+  DISCONNECTED(CONNECTIVITY),
+
+  UNKNOWN(CONNECTIVITY);
 
   private ErrorTypeDefinition<? extends Enum<?>> parentError;
 

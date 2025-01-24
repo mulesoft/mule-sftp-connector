@@ -23,13 +23,20 @@ import static org.apache.sshd.sftp.common.SftpConstants.SSH_FX_CONNECTION_LOST;
 import static org.apache.sshd.sftp.common.SftpConstants.SSH_FX_NO_CONNECTION;
 import static org.slf4j.LoggerFactory.getLogger;
 
+import org.apache.sshd.client.config.SshClientConfigFileReader;
 import org.apache.sshd.client.session.SessionFactory;
+import org.apache.sshd.common.PropertyResolverUtils;
 import org.apache.sshd.common.SshException;
 import org.apache.sshd.common.keyprovider.FileKeyPairProvider;
+import org.mule.extension.sftp.api.WriteStrategy;
 import org.mule.extension.sftp.api.FileWriteMode;
+import org.mule.extension.sftp.api.SftpAuthenticationMethod;
 import org.mule.extension.sftp.api.SftpFileAttributes;
 import org.mule.extension.sftp.api.SftpProxyConfig;
+import org.mule.extension.sftp.api.CustomWriteBufferSize;
 import org.mule.extension.sftp.api.random.alg.PRNGAlgorithm;
+import org.mule.extension.sftp.internal.connection.write.SftpWriteStrategyHelper;
+import org.mule.extension.sftp.internal.connection.write.SftpWriter;
 import org.mule.extension.sftp.internal.error.FileError;
 import org.mule.extension.sftp.internal.exception.FileAccessDeniedException;
 import org.mule.extension.sftp.internal.exception.IllegalPathException;
@@ -51,8 +58,10 @@ import java.security.GeneralSecurityException;
 import java.security.PublicKey;
 import java.util.Collection;
 import java.util.List;
+import java.util.Properties;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import org.apache.sshd.client.ClientBuilder;
 import org.apache.sshd.client.SshClient;
@@ -76,7 +85,8 @@ public class SftpClient {
 
   private static final Logger LOGGER = getLogger(SftpClient.class);
   protected static final OpenMode[] CREATE_MODES = {OpenMode.Write, OpenMode.Create, OpenMode.Truncate};
-  protected static final OpenMode[] APPEND_MODES = {OpenMode.Write, OpenMode.Append};
+  //This change is required for SFTP protocol version 6 and to create file in append mode if it does not exist.
+  protected static final OpenMode[] APPEND_MODES = {OpenMode.Write, OpenMode.Append, OpenMode.Create};
   private static final Long PWD_COMMAND_EXECUTION_TIMEOUT = 30L;
   private static final TimeUnit PWD_COMMAND_EXECUTION_TIMEOUT_UNIT = SECONDS;
   private static final String PWD_COMMAND = "pwd";
@@ -112,11 +122,11 @@ public class SftpClient {
    * @param port the remote connection port
    */
   public SftpClient(String host, int port, PRNGAlgorithm prngAlgorithm, SchedulerService schedulerService) {
-    this(host, port, prngAlgorithm, schedulerService, true, null);
+    this(host, port, prngAlgorithm, schedulerService, true, null, Properties::new);
   }
 
   public SftpClient(String host, int port, PRNGAlgorithm prngAlgorithm, SchedulerService schedulerService, boolean kexHeader,
-                    SftpProxyConfig sftpProxyConfig) {
+                    SftpProxyConfig sftpProxyConfig, ExternalConfigProvider externalConfigProvider) {
     this.host = host;
     this.port = port;
     this.kexHeader = kexHeader;
@@ -135,6 +145,8 @@ public class SftpClient {
           .build();
     }
 
+    configureWithExternalSources(externalConfigProvider);
+
     if (!this.kexHeader) {
       SessionFactory factory = new NoStrictKexSessionFactory(client);
       client.setSessionFactory(factory);
@@ -146,6 +158,15 @@ public class SftpClient {
     }
   }
 
+  /**
+   * Contains the code to configure / overwrite crypto factories required during creation of {@link SshClient}
+   * If the externalConfigs provided doesn't contain a particular factory or crypto algo, then it will use the default.
+   * @param externalConfigProvider Provides the way to inject external configuration
+   */
+  private void configureWithExternalSources(ExternalConfigProvider externalConfigProvider) {
+    Properties properties = externalConfigProvider.getConfigProperties();
+    SshClientConfigFileReader.configure(client, PropertyResolverUtils.toPropertyResolver(properties), true, true);
+  }
 
   /**
    * @return the current working directory
@@ -231,6 +252,10 @@ public class SftpClient {
     configureHostChecking();
     if (this.preferredAuthenticationMethods != null && !this.preferredAuthenticationMethods.isEmpty()) {
       CoreModuleProperties.PREFERRED_AUTHS.set(client, this.preferredAuthenticationMethods.toLowerCase());
+    } else {
+      LOGGER.info("Default authentication methods are being applied: [PUBLIC_KEY, PASSWORD, GSSAPI_WITH_MIC].");
+      CoreModuleProperties.PREFERRED_AUTHS.set(client, SftpAuthenticationMethod.PUBLIC_KEY + "," +
+          SftpAuthenticationMethod.PASSWORD + "," + SftpAuthenticationMethod.GSSAPI_WITH_MIC);
     }
 
     try {
@@ -395,15 +420,32 @@ public class SftpClient {
    * @param path   the path to write into
    * @param stream the content to be written
    * @param mode   the write mode
+   * @param uri    the uri of the file
+   * @param writeStrategy           a {@link WriteStrategy} defaults to STANDARD
+   * @param bufferSizeForWriteStrategy  a {@link CustomWriteBufferSize}. Defaults to 8192
    */
-  public void write(String path, InputStream stream, FileWriteMode mode) throws IOException {
-    try (OutputStream out = getOutputStream(path, mode)) {
-      byte[] buf = new byte[8192];
-      int n;
-      while ((n = stream.read(buf)) != -1) {
-        out.write(buf, 0, n);
-      }
+  public void write(String path, InputStream stream, FileWriteMode mode, URI uri,
+                    WriteStrategy writeStrategy, CustomWriteBufferSize bufferSizeForWriteStrategy)
+      throws IOException {
+    SftpWriter sftpWriter = SftpWriteStrategyHelper.getStrategy(this, this.sftp, writeStrategy, bufferSizeForWriteStrategy);
+    sftpWriter.write(path, stream, mode, uri);
+  }
+
+  public SftpFileAttributes getFile(URI uri) {
+    if (LOGGER.isTraceEnabled()) {
+      LOGGER.trace("Get file attributes for path {}", uri);
     }
+    SftpFileAttributes attributes;
+    try {
+      attributes = getAttributes(uri);
+    } catch (Exception e) {
+      throw handleException("Found exception trying to obtain path " + uri.getPath(), e);
+    }
+
+    if (LOGGER.isTraceEnabled()) {
+      LOGGER.trace("Obtained file attributes {}", attributes);
+    }
+    return attributes;
   }
 
   /**
@@ -429,17 +471,22 @@ public class SftpClient {
    * The solution at the moment is to add a timeout with the tools provided by mule sdk.
    */
   private String executePWDCommandWithTimeout() throws IOException {
+    Future<String> future = null;
     try {
       Scheduler getHomeScheduler =
           schedulerService.cpuLightScheduler(SchedulerConfig.config().withShutdownTimeout(PWD_COMMAND_EXECUTION_TIMEOUT,
                                                                                           PWD_COMMAND_EXECUTION_TIMEOUT_UNIT));
-      Future<String> submit = getHomeScheduler.submit(() -> session.executeRemoteCommand(PWD_COMMAND));
-      return submit.get().trim();
+      future = getHomeScheduler.submit(() -> session.executeRemoteCommand(PWD_COMMAND));
+      return future.get(PWD_COMMAND_EXECUTION_TIMEOUT, PWD_COMMAND_EXECUTION_TIMEOUT_UNIT).trim();
     } catch (InterruptedException e) {
       throw new MuleRuntimeException(e);
+    } catch (TimeoutException e) {
+      future.cancel(true);
+      LOGGER.error("Execution of 'pwd' command timed out");
+      throw new IllegalPathException("Unable to resolve the working directory from server. Please configure a valid working directory or use absolute paths on your operation.",
+                                     e);
     } catch (Exception ex) {
-      throw new IllegalPathException("Unable to resolve the working directory from server timed out. Please configure a valid working directory or use absolute paths on your operation.",
-                                     ex);
+      throw new MuleRuntimeException(ex);
     }
   }
 
@@ -587,11 +634,15 @@ public class SftpClient {
     this.owner = owner;
   }
 
-  private String normalizeRemotePath(String path) {
+  public String normalizeRemotePath(String path) {
     if (path.length() > 0 && path.charAt(0) == '/') {
       return normalizePath(path);
     } else {
       return normalizePath((cwd.equals("/") ? "" : cwd) + "/" + path);
     }
+  }
+
+  public org.apache.sshd.sftp.client.SftpClient.CloseableHandle open(String path, FileWriteMode writeMode) throws IOException {
+    return sftp.open(normalizeRemotePath(path), toApacheSshdModes(writeMode));
   }
 }

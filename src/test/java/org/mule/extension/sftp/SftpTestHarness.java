@@ -31,6 +31,8 @@ import org.mule.extension.sftp.internal.connection.SftpClientFactory;
 import org.mule.runtime.api.scheduler.SchedulerService;
 import org.mule.tck.junit4.rule.DynamicPort;
 import org.mule.extension.sftp.api.FileTestHarness;
+import org.mule.extension.sftp.api.CustomWriteBufferSize;
+import org.mule.extension.sftp.api.WriteStrategy;
 
 import javax.inject.Inject;
 import java.io.ByteArrayInputStream;
@@ -40,6 +42,7 @@ import java.net.URI;
 import java.nio.file.Paths;
 import java.security.GeneralSecurityException;
 import java.util.List;
+import java.util.Properties;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
@@ -122,7 +125,7 @@ public class SftpTestHarness extends AbstractSftpTestHarness {
   private SftpClient createDefaultSftpClient() throws IOException, GeneralSecurityException {
     SftpClient sftpClient =
         new SftpClientFactory().createInstance("localhost", sftpPort.getNumber(), PRNGAlgorithm.SHA1PRNG, schedulerService, null,
-                                               true);
+                                               true, Properties::new);
     clientAuthConfigurator.configure(sftpClient);
 
     sftpClient.setPassword(PASSWORD);
@@ -159,7 +162,8 @@ public class SftpTestHarness extends AbstractSftpTestHarness {
    */
   @Override
   public void createBinaryFile() throws Exception {
-    sftpClient.write(BINARY_FILE_NAME, new ByteArrayInputStream(HELLO_WORLD.getBytes()), OVERWRITE);
+    sftpClient.write(BINARY_FILE_NAME, new ByteArrayInputStream(HELLO_WORLD.getBytes()), OVERWRITE,
+                     createUri(BINARY_FILE_NAME), WriteStrategy.STANDARD, CustomWriteBufferSize.BUFFER_SIZE_8KB);
   }
 
   /**
@@ -196,7 +200,8 @@ public class SftpTestHarness extends AbstractSftpTestHarness {
   @Override
   public void write(String path, String content) throws Exception {
     // Does the append also create a file before????
-    sftpClient.write(path, new ByteArrayInputStream(content.getBytes()), CREATE_NEW);
+    sftpClient.write(path, new ByteArrayInputStream(content.getBytes()), CREATE_NEW, createUri(path), WriteStrategy.STANDARD,
+                     CustomWriteBufferSize.BUFFER_SIZE_1KB);
   }
 
   /**

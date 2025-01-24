@@ -13,7 +13,7 @@ package org.mule.extension.sftp.api;
  */
 public enum SftpAuthenticationMethod {
 
-  GSSAPI_WITH_MIC("gssapi_with_mic"), PUBLIC_KEY("publickey"), KEYBOARD_INTERACTIVE("keyboard_interactive"), PASSWORD("password");
+  GSSAPI_WITH_MIC("gssapi_with_mic"), PUBLIC_KEY("publickey"), PASSWORD("password");
 
   SftpAuthenticationMethod(String code) {
     this.code = code;

@@ -8,17 +8,20 @@ package org.mule.extension.sftp.internal.operation;
 
 import static java.lang.String.format;
 
+import static org.mule.extension.sftp.internal.util.SftpUtils.normalizePath;
 import static org.slf4j.LoggerFactory.getLogger;
 
+import org.mule.extension.sftp.api.CustomWriteBufferSize;
 import org.mule.extension.sftp.api.FileAttributes;
 import org.mule.extension.sftp.api.FileWriteMode;
+import org.mule.extension.sftp.api.WriteStrategy;
 import org.mule.extension.sftp.internal.exception.DeletedFileWhileReadException;
 import org.mule.extension.sftp.internal.exception.FileAlreadyExistsException;
 import org.mule.extension.sftp.internal.exception.FileDoesNotExistsException;
 import org.mule.extension.sftp.internal.connection.SftpClient;
 import org.mule.extension.sftp.internal.connection.SftpFileSystemConnection;
-import org.mule.extension.sftp.internal.lock.NullUriLock;
 import org.mule.extension.sftp.internal.lock.UriLock;
+import org.mule.extension.sftp.internal.lock.NullUriLock;
 
 import java.io.InputStream;
 import java.net.URI;
@@ -45,9 +48,10 @@ public final class SftpWriteCommand extends SftpCommand implements WriteCommand 
    * {@inheritDoc}
    */
   @Override
-  public void write(String filePath, InputStream content, FileWriteMode mode,
-                    boolean lock, boolean createParentDirectory) {
-    URI uri = resolvePath(filePath);
+  public void write(String filePath, InputStream content, FileWriteMode mode, boolean lock, boolean createParentDirectory,
+                    WriteStrategy writeStrategy, CustomWriteBufferSize bufferSizeForWriteStrategy) {
+
+    URI uri = resolvePath(normalizePath(filePath));
     FileAttributes file = getFile(filePath);
 
     if (file == null) {
@@ -64,7 +68,7 @@ public final class SftpWriteCommand extends SftpCommand implements WriteCommand 
     UriLock pathLock = lock ? fileSystem.lock(uri) : new NullUriLock(uri);
 
     try {
-      client.write(uri.getPath(), content, mode);
+      client.write(uri.getPath(), content, mode, uri, writeStrategy, bufferSizeForWriteStrategy);
       LOGGER.debug("Successfully wrote to path {} mode {}", uri.getPath(), mode);
     } catch (Exception e) {
       LOGGER.error("Error writing to file {} mode {}", filePath, mode, e);
