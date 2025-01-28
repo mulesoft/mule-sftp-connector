@@ -26,7 +26,7 @@
 
     <sftp:config name="config-docker-with-id-file-1">
         <sftp:connection username="mule" password="test" host="localhost" port="${sftp.listener.port}"
-                         workingDir="/config" prngAlgorithm="SHA1PRNG"
+                         workingDir="/config" prngAlgorithm="NativePRNG"
                          identityFile="id_ed25519" passphrase="mulesoft">
             <pooling-profile exhaustedAction="WHEN_EXHAUSTED_WAIT" maxActive="7" maxIdle="3" maxWait="5000"/>
         </sftp:connection>
@@ -34,7 +34,7 @@
 
     <sftp:config name="config-docker-with-id-file-2">
         <sftp:connection username="mule" password="test" host="localhost" port="${sftp.listener.port}"
-                         workingDir="/config" prngAlgorithm="SHA1PRNG"
+                         workingDir="/config" prngAlgorithm="NativePRNG"
                          identityFile="id_ed25519" passphrase="mulesoft">
             <pooling-profile exhaustedAction="WHEN_EXHAUSTED_WAIT" maxActive="7" maxIdle="3" maxWait="5000"/>
         </sftp:connection>
