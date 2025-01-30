@@ -39,11 +39,11 @@ public class SftpCustomWriter implements SftpWriter {
    */
   @Override
   public void write(String path, InputStream stream, FileWriteMode mode, URI uri) throws IOException {
+    FileAttributes file = muleSftpClient.getFile(uri);
+    long offSet = file != null ? file.getSize() : 0;
     try (org.apache.sshd.sftp.client.SftpClient.CloseableHandle handle =
         muleSftpClient.open(path, mode)) {
       byte[] buf = new byte[bufferSizeForWriteStrategy.getCustomWriteBufferSize()];
-      FileAttributes file = muleSftpClient.getFile(uri);
-      long offSet = file != null ? file.getSize() : 0;
       int n;
       while ((n = stream.read(buf)) != -1) {
         apacheSftpClient.write(handle, offSet, buf, 0, n);
