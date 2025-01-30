@@ -62,6 +62,7 @@ public abstract class AbstractExternalFileSystem extends AbstractFileSystem impl
     //                                    format("Could not lock file '%s' because it's already owned by another process",
     //                                           lock.getUri().getPath()));
     //    }
+    LOGGER.info("Dipesh Lock Trying to acquire lock");
     while (!lock.tryLock()) {
       try {
         sleep(100);
@@ -69,7 +70,7 @@ public abstract class AbstractExternalFileSystem extends AbstractFileSystem impl
         //            throw new RuntimeException(e);
       }
     }
-    LOGGER.info("Lock acquired");
+    LOGGER.info("Dipesh Lock acquired");
   }
 
   /**
