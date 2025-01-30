@@ -26,6 +26,7 @@ public enum FileWriteMode {
    * Means that if the file to be written using CUSTOM WRITE strategy already exists, then the content should be appended to that file
    */
   CUSTOM_APPEND,
+
   /**
   * Means that a new file should be created and an error should be raised if the file already exists
   */

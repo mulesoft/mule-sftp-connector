@@ -42,7 +42,7 @@ public class SftpCustomWriter implements SftpWriter {
     FileAttributes file = muleSftpClient.getFile(uri);
     long offSet = file != null ? file.getSize() : 0;
     try (org.apache.sshd.sftp.client.SftpClient.CloseableHandle handle =
-        muleSftpClient.open(path, FileWriteMode.CUSTOM_APPEND)) {
+        muleSftpClient.open(path, mode)) {
       byte[] buf = new byte[bufferSizeForWriteStrategy.getCustomWriteBufferSize()];
       int n;
       while ((n = stream.read(buf)) != -1) {
