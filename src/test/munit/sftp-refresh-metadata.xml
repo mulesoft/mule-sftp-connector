@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:munit="http://www.mulesoft.org/schema/mule/munit"
+      xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools"
+      xmlns="http://www.mulesoft.org/schema/mule/core"
+      xmlns:sftp="http://www.mulesoft.org/schema/mule/sftp"
+      xmlns:java="http://www.mulesoft.org/schema/mule/java"
+      xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+
+		http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
+		http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd
+        http://www.mulesoft.org/schema/mule/sftp http://www.mulesoft.org/schema/mule/sftp/current/mule-sftp.xsd
+        http://www.mulesoft.org/schema/mule/java http://www.mulesoft.org/schema/mule/java/current/mule-java.xsd">
+
+    <munit:config name="sftp-refresh-metadata.xml">
+        <munit:parameterizations>
+            <munit:parameterization name="sftp-refresh-metadata">
+                <munit:parameters>
+                    <munit:parameter propertyName="config" value="config-docker-with-home-directory"/>
+                    <munit:parameter propertyName="path" value=""/>
+                </munit:parameters>
+            </munit:parameterization>
+            <munit:parameterization name="sftp-crushftp">
+                <munit:parameters>
+                    <munit:parameter propertyName="config" value="config-external-docker-crushftp"/>
+                    <munit:parameter propertyName="path" value="/share/"/>
+                </munit:parameters>
+            </munit:parameterization>
+        </munit:parameterizations>
+    </munit:config>
+
+
+    <sftp:config name="config-external-docker-crushftp">
+        <sftp:connection host="127.0.0.1" port="8222" username="myuser" password="changeme" workingDir="/">
+            <reconnection >
+                <reconnect />
+            </reconnection>
+        </sftp:connection>
+    </sftp:config>
+
+    <munit:before-suite name="sftp-refresh-metadata-before-suite">
+        <java:invoke-static class="org.mule.extension.sftp.internal.lifecycle.SftpServerLifecycleManager"
+                            method="startSftpServer(String)">
+            <java:args>
+                #[{
+                arg0: ${sftp.server.port},
+                }]
+            </java:args>
+        </java:invoke-static>
+    </munit:before-suite>
+
+    <munit:after-suite name="sftp-refresh-metadata-after-suite">
+        <java:invoke-static class="org.mule.extension.sftp.internal.lifecycle.SftpServerLifecycleManager"
+                            method="stopSftpServer()">
+            <java:args>
+                #[{}]
+            </java:args>
+        </java:invoke-static>
+    </munit:after-suite>
+
+    <munit:test name="sftp-refresh-metadata-overwrite">
+        <munit:behavior>
+            <set-variable variableName="fileName" value="${path}sftp-refresh-metadata-overwrite-file.txt"/>
+            <set-variable variableName="mode" value="OVERWRITE"/>
+            <set-variable variableName="createParent" value="true"/>
+        </munit:behavior>
+        <munit:execution>
+            <sftp:write config-ref="${config}" path="#[vars.fileName]" mode="OVERWRITE" createParentDirectories="true">
+                <sftp:content>0123456789</sftp:content>
+            </sftp:write>
+            <sftp:write config-ref="${config}" path="#[vars.fileName]" mode="#[vars.mode]" createParentDirectories="#[vars.createParent]" >
+                <sftp:content>0123456789</sftp:content>
+            </sftp:write>
+            <sftp:read config-ref="${config}" path="#[vars.fileName]"/>
+            <set-variable value="#[%dw 2.0&#10;output application/java&#10;---&#10;attributes.size]" variableName="fileSizeAfter"/>
+        </munit:execution>
+        <munit:validation>
+            <munit-tools:assert-that
+                    expression="#[vars.fileSizeAfter]"
+                    is="#[MunitTools::equalTo(10)]"/>
+        </munit:validation>
+    </munit:test>
+
+    <munit:test name="sftp-refresh-metadata-append">
+        <munit:behavior>
+            <set-variable variableName="fileName" value="${path}sftp-refresh-metadata-append-file.txt"/>
+            <set-variable variableName="mode" value="APPEND"/>
+            <set-variable variableName="createParent" value="true"/>
+        </munit:behavior>
+        <munit:execution>
+            <sftp:write config-ref="${config}" path="#[vars.fileName]" mode="OVERWRITE" createParentDirectories="true">
+                <sftp:content>0123456789</sftp:content>
+            </sftp:write>
+            <sftp:write config-ref="${config}" path="#[vars.fileName]" mode="#[vars.mode]" createParentDirectories="#[vars.createParent]" >
+                <sftp:content>0123456789</sftp:content>
+            </sftp:write>
+            <sftp:read config-ref="${config}" path="#[vars.fileName]"/>
+            <set-variable value="#[%dw 2.0&#10;output application/java&#10;---&#10;attributes.size]" variableName="fileSizeAfter"/>
+        </munit:execution>
+        <munit:validation>
+            <munit-tools:assert-that
+                    expression="#[vars.fileSizeAfter]"
+                    is="#[MunitTools::equalTo(20)]"/>
+        </munit:validation>
+    </munit:test>
+
+    <!-- ✅ TEST CASE 1: Write a file and verify file size -->
+    <munit:test name="sftp-refresh-metadata-overwrite-append-verify-size">
+        <munit:behavior>
+            <set-variable variableName="fileName" value="${path}sftp-refresh-metadata-overwrite-append-verify-size-file.txt"/>
+            <set-variable variableName="mode" value="APPEND"/>
+            <set-variable variableName="writeStrategy" value="CUSTOM"/>
+        </munit:behavior>
+        <munit:execution>
+            <sftp:write config-ref="${config}" path="#[vars.fileName]" mode="OVERWRITE" createParentDirectories="true">
+                <sftp:content>0123456789</sftp:content>
+            </sftp:write>
+            <sftp:read config-ref="${config}" path="#[vars.fileName]" />
+            <set-variable value="#[%dw 2.0&#10;output application/java&#10;---&#10;attributes.size]" variableName="fileSizeBefore"/>
+            <sftp:write config-ref="${config}" path="#[vars.fileName]" mode="#[vars.mode]" writeStrategy="#[vars.writeStrategy]" createParentDirectories="#[vars.createParent]" >
+                <sftp:content>0123456789</sftp:content>
+            </sftp:write>
+            <sftp:read config-ref="${config}" path="#[vars.fileName]"/>
+            <set-variable value="#[%dw 2.0&#10;output application/java&#10;---&#10;attributes.size]" variableName="fileSizeAfter"/>
+        </munit:execution>
+        <munit:validation>
+            <munit-tools:assert-that
+                    expression="#[vars.fileSizeBefore]"
+                    is="#[MunitTools::equalTo(10)]"/>
+            <munit-tools:assert-that
+                    expression="#[vars.fileSizeAfter]"
+                    is="#[MunitTools::equalTo(20)]"/>
+        </munit:validation>
+    </munit:test>
+
+    <munit:test name="sftp-refresh-metadata-parallel-verify-size">
+        <munit:behavior>
+            <set-variable variableName="fileName" value="${path}sftp-refresh-metadata-parallel-verify-size-file.txt"/>
+            <set-variable variableName="mode" value="APPEND"/>
+            <set-variable variableName="writeStrategy" value="CUSTOM"/>
+        </munit:behavior>
+        <munit:execution>
+            <sftp:write config-ref="${config}" path="#[vars.fileName]" mode="OVERWRITE" createParentDirectories="true">
+                <sftp:content>0123456789</sftp:content>
+            </sftp:write>
+            <sftp:read config-ref="${config}" path="#[vars.fileName]" />
+            <set-variable value="#[%dw 2.0&#10;output application/java&#10;---&#10;attributes.size]" variableName="fileSizeBefore"/>
+            <parallel-foreach  collection="#[1 to 100]">
+                <sftp:write config-ref="${config}" path="#[vars.fileName]" mode="#[vars.mode]" writeStrategy="#[vars.writeStrategy]" >
+                    <sftp:content>0123456789</sftp:content>
+                </sftp:write>
+            </parallel-foreach >
+            <sftp:read config-ref="${config}" path="#[vars.fileName]"/>
+            <set-variable value="#[%dw 2.0&#10;output application/java&#10;---&#10;attributes.size]" variableName="fileSizeAfter"/>
+        </munit:execution>
+        <munit:validation>
+            <munit-tools:assert-that
+                    expression="#[vars.fileSizeBefore]"
+                    is="#[MunitTools::equalTo(10)]"/>
+            <munit-tools:assert-that
+                    expression="#[vars.fileSizeAfter]"
+                    is="#[MunitTools::equalTo(1010)]"/>
+        </munit:validation>
+    </munit:test>
+
+<!--
+
+    // crear una configuracion con el STANDARD y otra con el CUSTOM
+
+    // Adicionar buffer size
+-->
+
+
+</mule>
