@@ -46,8 +46,6 @@ public class SftpCustomWriter implements SftpWriter {
   public void write(String path, InputStream stream, FileWriteMode mode, URI uri) throws IOException {
     FileAttributes file = muleSftpClient.getFile(uri);
     long offSet = file != null ? file.getSize() : 0;
-    LOGGER.info("Dipesh File is: {}", file);
-    LOGGER.info("Dipesh Offset is: {}", offSet);
     try (org.apache.sshd.sftp.client.SftpClient.CloseableHandle handle =
         muleSftpClient.open(path, FileWriteMode.CUSTOM_APPEND)) {
       byte[] buf = new byte[bufferSizeForWriteStrategy.getCustomWriteBufferSize()];

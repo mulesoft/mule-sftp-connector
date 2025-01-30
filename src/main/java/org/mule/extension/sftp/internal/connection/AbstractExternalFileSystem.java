@@ -7,7 +7,6 @@
 package org.mule.extension.sftp.internal.connection;
 
 import static java.lang.String.format;
-import static java.lang.Thread.sleep;
 import static org.slf4j.LoggerFactory.getLogger;
 
 import org.mule.extension.sftp.internal.exception.FileLockedException;
@@ -57,20 +56,11 @@ public abstract class AbstractExternalFileSystem extends AbstractFileSystem impl
    * @throws FileLockedException if the {@code lock} is already acquired
    */
   protected void acquireLock(UriLock lock) {
-    //    if (!lock.tryLock()) {
-    //      throw new FileLockedException(
-    //                                    format("Could not lock file '%s' because it's already owned by another process",
-    //                                           lock.getUri().getPath()));
-    //    }
-    LOGGER.info("Dipesh Lock Trying to acquire lock");
-    while (!lock.tryLock()) {
-      try {
-        sleep(100);
-      } catch (InterruptedException e) {
-        //            throw new RuntimeException(e);
-      }
-    }
-    LOGGER.info("Dipesh Lock acquired");
+        if (!lock.tryLock()) {
+          throw new FileLockedException(
+                                        format("Could not lock file '%s' because it's already owned by another process",
+                                               lock.getUri().getPath()));
+        }
   }
 
   /**
