@@ -22,8 +22,9 @@ public enum FileWriteMode {
    */
   APPEND,
 
+  CUSTOM_APPEND,
   /**
-   * Means that a new file should be created and an error should be raised if the file already exists
-   */
+  * Means that a new file should be created and an error should be raised if the file already exists
+  */
   CREATE_NEW
 }

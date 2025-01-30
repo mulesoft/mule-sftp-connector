@@ -18,7 +18,7 @@ import static java.util.Collections.emptyList;
 import static java.util.Objects.nonNull;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
-import static org.apache.commons.collections4.CollectionUtils.isEmpty;
+import static org.apache.commons.collections.CollectionUtils.isEmpty;
 import static org.apache.sshd.sftp.common.SftpConstants.SSH_FX_CONNECTION_LOST;
 import static org.apache.sshd.sftp.common.SftpConstants.SSH_FX_NO_CONNECTION;
 import static org.slf4j.LoggerFactory.getLogger;
@@ -87,6 +87,7 @@ public class SftpClient {
   protected static final OpenMode[] CREATE_MODES = {OpenMode.Write, OpenMode.Create, OpenMode.Truncate};
   //This change is required for SFTP protocol version 6 and to create file in append mode if it does not exist.
   protected static final OpenMode[] APPEND_MODES = {OpenMode.Write, OpenMode.Append, OpenMode.Create};
+  protected static final OpenMode[] CUSTOM_APPEND_MODES = {OpenMode.Write, OpenMode.Create};
   private static final Long PWD_COMMAND_EXECUTION_TIMEOUT = 30L;
   private static final TimeUnit PWD_COMMAND_EXECUTION_TIMEOUT_UNIT = SECONDS;
   private static final String PWD_COMMAND = "pwd";
@@ -510,6 +511,9 @@ public class SftpClient {
         break;
       case APPEND:
         modes = APPEND_MODES;
+        break;
+      case CUSTOM_APPEND:
+        modes = CUSTOM_APPEND_MODES;
         break;
       default:
         throw new IllegalArgumentException();
