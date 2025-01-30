@@ -7,12 +7,10 @@
 package org.mule.extension.sftp.internal.connection;
 
 import static java.lang.String.format;
-import static org.slf4j.LoggerFactory.getLogger;
 
 import org.mule.extension.sftp.internal.exception.FileLockedException;
 import org.mule.extension.sftp.internal.lock.PathLock;
 import org.mule.extension.sftp.internal.lock.UriLock;
-import org.slf4j.Logger;
 
 import java.net.URI;
 import java.nio.file.Path;
@@ -23,8 +21,6 @@ import java.nio.file.Path;
  * @since 1.3.0
  */
 public abstract class AbstractExternalFileSystem extends AbstractFileSystem implements ExternalFileSystem {
-
-  private static final Logger LOGGER = getLogger(AbstractExternalFileSystem.class);
 
   protected AbstractExternalFileSystem(String baseUri) {
     super(baseUri);
@@ -56,11 +52,11 @@ public abstract class AbstractExternalFileSystem extends AbstractFileSystem impl
    * @throws FileLockedException if the {@code lock} is already acquired
    */
   protected void acquireLock(UriLock lock) {
-        if (!lock.tryLock()) {
-          throw new FileLockedException(
-                                        format("Could not lock file '%s' because it's already owned by another process",
-                                               lock.getUri().getPath()));
-        }
+    if (!lock.tryLock()) {
+      throw new FileLockedException(
+                                    format("Could not lock file '%s' because it's already owned by another process",
+                                           lock.getUri().getPath()));
+    }
   }
 
   /**

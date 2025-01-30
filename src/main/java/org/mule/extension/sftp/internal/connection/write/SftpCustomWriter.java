@@ -10,13 +10,11 @@ import org.mule.extension.sftp.api.CustomWriteBufferSize;
 import org.mule.extension.sftp.api.FileAttributes;
 import org.mule.extension.sftp.api.FileWriteMode;
 import org.mule.extension.sftp.internal.connection.SftpClient;
-import org.slf4j.Logger;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 
-import static org.slf4j.LoggerFactory.getLogger;
 
 /**
  * A {@link SftpWriter} contract
@@ -28,7 +26,6 @@ public class SftpCustomWriter implements SftpWriter {
   private SftpClient muleSftpClient;
   private org.apache.sshd.sftp.client.SftpClient apacheSftpClient;
   private CustomWriteBufferSize bufferSizeForWriteStrategy;
-  private static final Logger LOGGER = getLogger(SftpCustomWriter.class);
 
 
   public SftpCustomWriter(org.mule.extension.sftp.internal.connection.SftpClient muleSftpClient,
