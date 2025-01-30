@@ -15,7 +15,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 
-
 /**
  * A {@link SftpWriter} contract
  *
@@ -26,7 +25,6 @@ public class SftpCustomWriter implements SftpWriter {
   private SftpClient muleSftpClient;
   private org.apache.sshd.sftp.client.SftpClient apacheSftpClient;
   private CustomWriteBufferSize bufferSizeForWriteStrategy;
-
 
   public SftpCustomWriter(org.mule.extension.sftp.internal.connection.SftpClient muleSftpClient,
                           org.apache.sshd.sftp.client.SftpClient apacheSftpClient,
