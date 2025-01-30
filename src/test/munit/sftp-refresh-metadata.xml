@@ -14,13 +14,13 @@
 
     <munit:config name="sftp-refresh-metadata.xml">
         <munit:parameterizations>
-            <munit:parameterization name="sftp-refresh-metadata">
+            <munit:parameterization name="internal-sftp-server"> <!-- Internal SFTP Server -->
                 <munit:parameters>
                     <munit:parameter propertyName="config" value="config-docker-with-home-directory"/>
                     <munit:parameter propertyName="path" value=""/>
                 </munit:parameters>
             </munit:parameterization>
-            <munit:parameterization name="sftp-crushftp">
+            <munit:parameterization name="crushftp-sftp"> <!-- External Crush SFTP Server -->
                 <munit:parameters>
                     <munit:parameter propertyName="config" value="config-external-docker-crushftp"/>
                     <munit:parameter propertyName="path" value="/share/"/>
@@ -58,6 +58,7 @@
         </java:invoke-static>
     </munit:after-suite>
 
+    <!-- ✅ TEST CASE 1: Write a file twice with overwrite and verify file size -->
     <munit:test name="sftp-refresh-metadata-overwrite">
         <munit:behavior>
             <set-variable variableName="fileName" value="${path}sftp-refresh-metadata-overwrite-file.txt"/>
@@ -81,6 +82,7 @@
         </munit:validation>
     </munit:test>
 
+    <!-- ✅ TEST CASE 2: Write a file twice with append and verify file size -->
     <munit:test name="sftp-refresh-metadata-append">
         <munit:behavior>
             <set-variable variableName="fileName" value="${path}sftp-refresh-metadata-append-file.txt"/>
@@ -104,12 +106,13 @@
         </munit:validation>
     </munit:test>
 
-    <!-- ✅ TEST CASE 1: Write a file and verify file size -->
+    <!-- ✅ TEST CASE 3: Write a file multiple times with append and verify file size -->
     <munit:test name="sftp-refresh-metadata-overwrite-append-verify-size">
         <munit:behavior>
             <set-variable variableName="fileName" value="${path}sftp-refresh-metadata-overwrite-append-verify-size-file.txt"/>
             <set-variable variableName="mode" value="APPEND"/>
             <set-variable variableName="writeStrategy" value="CUSTOM"/>
+            <set-variable variableName="createParent" value="true"/>
         </munit:behavior>
         <munit:execution>
             <sftp:write config-ref="${config}" path="#[vars.fileName]" mode="OVERWRITE" createParentDirectories="true">
@@ -117,9 +120,12 @@
             </sftp:write>
             <sftp:read config-ref="${config}" path="#[vars.fileName]" />
             <set-variable value="#[%dw 2.0&#10;output application/java&#10;---&#10;attributes.size]" variableName="fileSizeBefore"/>
-            <sftp:write config-ref="${config}" path="#[vars.fileName]" mode="#[vars.mode]" writeStrategy="#[vars.writeStrategy]" createParentDirectories="#[vars.createParent]" >
-                <sftp:content>0123456789</sftp:content>
-            </sftp:write>
+            <foreach collection="#[1 to 10]">
+                <sftp:write config-ref="${config}" path="#[vars.fileName]" mode="#[vars.mode]" writeStrategy="#[vars.writeStrategy]"
+                            createParentDirectories="#[vars.createParent]" >
+                    <sftp:content>0123456789</sftp:content>
+                </sftp:write>
+            </foreach>
             <sftp:read config-ref="${config}" path="#[vars.fileName]"/>
             <set-variable value="#[%dw 2.0&#10;output application/java&#10;---&#10;attributes.size]" variableName="fileSizeAfter"/>
         </munit:execution>
@@ -129,10 +135,11 @@
                     is="#[MunitTools::equalTo(10)]"/>
             <munit-tools:assert-that
                     expression="#[vars.fileSizeAfter]"
-                    is="#[MunitTools::equalTo(20)]"/>
+                    is="#[MunitTools::equalTo(110)]"/>
         </munit:validation>
     </munit:test>
 
+    <!-- ✅ TEST CASE 4: Write a file multiple times with append in parallel and verify file size -->
     <munit:test name="sftp-refresh-metadata-parallel-verify-size">
         <munit:behavior>
             <set-variable variableName="fileName" value="${path}sftp-refresh-metadata-parallel-verify-size-file.txt"/>
@@ -164,11 +171,7 @@
     </munit:test>
 
 <!--
-
-    // crear una configuracion con el STANDARD y otra con el CUSTOM
-
-    // Adicionar buffer size
+    // create configs with STANDARD mode and other with CUSTOM mode
+    // test 5 : add buffer size
 -->
-
-
 </mule>
