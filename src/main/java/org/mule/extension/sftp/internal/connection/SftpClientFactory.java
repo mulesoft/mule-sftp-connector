@@ -23,11 +23,13 @@ public class SftpClientFactory {
    * @param host the host address
    * @param port the remote connection port
    * @param externalConfigProvider external config for overwriting the default crypto factories in {@link org.apache.sshd.client.SshClient}
+   * @param heartbeatInterval the time between heartbeat request sent to the server
    * @return a {@link SftpClient}
    */
   public SftpClient createInstance(String host, int port, PRNGAlgorithm prngAlgorithm, SchedulerService schedulerService,
                                    SftpProxyConfig sftpProxyConfig, boolean kexHeader,
-                                   ExternalConfigProvider externalConfigProvider) {
-    return new SftpClient(host, port, prngAlgorithm, schedulerService, kexHeader, sftpProxyConfig, externalConfigProvider);
+                                   ExternalConfigProvider externalConfigProvider, long heartbeatInterval) {
+    return new SftpClient(host, port, prngAlgorithm, schedulerService, kexHeader, sftpProxyConfig, externalConfigProvider,
+                          heartbeatInterval);
   }
 }

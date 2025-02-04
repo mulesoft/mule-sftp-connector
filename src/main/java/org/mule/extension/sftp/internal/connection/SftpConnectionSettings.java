@@ -107,6 +107,13 @@ public final class SftpConnectionSettings {
   @DisplayName("Strict Kex")
   private boolean kexHeader;
 
+  @Parameter
+  @Optional(defaultValue = "5000")
+  @Summary("The time between heartbeat request sent to the server")
+  @Placement(order = 9)
+  @DisplayName("Heart Beat Interval(in millis)")
+  private long heartbeatInterval;
+
   public int getPort() {
     return port;
   }
@@ -171,6 +178,13 @@ public final class SftpConnectionSettings {
     this.kexHeader = kexHeader;
   }
 
+  public long getHeartbeatInterval() {
+    return heartbeatInterval;
+  }
+
+  public void setHeartbeatInterval(long heartbeatInterval) {
+    this.heartbeatInterval = heartbeatInterval;
+  }
 
   @Override
   public boolean equals(Object o) {

@@ -125,11 +125,11 @@ public class SftpClient {
    * @param port the remote connection port
    */
   public SftpClient(String host, int port, PRNGAlgorithm prngAlgorithm, SchedulerService schedulerService) {
-    this(host, port, prngAlgorithm, schedulerService, true, null, Properties::new);
+    this(host, port, prngAlgorithm, schedulerService, true, null, Properties::new, 5000);
   }
 
   public SftpClient(String host, int port, PRNGAlgorithm prngAlgorithm, SchedulerService schedulerService, boolean kexHeader,
-                    SftpProxyConfig sftpProxyConfig, ExternalConfigProvider externalConfigProvider) {
+                    SftpProxyConfig sftpProxyConfig, ExternalConfigProvider externalConfigProvider, long heartBeatInterval) {
     this.host = host;
     this.port = port;
     this.kexHeader = kexHeader;
@@ -150,7 +150,7 @@ public class SftpClient {
 
     configureWithExternalSources(externalConfigProvider);
     CommonModuleProperties.SESSION_HEARTBEAT_TYPE.set(client, SessionHeartbeatController.HeartbeatType.IGNORE);
-    CommonModuleProperties.SESSION_HEARTBEAT_INTERVAL.set(client, Duration.ofSeconds(5));
+    CommonModuleProperties.SESSION_HEARTBEAT_INTERVAL.set(client, Duration.ofMillis(heartBeatInterval));
 
     if (!this.kexHeader) {
       SessionFactory factory = new NoStrictKexSessionFactory(client);
