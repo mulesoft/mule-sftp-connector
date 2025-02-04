@@ -25,9 +25,11 @@ import static org.slf4j.LoggerFactory.getLogger;
 
 import org.apache.sshd.client.config.SshClientConfigFileReader;
 import org.apache.sshd.client.session.SessionFactory;
+import org.apache.sshd.common.CommonModuleProperties;
 import org.apache.sshd.common.PropertyResolverUtils;
 import org.apache.sshd.common.SshException;
 import org.apache.sshd.common.keyprovider.FileKeyPairProvider;
+import org.apache.sshd.common.session.SessionHeartbeatController;
 import org.mule.extension.sftp.api.WriteStrategy;
 import org.mule.extension.sftp.api.FileWriteMode;
 import org.mule.extension.sftp.api.SftpAuthenticationMethod;
@@ -58,6 +60,7 @@ import java.security.GeneralSecurityException;
 import java.security.PublicKey;
 import java.util.Collection;
 import java.util.List;
+import java.time.Duration;
 import java.util.Properties;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
@@ -146,6 +149,8 @@ public class SftpClient {
     }
 
     configureWithExternalSources(externalConfigProvider);
+    CommonModuleProperties.SESSION_HEARTBEAT_TYPE.set(client, SessionHeartbeatController.HeartbeatType.IGNORE);
+    CommonModuleProperties.SESSION_HEARTBEAT_INTERVAL.set(client, Duration.ofSeconds(5));
 
     if (!this.kexHeader) {
       SessionFactory factory = new NoStrictKexSessionFactory(client);
