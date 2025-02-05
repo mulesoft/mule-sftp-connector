@@ -171,6 +171,7 @@ public final class SftpConnectionSettings {
     this.kexHeader = kexHeader;
   }
 
+
   @Override
   public boolean equals(Object o) {
     if (this == o) {
