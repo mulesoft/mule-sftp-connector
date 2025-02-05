@@ -115,6 +115,7 @@ public class SftpClient {
   private String cwd = "/";
   private static final Object LOCK = new Object();
   private String home;
+  private long heartBeatInterval = 30000;
 
   protected SchedulerService schedulerService;
 
@@ -125,11 +126,11 @@ public class SftpClient {
    * @param port the remote connection port
    */
   public SftpClient(String host, int port, PRNGAlgorithm prngAlgorithm, SchedulerService schedulerService) {
-    this(host, port, prngAlgorithm, schedulerService, true, null, Properties::new, 5000);
+    this(host, port, prngAlgorithm, schedulerService, true, null, Properties::new);
   }
 
   public SftpClient(String host, int port, PRNGAlgorithm prngAlgorithm, SchedulerService schedulerService, boolean kexHeader,
-                    SftpProxyConfig sftpProxyConfig, ExternalConfigProvider externalConfigProvider, long heartBeatInterval) {
+                    SftpProxyConfig sftpProxyConfig, ExternalConfigProvider externalConfigProvider) {
     this.host = host;
     this.port = port;
     this.kexHeader = kexHeader;

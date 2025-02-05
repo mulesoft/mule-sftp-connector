@@ -65,7 +65,7 @@ public class SftpClientTestCase {
 
   @InjectMocks
   private SftpClient client =
-      new SftpClient(EMPTY, 0, PRNGAlgorithm.SHA1PRNG, schedulerService, true, null, Properties::new, 5000);
+      new SftpClient(EMPTY, 0, PRNGAlgorithm.SHA1PRNG, schedulerService, true, null, Properties::new);
 
   @Test
   public void returnNullOnUnexistingFile() throws Exception {
