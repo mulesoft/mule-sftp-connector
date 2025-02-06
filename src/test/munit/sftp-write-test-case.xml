@@ -357,7 +357,7 @@
     <munit:test name="sftp-write-in-append-mode-for-existing-file-custom-mode">
         <munit:behavior>
             <set-variable variableName="fileName" value="exist-file.txt"/>
-            <set-variable variableName="mode" value="APPEND"/>
+            <set-variable variableName="mode" value="CUSTOM_APPEND"/>
             <set-variable variableName="writeStrategy" value="CUSTOM"/>
             <set-variable variableName="bufferSizeForWriteStrategy" value="BUFFER_SIZE_2KB"/>
             <set-variable variableName="createParent" value="true"/>
