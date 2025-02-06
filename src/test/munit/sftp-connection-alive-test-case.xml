@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:munit="http://www.mulesoft.org/schema/mule/munit"
+      xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools"
+      xmlns="http://www.mulesoft.org/schema/mule/core"
+      xmlns:sftp="http://www.mulesoft.org/schema/mule/sftp"
+      xmlns:java="http://www.mulesoft.org/schema/mule/java" xmlns:test="http://www.mulesoft.org/schema/mule/test"
+      xsi:schemaLocation="
+		http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+		http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
+		http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd
+        http://www.mulesoft.org/schema/mule/sftp http://www.mulesoft.org/schema/mule/sftp/current/mule-sftp.xsd
+        http://www.mulesoft.org/schema/mule/java http://www.mulesoft.org/schema/mule/java/current/mule-java.xsd">
+
+    <munit:config name="sftp-connection-alive-test-case.xml"/>
+
+
+
+    <munit:before-suite name="before-sftp-connection-alive-test-case">
+        <java:invoke-static class="org.mule.extension.sftp.internal.lifecycle.SftpServerLifecycleManager"
+                            method="startSftpServer(String)">
+            <java:args>
+                #[{
+                arg0: ${sftp.server.port},
+                }]
+            </java:args>
+        </java:invoke-static>
+    </munit:before-suite>
+
+    <munit:after-suite name="after-sftp-connection-alive-test-case">
+        <java:invoke-static class="org.mule.extension.sftp.internal.lifecycle.SftpServerLifecycleManager"
+                            method="stopSftpServer()">
+            <java:args>
+                #[{}]
+            </java:args>
+        </java:invoke-static>
+    </munit:after-suite>
+
+
+    <munit:test timeOut="600000" name="sftp-connection-alive" description="Test verifies that the server is alive even after no activity has occurred in the server for 2 minutes">
+        <munit:execution>
+            <sftp:list config-ref="config" directoryPath="/" target="response1"/>
+            <munit-tools:sleep time="300000"/>
+            <sftp:list config-ref="config" directoryPath="/" target="response2"/>
+        </munit:execution>
+        <munit:validation>
+            <munit-tools:assert-that expression="#[vars.response1]" is="#[MunitTools::equalTo(vars.response2)]"/>
+        </munit:validation>
+    </munit:test>
+
+
+
+</mule>
