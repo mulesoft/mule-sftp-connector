@@ -65,14 +65,14 @@
 
 
     <!--TODO:W-14492587  [SPLITTED 2/2] SFTP Connector 2.x | edDSA identity file does not work after application is redeployed in standalone runtime-->
-    <munit:test name="sftp-proxy-connectivity-test" ignore="true">
+    <munit:test name="sftp-proxy-connectivity-test">
         <munit:validation>
             <mtf:test-connectivity config-ref="proxy-config"/>
         </munit:validation>
     </munit:test>
 
     <!--TODO:W-14492587  [SPLITTED 2/2] SFTP Connector 2.x | edDSA identity file does not work after application is redeployed in standalone runtime-->
-    <munit:test name="sftp-proxy-connectivity-negative-test"  expectedErrorType = "SFTP:CONNECTIVITY"  ignore="true">
+    <munit:test name="sftp-proxy-connectivity-negative-test"  expectedErrorType = "SFTP:CONNECTIVITY">
         <munit:validation>
             <mtf:test-connectivity config-ref="proxy-config-error"/>
         </munit:validation>
