@@ -236,14 +236,14 @@
                         <version>${tikaCore.version}</version>
                     </dependency>
                 </dependencies>
-                <executions>
+<!--                 <executions>
                     <execution>
                         <phase>post-integration-test</phase>
                         <goals>
                             <goal>shade</goal>
                         </goals>
                     </execution>
-                </executions>
+                </executions> -->
                 <configuration>
                     <createDependencyReducedPom>true</createDependencyReducedPom>
                     <shaderHint>ReflectiveAccessShader</shaderHint>
