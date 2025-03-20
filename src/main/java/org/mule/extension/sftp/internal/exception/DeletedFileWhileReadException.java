@@ -34,12 +34,12 @@ public class DeletedFileWhileReadException extends FileReadException {
     super(message, cause);
   }
 
-  /**
-   * Creates a new instance
-   *
-   * @param cause
-   */
-  public DeletedFileWhileReadException(Throwable cause) {
-    super(cause);
-  }
+  //  /**
+  //   * Creates a new instance
+  //   *
+  //   * @param cause
+  //   */
+  //  public DeletedFileWhileReadException(Throwable cause) {
+  //    super(cause);
+  //  }
 }

@@ -20,6 +20,10 @@
     <description>A Mule extension that provides functionality to manage files in an SFTP server</description>
 
     <properties>
+        <sonar.exclusions>**org/mule/extension/sns/api/**</sonar.exclusions>
+<!--        <sonar.coverage.exclusions>-->
+<!--            **org/mule/extension/sns/api/**-->
+<!--        </sonar.coverage.exclusions>-->
         <docker.maven.plugin.version>0.43.4</docker.maven.plugin.version>
         <maven.helper.plugin.version>3.4.0</maven.helper.plugin.version>
         <exec.maven.plugin.version>1.6.0</exec.maven.plugin.version>
@@ -58,7 +62,7 @@
         <muleJavaModule.version>1.2.13</muleJavaModule.version>
         <maven.invoker.plugin.version>3.6.0</maven.invoker.plugin.version>
         <muleConnectionTestModule.version>1.0.0</muleConnectionTestModule.version>
-        <junit.version>4.12</junit.version>
+        <junit.version>4.13.1</junit.version>
         <maven.repo.local>${settings.localRepository}</maven.repo.local>
         <orgJson.version>20231013</orgJson.version>
 
@@ -437,6 +441,9 @@
                             <goal>report</goal>
                         </goals>
                         <configuration>
+<!--                            <excludes>-->
+<!--                                <exclude>src/main/java/org/mule/extension/sftp/api**</exclude>-->
+<!--                            </excludes>-->
                             <dataFile>${session.executionRootDirectory}/target/jacoco.exec</dataFile>
                             <outputDirectory>${session.executionRootDirectory}/target/jacoco</outputDirectory>
                         </configuration>
