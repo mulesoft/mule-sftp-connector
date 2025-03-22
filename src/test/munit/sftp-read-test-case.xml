@@ -79,6 +79,20 @@
         </munit:validation>
     </munit:test>
 
+    <munit:test name="sftp-list-timeBetweenSizeCheck">
+        <munit:behavior>
+            <set-variable variableName="fileName" value="source/filePath.txt"/>
+            <set-variable variableName="fileContent" value="I just want to impress Mr. Stark"/>
+            <sftp:write config-ref="config-with-limited-pool" path="#[vars.fileName]">
+                <sftp:content>#[vars.fileContent]</sftp:content>
+            </sftp:write>
+        </munit:behavior>
+        <munit:execution>
+            <sftp:read config-ref="config-with-limited-pool" path='#[vars.fileName]' timeBetweenSizeCheck="1"/>
+            <logger level="INFO" message="#[payload]"/>
+        </munit:execution>
+    </munit:test>
+
     <munit:test name="sftp-read-non-exists-file" description="Attempting to read a non-existent file."
                 expectedErrorType="SFTP:ILLEGAL_PATH">
         <munit:behavior>
