@@ -20,22 +20,22 @@
     <description>A Mule extension that provides functionality to manage files in an SFTP server</description>
 
     <properties>
-        <sonar.exclusions>
-<!--            **org/mule/extension/sftp/api/**,-->
-            **org/mule/extension/sftp/**,
-            **org/mule/extension/sftp/api/SftpFileMatcher.java,
-            **org/mule/extension/sftp/api/matcher/FileMatcher.java,
-            **org/mule/extension/sftp/api/SftpProxyConfig.java,
-            **org/mule/extension/sftp/api/SftpFileAttributes.java
-        </sonar.exclusions>
-        <sonar.coverage.exclusions>
-<!--            **org/mule/extension/sftp/api/**,-->
-            **org/mule/extension/sftp/**,
-            **org/mule/extension/sftp/api/SftpFileMatcher.java,
-            **org/mule/extension/sftp/api/matcher/FileMatcher.java,
-            **org/mule/extension/sftp/api/SftpProxyConfig.java,
-            **org/mule/extension/sftp/api/SftpFileAttributes.java
-        </sonar.coverage.exclusions>
+<!--        <sonar.exclusions>-->
+<!--&lt;!&ndash;            **org/mule/extension/sftp/api/**,&ndash;&gt;-->
+<!--            **org/mule/extension/sftp/**,-->
+<!--            **org/mule/extension/sftp/api/SftpFileMatcher.java,-->
+<!--            **org/mule/extension/sftp/api/matcher/FileMatcher.java,-->
+<!--            **org/mule/extension/sftp/api/SftpProxyConfig.java,-->
+<!--            **org/mule/extension/sftp/api/SftpFileAttributes.java-->
+<!--        </sonar.exclusions>-->
+<!--        <sonar.coverage.exclusions>-->
+<!--&lt;!&ndash;            **org/mule/extension/sftp/api/**,&ndash;&gt;-->
+<!--            **org/mule/extension/sftp/**,-->
+<!--            **org/mule/extension/sftp/api/SftpFileMatcher.java,-->
+<!--            **org/mule/extension/sftp/api/matcher/FileMatcher.java,-->
+<!--            **org/mule/extension/sftp/api/SftpProxyConfig.java,-->
+<!--            **org/mule/extension/sftp/api/SftpFileAttributes.java-->
+<!--        </sonar.coverage.exclusions>-->
         <docker.maven.plugin.version>0.43.4</docker.maven.plugin.version>
         <maven.helper.plugin.version>3.4.0</maven.helper.plugin.version>
         <exec.maven.plugin.version>1.6.0</exec.maven.plugin.version>
