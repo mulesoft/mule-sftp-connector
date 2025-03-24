@@ -68,9 +68,18 @@ public final class SftpReadCommand extends SftpCommand implements ReadCommand<Sf
 
     UriLock pathLock = lock ? fileSystem.lock(uri) : new NullUriLock(uri);
     InputStream payload = null;
+
+    try {
+      client.openFile(attributes.getPath());
+    } catch (Exception e) {
+      throw e;
+    }
+
     try {
       payload = getFileInputStream((SftpConnector) config, attributes, pathLock, timeBetweenSizeCheck, useCurrentConnection);
       MediaType resolvedMediaType = fileSystem.getFileMessageMediaType(attributes);
+      //      client.getFileContent(attributes.getPath());
+//            fileSystem.retrieveFileContent(attributes);
       return Result.<InputStream, SftpFileAttributes>builder().output(payload).mediaType(resolvedMediaType).attributes(attributes)
           .build();
     } catch (Exception e) {
