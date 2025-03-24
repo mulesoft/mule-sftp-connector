@@ -14,27 +14,37 @@
     <groupId>org.mule.connectors</groupId>
     <artifactId>mule-sftp-connector</artifactId>
     <packaging>mule-extension</packaging>
-    <version>2.4.4-SNAPSHOT</version>
+    <version>2.4.56-SNAPSHOT</version>
 
     <name>SFTP Connector - Mule 4</name>
     <description>A Mule extension that provides functionality to manage files in an SFTP server</description>
 
     <properties>
         <sonar.exclusions>
-<!--            **org/mule/extension/sftp/api/**,-->
-<!--            **org/mule/extension/sftp/**,-->
             **org/mule/extension/sftp/api/SftpFileMatcher.java,
-            **org/mule/extension/sftp/api/matcher/FileMatcher.java,
             **org/mule/extension/sftp/api/SftpProxyConfig.java,
-            **org/mule/extension/sftp/api/SftpFileAttributes.java
+            **org/mule/extension/sftp/api/SftpFileAttributes.java,
+            **org/mule/extension/sftp/api/AbstractFileAttributes,
+            **org/mule/extension/sftp/api/matcher/FileMatcher.java,
+            **org/mule/extension/sftp/api/matcher/PathMatcherPredicate.java,
+            **org/mule/extension/sftp/api/random/alg/MulePRNGAlgorithm.java,
+            **org/mule/extension/sftp/api/random/alg/impl/NativeBlockingPRNGRandomFactory.java,
+            **org/mule/extension/sftp/api/random/alg/impl/NativeNonBlockingPRNGFactory.java,
+            **org/mule/extension/sftp/api/random/alg/impl/NativePRNGRandomFactory.java,
+            **org/mule/extension/sftp/api/random/alg/impl/SHA1PRGRandomFactory.java
         </sonar.exclusions>
         <sonar.coverage.exclusions>
-<!--            **org/mule/extension/sftp/api/**,-->
-<!--            **org/mule/extension/sftp/**,-->
             **org/mule/extension/sftp/api/SftpFileMatcher.java,
-            **org/mule/extension/sftp/api/matcher/FileMatcher.java,
             **org/mule/extension/sftp/api/SftpProxyConfig.java,
-            **org/mule/extension/sftp/api/SftpFileAttributes.java
+            **org/mule/extension/sftp/api/SftpFileAttributes.java,
+            **org/mule/extension/sftp/api/AbstractFileAttributes,
+            **org/mule/extension/sftp/api/matcher/FileMatcher.java,
+            **org/mule/extension/sftp/api/matcher/PathMatcherPredicate.java,
+            **org/mule/extension/sftp/api/random/alg/MulePRNGAlgorithm.java,
+            **org/mule/extension/sftp/api/random/alg/impl/NativeBlockingPRNGRandomFactory.java,
+            **org/mule/extension/sftp/api/random/alg/impl/NativeNonBlockingPRNGFactory.java,
+            **org/mule/extension/sftp/api/random/alg/impl/NativePRNGRandomFactory.java,
+            **org/mule/extension/sftp/api/random/alg/impl/SHA1PRGRandomFactory.java
         </sonar.coverage.exclusions>
         <docker.maven.plugin.version>0.43.4</docker.maven.plugin.version>
         <maven.helper.plugin.version>3.4.0</maven.helper.plugin.version>
