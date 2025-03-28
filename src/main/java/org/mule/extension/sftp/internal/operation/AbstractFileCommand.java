@@ -12,6 +12,7 @@ import static java.lang.String.format;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
+import org.mule.extension.sftp.internal.exception.FileAccessDeniedException;
 import org.mule.extension.sftp.internal.exception.FileAlreadyExistsException;
 import org.mule.extension.sftp.internal.exception.IllegalPathException;
 import org.mule.extension.sftp.internal.config.FileConnectorConfig;
@@ -150,6 +151,11 @@ public abstract class AbstractFileCommand<F extends FileSystem, I> {
    */
   protected IllegalPathException cannotReadDirectoryException(I path) {
     return new IllegalPathException(format("Cannot read path '%s' since it's a directory", pathToString(path)));
+  }
+
+  protected FileAccessDeniedException cannotReadFileException(I path) {
+    return new FileAccessDeniedException(format("Cannot read file '%s' since user does not have read permission",
+                                                pathToString(path)));
   }
 
   /**

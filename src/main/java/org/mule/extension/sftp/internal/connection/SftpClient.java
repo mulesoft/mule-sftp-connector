@@ -59,7 +59,6 @@ import java.nio.file.Paths;
 import java.security.GeneralSecurityException;
 import java.security.PublicKey;
 import java.util.Collection;
-import java.util.EnumSet;
 import java.util.List;
 import java.time.Duration;
 import java.util.Properties;
@@ -437,14 +436,6 @@ public class SftpClient {
       throws IOException {
     SftpWriter sftpWriter = SftpWriteStrategyHelper.getStrategy(this, this.sftp, writeStrategy, bufferSizeForWriteStrategy);
     sftpWriter.write(path, stream, mode, uri);
-  }
-
-  public void openFile(String path) {
-    try {
-      this.sftp.open(path, EnumSet.of(OpenMode.Read));
-    } catch (IOException e) {
-      throw handleException("Found exception trying to open file at  " + path, e);
-    }
   }
 
   public SftpFileAttributes getFile(URI uri) {
