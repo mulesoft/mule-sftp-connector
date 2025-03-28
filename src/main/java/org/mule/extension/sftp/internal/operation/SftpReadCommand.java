@@ -45,6 +45,9 @@ public final class SftpReadCommand extends SftpCommand implements ReadCommand<Sf
     if (attributes.isDirectory()) {
       throw cannotReadDirectoryException(createUri(attributes.getPath()));
     }
+    if (!isReadable(attributes)) {
+      throw cannotReadFileException(createUri(attributes.getPath()));
+    }
 
     return read(config, attributes, lock, timeBetweenSizeCheck, true);
   }
@@ -70,16 +73,8 @@ public final class SftpReadCommand extends SftpCommand implements ReadCommand<Sf
     InputStream payload = null;
 
     try {
-      client.openFile(attributes.getPath());
-    } catch (Exception e) {
-      throw e;
-    }
-
-    try {
       payload = getFileInputStream((SftpConnector) config, attributes, pathLock, timeBetweenSizeCheck, useCurrentConnection);
       MediaType resolvedMediaType = fileSystem.getFileMessageMediaType(attributes);
-      //      client.getFileContent(attributes.getPath());
-//            fileSystem.retrieveFileContent(attributes);
       return Result.<InputStream, SftpFileAttributes>builder().output(payload).mediaType(resolvedMediaType).attributes(attributes)
           .build();
     } catch (Exception e) {
@@ -98,5 +93,10 @@ public final class SftpReadCommand extends SftpCommand implements ReadCommand<Sf
     } else {
       return SftpInputStream.newInstance(config, attributes, pathLock, timeBetweenSizeCheck);
     }
+  }
+
+  private boolean isReadable(SftpFileAttributes attributes) {
+    int perms = attributes.getPermissions();
+    return (((perms & 0400) != 0) && ((perms & 0040) != 0) && ((perms & 0004) != 0));
   }
 }
