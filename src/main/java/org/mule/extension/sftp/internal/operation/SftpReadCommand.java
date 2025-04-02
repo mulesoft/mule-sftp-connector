@@ -31,6 +31,10 @@ import java.net.URI;
  */
 public final class SftpReadCommand extends SftpCommand implements ReadCommand<SftpFileAttributes> {
 
+  private final int OWNER_READ = 0400;
+  private final int GROUP_READ = 0040;
+  private final int OTHERS_READ = 0004;
+
   /**
    * {@inheritDoc}
    */
@@ -97,6 +101,6 @@ public final class SftpReadCommand extends SftpCommand implements ReadCommand<Sf
 
   private boolean isReadable(SftpFileAttributes attributes) {
     int perms = attributes.getPermissions();
-    return (((perms & 0400) != 0) && ((perms & 0040) != 0) && ((perms & 0004) != 0));
+    return (((perms & OWNER_READ) != 0) || ((perms & GROUP_READ) != 0) || ((perms & OTHERS_READ) != 0));
   }
 }
