@@ -173,7 +173,7 @@
             <groupId>org.mule.runtime</groupId>
             <artifactId>mule-core</artifactId>
             <version>${mule.version}</version>
-            <scope>provided</scope>
+            <scope>test</scope>
             <exclusions>
                 <exclusion>
                     <groupId>commons-collections</groupId>
