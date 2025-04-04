@@ -173,13 +173,8 @@
             <groupId>org.mule.runtime</groupId>
             <artifactId>mule-core</artifactId>
             <version>${mule.version}</version>
+            <type>test-jar</type>
             <scope>test</scope>
-            <exclusions>
-                <exclusion>
-                    <groupId>commons-collections</groupId>
-                    <artifactId>commons-collections</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
 
         <dependency>
