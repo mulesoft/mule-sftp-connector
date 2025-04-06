@@ -7,6 +7,8 @@
 package org.mule.extension.sftp.internal.connection;
 
 import org.junit.Test;
+import org.mule.extension.sftp.internal.exception.IllegalPathException;
+
 import java.util.Properties;
 
 import static org.junit.Assert.assertEquals;
@@ -32,6 +34,13 @@ public class FileBasedConfigProviderTestCase {
   @Test
   public void testWithConfigFileEmpty() {
     FileBasedConfigProvider fileBasedConfigProvider = new FileBasedConfigProvider("");
+    Properties properties = fileBasedConfigProvider.getConfigProperties();
+    assertEquals(0, properties.size());
+  }
+
+  @Test
+  public void testUnreadableFile() {
+    FileBasedConfigProvider fileBasedConfigProvider = new FileBasedConfigProvider("src/test/resources");
     Properties properties = fileBasedConfigProvider.getConfigProperties();
     assertEquals(0, properties.size());
   }

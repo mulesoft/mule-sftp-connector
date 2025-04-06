@@ -10,13 +10,13 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
+import org.mule.extension.sftp.api.SftpFileAttributes;
+import org.mule.extension.sftp.internal.connection.AbstractExternalFileSystem;
+import org.mule.extension.sftp.internal.extension.SftpConnector;
 import org.mule.extension.sftp.internal.lock.UriLock;
+import org.mule.runtime.api.connection.ConnectionException;
 import org.mule.runtime.api.connection.ConnectionHandler;
 
 import java.io.ByteArrayInputStream;
@@ -26,6 +26,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+import org.mule.runtime.core.api.connector.ConnectionManager;
 
 @RunWith(MockitoJUnitRunner.class)
 public class SftpInputStreamTestCase {
@@ -51,6 +52,12 @@ public class SftpInputStreamTestCase {
     }).when(uriLock).release();
 
     when(streamSupplier.get()).thenReturn(new ByteArrayInputStream(STREAM_CONTENT.getBytes(UTF_8)));
+  }
+
+  @Test
+  public void test() throws ConnectionException {
+    SftpInputStream inputStream = new SftpInputStream(streamSupplier, uriLock);
+    SftpInputStream.newInstance(new SftpConnector(), new SftpFileAttributes(), null, 0L);
   }
 
   @Test
