@@ -7,14 +7,18 @@
 package org.mule.extension.sftp;
 
 import org.junit.Test;
+import org.mule.extension.sftp.internal.proxy.AuthenticationChallenge;
 import org.mule.extension.sftp.internal.proxy.HttpParser;
+import org.mule.extension.sftp.internal.proxy.StatusLine;
 import org.mule.tck.size.SmallTest;
 
 import java.util.Arrays;
 import java.util.List;
 
+import static org.junit.Assert.assertEquals;
+
 @SmallTest
-public class HttpParserTestCase {
+public class ProxyClassesTestCase {
 
   private static final String AUTHENTICATOR_HEADER = "Proxy-Authentication:";
   private static final List<String> reply =
@@ -31,11 +35,27 @@ public class HttpParserTestCase {
                     " lineWithWhitespace= \"someContent\"");
 
   @Test
-  public void testGetAuthenticationHeaders() {
+  public void testHttpParser() {
     HttpParser.getAuthenticationHeaders(reply, AUTHENTICATOR_HEADER);
     HttpParser.getAuthenticationHeaders(reply2, AUTHENTICATOR_HEADER);
     HttpParser.getAuthenticationHeaders(reply3, AUTHENTICATOR_HEADER);
     HttpParser.getAuthenticationHeaders(reply4, AUTHENTICATOR_HEADER);
+  }
+
+  @Test
+  public void testStatusLine() {
+    StatusLine statusLine = new StatusLine("1", 1, "test");
+    assertEquals(statusLine.getReason(), "test");
+    assertEquals(statusLine.getVersion(), "1");
+  }
+
+  @Test
+  public void testAuthenticationChallenge() {
+    AuthenticationChallenge a = new AuthenticationChallenge("mecha");
+    assertEquals("mecha", a.getMechanism());
+    a.getToken();
+    a.getArguments();
+    a.toString();
   }
 
 }
