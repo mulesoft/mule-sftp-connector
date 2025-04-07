@@ -130,38 +130,38 @@ public class FileSystemTestCase {
     public void changeToBaseDir() {}
   };
 
-    @Test(expected = UnsupportedOperationException.class)
-    public void testVerifyNotLocked() {
-      abstractExternalFileSystem.verifyNotLocked(path);
-    }
+  @Test(expected = UnsupportedOperationException.class)
+  public void testVerifyNotLocked() {
+    abstractExternalFileSystem.verifyNotLocked(path);
+  }
 
-    @Test(expected = UnsupportedOperationException.class)
-    public void testLock() {
-      abstractExternalFileSystem.lock(path);
-    }
+  @Test(expected = UnsupportedOperationException.class)
+  public void testLock() {
+    abstractExternalFileSystem.lock(path);
+  }
 
-    @Test(expected = UnsupportedOperationException.class)
-    public void testIsLocked() {
-      abstractExternalFileSystem.isLocked(path);
-    }
+  @Test(expected = UnsupportedOperationException.class)
+  public void testIsLocked() {
+    abstractExternalFileSystem.isLocked(path);
+  }
 
-    @Test(expected = UnsupportedOperationException.class)
-    public void testCreateLock() {
-      abstractExternalFileSystem.createLock(path);
-    }
+  @Test(expected = UnsupportedOperationException.class)
+  public void testCreateLock() {
+    abstractExternalFileSystem.createLock(path);
+  }
 
-    @Test(expected = UnsupportedOperationException.class)
-    public void testAcquireLock() {
-      abstractExternalFileSystem.acquireLock(abstractFileSystem.createLock(path));
-    }
+  @Test(expected = UnsupportedOperationException.class)
+  public void testAcquireLock() {
+    abstractExternalFileSystem.acquireLock(abstractFileSystem.createLock(path));
+  }
 
-    @Test(expected = FileLockedException.class)
-    public void testVerifyNotLocked2() {
-      abstractExternalFileSystem.verifyNotLocked(path.toUri());
-    }
+  @Test(expected = FileLockedException.class)
+  public void testVerifyNotLocked2() {
+    abstractExternalFileSystem.verifyNotLocked(path.toUri());
+  }
 
-    @Test(expected = FileLockedException.class)
-    public void testVerifyNotLocked3() {
-      abstractFileSystem.verifyNotLocked(path);
-    }
+  @Test(expected = FileLockedException.class)
+  public void testVerifyNotLocked3() {
+    abstractFileSystem.verifyNotLocked(path);
+  }
 }
