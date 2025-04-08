@@ -20,32 +20,12 @@
     <description>A Mule extension that provides functionality to manage files in an SFTP server</description>
 
     <properties>
-        <sonar.exclusions>
-            **org/mule/extension/sftp/api/SftpFileMatcher.java,
-            **org/mule/extension/sftp/api/SftpProxyConfig.java,
-            **org/mule/extension/sftp/api/SftpFileAttributes.java,
-            **org/mule/extension/sftp/api/AbstractFileAttributes,
-            **org/mule/extension/sftp/api/matcher/FileMatcher.java,
-            **org/mule/extension/sftp/api/matcher/PathMatcherPredicate.java,
-            **org/mule/extension/sftp/api/random/alg/MulePRNGAlgorithm.java,
-            **org/mule/extension/sftp/api/random/alg/impl/NativeBlockingPRNGRandomFactory.java,
-            **org/mule/extension/sftp/api/random/alg/impl/NativeNonBlockingPRNGFactory.java,
-            **org/mule/extension/sftp/api/random/alg/impl/NativePRNGRandomFactory.java,
-            **org/mule/extension/sftp/api/random/alg/impl/SHA1PRGRandomFactory.java
-        </sonar.exclusions>
         <sonar.coverage.exclusions>
-            **org/mule/extension/sftp/api/SftpFileMatcher.java,
-            **org/mule/extension/sftp/api/SftpProxyConfig.java,
-            **org/mule/extension/sftp/api/SftpFileAttributes.java,
-            **org/mule/extension/sftp/api/AbstractFileAttributes,
-            **org/mule/extension/sftp/api/matcher/FileMatcher.java,
-            **org/mule/extension/sftp/api/matcher/PathMatcherPredicate.java,
-            **org/mule/extension/sftp/api/random/alg/MulePRNGAlgorithm.java,
-            **org/mule/extension/sftp/api/random/alg/impl/NativeBlockingPRNGRandomFactory.java,
-            **org/mule/extension/sftp/api/random/alg/impl/NativeNonBlockingPRNGFactory.java,
-            **org/mule/extension/sftp/api/random/alg/impl/NativePRNGRandomFactory.java,
-            **org/mule/extension/sftp/api/random/alg/impl/SHA1PRGRandomFactory.java
+            **org/mule/extension/sftp/api/**
         </sonar.coverage.exclusions>
+        <sonar.exclusions>
+            **org/mule/extension/sftp/api/**
+        </sonar.exclusions>
         <docker.maven.plugin.version>0.43.4</docker.maven.plugin.version>
         <maven.helper.plugin.version>3.4.0</maven.helper.plugin.version>
         <exec.maven.plugin.version>1.6.0</exec.maven.plugin.version>

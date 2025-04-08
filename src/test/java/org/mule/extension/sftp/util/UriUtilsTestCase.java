@@ -14,19 +14,18 @@ import static org.mule.extension.sftp.internal.util.UriUtils.createUri;
 
 @SmallTest
 public class UriUtilsTestCase {
-
-  private String basePath1 = "test\npath";
-  private String basePath2 = ":testpath";
-  private String filePath1 = "";
+  private String basePath = ":testpath";
+  private String basePathWithNewLine = "test\npath";
+  private String filePath = "";
 
   @Test(expected = IllegalPathException.class)
   public void testCreateUri() {
-    createUri(basePath1, filePath1);
+    createUri(basePath, filePath);
   }
 
   @Test(expected = IllegalPathException.class)
-  public void testCreateUri2() {
-    createUri(basePath2, filePath1);
+  public void testCreateUriWithNewLine() {
+    createUri(basePathWithNewLine, filePath);
   }
 
 }
