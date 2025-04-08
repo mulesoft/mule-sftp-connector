@@ -11,7 +11,6 @@ import org.mule.extension.sftp.internal.error.FileError;
 import org.mule.extension.sftp.internal.exception.*;
 import org.mule.tck.size.SmallTest;
 
-
 import static org.junit.Assert.assertEquals;
 import static org.mule.runtime.api.i18n.I18nMessageFactory.createStaticMessage;
 
