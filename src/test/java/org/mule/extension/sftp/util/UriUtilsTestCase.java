@@ -14,6 +14,7 @@ import static org.mule.extension.sftp.internal.util.UriUtils.createUri;
 
 @SmallTest
 public class UriUtilsTestCase {
+
   private String basePath = ":testpath";
   private String basePathWithNewLine = "test\npath";
   private String filePath = "";
