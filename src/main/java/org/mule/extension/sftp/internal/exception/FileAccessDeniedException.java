@@ -23,9 +23,9 @@ public final class FileAccessDeniedException extends ModuleException {
    *
    * @param message the detail message
    */
-  //  public FileAccessDeniedException(String message) {
-  //    super(message, ACCESS_DENIED);
-  //  }
+  public FileAccessDeniedException(String message) {
+    super(message, ACCESS_DENIED);
+  }
 
   public FileAccessDeniedException(String message, Exception exception) {
     super(message, ACCESS_DENIED, exception);

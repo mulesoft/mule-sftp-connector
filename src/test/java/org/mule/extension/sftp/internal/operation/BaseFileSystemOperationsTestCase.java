@@ -23,7 +23,7 @@ public class BaseFileSystemOperationsTestCase {
   private InputStream stream = new ByteArrayInputStream("Dummy data".getBytes());
 
   @Test
-  public void testDoWriteOPeration() {
+  public void testDoWriteOperation() {
     //test for null content
     try {
       sftpOperations.doWrite(null, null, null, null, false, false, null);
@@ -35,9 +35,6 @@ public class BaseFileSystemOperationsTestCase {
       sftpOperations.doWrite(null, null, null, stream, false, false, null);
     } catch (IllegalPathException e) {
     }
-
-    //test valid
-    //    sftpOperations.doWrite(null, null, "./", stream, true, false, null);
 
   }
 }

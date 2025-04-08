@@ -13,7 +13,6 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.*;
 
 import org.mule.extension.sftp.api.SftpFileAttributes;
-import org.mule.extension.sftp.internal.connection.AbstractExternalFileSystem;
 import org.mule.extension.sftp.internal.extension.SftpConnector;
 import org.mule.extension.sftp.internal.lock.UriLock;
 import org.mule.runtime.api.connection.ConnectionException;
@@ -26,7 +25,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.mule.runtime.core.api.connector.ConnectionManager;
 
 @RunWith(MockitoJUnitRunner.class)
 public class SftpInputStreamTestCase {
@@ -55,8 +53,7 @@ public class SftpInputStreamTestCase {
   }
 
   @Test
-  public void test() throws ConnectionException {
-    SftpInputStream inputStream = new SftpInputStream(streamSupplier, uriLock);
+  public void testSftpInputStream() throws ConnectionException {
     SftpInputStream.newInstance(new SftpConnector(), new SftpFileAttributes(), null, 0L);
   }
 

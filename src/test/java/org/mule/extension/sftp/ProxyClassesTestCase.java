@@ -22,17 +22,17 @@ public class ProxyClassesTestCase {
 
   private static final String AUTHENTICATOR_HEADER = "Proxy-Authentication:";
   private static final List<String> reply =
-      Arrays.asList("key: ", " lineWithWhitespace:", "Proxy-Authentication: someContent",
-                    " lineWithWhitespace: some", "key:", "");
+      Arrays.asList("key: ", " lineWithWhitespace:", "Proxy-Authentication: auth",
+                    " lineWithWhitespace: text", "key:", "");
   private static final List<String> reply2 =
-      Arrays.asList("key:", "Proxy-Authentication: someContent!",
-                    " lineWithWhitespace=== , someContent");
+      Arrays.asList("key:", "Proxy-Authentication: auth!",
+                    " lineWithWhitespace=== , text");
   private static final List<String> reply3 =
-      Arrays.asList("key:", "Proxy-Authentication: someContent!",
-                    " lineWithWhitespace= ,text \"content\"");
+      Arrays.asList("key:", "Proxy-Authentication: auth!",
+                    " lineWithWhitespace= ,text \"text\"");
   private static final List<String> reply4 =
-      Arrays.asList("key: ", " lineWithWhitespace:", "Proxy-Authentication: someContent!",
-                    " lineWithWhitespace= \"someContent\"");
+      Arrays.asList("key: ", " lineWithWhitespace:", "Proxy-Authentication: auth!",
+                    " lineWithWhitespace= \"text\"");
 
   @Test
   public void testHttpParser() {
@@ -51,11 +51,11 @@ public class ProxyClassesTestCase {
 
   @Test
   public void testAuthenticationChallenge() {
-    AuthenticationChallenge a = new AuthenticationChallenge("mecha");
-    assertEquals("mecha", a.getMechanism());
-    a.getToken();
-    a.getArguments();
-    a.toString();
+    AuthenticationChallenge authenticationChallenge = new AuthenticationChallenge("mechanism");
+    assertEquals("mechanism", authenticationChallenge.getMechanism());
+    authenticationChallenge.getToken();
+    authenticationChallenge.getArguments();
+    authenticationChallenge.toString();
   }
 
 }
