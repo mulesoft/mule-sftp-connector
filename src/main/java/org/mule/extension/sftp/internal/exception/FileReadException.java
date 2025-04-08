@@ -42,7 +42,7 @@ public abstract class FileReadException extends MuleRuntimeException {
    *
    * @param cause
    */
-  //  protected FileReadException(Throwable cause) {
-  //    super(cause);
-  //  }
+  protected FileReadException(Throwable cause) {
+    super(cause);
+  }
 }

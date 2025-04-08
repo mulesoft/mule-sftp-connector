@@ -7,7 +7,6 @@
 package org.mule.extension.sftp.internal.connection;
 
 import org.junit.Test;
-import org.mule.extension.sftp.internal.exception.IllegalPathException;
 
 import java.util.Properties;
 

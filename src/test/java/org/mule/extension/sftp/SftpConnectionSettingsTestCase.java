@@ -8,8 +8,6 @@ package org.mule.extension.sftp;
 
 import org.junit.Test;
 import org.mule.extension.sftp.api.random.alg.PRNGAlgorithm;
-import org.mule.extension.sftp.internal.connection.AbstractExternalFileSystem;
-import org.mule.extension.sftp.internal.connection.AbstractFileSystem;
 import org.mule.extension.sftp.internal.connection.SftpConnectionSettings;
 import org.mule.tck.size.SmallTest;
 

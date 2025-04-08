@@ -29,7 +29,6 @@ import org.mule.extension.sftp.internal.connection.SftpClientFactory;
 import org.mule.extension.sftp.internal.connection.SftpConnectionSettings;
 import org.mule.extension.sftp.internal.connection.SftpFileSystemConnection;
 import org.mule.extension.sftp.internal.error.FileError;
-//import org.mule.extension.sftp.api.random.alg.PRNGAlgorithm;
 import org.mule.extension.sftp.internal.extension.SftpConnector;
 import org.mule.extension.sftp.internal.connection.TimeoutSettings;
 import org.mule.runtime.api.connection.ConnectionException;
@@ -207,10 +206,6 @@ public class SftpConnectionProvider extends FileSystemProvider<SftpFileSystemCon
   public void setProxyConfig(SftpProxyConfig proxyConfig) {
     this.proxyConfig = proxyConfig;
   }
-
-  //  void setClientFactory(SftpClientFactory clientFactory) {
-  //    this.clientFactory = clientFactory;
-  //  }
 
   /**
    * {@inheritDoc}
