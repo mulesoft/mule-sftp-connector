@@ -13,6 +13,8 @@ import org.mule.tck.size.SmallTest;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 
+import static org.junit.Assert.assertEquals;
+
 @SmallTest
 public class LazyInputStreamProxyTestCase {
 
@@ -21,10 +23,10 @@ public class LazyInputStreamProxyTestCase {
 
   @Test
   public void testLazyInputStreamProxy() throws IOException {
-    lazyInputStreamProxy.skip(9L);
-    lazyInputStreamProxy.read();
+    assertEquals(4, lazyInputStreamProxy.skip(9L));
+    assertEquals(-1, lazyInputStreamProxy.read());
     lazyInputStreamProxy.mark(1);
-    lazyInputStreamProxy.markSupported();
+    assertEquals(true, lazyInputStreamProxy.markSupported());
     lazyInputStreamProxy.reset();
   }
 }
