@@ -30,4 +30,8 @@ public class SecuritySettings {
     return sshConfigOverride;
   }
 
+  public void setSshConfigOverride(String sshConfigOverride) {
+    this.sshConfigOverride = sshConfigOverride;
+  }
+
 }
