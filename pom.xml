@@ -33,7 +33,7 @@
         <maven.jdeps.plugin.version>3.1.2</maven.jdeps.plugin.version>
         <commonsIoVersion>2.14.0</commonsIoVersion>
         <commonsLangVersion>3.12.0</commonsLangVersion>
-        <commonsCollectionsVersion>3.2.2</commonsCollectionsVersion>
+        <commonsCollections4Version>4.3</commonsCollections4Version>
         <connector.maven.plugin.version>3.0.2</connector.maven.plugin.version>
         <mule.extensions.shade.plugin.version>1.0.4</mule.extensions.shade.plugin.version>
 
@@ -49,7 +49,7 @@
         <munit.extensions.maven.plugin.version>1.4.0</munit.extensions.maven.plugin.version>
         <munit.version>3.3.1</munit.version>
         <mavenResources.version>3.3.1</mavenResources.version>
-        <sshdVersion>2.13.2</sshdVersion>
+        <sshdVersion>2.15.0</sshdVersion>
         <formatterConfigPath>formatter.xml</formatterConfigPath>
         <settingsFile>${java.io.tmpdir}/effective-settings.xml</settingsFile>
         <mtf.tools.version>1.2.0</mtf.tools.version>
@@ -59,7 +59,7 @@
         <maven.checkstyle.plugin.version>3.1.2</maven.checkstyle.plugin.version>
         <importGoal>check</importGoal>
         <slf4jApi.version>2.0.7</slf4jApi.version>
-        <tikaCore.version>2.8.0</tikaCore.version>
+        <tikaCore.version>2.9.0</tikaCore.version>
         <bcprovJDK15on.version>1.59</bcprovJDK15on.version>
         <muleJavaModule.version>1.2.13</muleJavaModule.version>
         <maven.invoker.plugin.version>3.6.0</maven.invoker.plugin.version>
@@ -101,9 +101,9 @@
         </dependency>
 
         <dependency>
-            <groupId>commons-collections</groupId>
-            <artifactId>commons-collections</artifactId>
-            <version>${commonsCollectionsVersion}</version>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-collections4</artifactId>
+            <version>${commonsCollections4Version}</version>
         </dependency>
 
         <dependency>
