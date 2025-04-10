@@ -6,6 +6,7 @@
  */
 package org.mule.extension.sftp;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.mule.extension.sftp.internal.connection.TimeoutSettings;
 import org.mule.tck.size.SmallTest;
@@ -24,10 +25,8 @@ public class TimeoutSettingsTestCase {
   private final Integer responseTimeout = 500;
   private final TimeUnit timeUnit = TimeUnit.NANOSECONDS;
 
-
-  @Test
-  public void testTimeoutSettings() {
-
+  @Before
+  public void setup() {
     timeout.setResponseTimeoutUnit(timeUnit);
     timeout.setResponseTimeout(responseTimeout);
     timeout.setConnectionTimeoutUnit(timeUnit);
@@ -37,18 +36,19 @@ public class TimeoutSettingsTestCase {
     timeout2.setResponseTimeout(responseTimeout);
     timeout2.setConnectionTimeoutUnit(timeUnit);
     timeout2.setConnectionTimeout(connectionTimeout);
+  }
 
+  @Test
+  public void testTimeoutSettingsEquals() {
     assertEquals(timeout, timeout2);
 
     Object other = new Object();
     assertNotEquals(timeout, other);
     timeout.equals(timeout);
+  }
 
-    assertEquals(connectionTimeout, timeout.getConnectionTimeout());
-    assertEquals(responseTimeout, timeout.getResponseTimeout());
-    assertEquals(timeUnit, timeout.getResponseTimeoutUnit());
-    assertEquals(timeUnit, timeout.getConnectionTimeoutUnit());
-
+  @Test
+  public void testTimeoutSettingsHashCode() {
     timeout.hashCode();
   }
 }

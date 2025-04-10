@@ -7,79 +7,100 @@
 package org.mule.extension.sftp;
 
 import org.junit.Test;
+import org.mule.extension.sftp.api.FileAttributes;
+import org.mule.extension.sftp.api.SftpProxyConfig;
+import org.mule.extension.sftp.api.random.alg.PRNGAlgorithm;
+import org.mule.extension.sftp.internal.connection.SftpClient;
 import org.mule.extension.sftp.internal.error.FileError;
 import org.mule.extension.sftp.internal.exception.*;
+import org.mule.extension.sftp.internal.operation.AbstractFileInputStreamSupplier;
+import org.mule.extension.sftp.internal.util.UriUtils;
+import org.mule.runtime.api.connection.ConnectionException;
 import org.mule.tck.size.SmallTest;
 
+import java.io.InputStream;
+
 import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.mock;
 import static org.mule.runtime.api.i18n.I18nMessageFactory.createStaticMessage;
 
 @SmallTest
 public class ExceptionsTestCase {
 
-  @Test
-  public void testExceptions() {
+  @Test(expected = IllegalPathException.class)
+  public void testIllegalPathException() {
+    UriUtils.createUri(":Illegal path with colon", "");
+  }
 
-    /* DeletedFileWhileReadException class */
-    DeletedFileWhileReadException deletedFileWhileReadException =
-        new DeletedFileWhileReadException(createStaticMessage("DeletedFileWhileReadException."));
-    assertEquals("DeletedFileWhileReadException.", deletedFileWhileReadException.getMessage());
+  @Test(expected = SftpConnectionException.class)
+  public void testSftpConnectionException() throws ConnectionException {
+    SftpClient client = new SftpClient("", 0, PRNGAlgorithm.SHA1PRNG, null);
+    client.setProxyConfig(new SftpProxyConfig());
+  }
 
-    DeletedFileWhileReadException deletedFileWhileReadException2 =
-        new DeletedFileWhileReadException(new Throwable());
-    assertEquals("java.lang.Throwable", deletedFileWhileReadException2.getMessage());
+  @Test(expected = DeletedFileWhileReadException.class)
+  public void testDeletedFileWhileReadException() {
+    AbstractFileInputStreamSupplier supplier = new AbstractFileInputStreamSupplier(mock(FileAttributes.class), 10L) {
 
+      @Override
+      protected FileAttributes getUpdatedAttributes() {
+        return null;
+      }
 
-    /* FileAccessDeniedException class */
-    FileAccessDeniedException fileAccessDeniedException =
-        new FileAccessDeniedException("FileAccessDeniedException.");
-    assertEquals("FileAccessDeniedException.", fileAccessDeniedException.getMessage());
+      @Override
+      protected InputStream getContentInputStream() {
+        return null;
+      }
+    };
+    supplier.get();
+  }
 
+  @Test(expected = FileBeingModifiedException.class)
+  public void testFileBeingModifiedException() {
+    AbstractFileInputStreamSupplier supplier = new AbstractFileInputStreamSupplier(mock(FileAttributes.class), 10L) {
 
-    /* FileAlreadyExistsException class */
-    FileAlreadyExistsException fileAlreadyExistsException =
-        new FileAlreadyExistsException("FileAlreadyExistsException.", new Exception());
-    assertEquals("FileAlreadyExistsException.", fileAlreadyExistsException.getMessage());
+      @Override
+      protected FileAttributes getUpdatedAttributes() {
+        final int[] size = {0};
+        return new FileAttributes() {
 
+          @Override
+          public long getSize() {
+            return ++size[0];
+          }
 
-    /* FileBeingModifiedException class */
-    FileBeingModifiedException fileBeingModifiedException =
-        new FileBeingModifiedException(createStaticMessage("FileBeingModifiedException."), new Throwable());
-    assertEquals("FileBeingModifiedException.", fileBeingModifiedException.getMessage());
+          @Override
+          public boolean isRegularFile() {
+            return false;
+          }
 
-    FileBeingModifiedException fileBeingModifiedException2 =
-        new FileBeingModifiedException(new Throwable());
-    assertEquals("java.lang.Throwable", fileBeingModifiedException2.getMessage());
+          @Override
+          public boolean isDirectory() {
+            return false;
+          }
 
-    FileBeingModifiedException fileBeingModifiedException3 =
-        new FileBeingModifiedException(createStaticMessage("FileBeingModifiedException."));
-    assertEquals("FileBeingModifiedException.", fileBeingModifiedException3.getMessage());
+          @Override
+          public boolean isSymbolicLink() {
+            return false;
+          }
 
+          @Override
+          public String getPath() {
+            return null;
+          }
 
-    /* FileDoesNotExistsException class */
-    FileDoesNotExistsException fileDoesNotExistsException =
-        new FileDoesNotExistsException("FileDoesNotExistsException.");
-    assertEquals("FileDoesNotExistsException.", fileDoesNotExistsException.getMessage());
+          @Override
+          public String getName() {
+            return null;
+          }
+        };
+      }
 
-
-    /* IllegalPathException class */
-    IllegalPathException illegalPathException =
-        new IllegalPathException("IllegalPathException.", new Exception());
-    assertEquals("IllegalPathException.", illegalPathException.getMessage());
-
-
-    /* SftpConnectionException class */
-    SftpConnectionException sftpConnectionException =
-        new SftpConnectionException("SftpConnectionException.", FileError.UNKNOWN);
-    assertEquals("SftpConnectionException.", sftpConnectionException.getMessage());
-
-    SftpConnectionException sftpConnectionException2 =
-        new SftpConnectionException("SftpConnectionException.");
-    assertEquals("SftpConnectionException.", sftpConnectionException2.getMessage());
-
-    SftpConnectionException sftpConnectionException3 =
-        new SftpConnectionException(new Throwable(), FileError.UNKNOWN);
-    assertEquals("java.lang.Throwable", sftpConnectionException3.getMessage());
-
+      @Override
+      protected InputStream getContentInputStream() {
+        return null;
+      }
+    };
+    supplier.get();
   }
 }

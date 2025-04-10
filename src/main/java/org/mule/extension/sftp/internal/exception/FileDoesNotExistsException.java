@@ -20,15 +20,6 @@ public final class FileDoesNotExistsException extends ModuleException {
   /**
    * Creates a new instance with the specified detail {@code message}
    *
-   * @param message the detail message
-   */
-  public FileDoesNotExistsException(String message) {
-    super(message, FILE_DOESNT_EXIST);
-  }
-
-  /**
-   * Creates a new instance with the specified detail {@code message}
-   *
    * @param message   the detail message
    * @param exception cause of this exception
    */
