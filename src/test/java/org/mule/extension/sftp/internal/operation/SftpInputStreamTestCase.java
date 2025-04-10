@@ -9,6 +9,7 @@ package org.mule.extension.sftp.internal.operation;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.*;
 
@@ -19,6 +20,10 @@ import org.mule.runtime.api.connection.ConnectionException;
 import org.mule.runtime.api.connection.ConnectionHandler;
 
 import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.util.Optional;
+
+import org.mule.runtime.extension.api.runtime.operation.Result;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -54,7 +59,8 @@ public class SftpInputStreamTestCase {
 
   @Test
   public void testSftpInputStream() throws ConnectionException {
-    SftpInputStream.newInstance(new SftpConnector(), new SftpFileAttributes(), null, 0L);
+    SftpInputStream s = SftpInputStream.newInstance(new SftpConnector(), new SftpFileAttributes(), null, 0L);
+    assertEquals(Optional.empty(), Result.<InputStream, SftpFileAttributes>builder().output(s).build().getAttributes());
   }
 
   @Test

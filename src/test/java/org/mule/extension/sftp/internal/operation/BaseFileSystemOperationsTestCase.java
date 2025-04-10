@@ -22,19 +22,13 @@ public class BaseFileSystemOperationsTestCase {
   private SftpOperations sftpOperations = new SftpOperations();
   private InputStream stream = new ByteArrayInputStream("Dummy data".getBytes());
 
-  @Test
-  public void testDoWriteOperation() {
-    //test for null content
-    try {
-      sftpOperations.doWrite(null, null, null, null, false, false, null);
-    } catch (IllegalContentException e) {
-    }
+  @Test(expected = IllegalContentException.class)
+  public void testDoWriteOperationNullContent() {
+    sftpOperations.doWrite(null, null, null, null, false, false, null);
+  }
 
-    //test for invalid path
-    try {
-      sftpOperations.doWrite(null, null, null, stream, false, false, null);
-    } catch (IllegalPathException e) {
-    }
-
+  @Test(expected = IllegalPathException.class)
+  public void testDoWriteOperationInvalidPath() {
+    sftpOperations.doWrite(null, null, null, stream, false, false, null);
   }
 }

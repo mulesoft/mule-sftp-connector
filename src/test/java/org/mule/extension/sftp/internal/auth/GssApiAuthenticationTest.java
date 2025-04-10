@@ -21,6 +21,6 @@ public class GssApiAuthenticationTest {
   public void test() throws GSSException {
     InetSocketAddress inetSocketAddress = new InetSocketAddress(8080);
     String s = GssApiMechanisms.getCanonicalName(inetSocketAddress);
-    assertEquals(s, "0.0.0.0");
+    assertEquals("0.0.0.0", s);
   }
 }
