@@ -36,10 +36,10 @@ public class ProxyClassesTestCase {
 
   @Test
   public void testHttpParser() {
-    HttpParser.getAuthenticationHeaders(reply, AUTHENTICATOR_HEADER);
-    HttpParser.getAuthenticationHeaders(reply2, AUTHENTICATOR_HEADER);
-    HttpParser.getAuthenticationHeaders(reply3, AUTHENTICATOR_HEADER);
-    HttpParser.getAuthenticationHeaders(reply4, AUTHENTICATOR_HEADER);
+    assertEquals("lineWithWhitespace", HttpParser.getAuthenticationHeaders(reply, AUTHENTICATOR_HEADER).get(0).getToken());
+    assertEquals("lineWithWhitespace===", HttpParser.getAuthenticationHeaders(reply2, AUTHENTICATOR_HEADER).get(0).getToken());
+    assertEquals("lineWithWhitespace=", HttpParser.getAuthenticationHeaders(reply3, AUTHENTICATOR_HEADER).get(0).getToken());
+    assertEquals(null, HttpParser.getAuthenticationHeaders(reply4, AUTHENTICATOR_HEADER).get(0).getToken());
   }
 
   @Test
