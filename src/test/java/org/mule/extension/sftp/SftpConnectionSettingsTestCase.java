@@ -6,6 +6,7 @@
  */
 package org.mule.extension.sftp;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.mule.extension.sftp.api.random.alg.PRNGAlgorithm;
 import org.mule.extension.sftp.internal.connection.SftpConnectionSettings;
@@ -21,8 +22,8 @@ public class SftpConnectionSettingsTestCase {
   private SftpConnectionSettings settings2 = new SftpConnectionSettings();
 
 
-  @Test
-  public void testSftpConnectionSettings() {
+  @Before
+  public void setup() {
     settings.setHost("localhost");
     settings.setPort(22);
     settings.setUsername("user");
@@ -32,7 +33,6 @@ public class SftpConnectionSettingsTestCase {
     settings.setPrngAlgorithm(PRNGAlgorithm.SHA1PRNG);
     settings.setKexHeader(true);
 
-
     settings2.setHost("localhost");
     settings2.setPort(22);
     settings2.setUsername("user");
@@ -41,13 +41,19 @@ public class SftpConnectionSettingsTestCase {
     settings2.setIdentityFile("/path/to/identity");
     settings2.setPrngAlgorithm(PRNGAlgorithm.SHA1PRNG);
     settings2.setKexHeader(true);
+  }
 
+  @Test
+  public void testSftpConnectionSettingsEquals() {
     assertEquals(settings, settings2);
 
     Object other = new Object();
     assertNotEquals(settings, other);
     settings.equals(settings);
+  }
 
+  @Test
+  public void testSftpConnectionSettingsHashCode() {
     settings.hashCode();
   }
 }

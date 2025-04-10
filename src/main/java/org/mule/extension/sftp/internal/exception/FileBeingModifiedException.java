@@ -24,22 +24,4 @@ public class FileBeingModifiedException extends FileReadException {
     super(message);
   }
 
-  /**
-   * Creates a new instance with the specified detail {@code message}
-   *
-   * @param message the detail message
-   * @param cause
-   */
-  public FileBeingModifiedException(I18nMessage message, Throwable cause) {
-    super(message, cause);
-  }
-
-  /**
-   * Creates a new instance
-   *
-   * @param cause
-   */
-  public FileBeingModifiedException(Throwable cause) {
-    super(cause);
-  }
 }

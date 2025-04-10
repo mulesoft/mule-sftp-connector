@@ -18,15 +18,6 @@ import org.mule.runtime.extension.api.exception.ModuleException;
  */
 public final class FileAccessDeniedException extends ModuleException {
 
-  /**
-   * Creates a new instance with the specified detail {@code message}
-   *
-   * @param message the detail message
-   */
-  public FileAccessDeniedException(String message) {
-    super(message, ACCESS_DENIED);
-  }
-
   public FileAccessDeniedException(String message, Exception exception) {
     super(message, ACCESS_DENIED, exception);
   }
