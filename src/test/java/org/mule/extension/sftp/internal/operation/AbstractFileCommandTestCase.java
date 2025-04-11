@@ -65,8 +65,7 @@ public class AbstractFileCommandTestCase {
     assertEquals("exception", stub.exception("exception").getMessage());
     assertEquals("exception", stub.exception("exception", new Exception()).getMessage());
 
-    IllegalPathException ex = stub.cannotReadDirectoryException("path");
-    assertTrue(ex instanceof IllegalPathException);
+    assertTrue(stub.cannotReadDirectoryException("path") != null);
 
     IllegalPathException exception = stub.cannotListFileException("path");
     assertTrue(exception instanceof IllegalPathException);
