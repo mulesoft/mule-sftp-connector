@@ -28,32 +28,33 @@ public class ProxyClassesTestCase {
   @Test
   public void testGetAuthenticationHeadersWithWhitespace() {
     List<String> reply =
-            Arrays.asList("key: ", " lineWithWhitespace:", "Proxy-Authentication: auth",
-                    " lineWithWhitespace: text", "key:", "");
+        Arrays.asList("key: ", " lineWithWhitespace:", "Proxy-Authentication: auth",
+                      " lineWithWhitespace: text", "key:", "");
     assertEquals("lineWithWhitespace", HttpParser.getAuthenticationHeaders(reply, AUTHENTICATOR_HEADER).get(0).getToken());
   }
 
   @Test
   public void testGetAuthenticationHeadersWithEquals() {
     List<String> reply =
-            Arrays.asList("key:", "Proxy-Authentication: auth!",
-                    " lineWithWhitespace=== , text");
+        Arrays.asList("key:", "Proxy-Authentication: auth!",
+                      " lineWithWhitespace=== , text");
     assertEquals("lineWithWhitespace===", HttpParser.getAuthenticationHeaders(reply, AUTHENTICATOR_HEADER).get(0).getToken());
   }
+
   @Test
   public void testGetAuthenticationHeadersWithComma() {
     List<String> reply =
-            Arrays.asList("key:", "Proxy-Authentication: auth!",
-                    " lineWithWhitespace= ,text \"text\"");
+        Arrays.asList("key:", "Proxy-Authentication: auth!",
+                      " lineWithWhitespace= ,text \"text\"");
     assertEquals("lineWithWhitespace=", HttpParser.getAuthenticationHeaders(reply, AUTHENTICATOR_HEADER).get(0).getToken());
   }
 
   @Test
   public void testGetAuthenticationHeadersWithQuote() {
     List<String> reply =
-            Arrays.asList("key: ", " lineWithWhitespace:", "Proxy-Authentication: auth!",
-                    " lineWithWhitespace= \"text\"");
-      assertNull(HttpParser.getAuthenticationHeaders(reply, AUTHENTICATOR_HEADER).get(0).getToken());
+        Arrays.asList("key: ", " lineWithWhitespace:", "Proxy-Authentication: auth!",
+                      " lineWithWhitespace= \"text\"");
+    assertNull(HttpParser.getAuthenticationHeaders(reply, AUTHENTICATOR_HEADER).get(0).getToken());
   }
 
   @Test
