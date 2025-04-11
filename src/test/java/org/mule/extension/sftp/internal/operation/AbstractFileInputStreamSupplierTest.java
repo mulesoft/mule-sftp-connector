@@ -33,7 +33,8 @@ public class AbstractFileInputStreamSupplierTest {
   }
 
   private static AbstractFileInputStreamSupplier getMockSupplierWithNullAttributesImpl() {
-      return new AbstractFileInputStreamSupplier(mock(FileAttributes.class), 10L) {
+    return new AbstractFileInputStreamSupplier(mock(FileAttributes.class), 10L) {
+
       @Override
       protected FileAttributes getUpdatedAttributes() {
         return null;
@@ -49,7 +50,8 @@ public class AbstractFileInputStreamSupplierTest {
 
 
   private static AbstractFileInputStreamSupplier getMockSupplierImpl() {
-      return new AbstractFileInputStreamSupplier(mock(FileAttributes.class), 10L) {
+    return new AbstractFileInputStreamSupplier(mock(FileAttributes.class), 10L) {
+
       long size = 0;
 
       @Override
