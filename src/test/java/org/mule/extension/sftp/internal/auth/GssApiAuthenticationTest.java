@@ -7,18 +7,19 @@
 package org.mule.extension.sftp.internal.auth;
 
 import org.ietf.jgss.GSSException;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mule.tck.size.SmallTest;
 
 import java.net.InetSocketAddress;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 
 @SmallTest
 public class GssApiAuthenticationTest {
 
   @Test
-  public void test() throws GSSException {
+  public void testGetCanonicalName() throws GSSException {
     InetSocketAddress inetSocketAddress = new InetSocketAddress(8080);
     String s = GssApiMechanisms.getCanonicalName(inetSocketAddress);
     assertEquals("0.0.0.0", s);
