@@ -22,33 +22,21 @@ public class AbstractFileInputStreamSupplierTest {
 
   @Test
   public void testDeletedFileWhileReadException() {
-    AbstractFileInputStreamSupplier supplier = new AbstractFileInputStreamSupplier(mock(FileAttributes.class), 10L) {
-
-      @Override
-      protected FileAttributes getUpdatedAttributes() {
-        return null;
-      }
-
-      @Override
-      protected InputStream getContentInputStream() {
-        return null;
-      }
-    };
-    assertThrows(DeletedFileWhileReadException.class, () -> supplier.get());
-
+    AbstractFileInputStreamSupplier supplier = getMockSupplierWithNullAttributesImpl();
+    assertThrows(DeletedFileWhileReadException.class, supplier::get);
   }
 
   @Test
   public void testFileBeingModifiedException() {
-    AbstractFileInputStreamSupplier supplier = new AbstractFileInputStreamSupplier(mock(FileAttributes.class), 10L) {
+    AbstractFileInputStreamSupplier supplier = getMockSupplierImpl();
+    assertThrows(FileBeingModifiedException.class, supplier::get);
+  }
 
-      long size = 0;
-
+  private static AbstractFileInputStreamSupplier getMockSupplierWithNullAttributesImpl() {
+      return new AbstractFileInputStreamSupplier(mock(FileAttributes.class), 10L) {
       @Override
       protected FileAttributes getUpdatedAttributes() {
-        FileAttributes fileAttributes = mock(FileAttributes.class);
-        when(fileAttributes.getSize()).thenReturn(++size);
-        return fileAttributes;
+        return null;
       }
 
       @Override
@@ -56,6 +44,25 @@ public class AbstractFileInputStreamSupplierTest {
         return null;
       }
     };
-    assertThrows(FileBeingModifiedException.class, () -> supplier.get());
+  }
+
+
+
+  private static AbstractFileInputStreamSupplier getMockSupplierImpl() {
+      return new AbstractFileInputStreamSupplier(mock(FileAttributes.class), 10L) {
+      long size = 0;
+
+      @Override
+      protected FileAttributes getUpdatedAttributes() {
+        FileAttributes mockFileAttributes = mock(FileAttributes.class);
+        when(mockFileAttributes.getSize()).thenReturn(++size);
+        return mockFileAttributes;
+      }
+
+      @Override
+      protected InputStream getContentInputStream() {
+        return null;
+      }
+    };
   }
 }

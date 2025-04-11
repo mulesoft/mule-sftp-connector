@@ -6,7 +6,6 @@
  */
 package org.mule.extension.sftp;
 
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mule.extension.sftp.api.random.alg.PRNGAlgorithm;
@@ -21,7 +20,6 @@ public class SftpConnectionSettingsTestCase {
 
   private SftpConnectionSettings settings;
   private SftpConnectionSettings settings2;
-
 
   @BeforeEach
   public void setup() {

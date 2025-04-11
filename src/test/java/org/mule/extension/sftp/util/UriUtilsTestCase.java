@@ -8,7 +8,6 @@ package org.mule.extension.sftp.util;
 
 import org.junit.jupiter.api.Test;
 import org.mule.extension.sftp.internal.exception.IllegalPathException;
-import org.mule.extension.sftp.internal.exception.SftpConnectionException;
 import org.mule.tck.size.SmallTest;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
