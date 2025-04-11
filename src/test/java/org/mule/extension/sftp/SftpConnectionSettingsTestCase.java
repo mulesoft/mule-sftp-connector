@@ -6,24 +6,28 @@
  */
 package org.mule.extension.sftp;
 
-import org.junit.Before;
-import org.junit.Test;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mule.extension.sftp.api.random.alg.PRNGAlgorithm;
 import org.mule.extension.sftp.internal.connection.SftpConnectionSettings;
 import org.mule.tck.size.SmallTest;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 @SmallTest
 public class SftpConnectionSettingsTestCase {
 
-  private SftpConnectionSettings settings = new SftpConnectionSettings();
-  private SftpConnectionSettings settings2 = new SftpConnectionSettings();
+  private SftpConnectionSettings settings;
+  private SftpConnectionSettings settings2;
 
 
-  @Before
+  @BeforeEach
   public void setup() {
+    settings = new SftpConnectionSettings();
+    settings2 = new SftpConnectionSettings();
+
     settings.setHost("localhost");
     settings.setPort(22);
     settings.setUsername("user");
@@ -46,14 +50,21 @@ public class SftpConnectionSettingsTestCase {
   @Test
   public void testSftpConnectionSettingsEquals() {
     assertEquals(settings, settings2);
-
-    Object other = new Object();
-    assertNotEquals(settings, other);
-    settings.equals(settings);
   }
 
   @Test
-  public void testSftpConnectionSettingsHashCode() {
-    settings.hashCode();
+  public void testSftpConnectionSettingsEqualsWithNull() {
+    assertNotEquals(settings, null);
+  }
+
+  @Test
+  public void testSftpConnectionSettingsNotEquals() {
+    SftpConnectionSettings otherObj = new SftpConnectionSettings();
+    assertNotEquals(settings, otherObj);
+  }
+
+  @Test
+  public void testTimeoutSettingsHashCode() {
+    assertEquals(settings.hashCode(), settings2.hashCode());
   }
 }

@@ -6,49 +6,55 @@
  */
 package org.mule.extension.sftp;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mule.extension.sftp.internal.connection.TimeoutSettings;
-import org.mule.tck.size.SmallTest;
 
 import java.util.concurrent.TimeUnit;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
-@SmallTest
 public class TimeoutSettingsTestCase {
 
-  private TimeoutSettings timeout = new TimeoutSettings();
-  private TimeoutSettings timeout2 = new TimeoutSettings();
-  private final Integer connectionTimeout = 5000;
-  private final Integer responseTimeout = 500;
-  private final TimeUnit timeUnit = TimeUnit.NANOSECONDS;
+  private TimeoutSettings timeout;
+  private TimeoutSettings timeout2;
 
-  @Before
+  @BeforeEach
   public void setup() {
-    timeout.setResponseTimeoutUnit(timeUnit);
-    timeout.setResponseTimeout(responseTimeout);
-    timeout.setConnectionTimeoutUnit(timeUnit);
-    timeout.setConnectionTimeout(connectionTimeout);
+    timeout = new TimeoutSettings();
+    timeout2 = new TimeoutSettings();
 
-    timeout2.setResponseTimeoutUnit(timeUnit);
-    timeout2.setResponseTimeout(responseTimeout);
-    timeout2.setConnectionTimeoutUnit(timeUnit);
-    timeout2.setConnectionTimeout(connectionTimeout);
+    timeout.setResponseTimeoutUnit(TimeUnit.NANOSECONDS);
+    timeout.setResponseTimeout(5000);
+    timeout.setConnectionTimeoutUnit(TimeUnit.NANOSECONDS);
+    timeout.setConnectionTimeout(5000);
+
+    timeout2.setResponseTimeoutUnit(TimeUnit.NANOSECONDS);
+    timeout2.setResponseTimeout(5000);
+    timeout2.setConnectionTimeoutUnit(TimeUnit.NANOSECONDS);
+    timeout2.setConnectionTimeout(5000);
   }
 
   @Test
   public void testTimeoutSettingsEquals() {
     assertEquals(timeout, timeout2);
+  }
 
-    Object other = new Object();
-    assertNotEquals(timeout, other);
-    timeout.equals(timeout);
+  @Test
+  public void testTimeoutSettingsEqualsWithNull() {
+    assertNotEquals(timeout, null);
+  }
+
+  @Test
+  public void testTimeoutSettingsNotEquals() {
+    TimeoutSettings otherObj = new TimeoutSettings();
+    assertNotEquals(timeout, otherObj);
   }
 
   @Test
   public void testTimeoutSettingsHashCode() {
-    timeout.hashCode();
+    assertEquals(timeout.hashCode(), timeout2.hashCode());
   }
 }

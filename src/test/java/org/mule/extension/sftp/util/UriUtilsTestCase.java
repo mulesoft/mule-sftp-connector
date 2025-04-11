@@ -6,27 +6,29 @@
  */
 package org.mule.extension.sftp.util;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mule.extension.sftp.internal.exception.IllegalPathException;
+import org.mule.extension.sftp.internal.exception.SftpConnectionException;
 import org.mule.tck.size.SmallTest;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mule.extension.sftp.internal.util.UriUtils.createUri;
 
 @SmallTest
 public class UriUtilsTestCase {
 
-  private String basePath = ":testpath";
+  private String basePathWithColon = ":Illegal path with colon";
   private String basePathWithNewLine = "test\npath";
   private String filePath = "";
 
-  @Test(expected = IllegalPathException.class)
-  public void testCreateUri() {
-    createUri(basePath, filePath);
+  @Test
+  public void testCreateUriWithURISyntaxException() {
+    assertThrows(IllegalPathException.class, () -> createUri(basePathWithColon, filePath));
   }
 
-  @Test(expected = IllegalPathException.class)
+  @Test
   public void testCreateUriWithNewLine() {
-    createUri(basePathWithNewLine, filePath);
+    assertThrows(IllegalPathException.class, () -> createUri(basePathWithNewLine, filePath));
   }
 
 }
