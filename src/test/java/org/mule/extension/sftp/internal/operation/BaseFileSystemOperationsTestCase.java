@@ -6,7 +6,7 @@
  */
 package org.mule.extension.sftp.internal.operation;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mule.extension.sftp.internal.exception.IllegalContentException;
 import org.mule.extension.sftp.internal.exception.IllegalPathException;
 import org.mule.tck.size.SmallTest;
@@ -14,7 +14,7 @@ import org.mule.tck.size.SmallTest;
 import java.io.InputStream;
 import java.io.ByteArrayInputStream;
 
-
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @SmallTest
 public class BaseFileSystemOperationsTestCase {
@@ -22,13 +22,13 @@ public class BaseFileSystemOperationsTestCase {
   private SftpOperations sftpOperations = new SftpOperations();
   private InputStream stream = new ByteArrayInputStream("Dummy data".getBytes());
 
-  @Test(expected = IllegalContentException.class)
+  @Test
   public void testDoWriteOperationNullContent() {
-    sftpOperations.doWrite(null, null, null, null, false, false, null);
+    assertThrows(IllegalContentException.class, () -> sftpOperations.doWrite(null, null, null, null, false, false, null));
   }
 
-  @Test(expected = IllegalPathException.class)
+  @Test
   public void testDoWriteOperationInvalidPath() {
-    sftpOperations.doWrite(null, null, null, stream, false, false, null);
+    assertThrows(IllegalPathException.class, () -> sftpOperations.doWrite(null, null, null, stream, false, false, null));
   }
 }

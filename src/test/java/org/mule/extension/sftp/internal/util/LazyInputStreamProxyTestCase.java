@@ -20,11 +20,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @SmallTest
 public class LazyInputStreamProxyTestCase {
 
-  private LazyStreamSupplier supplier = new LazyStreamSupplier(() -> new ByteArrayInputStream("test".getBytes()));
-  private LazyInputStreamProxy lazyInputStreamProxy = new LazyInputStreamProxy(supplier);
-
   @Test
   public void testLazyInputStreamProxyOverridenMethods() throws IOException {
+    LazyStreamSupplier supplier = new LazyStreamSupplier(() -> new ByteArrayInputStream("test".getBytes()));
+    LazyInputStreamProxy lazyInputStreamProxy = new LazyInputStreamProxy(supplier);
+
     assertEquals(4, lazyInputStreamProxy.skip(9L));
     assertEquals(-1, lazyInputStreamProxy.read());
     lazyInputStreamProxy.mark(1);

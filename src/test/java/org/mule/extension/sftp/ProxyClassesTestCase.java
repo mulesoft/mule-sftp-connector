@@ -6,40 +6,54 @@
  */
 package org.mule.extension.sftp;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mule.extension.sftp.internal.proxy.AuthenticationChallenge;
 import org.mule.extension.sftp.internal.proxy.HttpParser;
 import org.mule.extension.sftp.internal.proxy.StatusLine;
 import org.mule.tck.size.SmallTest;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+
 
 @SmallTest
 public class ProxyClassesTestCase {
 
   private static final String AUTHENTICATOR_HEADER = "Proxy-Authentication:";
-  private static final List<String> reply =
-      Arrays.asList("key: ", " lineWithWhitespace:", "Proxy-Authentication: auth",
-                    " lineWithWhitespace: text", "key:", "");
-  private static final List<String> reply2 =
-      Arrays.asList("key:", "Proxy-Authentication: auth!",
-                    " lineWithWhitespace=== , text");
-  private static final List<String> reply3 =
-      Arrays.asList("key:", "Proxy-Authentication: auth!",
-                    " lineWithWhitespace= ,text \"text\"");
-  private static final List<String> reply4 =
-      Arrays.asList("key: ", " lineWithWhitespace:", "Proxy-Authentication: auth!",
-                    " lineWithWhitespace= \"text\"");
 
   @Test
-  public void testHttpParser() {
+  public void testGetAuthenticationHeadersWithWhitespace() {
+    List<String> reply =
+            Arrays.asList("key: ", " lineWithWhitespace:", "Proxy-Authentication: auth",
+                    " lineWithWhitespace: text", "key:", "");
     assertEquals("lineWithWhitespace", HttpParser.getAuthenticationHeaders(reply, AUTHENTICATOR_HEADER).get(0).getToken());
-    assertEquals("lineWithWhitespace===", HttpParser.getAuthenticationHeaders(reply2, AUTHENTICATOR_HEADER).get(0).getToken());
-    assertEquals("lineWithWhitespace=", HttpParser.getAuthenticationHeaders(reply3, AUTHENTICATOR_HEADER).get(0).getToken());
-    assertEquals(null, HttpParser.getAuthenticationHeaders(reply4, AUTHENTICATOR_HEADER).get(0).getToken());
+  }
+
+  @Test
+  public void testGetAuthenticationHeadersWithEquals() {
+    List<String> reply =
+            Arrays.asList("key:", "Proxy-Authentication: auth!",
+                    " lineWithWhitespace=== , text");
+    assertEquals("lineWithWhitespace===", HttpParser.getAuthenticationHeaders(reply, AUTHENTICATOR_HEADER).get(0).getToken());
+  }
+  @Test
+  public void testGetAuthenticationHeadersWithComma() {
+    List<String> reply =
+            Arrays.asList("key:", "Proxy-Authentication: auth!",
+                    " lineWithWhitespace= ,text \"text\"");
+    assertEquals("lineWithWhitespace=", HttpParser.getAuthenticationHeaders(reply, AUTHENTICATOR_HEADER).get(0).getToken());
+  }
+
+  @Test
+  public void testGetAuthenticationHeadersWithQuote() {
+    List<String> reply =
+            Arrays.asList("key: ", " lineWithWhitespace:", "Proxy-Authentication: auth!",
+                    " lineWithWhitespace= \"text\"");
+      assertNull(HttpParser.getAuthenticationHeaders(reply, AUTHENTICATOR_HEADER).get(0).getToken());
   }
 
   @Test
@@ -53,9 +67,9 @@ public class ProxyClassesTestCase {
   public void testAuthenticationChallenge() {
     AuthenticationChallenge authenticationChallenge = new AuthenticationChallenge("mechanism");
     assertEquals("mechanism", authenticationChallenge.getMechanism());
-    authenticationChallenge.getToken();
-    authenticationChallenge.getArguments();
-    authenticationChallenge.toString();
+    assertEquals(null, authenticationChallenge.getToken());
+    assertEquals(Collections.emptyMap(), authenticationChallenge.getArguments());
+    assertEquals("AuthenticationChallenge[mechanism,null,<none>]", authenticationChallenge.toString());
   }
 
 }
