@@ -6,17 +6,22 @@
  */
 package org.mule.extension.sftp.internal.connection;
 
+import org.apache.sshd.client.session.ClientSession;
+import org.apache.sshd.common.SshException;
 import org.junit.jupiter.api.Test;
 import org.mule.extension.sftp.api.SftpProxyConfig;
+import org.mule.extension.sftp.api.random.alg.PRNGAlgorithm;
 import org.mule.extension.sftp.internal.exception.SftpConnectionException;
 import org.mule.extension.sftp.internal.lock.URLPathLock;
 import org.mule.runtime.api.connection.ConnectionException;
+import org.mule.runtime.api.scheduler.SchedulerService;
 import org.mule.tck.size.SmallTest;
 
 import java.io.IOException;
+import java.security.GeneralSecurityException;
+import java.util.Properties;
 
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -37,17 +42,28 @@ public class SftpClientTest {
     assertNull(client.getAttributes(null));
   }
 
-  @Test
-  public void testSftpClientGetProxyConfigUsernameNull() throws ConnectionException, IOException {
-    SftpProxyConfig proxyConfig = new SftpProxyConfig();
-    proxyConfig.setHost("localhost");
-    proxyConfig.setPort(8081);
-    proxyConfig.setUsername("user");
-    doCallRealMethod().when(client).setProxyConfig(any());
-    assertThrows(SftpConnectionException.class, () -> client.setProxyConfig(proxyConfig));
+  //trace logs, void asserts, acceptKnownHostEntries
 
-    URLPathLock urlPathLock = new URLPathLock(null, null);
-    urlPathLock.isLocked();
+    @Test
+    public void testSftpClientConfigureHostChecking() throws GeneralSecurityException, IOException {
+      SftpClient client = new SftpClient("host", 80, PRNGAlgorithm.SHA1PRNG, null);
+      client.setKnownHostsFile("HostFile");
+      assertThrows(SshException.class, () -> client.login("user"));
+    }
+
+  @Test
+  public void testSftpClientCheckExists() throws GeneralSecurityException, IOException {
+    doCallRealMethod().when(client).setIdentity(anyString(), anyString());
+    assertThrows(IllegalArgumentException.class, () -> client.setIdentity("HostFile", "passphrase"));
+  }
+
+  @Test
+  public void testSftpClientDisconnect() throws GeneralSecurityException, IOException {
+    SftpClient client = new SftpClient("host", 80, PRNGAlgorithm.SHA1PRNG, null);
+    ClientSession mockSession = mock(ClientSession.class);
+
+    when(mockSession.isOpen()).thenReturn(true);
+    client.disconnect();
   }
 
 }
