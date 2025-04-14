@@ -38,21 +38,21 @@ class SftpDirectorySourceTest {
 
     SftpDirectorySource sftpDirectorySource = spy(SftpDirectorySource.class);
     PollContext context = mock(PollContext.class);
-//    ConnectionProvider provider = mock(ConnectionProvider.class);
-//    when(provider.connect()).thenReturn(mock(SftpFileSystemConnection.class));
+    //    ConnectionProvider provider = mock(ConnectionProvider.class);
+    //    when(provider.connect()).thenReturn(mock(SftpFileSystemConnection.class));
     when(context.isSourceStopping()).thenReturn(false);
     assertThrows(NullPointerException.class, () -> sftpDirectorySource.poll(context));
   }
 
-//  @Test
-//  public void testPollExceptionInOpenConnection() {
-//    SftpFileSystemConnection mockConnection = mock(SftpFileSystemConnection.class);
-//
-//
-//    SftpDirectorySource sftpDirectorySource = spy(SftpDirectorySource.class); doReturn(mockConnection).when(sftpDirectorySource).openConnection(any());
-//    PollContext context = mock(PollContext.class);
-//    when().thenReturn(mock(SftpFileSystemConnection.class));
-//    when(context.isSourceStopping()).thenReturn(false);
-//    assertThrows(NullPointerException.class, () -> sftpDirectorySource.poll(context));
-//  }
+  //  @Test
+  //  public void testPollExceptionInOpenConnection() {
+  //    SftpFileSystemConnection mockConnection = mock(SftpFileSystemConnection.class);
+  //
+  //
+  //    SftpDirectorySource sftpDirectorySource = spy(SftpDirectorySource.class); doReturn(mockConnection).when(sftpDirectorySource).openConnection(any());
+  //    PollContext context = mock(PollContext.class);
+  //    when().thenReturn(mock(SftpFileSystemConnection.class));
+  //    when(context.isSourceStopping()).thenReturn(false);
+  //    assertThrows(NullPointerException.class, () -> sftpDirectorySource.poll(context));
+  //  }
 }
