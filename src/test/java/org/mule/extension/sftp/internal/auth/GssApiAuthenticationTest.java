@@ -25,17 +25,25 @@ public class GssApiAuthenticationTest {
   private GssApiAuthentication auth = new GssApiAuthenticationTestImpl(new InetSocketAddress(80));
 
   static class GssApiAuthenticationTestImpl extends GssApiAuthentication {
+
     public GssApiAuthenticationTestImpl(InetSocketAddress proxy) {
       super(proxy);
     }
-    @Override
-    public Object getToken() throws Exception { return null;}
 
     @Override
-    protected GSSContext createContext() throws Exception {return null;}
+    public Object getToken() throws Exception {
+      return null;
+    }
 
     @Override
-    protected byte[] extractToken(Object input) throws Exception {return new byte[0];}
+    protected GSSContext createContext() throws Exception {
+      return null;
+    }
+
+    @Override
+    protected byte[] extractToken(Object input) throws Exception {
+      return new byte[0];
+    }
   }
 
   @Test
