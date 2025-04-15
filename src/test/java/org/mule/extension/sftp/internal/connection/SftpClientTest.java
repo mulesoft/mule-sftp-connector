@@ -12,17 +12,14 @@ import org.junit.jupiter.api.Test;
 import org.mule.extension.sftp.api.SftpProxyConfig;
 import org.mule.extension.sftp.api.random.alg.PRNGAlgorithm;
 import org.mule.extension.sftp.internal.exception.SftpConnectionException;
-import org.mule.extension.sftp.internal.lock.URLPathLock;
 import org.mule.runtime.api.connection.ConnectionException;
 import org.mule.runtime.api.exception.MuleRuntimeException;
-import org.mule.runtime.api.scheduler.SchedulerService;
 import org.mule.tck.size.SmallTest;
 
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.GeneralSecurityException;
-import java.util.Properties;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -45,11 +42,9 @@ public class SftpClientTest {
     assertNull(client.getAttributes(null));
   }
 
-  //trace logs, void asserts, acceptKnownHostEntries
-
   @Test
   public void testSftpClientConfigureHostChecking() throws GeneralSecurityException, IOException {
-    SftpClient client = new SftpClient("host", 80, PRNGAlgorithm.SHA1PRNG, null);
+    SftpClient client = new SftpClient("0.0.0.0", 8080, PRNGAlgorithm.SHA1PRNG, null);
     client.setKnownHostsFile("HostFile");
     assertThrows(SshException.class, () -> client.login("user"));
   }
@@ -69,16 +64,9 @@ public class SftpClientTest {
     client.disconnect();
   }
 
-  //  @Test
-  //  public void testSftpClientList() {
-  //    SftpClient client = new SftpClient("host", 80, PRNGAlgorithm.SHA1PRNG, null);
-  //    client.list("path");
-  //  }
-
   @Test
   public void testSftpClientGetFile() throws URISyntaxException {
     SftpClient client = new SftpClient("host", 80, PRNGAlgorithm.SHA1PRNG, null);
-    //    when(client.getFile(any(URI.class))).thenCallRealMethod();
     assertThrows(MuleRuntimeException.class, () -> client.getFile(new URI("path")));
   }
 
