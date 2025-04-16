@@ -58,9 +58,6 @@ public class SftpClientTest {
   @Test
   public void testSftpClientDisconnect() {
     SftpClient client = new SftpClient("host", 80, PRNGAlgorithm.SHA1PRNG, null);
-    ClientSession mockSession = mock(ClientSession.class);
-
-    when(mockSession.isOpen()).thenReturn(true);
     client.disconnect();
   }
 
