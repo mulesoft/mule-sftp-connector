@@ -49,7 +49,7 @@ public class TimeoutSettingsTestCase {
 
   @Test
   public void testTimeoutSettingsEqualsWithNull() {
-    assertNotEquals(timeout, null);
+    assertNotEquals(null, timeout);
   }
 
   @Test

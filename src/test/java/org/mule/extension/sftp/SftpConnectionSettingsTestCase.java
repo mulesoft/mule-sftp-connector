@@ -57,7 +57,7 @@ public class SftpConnectionSettingsTestCase {
 
   @Test
   public void testSftpConnectionSettingsEqualsWithNull() {
-    assertNotEquals(settings, null);
+    assertNotEquals(null, settings);
   }
 
   @Test

@@ -13,6 +13,7 @@ import org.mule.tck.size.SmallTest;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @SmallTest
 public class AbstractFileCommandTestCase {
@@ -65,7 +66,7 @@ public class AbstractFileCommandTestCase {
     assertEquals("exception", stub.exception("exception").getMessage());
     assertEquals("exception", stub.exception("exception", new Exception()).getMessage());
 
-    assertTrue(stub.cannotReadDirectoryException("path") != null);
+    assertNotNull(stub.cannotReadDirectoryException("path"));
 
     IllegalPathException exception = stub.cannotListFileException("path");
     assertTrue(exception instanceof IllegalPathException);

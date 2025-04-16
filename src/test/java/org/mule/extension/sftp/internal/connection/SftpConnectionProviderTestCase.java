@@ -43,7 +43,7 @@ public class SftpConnectionProviderTestCase {
 
   @Test
   public void testSftpConnectionProviderEqualsWithNull() {
-    assertNotEquals(sftpConnectionProvider, null);
+    assertNotEquals(null, sftpConnectionProvider);
   }
 
   @Test

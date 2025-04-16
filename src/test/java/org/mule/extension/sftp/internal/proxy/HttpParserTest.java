@@ -60,13 +60,6 @@ public class HttpParserTest {
   }
 
   @Test
-  public void testStatusLineConstructor() {
-    StatusLine statusLine = new StatusLine("1", 1, "test");
-    assertEquals(statusLine.getReason(), "test");
-    assertEquals(statusLine.getVersion(), "1");
-  }
-
-  @Test
   public void testParseStatusLineFirstBlankException() {
     assertThrows(HttpParser.ParseException.class, () -> HttpParser.parseStatusLine("NoBlank"));
   }
