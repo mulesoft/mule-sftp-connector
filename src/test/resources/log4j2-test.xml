@@ -20,7 +20,7 @@
         <!-- Mule classes -->
         <AsyncLogger name="org.mule" level="WARN"/>
         <AsyncLogger name="com.mulesoft" level="WARN"/>
-        <AsyncLogger name="org.mule.runtime.core.internal.processor.LoggerMessageProcessor" level="TRACE"/>
+        <AsyncLogger name="org.mule.runtime.core.internal.processor.LoggerMessageProcessor" level="INFO"/>
 
         <!-- Change this to DEBUG to troubleshoot errors -->
         <AsyncLogger name="org.apache.sshd" level="WARN"/>
