@@ -6,6 +6,7 @@
  */
 package org.mule.extension.sftp.internal.connection;
 
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.mule.extension.sftp.internal.lock.PathLock;
 import org.mule.tck.size.SmallTest;
@@ -19,8 +20,13 @@ import static org.mockito.Mockito.*;
 @SmallTest
 public class FileSystemTestCase {
 
-  private Path path = Paths.get("src/test/resources/sample.jpg");
-  private final AbstractExternalFileSystem abstractExternalFileSystem = mock(AbstractExternalFileSystem.class);
+  private static Path path;
+  private static AbstractExternalFileSystem abstractExternalFileSystem;
+  @BeforeAll
+  static void setup() {
+    path = Paths.get("src/test/resources/sample.jpg");
+    abstractExternalFileSystem = mock(AbstractExternalFileSystem.class);
+  }
 
   @Test
   void testVerifyNotLocked() {

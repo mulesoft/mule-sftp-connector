@@ -6,7 +6,9 @@
  */
 package org.mule.extension.sftp.internal.lock;
 
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.mule.extension.sftp.internal.connection.AbstractExternalFileSystem;
 import org.mule.runtime.api.lock.LockFactory;
 import org.mule.tck.size.SmallTest;
 
@@ -21,7 +23,12 @@ import static org.mockito.Mockito.*;
 @SmallTest
 public class URLPathLockTest {
 
-  private LockFactory lockFactoryMock = mock(LockFactory.class);
+  private static LockFactory lockFactoryMock;
+
+  @BeforeAll
+  static void setup() {
+    lockFactoryMock = mock(LockFactory.class);
+  }
 
   @Test
   void testIsLocked() throws MalformedURLException {
