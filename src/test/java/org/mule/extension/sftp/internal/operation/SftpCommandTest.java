@@ -21,11 +21,14 @@ import static org.mockito.Mockito.*;
 @SmallTest
 public class SftpCommandTest {
 
-  private static SftpCommand command = mock(SftpCommand.class);
-  private static SftpFileAttributes mockAttributes = mock(SftpFileAttributes.class);
+  private static SftpCommand command;
+  private static SftpFileAttributes mockAttributes;
 
   @BeforeAll
   public static void setup() {
+    command = mock(SftpCommand.class);
+    mockAttributes = mock(SftpFileAttributes.class);
+
     when(command.getExistingFile(anyString())).thenReturn(mockAttributes);
     when(command.resolvePath(anyString())).thenReturn(URI.create("src"));
     when(command.getFile(anyString())).thenReturn(mockAttributes);
@@ -36,20 +39,20 @@ public class SftpCommandTest {
   }
 
   @Test
-  public void testChangeWorkingDirectoryIllegalPath() {
+  void testChangeWorkingDirectoryIllegalPath() {
     doCallRealMethod().when(command).changeWorkingDirectory(anyString());
     doCallRealMethod().when(command).tryChangeWorkingDirectory(anyString());
     assertThrows(IllegalArgumentException.class, () -> command.changeWorkingDirectory("pa th"));
   }
 
   @Test
-  public void testCopyFileAlreadyExistsException() {
+  void testCopyFileAlreadyExistsException() {
     when(mockAttributes.isDirectory()).thenReturn(true);
     assertThrows(FileAlreadyExistsException.class, () -> command.copy(null, "src", "src", false, false, "src", null));
   }
 
   @Test
-  public void testCopyAndNotDirectoryFileAlreadyExistsException() {
+  void testCopyAndNotDirectoryFileAlreadyExistsException() {
     when(mockAttributes.isDirectory()).thenReturn(false);
     assertThrows(FileAlreadyExistsException.class, () -> command.copy(null, "src", "src", false, false, "src", null));
   }

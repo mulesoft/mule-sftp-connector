@@ -6,7 +6,6 @@
  */
 package org.mule.extension.sftp.internal.util;
 
-
 import org.junit.jupiter.api.Test;
 import org.mule.extension.sftp.internal.stream.LazyStreamSupplier;
 import org.mule.tck.size.SmallTest;
@@ -16,12 +15,11 @@ import java.io.IOException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-
 @SmallTest
 public class LazyInputStreamProxyTestCase {
 
   @Test
-  public void testLazyInputStreamProxyOverridenMethods() throws IOException {
+  void testLazyInputStreamProxyOverridenMethods() throws IOException {
     LazyStreamSupplier supplier = new LazyStreamSupplier(() -> new ByteArrayInputStream("test".getBytes()));
     LazyInputStreamProxy lazyInputStreamProxy = new LazyInputStreamProxy(supplier);
 

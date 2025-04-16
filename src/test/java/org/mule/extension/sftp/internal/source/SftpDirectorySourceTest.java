@@ -6,6 +6,7 @@
  */
 package org.mule.extension.sftp.internal.source;
 
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.mule.extension.sftp.api.SftpFileAttributes;
 import org.mule.runtime.extension.api.runtime.operation.Result;
@@ -21,29 +22,34 @@ import static org.mockito.Mockito.*;
 @SmallTest
 class SftpDirectorySourceTest {
 
-  private SftpDirectorySource sftpDirectorySource = spy(SftpDirectorySource.class);
+  private static SftpDirectorySource sftpDirectorySource;
 
-  @Test
-  public void testPollWithSourceStopping() {
-    PollContext context = mock(PollContext.class);
-    when(context.isSourceStopping()).thenReturn(true);
-    sftpDirectorySource.poll(context);
+  @BeforeAll
+  static void setup() {
+    sftpDirectorySource = spy(SftpDirectorySource.class);
   }
 
   @Test
-  public void testPollException() {
-    PollContext context = mock(PollContext.class);
-    when(context.isSourceStopping()).thenReturn(false);
-    assertThrows(NullPointerException.class, () -> sftpDirectorySource.poll(context));
+  void testPollWithSourceStopping() {
+    PollContext mockContext = mock(PollContext.class);
+    when(mockContext.isSourceStopping()).thenReturn(true);
+    sftpDirectorySource.poll(mockContext);
   }
 
   @Test
-  public void testOnRejectedTime() throws IOException {
-    Result<InputStream, SftpFileAttributes> result = mock(Result.class);
+  void testPollException() {
+    PollContext mockContext = mock(PollContext.class);
+    when(mockContext.isSourceStopping()).thenReturn(false);
+    assertThrows(NullPointerException.class, () -> sftpDirectorySource.poll(mockContext));
+  }
+
+  @Test
+  void testOnRejectedTime() throws IOException {
+    Result<InputStream, SftpFileAttributes> mockResult = mock(Result.class);
     InputStream mockStream = mock(InputStream.class);
-    when(result.getOutput()).thenReturn(mockStream);
+    when(mockResult.getOutput()).thenReturn(mockStream);
 
-    sftpDirectorySource.onRejectedItem(result, null);
+    sftpDirectorySource.onRejectedItem(mockResult, null);
     verify(mockStream, times(1)).close();
   }
 }

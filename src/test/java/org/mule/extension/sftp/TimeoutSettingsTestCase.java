@@ -22,7 +22,7 @@ public class TimeoutSettingsTestCase {
   private TimeoutSettings timeout2;
 
   @BeforeEach
-  public void setup() {
+  void setup() {
     timeout = new TimeoutSettings();
     timeout2 = new TimeoutSettings();
 
@@ -38,28 +38,28 @@ public class TimeoutSettingsTestCase {
   }
 
   @Test
-  public void testTimeoutSettingsEquals() {
+  void testTimeoutSettingsEquals() {
     assertEquals(timeout, timeout2);
   }
 
   @Test
-  public void testTimeoutSettingsSelfEquals() {
+  void testTimeoutSettingsSelfEquals() {
     assertEquals(timeout, timeout);
   }
 
   @Test
-  public void testTimeoutSettingsEqualsWithNull() {
+  void testTimeoutSettingsEqualsWithNull() {
     assertNotEquals(null, timeout);
   }
 
   @Test
-  public void testTimeoutSettingsNotEquals() {
+  void testTimeoutSettingsNotEquals() {
     TimeoutSettings otherObj = new TimeoutSettings();
     assertNotEquals(timeout, otherObj);
   }
 
   @Test
-  public void testTimeoutSettingsHashCode() {
+  void testTimeoutSettingsHashCode() {
     assertEquals(timeout.hashCode(), timeout2.hashCode());
   }
 }

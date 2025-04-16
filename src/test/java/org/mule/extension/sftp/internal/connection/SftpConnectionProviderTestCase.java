@@ -6,15 +6,11 @@
  */
 package org.mule.extension.sftp.internal.connection;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mule.extension.sftp.api.SftpProxyConfig;
 import org.mule.extension.sftp.internal.connection.provider.SftpConnectionProvider;
 import org.mule.tck.size.SmallTest;
-import org.mule.runtime.api.connection.ConnectionException;
-
-import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
@@ -27,7 +23,7 @@ public class SftpConnectionProviderTestCase {
   private SftpProxyConfig proxyConfig;
 
   @BeforeEach
-  public void setup() {
+  void setup() {
     sftpConnectionProvider = new SftpConnectionProvider();
     sftpConnectionProvider2 = new SftpConnectionProvider();
     proxyConfig = new SftpProxyConfig();
@@ -37,23 +33,23 @@ public class SftpConnectionProviderTestCase {
   }
 
   @Test
-  public void testSftpConnectionProviderEquals() {
+  void testSftpConnectionProviderEquals() {
     assertEquals(sftpConnectionProvider, sftpConnectionProvider2);
   }
 
   @Test
-  public void testSftpConnectionProviderEqualsWithNull() {
+  void testSftpConnectionProviderEqualsWithNull() {
     assertNotEquals(null, sftpConnectionProvider);
   }
 
   @Test
-  public void testSftpConnectionProviderNotEquals() {
+  void testSftpConnectionProviderNotEquals() {
     TimeoutSettings otherObj = new TimeoutSettings();
     assertNotEquals(sftpConnectionProvider, otherObj);
   }
 
   @Test
-  public void testSftpConnectionProviderHashCode() {
+  void testSftpConnectionProviderHashCode() {
     assertEquals(sftpConnectionProvider.hashCode(), sftpConnectionProvider2.hashCode());
   }
 }

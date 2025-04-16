@@ -22,7 +22,7 @@ public class SftpConnectionSettingsTestCase {
   private SftpConnectionSettings settings2;
 
   @BeforeEach
-  public void setup() {
+  void setup() {
     settings = new SftpConnectionSettings();
     settings2 = new SftpConnectionSettings();
 
@@ -46,28 +46,28 @@ public class SftpConnectionSettingsTestCase {
   }
 
   @Test
-  public void testSftpConnectionSettingsEquals() {
+  void testSftpConnectionSettingsEquals() {
     assertEquals(settings, settings2);
   }
 
   @Test
-  public void testSftpConnectionSettingsSelfEquals() {
+  void testSftpConnectionSettingsSelfEquals() {
     assertEquals(settings, settings);
   }
 
   @Test
-  public void testSftpConnectionSettingsEqualsWithNull() {
+  void testSftpConnectionSettingsEqualsWithNull() {
     assertNotEquals(null, settings);
   }
 
   @Test
-  public void testSftpConnectionSettingsNotEquals() {
+  void testSftpConnectionSettingsNotEquals() {
     SftpConnectionSettings otherObj = new SftpConnectionSettings();
     assertNotEquals(settings, otherObj);
   }
 
   @Test
-  public void testTimeoutSettingsHashCode() {
+  void testTimeoutSettingsHashCode() {
     assertEquals(settings.hashCode(), settings2.hashCode());
   }
 }

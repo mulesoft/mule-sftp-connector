@@ -21,23 +21,23 @@ import static org.mockito.Mockito.verify;
 public class GssApiMechanismsTest {
 
   @Test
-  public void testCloseContextSilently() throws GSSException {
+  void testCloseContextSilently() throws GSSException {
     GSSContext mockContext = mock(GSSContext.class);
     GssApiMechanisms.closeContextSilently(mockContext);
     verify(mockContext).dispose();
   }
 
   @Test
-  public void testGetCanonicalName() throws GSSException {
-    InetSocketAddress inetSocketAddress = new InetSocketAddress(8080);
-    String s = GssApiMechanisms.getCanonicalName(inetSocketAddress);
+  void testGetCanonicalName() throws GSSException {
+    String s = GssApiMechanisms.getCanonicalName(new InetSocketAddress(8080));
     assertEquals("0.0.0.0", s);
   }
 
   @Test
-  public void testWorked() throws GSSException {
+  void testWorked() {
     GssApiMechanisms.getSupportedMechanisms();
-    GssApiMechanisms.worked(new Oid("1.3.6.1.5.5.2"));
+    GssApiMechanisms.worked(GssApiMechanisms.SPNEGO);
+    assertEquals(2, GssApiMechanisms.getSupportedMechanisms().size());
   }
 
 }
