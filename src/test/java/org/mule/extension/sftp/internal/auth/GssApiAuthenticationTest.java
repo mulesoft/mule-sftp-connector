@@ -43,7 +43,6 @@ public class GssApiAuthenticationTest {
   void testProcess() throws Exception {
     when(authMock.createContext()).thenReturn(mockContext);
     authMock.start();
-
     when(authMock.extractToken(any())).thenReturn("token".getBytes());
     when(mockContext.isEstablished()).thenReturn(true);
     authMock.process();
@@ -54,7 +53,6 @@ public class GssApiAuthenticationTest {
   void testProcessNullToken() throws Exception {
     when(authMock.createContext()).thenReturn(mockContext);
     authMock.start();
-
     assertThrows(NullPointerException.class, () -> authMock.process());
   }
 
