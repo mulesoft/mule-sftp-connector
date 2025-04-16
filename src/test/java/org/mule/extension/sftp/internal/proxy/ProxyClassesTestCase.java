@@ -17,10 +17,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class ProxyClassesTestCase {
 
   @Test
-  public void testStatusLine() {
+  public void testStatusLineConstructor() {
     StatusLine statusLine = new StatusLine("1", 1, "test");
-    assertEquals(statusLine.getReason(), "test");
-    assertEquals(statusLine.getVersion(), "1");
+    assertEquals("test", statusLine.getReason());
+    assertEquals("1", statusLine.getVersion());
   }
 
   @Test

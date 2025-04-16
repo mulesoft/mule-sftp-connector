@@ -67,7 +67,8 @@ public class SftpClientTest {
   @Test
   public void testSftpClientGetFile() throws URISyntaxException {
     SftpClient client = new SftpClient("host", 80, PRNGAlgorithm.SHA1PRNG, null);
-    assertThrows(MuleRuntimeException.class, () -> client.getFile(new URI("path")));
+    URI uri = new URI("path");
+    assertThrows(MuleRuntimeException.class, () -> client.getFile(uri));
   }
 
 }
