@@ -22,8 +22,6 @@ public class FileSystemTestCase {
   private Path path = Paths.get("src/test/resources/sample.jpg");
   private final AbstractExternalFileSystem abstractExternalFileSystem = mock(AbstractExternalFileSystem.class);
 
-  private final AbstractFileSystem abstractFileSystem = mock(AbstractFileSystem.class);
-
   @Test
   void testVerifyNotLocked() {
     assertThrows(UnsupportedOperationException.class, () -> abstractExternalFileSystem.verifyNotLocked(path));
@@ -43,34 +41,4 @@ public class FileSystemTestCase {
   void testAcquireLock() {
     assertThrows(UnsupportedOperationException.class, () -> abstractExternalFileSystem.acquireLock(mock(PathLock.class)));
   }
-
-  //  @Test
-  //  void testLock() {
-  //    assertThrows(UnsupportedOperationException.class, () -> abstractExternalFileSystem.lock(path));
-  //  }
-
-  //  @Test
-  //  void testVerifyNotLockedUriPath() {
-  //    when(abstractExternalFileSystem.isLocked(any(URI.class))).thenCallRealMethod();
-  //    assertThrows(FileLockedException.class, () -> abstractExternalFileSystem.verifyNotLocked(path.toUri()));
-  //  }
-
-  //  @Test
-  //  void testVerifyNotLocked3() {
-  //    abstractFileSystem.verifyNotLocked(path);
-  //  }
-
-  //    @Override
-  //    protected UriLock createLock(URI uri) {
-  //      UriLock lock = mock(UriLock.class);
-  //      when(lock.tryLock()).thenReturn(false);
-  //      return lock;
-  //    }
-  //
-  //    @Override
-  //    protected PathLock createLock(Path path) {
-  //      PathLock lock = mock(PathLock.class);
-  //      when(lock.tryLock()).thenReturn(false);
-  //      return lock;
-  //    }
 }
