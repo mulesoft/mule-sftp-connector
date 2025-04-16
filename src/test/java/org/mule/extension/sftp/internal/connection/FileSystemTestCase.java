@@ -22,6 +22,7 @@ public class FileSystemTestCase {
 
   private static Path path;
   private static AbstractExternalFileSystem abstractExternalFileSystem;
+
   @BeforeAll
   static void setup() {
     path = Paths.get("src/test/resources/sample.jpg");
