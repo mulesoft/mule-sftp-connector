@@ -51,6 +51,11 @@ public class SftpConnectionSettingsTestCase {
   }
 
   @Test
+  public void testSftpConnectionSettingsSelfEquals() {
+    assertEquals(settings, settings);
+  }
+
+  @Test
   public void testSftpConnectionSettingsEqualsWithNull() {
     assertNotEquals(settings, null);
   }
