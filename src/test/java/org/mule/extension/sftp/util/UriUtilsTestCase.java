@@ -21,53 +21,57 @@ import static org.mule.extension.sftp.internal.util.UriUtils.toRegexPattern;
 public class UriUtilsTestCase {
 
   @Test
-  public void testCreateUriWithURISyntaxException() {
+  void testCreateUriWithURISyntaxException() {
     String basePathWithColon = ":Illegal path with colon";
     assertThrows(IllegalPathException.class, () -> createUri(basePathWithColon, ""));
   }
 
   @Test
-  public void testCreateUriWithNewLine() {
+  void testCreateUriWithNewLine() {
     String basePathWithNewLine = "test\npath";
     assertThrows(IllegalPathException.class, () -> createUri(basePathWithNewLine, ""));
   }
 
   @Test
-  public void testCreateUriWithSeparator() {
+  void testCreateUriWithSeparator() {
     String basePathWithSeparator = "path/";
     assertEquals("path/path", createUri(basePathWithSeparator, "path").getPath());
   }
 
   @Test
-  public void testCreateUriWithBasePathLengthOne() {
+  void testCreateUriWithBasePathLengthOne() {
     String basePathWithSeparator = "p";
     assertEquals("ppath", createUri(basePathWithSeparator, "path").getPath());
   }
 
   @Test
-  public void testCreateUriWithoutSeparator() {
+  void testCreateUriWithoutSeparator() {
     String basePathWithSeparator = "path";
     assertEquals("path/path", createUri(basePathWithSeparator, "path").getPath());
   }
 
   @Test
-  public void testRegexPatternWithCaret() {
-    assertThrows(PatternSyntaxException.class, () -> toRegexPattern("[^/"));
+  void testRegexPatternWithCaretAndSlash() {
+    String globPatternWithCaretAndSlash = "[^/";
+    assertThrows(PatternSyntaxException.class, () -> toRegexPattern(globPatternWithCaretAndSlash));
   }
 
   @Test
-  public void testRegexPatternWithCaretAndAmpersand() {
-    assertThrows(PatternSyntaxException.class, () -> toRegexPattern("[^&&"));
+  void testRegexPatternWithCaretAndAmpersand() {
+    String globPatternWithCaretAndAmpersand = "[^&&";
+    assertThrows(PatternSyntaxException.class, () -> toRegexPattern(globPatternWithCaretAndAmpersand));
   }
 
   @Test
-  public void testRegexPatternWithCaretAndDash() {
-    assertThrows(PatternSyntaxException.class, () -> toRegexPattern("[^-"));
+  void testRegexPatternWithCaretAndDash() {
+    String globPatternWithCaretAndDash = "[^-";
+    assertThrows(PatternSyntaxException.class, () -> toRegexPattern(globPatternWithCaretAndDash));
   }
 
   @Test
-  public void testRegexPatternWithCaretAndBracket() {
-    assertEquals("^[[^/]&&[\\^.]]$", toRegexPattern("[^.]"));
+  void testRegexPatternWithCaretAndBracket() {
+    String globPatternWithCaretAndBracket = "[^.]";
+    assertEquals("^[[^/]&&[\\^.]]$", toRegexPattern(globPatternWithCaretAndBracket));
   }
 
 }

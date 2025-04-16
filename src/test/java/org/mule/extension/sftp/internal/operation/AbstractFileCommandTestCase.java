@@ -6,7 +6,8 @@
  */
 package org.mule.extension.sftp.internal.operation;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+import org.mule.extension.sftp.internal.connection.AbstractFileSystem;
 import org.mule.extension.sftp.internal.connection.FileSystem;
 import org.mule.extension.sftp.internal.exception.IllegalPathException;
 import org.mule.tck.size.SmallTest;
@@ -14,6 +15,11 @@ import org.mule.tck.size.SmallTest;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 @SmallTest
 public class AbstractFileCommandTestCase {
@@ -61,7 +67,7 @@ public class AbstractFileCommandTestCase {
   }
 
   @Test
-  public void testAbstractFileCommand() {
+  void testAbstractFileCommand() {
     AbstractFileCommandStub stub = new AbstractFileCommandStub(null);
     assertEquals("exception", stub.exception("exception").getMessage());
     assertEquals("exception", stub.exception("exception", new Exception()).getMessage());

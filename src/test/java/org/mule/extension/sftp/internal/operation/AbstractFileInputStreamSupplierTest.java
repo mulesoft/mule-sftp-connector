@@ -21,13 +21,13 @@ import static org.mockito.Mockito.*;
 public class AbstractFileInputStreamSupplierTest {
 
   @Test
-  public void testDeletedFileWhileReadException() {
+  void testDeletedFileWhileReadException() {
     AbstractFileInputStreamSupplier supplier = getMockSupplierWithNullAttributesImpl();
     assertThrows(DeletedFileWhileReadException.class, supplier::get);
   }
 
   @Test
-  public void testFileBeingModifiedException() {
+  void testFileBeingModifiedException() {
     AbstractFileInputStreamSupplier supplier = getMockSupplierImpl();
     assertThrows(FileBeingModifiedException.class, supplier::get);
   }
@@ -46,8 +46,6 @@ public class AbstractFileInputStreamSupplierTest {
       }
     };
   }
-
-
 
   private static AbstractFileInputStreamSupplier getMockSupplierImpl() {
     return new AbstractFileInputStreamSupplier(mock(FileAttributes.class), 10L) {

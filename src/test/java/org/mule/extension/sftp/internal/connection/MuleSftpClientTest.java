@@ -6,6 +6,7 @@
  */
 package org.mule.extension.sftp.internal.connection;
 
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.mule.extension.sftp.api.SftpProxyConfig;
 import org.mule.tck.size.SmallTest;
@@ -15,18 +16,23 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 
 @SmallTest
-class MuleSftpClientTest {
+public class MuleSftpClientTest {
+
+  static MuleSftpClient client;
+
+  @BeforeAll
+  static void setup() {
+    client = new MuleSftpClient();
+  }
 
   @Test
-  public void testGetProxyConfig() {
-    MuleSftpClient client = new MuleSftpClient();
+  void testGetProxyConfig() {
     client.setProxyConfig(new SftpProxyConfig());
     assertNotNull(client.getProxyConfig());
   }
 
   @Test
-  public void testDoConnectWithNullConnector() {
-    MuleSftpClient client = new MuleSftpClient();
+  void testDoConnectWithNullConnector() {
     assertThrows(IllegalStateException.class, () -> client.doConnect("user", null, null, null, null, null));
   }
 

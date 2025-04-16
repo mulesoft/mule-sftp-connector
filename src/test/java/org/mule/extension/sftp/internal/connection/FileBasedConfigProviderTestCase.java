@@ -38,7 +38,7 @@ public class FileBasedConfigProviderTestCase {
   }
 
   @Test
-  public void testUnreadableFile() {
+  public void testFilePathIsDirectory() {
     FileBasedConfigProvider fileBasedConfigProvider = new FileBasedConfigProvider("src/test/resources");
     Properties properties = fileBasedConfigProvider.getConfigProperties();
     assertEquals(0, properties.size());

@@ -6,8 +6,8 @@
  */
 package org.mule.extension.sftp.internal.connection;
 
-import org.apache.sshd.client.session.ClientSession;
 import org.apache.sshd.common.SshException;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.mule.extension.sftp.api.SftpProxyConfig;
 import org.mule.extension.sftp.api.random.alg.PRNGAlgorithm;
@@ -28,41 +28,48 @@ import static org.mockito.Mockito.*;
 @SmallTest
 public class SftpClientTest {
 
-  private SftpClient client = mock(SftpClient.class);
+  private static SftpClient client;
+
+  @BeforeAll
+  static void setup() {
+    client = mock(SftpClient.class);
+  }
 
   @Test
-  public void testSftpConnectionException() throws ConnectionException {
+  void testSftpConnectionException() throws ConnectionException {
     doCallRealMethod().when(client).setProxyConfig(any());
     assertThrows(SftpConnectionException.class, () -> client.setProxyConfig(new SftpProxyConfig()));
   }
 
   @Test
-  public void testSftpClientGetAttributesNull() throws ConnectionException, IOException {
+  void testSftpClientGetAttributesNull() throws ConnectionException, IOException {
     doCallRealMethod().when(client).getAttributes(any());
     assertNull(client.getAttributes(null));
   }
 
   @Test
-  public void testSftpClientConfigureHostChecking() throws GeneralSecurityException, IOException {
+  void testSftpClientConfigureHostChecking() throws GeneralSecurityException, IOException {
     SftpClient client = new SftpClient("0.0.0.0", 8080, PRNGAlgorithm.SHA1PRNG, null);
     client.setKnownHostsFile("HostFile");
     assertThrows(SshException.class, () -> client.login("user"));
   }
 
   @Test
-  public void testSftpClientCheckExists() throws GeneralSecurityException, IOException {
+  void testSftpClientCheckExists() throws GeneralSecurityException, IOException {
     doCallRealMethod().when(client).setIdentity(anyString(), anyString());
     assertThrows(IllegalArgumentException.class, () -> client.setIdentity("HostFile", "passphrase"));
   }
 
   @Test
-  public void testSftpClientDisconnect() {
-    SftpClient client = new SftpClient("host", 80, PRNGAlgorithm.SHA1PRNG, null);
-    client.disconnect();
+  void testSftpClientDisconnect() {
+    SftpClient spyClient = spy(new SftpClient("host", 80, PRNGAlgorithm.SHA1PRNG, null));
+    SftpFileSystemConnection fileSystemConnection = new SftpFileSystemConnection(spyClient, "", null);
+    fileSystemConnection.disconnect();
+    verify(spyClient, times(1)).disconnect();
   }
 
   @Test
-  public void testSftpClientGetFile() throws URISyntaxException {
+  void testSftpClientGetFile() throws URISyntaxException {
     SftpClient client = new SftpClient("host", 80, PRNGAlgorithm.SHA1PRNG, null);
     URI uri = new URI("path");
     assertThrows(MuleRuntimeException.class, () -> client.getFile(uri));

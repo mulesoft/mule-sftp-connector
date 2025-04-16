@@ -6,7 +6,7 @@
  */
 package org.mule.extension.sftp.internal.lock;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mule.runtime.api.lock.LockFactory;
 import org.mule.tck.size.SmallTest;
 
@@ -24,11 +24,10 @@ public class URLPathLockTest {
   private LockFactory lockFactoryMock = mock(LockFactory.class);
 
   @Test
-  public void testIsLocked() throws MalformedURLException {
+  void testIsLocked() throws MalformedURLException {
     URL url = new URL("http://example.com");
     Lock mockLock = mock(Lock.class);
     when(mockLock.tryLock()).thenReturn(false);
-
     when(lockFactoryMock.createLock(url.toExternalForm())).thenReturn(mockLock);
 
     URLPathLock lock = new URLPathLock(url, lockFactoryMock);
@@ -36,7 +35,7 @@ public class URLPathLockTest {
   }
 
   @Test
-  public void testGetPath() throws MalformedURLException {
+  void testGetPath() throws MalformedURLException {
     URL url = new URL("file:/");
 
     URLPathLock lock = new URLPathLock(url, lockFactoryMock);
@@ -44,7 +43,7 @@ public class URLPathLockTest {
   }
 
   @Test
-  public void testGetPathException() throws MalformedURLException {
+  void testGetPathException() throws MalformedURLException {
     URL wrongUrl = new URL("file:");
 
     URLPathLock lock = new URLPathLock(wrongUrl, lockFactoryMock);
@@ -52,7 +51,7 @@ public class URLPathLockTest {
   }
 
   @Test
-  public void testGetUriException() throws MalformedURLException {
+  void testGetUriException() throws MalformedURLException {
     URL wrongUrl = new URL("file:");
 
     URLPathLock lock = new URLPathLock(wrongUrl, lockFactoryMock);

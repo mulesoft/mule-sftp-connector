@@ -6,6 +6,7 @@
  */
 package org.mule.extension.sftp.internal.proxy;
 
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.mule.tck.size.SmallTest;
 
@@ -17,10 +18,15 @@ import static org.junit.jupiter.api.Assertions.*;
 @SmallTest
 public class HttpParserTest {
 
-  private static final String AUTHENTICATOR_HEADER = "Proxy-Authentication:";
+  private static String AUTHENTICATOR_HEADER;
+
+  @BeforeAll
+  static void setup() {
+    AUTHENTICATOR_HEADER = "Proxy-Authentication:";
+  }
 
   @Test
-  public void testGetAuthenticationHeadersWithWhitespace() {
+  void testGetAuthenticationHeadersWithWhitespace() {
     List<String> reply =
         Arrays.asList("key: ", " lineWithWhitespace:", "Proxy-Authentication: auth",
                       " lineWithWhitespace: text", "key:", "");
@@ -28,7 +34,7 @@ public class HttpParserTest {
   }
 
   @Test
-  public void testGetAuthenticationHeadersWithEquals() {
+  void testGetAuthenticationHeadersWithEquals() {
     List<String> reply =
         Arrays.asList("key:", "Proxy-Authentication: auth!",
                       " lineWithWhitespace=== , text");
@@ -36,7 +42,7 @@ public class HttpParserTest {
   }
 
   @Test
-  public void testGetAuthenticationHeadersWithComma() {
+  void testGetAuthenticationHeadersWithComma() {
     List<String> reply =
         Arrays.asList("key:", "Proxy-Authentication: auth!",
                       " lineWithWhitespace= ,text \"text\"");
@@ -44,7 +50,7 @@ public class HttpParserTest {
   }
 
   @Test
-  public void testGetAuthenticationHeadersWithQuote() {
+  void testGetAuthenticationHeadersWithQuote() {
     List<String> reply =
         Arrays.asList("key: ", " lineWithWhitespace:", "Proxy-Authentication: auth!",
                       " lineWithWhitespace= \"text\"");
@@ -52,7 +58,7 @@ public class HttpParserTest {
   }
 
   @Test
-  public void testGetAuthenticationHeadersWithQuoteAndSlash() {
+  void testGetAuthenticationHeadersWithQuoteAndSlash() {
     List<String> reply =
         Arrays.asList("key: ", " lineWithWhitespace:", "Proxy-Authentication: auth!",
                       " lineWithWhitespace= \"\\text\"");
@@ -60,12 +66,12 @@ public class HttpParserTest {
   }
 
   @Test
-  public void testParseStatusLineFirstBlankException() {
+  void testParseStatusLineFirstBlankException() {
     assertThrows(HttpParser.ParseException.class, () -> HttpParser.parseStatusLine("NoBlank"));
   }
 
   @Test
-  public void testParseStatusLineSecondBlankException() {
+  void testParseStatusLineSecondBlankException() {
     assertThrows(HttpParser.ParseException.class, () -> HttpParser.parseStatusLine("Single Blank"));
   }
 
