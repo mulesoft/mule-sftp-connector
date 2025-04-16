@@ -43,6 +43,11 @@ public class TimeoutSettingsTestCase {
   }
 
   @Test
+  public void testTimeoutSettingsSelfEquals() {
+    assertEquals(timeout, timeout);
+  }
+
+  @Test
   public void testTimeoutSettingsEqualsWithNull() {
     assertNotEquals(timeout, null);
   }
