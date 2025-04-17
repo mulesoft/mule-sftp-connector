@@ -18,12 +18,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @SmallTest
 public class HttpParserTest {
 
-  private static String AUTHENTICATOR_HEADER;
-
-  @BeforeAll
-  static void setup() {
-    AUTHENTICATOR_HEADER = "Proxy-Authentication:";
-  }
+  private static final String AUTHENTICATOR_HEADER = "Proxy-Authentication:";
 
   @Test
   void testGetAuthenticationHeadersWithWhitespace() {

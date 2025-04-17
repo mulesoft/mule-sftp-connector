@@ -7,13 +7,15 @@
 package org.mule.extension.sftp.internal.auth;
 
 import org.ietf.jgss.GSSContext;
+import org.ietf.jgss.GSSException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mule.tck.size.SmallTest;
 
 import java.io.IOException;
-import java.net.InetSocketAddress;
 
+import static java.text.MessageFormat.format;
+import static org.ietf.jgss.GSSException.BAD_BINDINGS;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -21,71 +23,49 @@ import static org.mockito.Mockito.*;
 @SmallTest
 public class GssApiAuthenticationTest {
 
-  private static GssApiAuthentication authMock;
-  private static GssApiAuthentication auth;
+  private static GssApiAuthentication mockAuth;
   private static GSSContext mockContext;
 
   @BeforeEach
   public void setup() {
     mockContext = mock(GSSContext.class);
-    authMock = mock(GssApiAuthentication.class);
-    auth = new GssApiAuthenticationTestImpl(new InetSocketAddress(80));
+    mockAuth = mock(GssApiAuthentication.class);
   }
 
   @Test
   void testStart() throws Exception {
-    when(authMock.createContext()).thenReturn(mockContext);
-    authMock.start();
+    when(mockAuth.createContext()).thenReturn(mockContext);
+    mockAuth.start();
     verify(mockContext).initSecContext(new byte[0], 0, 0);
   }
 
   @Test
   void testProcess() throws Exception {
-    when(authMock.createContext()).thenReturn(mockContext);
-    authMock.start();
-    when(authMock.extractToken(any())).thenReturn("token".getBytes());
+    when(mockAuth.createContext()).thenReturn(mockContext);
+    mockAuth.start();
+    when(mockAuth.extractToken(any())).thenReturn("token".getBytes());
     when(mockContext.isEstablished()).thenReturn(true);
-    authMock.process();
+    mockAuth.process();
     verify(mockContext).dispose();
   }
 
   @Test
-  void testProcessNullToken() throws Exception {
-    when(authMock.createContext()).thenReturn(mockContext);
-    authMock.start();
-    assertThrows(NullPointerException.class, () -> authMock.process());
+  void testProcessExceptionAtExtractToken() throws Exception {
+    when(mockAuth.extractToken(any())).thenThrow(new IOException(format("IOException thrown")));
+    assertThrows(IOException.class, () -> mockAuth.process());
   }
 
   @Test
-  void testStartNullContext() {
-    assertThrows(NullPointerException.class, () -> auth.start());
-    assertEquals(true, auth.done);
+  void testStartNullContext() throws Exception {
+    when(mockAuth.createContext()).thenReturn(mockContext);
+    doThrow(new GSSException(BAD_BINDINGS)).when(mockContext).requestMutualAuth(anyBoolean());
+    doCallRealMethod().when(mockAuth).close();
+    assertThrows(GSSException.class, () -> mockAuth.start());
+    assertTrue(mockAuth.done);
   }
 
   @Test
-  void testProcessNullContext() {
-    assertThrows(IOException.class, () -> auth.process());
-  }
-
-  static class GssApiAuthenticationTestImpl extends GssApiAuthentication {
-
-    public GssApiAuthenticationTestImpl(InetSocketAddress proxy) {
-      super(proxy);
-    }
-
-    @Override
-    public Object getToken() throws Exception {
-      return null;
-    }
-
-    @Override
-    protected GSSContext createContext() throws Exception {
-      return null;
-    }
-
-    @Override
-    protected byte[] extractToken(Object input) throws Exception {
-      return new byte[0];
-    }
+  void testProcessWithNullContext() {
+    assertThrows(IOException.class, () -> mockAuth.process());
   }
 }
