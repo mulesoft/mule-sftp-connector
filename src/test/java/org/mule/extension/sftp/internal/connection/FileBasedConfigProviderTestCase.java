@@ -7,6 +7,7 @@
 package org.mule.extension.sftp.internal.connection;
 
 import org.junit.Test;
+
 import java.util.Properties;
 
 import static org.junit.Assert.assertEquals;
@@ -32,6 +33,13 @@ public class FileBasedConfigProviderTestCase {
   @Test
   public void testWithConfigFileEmpty() {
     FileBasedConfigProvider fileBasedConfigProvider = new FileBasedConfigProvider("");
+    Properties properties = fileBasedConfigProvider.getConfigProperties();
+    assertEquals(0, properties.size());
+  }
+
+  @Test
+  public void testFilePathIsDirectory() {
+    FileBasedConfigProvider fileBasedConfigProvider = new FileBasedConfigProvider("src/test/resources");
     Properties properties = fileBasedConfigProvider.getConfigProperties();
     assertEquals(0, properties.size());
   }
