@@ -20,6 +20,12 @@
     <description>A Mule extension that provides functionality to manage files in an SFTP server</description>
 
     <properties>
+        <sonar.coverage.exclusions>
+            **org/mule/extension/sftp/api/**
+        </sonar.coverage.exclusions>
+        <sonar.exclusions>
+            **org/mule/extension/sftp/api/**
+        </sonar.exclusions>
         <docker.maven.plugin.version>0.43.4</docker.maven.plugin.version>
         <maven.helper.plugin.version>3.4.0</maven.helper.plugin.version>
         <exec.maven.plugin.version>1.6.0</exec.maven.plugin.version>
@@ -58,7 +64,7 @@
         <muleJavaModule.version>1.2.13</muleJavaModule.version>
         <maven.invoker.plugin.version>3.6.0</maven.invoker.plugin.version>
         <muleConnectionTestModule.version>1.0.0</muleConnectionTestModule.version>
-        <junit.version>4.12</junit.version>
+        <junit.version>4.13.1</junit.version>
         <maven.repo.local>${settings.localRepository}</maven.repo.local>
         <orgJson.version>20231013</orgJson.version>
 
@@ -192,6 +198,19 @@
             <scope>test</scope>
         </dependency>
 
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
+            <version>5.8.2</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.vintage</groupId>
+            <artifactId>junit-vintage-engine</artifactId>
+            <version>5.8.2</version>
+            <scope>test</scope>
+        </dependency>
+
 
 
     </dependencies>
@@ -238,7 +257,7 @@
                 </dependencies>
                 <executions>
                     <execution>
-                        <phase>package</phase>
+                        <phase>post-integration-test</phase>
                         <goals>
                             <goal>shade</goal>
                         </goals>
@@ -397,6 +416,51 @@
                         <version>${sshdVersion}</version>
                     </dependency>
                 </dependencies>
+            </plugin>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>${jacoco.version}</version>
+                <configuration>
+                    <destFile>${session.executionRootDirectory}/target/jacoco-java.exec</destFile>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>prepare-agent</id>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>merge</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>merge</goal>
+                        </goals>
+                        <configuration>
+                            <destFile>${session.executionRootDirectory}/target/jacoco.exec</destFile>
+                            <fileSets>
+                                <fileSet>
+                                    <directory>${session.executionRootDirectory}/target</directory>
+                                    <includes>
+                                        <include>*.exec</include>
+                                    </includes>
+                                </fileSet>
+                            </fileSets>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>report</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                        <configuration>
+                            <dataFile>${session.executionRootDirectory}/target/jacoco.exec</dataFile>
+                            <outputDirectory>${session.executionRootDirectory}/target/jacoco</outputDirectory>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

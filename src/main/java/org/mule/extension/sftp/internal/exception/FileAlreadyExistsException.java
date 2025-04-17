@@ -27,14 +27,4 @@ public final class FileAlreadyExistsException extends ModuleException {
   public FileAlreadyExistsException(String message) {
     super(message, FILE_ALREADY_EXISTS);
   }
-
-  /**
-   * Creates a new instance with the specified detail {@code message}
-   *
-   * @param message   the detail message
-   * @param exception cause of this exception
-   */
-  public FileAlreadyExistsException(String message, Exception exception) {
-    super(message, FILE_ALREADY_EXISTS, exception);
-  }
 }
