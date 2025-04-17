@@ -31,21 +31,25 @@ public class FileSystemTestCase {
 
   @Test
   void testVerifyNotLocked() {
+    doCallRealMethod().when(abstractExternalFileSystem).verifyNotLocked(any(Path.class));
     assertThrows(UnsupportedOperationException.class, () -> abstractExternalFileSystem.verifyNotLocked(path));
   }
 
   @Test
   void testIsLocked() {
+    doCallRealMethod().when(abstractExternalFileSystem).isLocked(any(Path.class));
     assertThrows(UnsupportedOperationException.class, () -> abstractExternalFileSystem.isLocked(path));
   }
 
   @Test
   void testCreateLock() {
+    doCallRealMethod().when(abstractExternalFileSystem).createLock(any(Path.class));
     assertThrows(UnsupportedOperationException.class, () -> abstractExternalFileSystem.createLock(path));
   }
 
   @Test
   void testAcquireLock() {
+    doCallRealMethod().when(abstractExternalFileSystem).acquireLock(any(PathLock.class));
     assertThrows(UnsupportedOperationException.class, () -> abstractExternalFileSystem.acquireLock(mock(PathLock.class)));
   }
 }
