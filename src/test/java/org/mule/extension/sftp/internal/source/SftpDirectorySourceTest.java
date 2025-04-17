@@ -34,6 +34,7 @@ class SftpDirectorySourceTest {
     PollContext mockContext = mock(PollContext.class);
     when(mockContext.isSourceStopping()).thenReturn(true);
     sftpDirectorySource.poll(mockContext);
+    verify(mockContext, times(1)).isSourceStopping();
   }
 
   @Test

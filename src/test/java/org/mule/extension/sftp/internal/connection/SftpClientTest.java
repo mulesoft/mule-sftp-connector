@@ -32,31 +32,27 @@ public class SftpClientTest {
 
   @BeforeAll
   static void setup() {
-    client = mock(SftpClient.class);
+    client = new SftpClient("0.0.0.0", 8080, PRNGAlgorithm.SHA1PRNG, null);
   }
 
   @Test
-  void testSftpConnectionException() throws ConnectionException {
-    doCallRealMethod().when(client).setProxyConfig(any());
+  void testSetProxyConfigNullHost() throws ConnectionException {
     assertThrows(SftpConnectionException.class, () -> client.setProxyConfig(new SftpProxyConfig()));
   }
 
   @Test
-  void testSftpClientGetAttributesNull() throws ConnectionException, IOException {
-    doCallRealMethod().when(client).getAttributes(any());
+  void testSftpClientGetAttributesNullWhenUriNull() throws ConnectionException, IOException {
     assertNull(client.getAttributes(null));
   }
 
   @Test
   void testSftpClientConfigureHostChecking() throws GeneralSecurityException, IOException {
-    SftpClient client = new SftpClient("0.0.0.0", 8080, PRNGAlgorithm.SHA1PRNG, null);
     client.setKnownHostsFile("HostFile");
     assertThrows(SshException.class, () -> client.login("user"));
   }
 
   @Test
   void testSftpClientCheckExists() throws GeneralSecurityException, IOException {
-    doCallRealMethod().when(client).setIdentity(anyString(), anyString());
     assertThrows(IllegalArgumentException.class, () -> client.setIdentity("HostFile", "passphrase"));
   }
 
@@ -70,7 +66,6 @@ public class SftpClientTest {
 
   @Test
   void testSftpClientGetFile() throws URISyntaxException {
-    SftpClient client = new SftpClient("host", 80, PRNGAlgorithm.SHA1PRNG, null);
     URI uri = new URI("path");
     assertThrows(MuleRuntimeException.class, () -> client.getFile(uri));
   }

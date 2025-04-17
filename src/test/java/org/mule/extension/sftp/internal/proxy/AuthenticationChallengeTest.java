@@ -14,14 +14,7 @@ import java.util.Collections;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SmallTest
-public class ProxyClassesTestCase {
-
-  @Test
-  void testStatusLineConstructor() {
-    StatusLine statusLine = new StatusLine("1", 1, "test");
-    assertEquals("test", statusLine.getReason());
-    assertEquals("1", statusLine.getVersion());
-  }
+public class AuthenticationChallengeTest {
 
   @Test
   void testAuthenticationChallenge() {
