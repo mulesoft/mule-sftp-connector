@@ -29,7 +29,6 @@ import org.mule.extension.sftp.internal.connection.SftpClientFactory;
 import org.mule.extension.sftp.internal.connection.SftpConnectionSettings;
 import org.mule.extension.sftp.internal.connection.SftpFileSystemConnection;
 import org.mule.extension.sftp.internal.error.FileError;
-import org.mule.extension.sftp.api.random.alg.PRNGAlgorithm;
 import org.mule.extension.sftp.internal.extension.SftpConnector;
 import org.mule.extension.sftp.internal.connection.TimeoutSettings;
 import org.mule.runtime.api.connection.ConnectionException;
@@ -204,48 +203,8 @@ public class SftpConnectionProvider extends FileSystemProvider<SftpFileSystemCon
     return ftpFileSystem.validateConnection();
   }
 
-  void setPort(int port) {
-    connectionSettings.setPort(port);
-  }
-
-  void setHost(String host) {
-    connectionSettings.setHost(host);
-  }
-
-  void setUsername(String username) {
-    connectionSettings.setUsername(username);
-  }
-
-  void setPrngAlgorithm(PRNGAlgorithm algorithm) {
-    connectionSettings.setPrngAlgorithm(algorithm);
-  }
-
-  void setPassword(String password) {
-    connectionSettings.setPassword(password);
-  }
-
-  void setPassphrase(String passphrase) {
-    connectionSettings.setPassphrase(passphrase);
-  }
-
-  void setIdentityFile(String identityFile) {
-    connectionSettings.setIdentityFile(identityFile);
-  }
-
-  void setPreferredAuthenticationMethods(Set<SftpAuthenticationMethod> preferredAuthenticationMethods) {
-    this.preferredAuthenticationMethods = preferredAuthenticationMethods;
-  }
-
-  void setKnownHostsFile(String knownHostsFile) {
-    this.knownHostsFile = knownHostsFile;
-  }
-
   public void setProxyConfig(SftpProxyConfig proxyConfig) {
     this.proxyConfig = proxyConfig;
-  }
-
-  void setClientFactory(SftpClientFactory clientFactory) {
-    this.clientFactory = clientFactory;
   }
 
   /**
@@ -270,22 +229,6 @@ public class SftpConnectionProvider extends FileSystemProvider<SftpFileSystemCon
 
   protected TimeUnit getResponseTimeoutUnit() {
     return timeoutSettings.getResponseTimeoutUnit();
-  }
-
-  public void setConnectionTimeout(Integer connectionTimeout) {
-    timeoutSettings.setConnectionTimeout(connectionTimeout);
-  }
-
-  public void setConnectionTimeoutUnit(TimeUnit connectionTimeoutUnit) {
-    timeoutSettings.setConnectionTimeoutUnit(connectionTimeoutUnit);
-  }
-
-  public void setResponseTimeout(Integer responseTimeout) {
-    timeoutSettings.setResponseTimeout(responseTimeout);
-  }
-
-  public void setResponseTimeoutUnit(TimeUnit responseTimeoutUnit) {
-    timeoutSettings.setResponseTimeoutUnit(responseTimeoutUnit);
   }
 
   private String getErrorMessage(SftpConnectionSettings connectionSettings, String message) {
