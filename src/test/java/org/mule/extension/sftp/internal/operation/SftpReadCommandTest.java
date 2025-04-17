@@ -10,11 +10,11 @@ package org.mule.extension.sftp.internal.operation;
 import org.junit.jupiter.api.Test;
 import org.mule.extension.sftp.api.SftpFileAttributes;
 import org.mule.extension.sftp.internal.config.FileConnectorConfig;
-import org.mule.extension.sftp.internal.connection.SftpClient;
-import org.mule.extension.sftp.internal.connection.SftpFileSystemConnection;
+import org.mule.extension.sftp.internal.exception.FileAccessDeniedException;
 
 import java.net.URI;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
@@ -22,33 +22,15 @@ public class SftpReadCommandTest {
 
     @Test
     void testRead() {
-        SftpReadCommand sftpCommand = mock(SftpReadCommand.class);
-        SftpFileAttributes mockedAttributes = mock(SftpFileAttributes.class);
-//
-//        when(mockedAttributes.getPath()).thenReturn("path");
-//        when(sftpCommand.getExistingFile(anyString())).thenReturn(mockedAttributes);
-//        doCallRealMethod().when(sftpCommand).read(any(FileConnectorConfig.class), anyString(), eq(false), anyLong());
-//        when(sftpCommand.cannotReadFileException(any(URI.class))).thenCallRealMethod();
-//
-//        sftpCommand.read(mock(FileConnectorConfig.class), "path", false, 0L);
+        SftpReadCommand mockCommand = mock(SftpReadCommand.class);
+        SftpFileAttributes mockAttributes = mock(SftpFileAttributes.class);
 
-//        SftpCommand sftpCommand = mock(SftpCommand.class);
-//        sftpCommand.get
-//        SftpFileAttributes mockedAttributes = mock(SftpFileAttributes.class);
-//        SftpFileSystemConnection s = mock(SftpFileSystemConnection.class);
-//
-//        when(mockedAttributes.getPath()).thenReturn("path");
-//        when(s.getReadCommand()).thenReturn(new SftpReadCommand(s, mock(SftpClient.class)));
-//
-//        when(s.getReadCommand().getExistingFile(anyString())).thenReturn(mockedAttributes);
-//        s.getReadCommand().read(mock(FileConnectorConfig.class), "path", false, 0L);
+        when(mockAttributes.getPath()).thenReturn("path");
+        when(mockCommand.getExistingFile(anyString())).thenReturn(mockAttributes);
+        when(mockCommand.cannotReadFileException(any(URI.class))).thenCallRealMethod();
+        doCallRealMethod().when(mockCommand).read(any(FileConnectorConfig.class), anyString(), eq(false), anyLong());
 
-        when(mockedAttributes.getPath()).thenReturn("path");
-        when(sftpCommand.getExistingFile(anyString())).thenReturn(mockedAttributes);
-        doCallRealMethod().when(sftpCommand).read(any(FileConnectorConfig.class), anyString(), eq(false), anyLong());
-        when(sftpCommand.cannotReadFileException(any(URI.class))).thenCallRealMethod();
-
-        sftpCommand.read(mock(FileConnectorConfig.class), "path", false, 0L);
+        assertThrows(FileAccessDeniedException.class, () -> mockCommand.read(mock(FileConnectorConfig.class), "path", false, 0L));
     }
 
 }

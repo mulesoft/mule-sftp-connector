@@ -198,7 +198,7 @@ public abstract class AbstractFileCommand<F extends FileSystem, I> {
    * @return {@link IllegalPathException}
    */
   protected FileAccessDeniedException cannotReadFileException(I path) {
-    return new FileAccessDeniedException(format("Cannot read file '%s' since user does not have read permission",
+    throw new FileAccessDeniedException(format("Cannot read file '%s' since user does not have read permission",
                                                 pathToString(path)));
   }
 
