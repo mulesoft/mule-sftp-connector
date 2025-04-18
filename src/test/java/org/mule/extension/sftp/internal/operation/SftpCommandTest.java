@@ -48,12 +48,14 @@ public class SftpCommandTest {
   @Test
   void testCopyFileAlreadyExistsException() {
     when(mockAttributes.isDirectory()).thenReturn(true);
+    doCallRealMethod().when(command).copy(any(), anyString(), anyString(), anyBoolean(), anyBoolean(), anyString(), any());
     assertThrows(FileAlreadyExistsException.class, () -> command.copy(null, "src", "src", false, false, "src", null));
   }
 
   @Test
   void testCopyAndNotDirectoryFileAlreadyExistsException() {
     when(mockAttributes.isDirectory()).thenReturn(false);
+    doCallRealMethod().when(command).copy(any(), anyString(), anyString(), anyBoolean(), anyBoolean(), anyString(), any());
     assertThrows(FileAlreadyExistsException.class, () -> command.copy(null, "src", "src", false, false, "src", null));
   }
 
