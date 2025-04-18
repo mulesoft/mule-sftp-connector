@@ -20,17 +20,17 @@ import static org.mockito.Mockito.*;
 
 public class SftpReadCommandTest {
 
-    @Test
-    void testRead() {
-        SftpReadCommand mockCommand = mock(SftpReadCommand.class);
-        SftpFileAttributes mockAttributes = mock(SftpFileAttributes.class);
+  @Test
+  void testRead() {
+    SftpReadCommand mockCommand = mock(SftpReadCommand.class);
+    SftpFileAttributes mockAttributes = mock(SftpFileAttributes.class);
 
-        when(mockAttributes.getPath()).thenReturn("path");
-        when(mockCommand.getExistingFile(anyString())).thenReturn(mockAttributes);
-        when(mockCommand.cannotReadFileException(any(URI.class))).thenCallRealMethod();
-        doCallRealMethod().when(mockCommand).read(any(FileConnectorConfig.class), anyString(), eq(false), anyLong());
+    when(mockAttributes.getPath()).thenReturn("path");
+    when(mockCommand.getExistingFile(anyString())).thenReturn(mockAttributes);
+    when(mockCommand.cannotReadFileException(any(URI.class))).thenCallRealMethod();
+    doCallRealMethod().when(mockCommand).read(any(FileConnectorConfig.class), anyString(), eq(false), anyLong());
 
-        assertThrows(FileAccessDeniedException.class, () -> mockCommand.read(mock(FileConnectorConfig.class), "path", false, 0L));
-    }
+    assertThrows(FileAccessDeniedException.class, () -> mockCommand.read(mock(FileConnectorConfig.class), "path", false, 0L));
+  }
 
 }

@@ -199,7 +199,7 @@ public abstract class AbstractFileCommand<F extends FileSystem, I> {
    */
   protected FileAccessDeniedException cannotReadFileException(I path) {
     throw new FileAccessDeniedException(format("Cannot read file '%s' since user does not have read permission",
-                                                pathToString(path)));
+                                               pathToString(path)));
   }
 
   /**
