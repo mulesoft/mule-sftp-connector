@@ -12,6 +12,7 @@ import static java.lang.String.format;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
+import org.mule.extension.sftp.internal.exception.FileAccessDeniedException;
 import org.mule.extension.sftp.internal.exception.FileAlreadyExistsException;
 import org.mule.extension.sftp.internal.exception.IllegalPathException;
 import org.mule.extension.sftp.internal.config.FileConnectorConfig;
@@ -187,6 +188,18 @@ public abstract class AbstractFileCommand<F extends FileSystem, I> {
   public FileAlreadyExistsException alreadyExistsException(I path) {
     return new FileAlreadyExistsException(format("'%s' already exists. Set the 'overwrite' parameter to 'true' to perform the operation anyway",
                                                  pathToString(path)));
+  }
+
+  /**
+   * Returns an {@link IllegalPathException} explaining that an operation is trying to read to the given {@code path} but
+   * user does not have permission to read
+   *
+   * @param path the path on which a read was attempted
+   * @return {@link IllegalPathException}
+   */
+  protected FileAccessDeniedException cannotReadFileException(I path) {
+    throw new FileAccessDeniedException(format("Cannot read file '%s' since user does not have read permission",
+                                               pathToString(path)));
   }
 
   /**

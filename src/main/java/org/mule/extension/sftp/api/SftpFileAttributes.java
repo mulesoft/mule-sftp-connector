@@ -44,6 +44,9 @@ public class SftpFileAttributes extends AbstractFileAttributes {
   @Parameter
   private boolean symbolicLink;
 
+  @Parameter
+  private int permissions;
+
   /**
    * Creates a new instance (Default constructor)
    */
@@ -65,6 +68,7 @@ public class SftpFileAttributes extends AbstractFileAttributes {
     this.regularFile = attrs.isRegularFile();
     this.directory = attrs.isDirectory();
     this.symbolicLink = attrs.isSymbolicLink();
+    this.permissions = attrs.getPermissions();
   }
 
   /**
@@ -137,6 +141,10 @@ public class SftpFileAttributes extends AbstractFileAttributes {
   @Override
   public String getPath() {
     return normalizePath(super.getPath());
+  }
+
+  public int getPermissions() {
+    return permissions;
   }
 
   @Override

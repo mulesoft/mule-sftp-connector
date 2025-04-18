@@ -35,6 +35,8 @@ public class GssApiAuthenticationTest {
   @Test
   void testStart() throws Exception {
     when(mockAuth.createContext()).thenReturn(mockContext);
+    doCallRealMethod().when(mockAuth).start();
+
     mockAuth.start();
     verify(mockContext).initSecContext(new byte[0], 0, 0);
   }
@@ -42,9 +44,12 @@ public class GssApiAuthenticationTest {
   @Test
   void testProcess() throws Exception {
     when(mockAuth.createContext()).thenReturn(mockContext);
-    mockAuth.start();
     when(mockAuth.extractToken(any())).thenReturn("token".getBytes());
     when(mockContext.isEstablished()).thenReturn(true);
+    doCallRealMethod().when(mockAuth).start();
+    doCallRealMethod().when(mockAuth).process();
+
+    mockAuth.start();
     mockAuth.process();
     verify(mockContext).dispose();
   }
@@ -52,20 +57,25 @@ public class GssApiAuthenticationTest {
   @Test
   void testProcessExceptionAtExtractToken() throws Exception {
     when(mockAuth.extractToken(any())).thenThrow(new IOException(format("IOException thrown")));
+    doCallRealMethod().when(mockAuth).process();
+
     assertThrows(IOException.class, () -> mockAuth.process());
   }
 
   @Test
   void testStartNullContext() throws Exception {
     when(mockAuth.createContext()).thenReturn(mockContext);
-    doThrow(new GSSException(BAD_BINDINGS)).when(mockContext).requestMutualAuth(anyBoolean());
     doCallRealMethod().when(mockAuth).close();
+    doCallRealMethod().when(mockAuth).start();
+    doThrow(new GSSException(BAD_BINDINGS)).when(mockContext).requestMutualAuth(anyBoolean());
+
     assertThrows(GSSException.class, () -> mockAuth.start());
     assertTrue(mockAuth.done);
   }
 
   @Test
-  void testProcessWithNullContext() {
+  void testProcessWithNullContext() throws Exception {
+    doCallRealMethod().when(mockAuth).process();
     assertThrows(IOException.class, () -> mockAuth.process());
   }
 }
