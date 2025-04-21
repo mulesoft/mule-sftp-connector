@@ -31,6 +31,10 @@ import java.net.URI;
  */
 public final class SftpReadCommand extends SftpCommand implements ReadCommand<SftpFileAttributes> {
 
+  private final int OWNER_READ = 0400;
+  private final int GROUP_READ = 0040;
+  private final int OTHERS_READ = 0004;
+
   /**
    * {@inheritDoc}
    */
@@ -44,6 +48,9 @@ public final class SftpReadCommand extends SftpCommand implements ReadCommand<Sf
     SftpFileAttributes attributes = getExistingFile(filePath);
     if (attributes.isDirectory()) {
       throw cannotReadDirectoryException(createUri(attributes.getPath()));
+    }
+    if (!isReadable(attributes)) {
+      throw cannotReadFileException(createUri(attributes.getPath()));
     }
 
     return read(config, attributes, lock, timeBetweenSizeCheck, true);
@@ -68,6 +75,7 @@ public final class SftpReadCommand extends SftpCommand implements ReadCommand<Sf
 
     UriLock pathLock = lock ? fileSystem.lock(uri) : new NullUriLock(uri);
     InputStream payload = null;
+
     try {
       payload = getFileInputStream((SftpConnector) config, attributes, pathLock, timeBetweenSizeCheck, useCurrentConnection);
       MediaType resolvedMediaType = fileSystem.getFileMessageMediaType(attributes);
@@ -89,5 +97,10 @@ public final class SftpReadCommand extends SftpCommand implements ReadCommand<Sf
     } else {
       return SftpInputStream.newInstance(config, attributes, pathLock, timeBetweenSizeCheck);
     }
+  }
+
+  private boolean isReadable(SftpFileAttributes attributes) {
+    int perms = attributes.getPermissions();
+    return (((perms & OWNER_READ) != 0) || ((perms & GROUP_READ) != 0) || ((perms & OTHERS_READ) != 0));
   }
 }
