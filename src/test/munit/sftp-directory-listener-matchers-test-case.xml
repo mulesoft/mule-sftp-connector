@@ -64,7 +64,7 @@
         </java:invoke-static>
     </munit:after-suite>
 
-    <munit:test name="listenerProcessesAllFiles" ignore="#[true]">
+    <munit:test name="listenerProcessesAllFiles">
 
         <munit:enable-flow-sources>
             <munit:enable-flow-source value="fileListenerFlow"/>
