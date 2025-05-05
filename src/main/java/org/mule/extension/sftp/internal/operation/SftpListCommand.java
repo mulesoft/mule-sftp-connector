@@ -70,7 +70,7 @@ public final class SftpListCommand extends SftpCommand implements ListCommand<Sf
                       Long timeBetweenSizeCheck) {
 
 
-    LOGGER.debug("Listing directory {}", path);
+    LOGGER.trace("Listing directory trace {}", path);
     for (SftpFileAttributes file : client.list(path)) {
 
       if (isVirtualDirectory(file.getName())) {
@@ -78,6 +78,7 @@ public final class SftpListCommand extends SftpCommand implements ListCommand<Sf
       }
       if (file.isDirectory()) {
         if (matcher.test(file)) {
+          LOGGER.debug("Listing directory debug {}", path);
           accumulator.add(Result.<String, SftpFileAttributes>builder().output(file.getPath()).attributes(file).build());
         }
         if (recursive) {
@@ -85,6 +86,7 @@ public final class SftpListCommand extends SftpCommand implements ListCommand<Sf
         }
       } else {
         if (matcher.test(file)) {
+          LOGGER.debug("Listing directory debug {}", path);
           accumulator.add(Result.<String, SftpFileAttributes>builder().output(file.getPath()).attributes(file)
               .build());
         }
