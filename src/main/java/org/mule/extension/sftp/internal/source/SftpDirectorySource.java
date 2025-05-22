@@ -145,7 +145,7 @@ public class SftpDirectorySource extends PollingSource<InputStream, SftpFileAttr
   private TimeUnit timeBetweenSizeCheckUnit;
 
   private URI directoryUri;
-  private Predicate<SftpFileAttributes> matcher;
+  private Predicate<SftpFileAttributes> fileAttributePredicate;
 
   private static final Map<String, SftpFileSystemConnection> OPEN_CONNECTIONS = new HashMap<>();
   private static final Map<SftpFileSystemConnection, Integer> FREQUENCY_OF_OPEN_CONNECTION = new HashMap<>();
@@ -198,7 +198,7 @@ public class SftpDirectorySource extends PollingSource<InputStream, SftpFileAttr
       Long timeBetweenSizeCheckInMillis =
           config.getTimeBetweenSizeCheckInMillis(timeBetweenSizeCheck, timeBetweenSizeCheckUnit).orElse(null);
       List<Result<String, SftpFileAttributes>> files =
-          fileSystem.list(config, directoryUri.getPath(), recursive, matcher, timeBetweenSizeCheckInMillis);
+          fileSystem.list(config, directoryUri.getPath(), recursive, fileAttributePredicate, timeBetweenSizeCheckInMillis);
       if (files.isEmpty()) {
         return;
       }
@@ -217,7 +217,7 @@ public class SftpDirectorySource extends PollingSource<InputStream, SftpFileAttr
         if (attributes.isDirectory()) {
           continue;
         }
-        if (!matcher.test(attributes)) {
+        if (!fileAttributePredicate.test(attributes)) {
           if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("Skipping file '{}' because the matcher rejected it", attributes.getPath());
           }
@@ -252,7 +252,7 @@ public class SftpDirectorySource extends PollingSource<InputStream, SftpFileAttr
   }
 
   private void refreshMatcher() {
-    matcher = predicateBuilder != null ? predicateBuilder.build() : new NullFilePayloadPredicate<>();
+    fileAttributePredicate = predicateBuilder != null ? predicateBuilder.build() : new NullFilePayloadPredicate<>();
   }
 
   private SftpFileSystemConnection openConnection(PollContext pollContext) throws Exception {
