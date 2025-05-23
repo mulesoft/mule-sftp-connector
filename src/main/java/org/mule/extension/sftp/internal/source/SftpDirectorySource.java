@@ -202,40 +202,7 @@ public class SftpDirectorySource extends PollingSource<InputStream, SftpFileAttr
       if (files.isEmpty()) {
         return;
       }
-      for (Result<String, SftpFileAttributes> file : files) {
-        if (pollContext.isSourceStopping()) {
-          return;
-        }
-        attributes = file.getAttributes().get();
-        if (!file.getAttributes().isPresent()) {
-          if (LOGGER.isWarnEnabled()) {
-            LOGGER
-                .warn("Skipping file because attributes are not present. Please check your server for errors or try enabling MDTM.");
-          }
-          continue;
-        }
-        if (attributes.isDirectory()) {
-          continue;
-        }
-        if (!fileAttributePredicate.test(attributes)) {
-          if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("Skipping file '{}' because the matcher rejected it", attributes.getPath());
-          }
-          continue;
-        }
-
-        Result<InputStream, SftpFileAttributes> result =
-            fileSystem.read(config, attributes.getPath(), true, timeBetweenSizeCheckInMillis);
-        PollItemStatus pollItemStatus = processFile(result, pollContext);
-        if (canDisconnect && pollItemStatus == PollItemStatus.ACCEPTED) {
-          LOGGER.debug("The file {} is in ACCEPTED state", file.getAttributes().get().getFileName());
-          canDisconnect = false;
-        }
-        if (pollItemStatus == SOURCE_STOPPING) {
-          break;
-        }
-        updateConnectionMaps(attributes.getPath(), fileSystem, pollItemStatus);
-      }
+      canDisconnect = processFiles(files, pollContext, fileSystem, timeBetweenSizeCheckInMillis);
     } catch (IllegalPathException ex) {
       LOGGER.debug("The File with path '%s' was polled but not exist anymore", attributes.getPath());
     } catch (Exception e) {
@@ -249,6 +216,74 @@ public class SftpDirectorySource extends PollingSource<InputStream, SftpFileAttr
         fileSystemProvider.disconnect(fileSystem);
       }
     }
+  }
+
+  private boolean processFiles(List<Result<String, SftpFileAttributes>> files,
+                               PollContext<InputStream, SftpFileAttributes> pollContext,
+                               SftpFileSystemConnection fileSystem,
+                               Long timeBetweenSizeCheckInMillis)
+      throws Exception {
+    SftpFileAttributes attributes = null;
+    boolean canDisconnect = true;
+
+    for (Result<String, SftpFileAttributes> file : files) {
+      if (pollContext.isSourceStopping()) {
+        return canDisconnect;
+      }
+
+      if (!hasAttributes(file)) {
+        continue;
+      }
+
+      attributes = file.getAttributes().get();
+
+      if (shouldSkipFile(attributes)) {
+        continue;
+      }
+
+      Result<InputStream, SftpFileAttributes> result =
+              fileSystem.read(config, attributes.getPath(), true, timeBetweenSizeCheckInMillis);
+      PollItemStatus pollItemStatus = processFile(result, pollContext);
+
+      if (canDisconnect && pollItemStatus == PollItemStatus.ACCEPTED) {
+        LOGGER.debug("The file {} is in ACCEPTED state", attributes.getFileName());
+        canDisconnect = false;
+      }
+
+      if (pollItemStatus == SOURCE_STOPPING) {
+        break;
+      }
+
+      updateConnectionMaps(attributes.getPath(), fileSystem, pollItemStatus);
+    }
+
+    return canDisconnect;
+  }
+
+  private boolean hasAttributes(Result<String, SftpFileAttributes> file) {
+    if (!file.getAttributes().isPresent()) {
+      if (LOGGER.isWarnEnabled()) {
+        LOGGER.warn("Skipping file because attributes are not present. " +
+                "Please check your server for errors or try enabling MDTM.");
+      }
+      return false;
+    }
+    return true;
+  }
+
+  private boolean shouldSkipFile(SftpFileAttributes attributes) {
+    if (attributes.isDirectory()) {
+      return true;
+    }
+
+    if (!fileAttributePredicate.test(attributes)) {
+      if (LOGGER.isDebugEnabled()) {
+        LOGGER.debug("Skipping file '{}' because the matcher rejected it", attributes.getPath());
+      }
+      return true;
+    }
+
+    return false;
   }
 
   private void refreshMatcher() {
