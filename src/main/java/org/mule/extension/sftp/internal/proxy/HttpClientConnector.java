@@ -54,6 +54,9 @@ public class HttpClientConnector extends AbstractClientProxyConnector {
 
   private boolean ongoing;
 
+  private static final String UNEXPECTED_PROXY_RESPONSE_MSG = "Unexpected HTTP proxy response from {0}: {1}";
+
+
   /**
    * Creates a new {@link HttpClientConnector}. The connector supports
    * anonymous proxy connections as well as Basic and Negotiate
@@ -182,14 +185,14 @@ public class HttpClientConnector extends AbstractClientProxyConnector {
       throws Exception {
     if (reply.isEmpty() || reply.get(0).isEmpty()) {
       throw new IOException(
-                            format("Unexpected HTTP proxy response from {0}: {1}",
+                            format(UNEXPECTED_PROXY_RESPONSE_MSG,
                                    proxyAddress, "<empty>")); //$NON-NLS-1$
     }
     try {
       StatusLine status = HttpParser.parseStatusLine(reply.get(0));
       if (!ongoing) {
         throw new IOException(format(
-                                     "Unexpected HTTP proxy response from {0}: {1}", proxyAddress,
+                                     UNEXPECTED_PROXY_RESPONSE_MSG, proxyAddress,
                                      Integer.toString(status.getResultCode()),
                                      status.getReason()));
       }
@@ -227,7 +230,7 @@ public class HttpClientConnector extends AbstractClientProxyConnector {
       }
     } catch (HttpParser.ParseException e) {
       throw new IOException(
-                            format("Unexpected HTTP proxy response from {0}: {1}",
+                            format(UNEXPECTED_PROXY_RESPONSE_MSG,
                                    proxyAddress, reply.get(0)),
                             e);
     }

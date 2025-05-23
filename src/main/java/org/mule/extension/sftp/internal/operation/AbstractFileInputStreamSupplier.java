@@ -46,6 +46,7 @@ public abstract class AbstractFileInputStreamSupplier implements Supplier<InputS
   protected static final String FILE_NO_LONGER_EXISTS_MESSAGE =
       "Error reading file from path %s. It no longer exists at the time of reading.";
   private static final int MAX_SIZE_CHECK_RETRIES = 2;
+  private static final String FILE_ON_PATH_MSG = "File on path ";
 
   protected org.mule.extension.sftp.api.FileAttributes attributes;
   private Long timeBetweenSizeCheck;
@@ -93,19 +94,19 @@ public abstract class AbstractFileInputStreamSupplier implements Supplier<InputS
     } while (updatedAttributes != null && updatedAttributes.getSize() != oldAttributes.getSize()
         && retries++ < MAX_SIZE_CHECK_RETRIES);
     if (retries > MAX_SIZE_CHECK_RETRIES) {
-      throw new FileBeingModifiedException(createStaticMessage("File on path " + attributes.getPath()
+      throw new FileBeingModifiedException(createStaticMessage(FILE_ON_PATH_MSG + attributes.getPath()
           + " is still being written."));
     }
     return updatedAttributes;
   }
 
   protected void onFileDeleted() {
-    throw new DeletedFileWhileReadException(createStaticMessage("File on path " + attributes.getPath()
+    throw new DeletedFileWhileReadException(createStaticMessage(FILE_ON_PATH_MSG + attributes.getPath()
         + " was read but does not exist anymore."));
   }
 
   protected void onFileDeleted(Exception e) {
-    throw new DeletedFileWhileReadException(createStaticMessage("File on path " + attributes.getPath()
+    throw new DeletedFileWhileReadException(createStaticMessage(FILE_ON_PATH_MSG + attributes.getPath()
         + " was read but does not exist anymore."), e);
   }
 
