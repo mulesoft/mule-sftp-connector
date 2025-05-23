@@ -192,7 +192,7 @@ public class HttpClientConnector extends AbstractClientProxyConnector {
       StatusLine status = HttpParser.parseStatusLine(reply.get(0));
       if (!ongoing) {
         throw new IOException(format(
-                UNEXPECTED_PROXY_RESPONSE_MSG, proxyAddress,
+                                     UNEXPECTED_PROXY_RESPONSE_MSG, proxyAddress,
                                      Integer.toString(status.getResultCode()),
                                      status.getReason()));
       }
