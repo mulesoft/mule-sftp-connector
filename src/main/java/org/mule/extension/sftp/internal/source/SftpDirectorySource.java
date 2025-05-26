@@ -217,12 +217,12 @@ public class SftpDirectorySource extends PollingSource<InputStream, SftpFileAttr
       }
     }
   }
+
   @SuppressWarnings("java:S3655")
   private boolean processFiles(List<Result<String, SftpFileAttributes>> files,
                                PollContext<InputStream, SftpFileAttributes> pollContext,
                                SftpFileSystemConnection fileSystem,
-                               Long timeBetweenSizeCheckInMillis)
-       {
+                               Long timeBetweenSizeCheckInMillis) {
     SftpFileAttributes attributes = null;
     boolean canDisconnect = true;
 
