@@ -204,7 +204,7 @@ public class SftpDirectorySource extends PollingSource<InputStream, SftpFileAttr
       }
       canDisconnect = processFiles(files, pollContext, fileSystem, timeBetweenSizeCheckInMillis);
     } catch (IllegalPathException ex) {
-      LOGGER.debug("The File with path '%s' was polled but not exist anymore", attributes.getPath());
+      LOGGER.debug("The File with attributes {} was polled but not exist anymore", attributes);
     } catch (Exception e) {
       LOGGER.error(format("Found exception trying to poll directory '%s'. Will try again on the next poll. ",
                           directoryUri.getPath()),
@@ -217,12 +217,12 @@ public class SftpDirectorySource extends PollingSource<InputStream, SftpFileAttr
       }
     }
   }
-
+  @SuppressWarnings("java:S3655")
   private boolean processFiles(List<Result<String, SftpFileAttributes>> files,
                                PollContext<InputStream, SftpFileAttributes> pollContext,
                                SftpFileSystemConnection fileSystem,
                                Long timeBetweenSizeCheckInMillis)
-      throws Exception {
+       {
     SftpFileAttributes attributes = null;
     boolean canDisconnect = true;
 
@@ -306,6 +306,7 @@ public class SftpDirectorySource extends PollingSource<InputStream, SftpFileAttr
     }
     return fileSystem;
   }
+
 
   private PollItemStatus processFile(Result<InputStream, SftpFileAttributes> file,
                                      PollContext<InputStream, SftpFileAttributes> pollContext) {
