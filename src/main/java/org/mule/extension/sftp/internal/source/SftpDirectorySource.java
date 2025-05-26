@@ -242,7 +242,7 @@ public class SftpDirectorySource extends PollingSource<InputStream, SftpFileAttr
       }
 
       Result<InputStream, SftpFileAttributes> result =
-              fileSystem.read(config, attributes.getPath(), true, timeBetweenSizeCheckInMillis);
+          fileSystem.read(config, attributes.getPath(), true, timeBetweenSizeCheckInMillis);
       PollItemStatus pollItemStatus = processFile(result, pollContext);
 
       if (canDisconnect && pollItemStatus == PollItemStatus.ACCEPTED) {
@@ -264,7 +264,7 @@ public class SftpDirectorySource extends PollingSource<InputStream, SftpFileAttr
     if (!file.getAttributes().isPresent()) {
       if (LOGGER.isWarnEnabled()) {
         LOGGER.warn("Skipping file because attributes are not present. " +
-                "Please check your server for errors or try enabling MDTM.");
+            "Please check your server for errors or try enabling MDTM.");
       }
       return false;
     }
