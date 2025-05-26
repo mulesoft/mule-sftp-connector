@@ -42,6 +42,7 @@ public class URLPathLock implements PathLock, UriLock {
   /**
    * {@inheritDoc}
    */
+  @SuppressWarnings("java:S2222")
   @Override
   public boolean tryLock() {
     Lock lock = getLock();
@@ -73,6 +74,7 @@ public class URLPathLock implements PathLock, UriLock {
   /**
    * {@inheritDoc}
    */
+  @SuppressWarnings("java:S2235")
   @Override
   public void release() {
     Lock lock = ownedLock.getAndSet(null);
