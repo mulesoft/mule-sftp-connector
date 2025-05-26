@@ -188,12 +188,14 @@ public final class UriUtils {
     regex.append(next);
     return i;
   }
+
   private static void handleGroupStart(String globPattern, StringBuilder regex, int i, boolean inGroup) {
     if (inGroup) {
       throw new PatternSyntaxException("Cannot nest groups", globPattern, i - 1);
     }
     regex.append("(?:(?:");
   }
+
   private static void handleGroupEnd(StringBuilder regex, boolean inGroup) {
     if (inGroup) {
       regex.append("))");
@@ -201,6 +203,7 @@ public final class UriUtils {
       regex.append('}');
     }
   }
+
   private static void handleComma(StringBuilder regex, boolean inGroup) {
     if (inGroup) {
       regex.append(")|(?:");
@@ -208,6 +211,7 @@ public final class UriUtils {
       regex.append(',');
     }
   }
+
   private static int handleAsterisk(String globPattern, StringBuilder regex, int i) {
     if (next(globPattern, i) == '*') {
       regex.append(".*");
@@ -251,6 +255,7 @@ public final class UriUtils {
     regex.append("]]");
     return i;
   }
+
   private static int handleInitialCharacters(String globPattern, StringBuilder regex, int i) {
     if (next(globPattern, i) == '^') {
       regex.append("\\^");
