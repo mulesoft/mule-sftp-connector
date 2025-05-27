@@ -182,7 +182,7 @@ public final class HttpParser {
         return handleKeyWithoutValue(challenge, header, start, end, next);
       }
 
-      if (checkHandleTokenWithMultipleEquals(nextStart, end, header)) {
+      if (isEqualsFollowingToken(nextStart, end, header)) {
         return handleTokenWithMultipleEquals(challenge, header, start, end, nextStart, length);
       }
 
@@ -200,7 +200,7 @@ public final class HttpParser {
     return length;
   }
 
-  private static boolean checkHandleTokenWithMultipleEquals(int nextStart, int end, String header) {
+  private static boolean isEqualsFollowingToken(int nextStart, int end, String header) {
     return nextStart == end + 1 && header.charAt(nextStart) == '=';
   }
 

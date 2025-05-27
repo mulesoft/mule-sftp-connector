@@ -195,10 +195,9 @@ public class SftpConnectionProvider extends FileSystemProvider<SftpFileSystemCon
       return new SftpConnectionException(getErrorMessage(connectionSettings, message), e, FileError.KEY_EXCHANGE_FAILED);
     } else if (code == 9) {
       return new SftpConnectionException(getErrorMessage(connectionSettings, message), e, FileError.CANNOT_REACH);
-    } else {
-      LOGGER.error(message);
-      return new SftpConnectionException(getErrorMessage(connectionSettings, message), e, FileError.DISCONNECTED);
     }
+    LOGGER.error(message);
+    return new SftpConnectionException(getErrorMessage(connectionSettings, message), e, FileError.DISCONNECTED);
   }
 
   @Override
