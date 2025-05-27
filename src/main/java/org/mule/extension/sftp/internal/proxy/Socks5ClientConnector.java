@@ -46,11 +46,11 @@ public class Socks5ClientConnector extends AbstractClientProxyConnector {
 
   // Address types
 
-  private static final byte SOCKS_ADDRESS_IPv4 = 1;
+  private static final byte SOCKS_ADDRESS_IPV4 = 1;
 
   private static final byte SOCKS_ADDRESS_FQDN = 3;
 
-  private static final byte SOCKS_ADDRESS_IPv6 = 4;
+  private static final byte SOCKS_ADDRESS_IPV6 = 4;
 
   // Reply codes
 
@@ -278,7 +278,7 @@ public class Socks5ClientConnector extends AbstractClientProxyConnector {
       length = remoteName.length + 1;
     } else {
       length = rawAddress.length;
-      type = length == 4 ? SOCKS_ADDRESS_IPv4 : SOCKS_ADDRESS_IPv6;
+      type = length == 4 ? SOCKS_ADDRESS_IPV4 : SOCKS_ADDRESS_IPV6;
     }
     Buffer buffer = new ByteArrayBuffer(4 + length + 2, false);
     buffer.putByte(SOCKS_VERSION_5);

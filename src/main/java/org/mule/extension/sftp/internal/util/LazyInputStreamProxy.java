@@ -10,11 +10,13 @@ import org.mule.extension.sftp.internal.stream.LazyStreamSupplier;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class LazyInputStreamProxy extends InputStream {
 
   private final LazyStreamSupplier streamSupplier;
-  private InputStream delegate;
+  private final AtomicReference<InputStream> delegateRef = new AtomicReference<>();
+
   private static final Object lock = new Object();
 
 
@@ -23,14 +25,15 @@ public class LazyInputStreamProxy extends InputStream {
   }
 
   private InputStream getDelegate() {
-    if (delegate == null) {
-      synchronized (lock) {
-        if (delegate == null) {
-          delegate = streamSupplier.get();
-        }
+    InputStream local = delegateRef.get();
+    if (local == null) {
+      InputStream created = streamSupplier.get();
+      if (delegateRef.compareAndSet(null, created)) {
+        return created;
       }
+      local = delegateRef.get();
     }
-    return delegate;
+    return local;
   }
 
   @Override
