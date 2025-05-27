@@ -50,13 +50,7 @@ public abstract class AbstractPostActionGroup {
   }
 
   public void apply(AbstractFileSystem fileSystem, FileAttributes fileAttributes, FileConnectorConfig config) {
-    if (LOGGER.isTraceEnabled()) {
-      try {
-        validateSelf();
-      } catch (IllegalArgumentException e) {
-        LOGGER.trace(e.getMessage());
-      }
-    }
+    logTraceValidation();
 
     boolean movedOrRenamed = false;
     try {
@@ -89,4 +83,16 @@ public abstract class AbstractPostActionGroup {
       }
     }
   }
+
+  private void logTraceValidation() {
+    if (LOGGER.isTraceEnabled()) {
+      try {
+        validateSelf();
+      } catch (IllegalArgumentException e) {
+        LOGGER.trace(e.getMessage());
+      }
+    }
+  }
+
 }
+
