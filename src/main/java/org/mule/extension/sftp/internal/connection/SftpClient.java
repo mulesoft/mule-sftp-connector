@@ -421,7 +421,7 @@ public class SftpClient {
    * Lists the contents of the directory at the given {@code path}
    *
    * @param path the path to list
-   * @return a immutable {@link List} of {@link SftpFileAttributes}. Might be empty but will never be {@code null}
+   * @return an immutable {@link List} of {@link SftpFileAttributes}. Might be empty but will never be {@code null}
    */
   public List<SftpFileAttributes> list(String path) {
     Collection<org.apache.sshd.sftp.client.SftpClient.DirEntry> entries;
