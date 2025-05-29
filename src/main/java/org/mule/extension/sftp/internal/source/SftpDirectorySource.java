@@ -15,6 +15,7 @@ import static org.mule.sdk.api.annotation.source.SourceClusterSupport.DEFAULT_PR
 
 import static java.lang.String.format;
 
+import org.apache.sshd.common.SshException;
 import org.mule.extension.sftp.api.FileAttributes;
 import org.mule.extension.sftp.api.SftpFileAttributes;
 import org.mule.extension.sftp.api.SftpFileMatcher;
@@ -206,16 +207,43 @@ public class SftpDirectorySource extends PollingSource<InputStream, SftpFileAttr
     } catch (IllegalPathException ex) {
       LOGGER.debug("The File with attributes {} was polled but not exist anymore", attributes);
     } catch (Exception e) {
-      LOGGER.error(format("Found exception trying to poll directory '%s'. Will try again on the next poll. ",
-                          directoryUri.getPath()),
-                   e.getMessage(), e);
-      extractConnectionException(e).ifPresent(pollContext::onConnectionException);
+      if (isChannelBeingClosed(e)) {
+        LOGGER.warn("SFTP channel is closed. Attempting to reconnect and retry...");
+        try {
+          // Disconnect and cleanup
+          fileSystem.disconnect();
+          // Get a new connection
+          fileSystem = openConnection(pollContext);
+          // Retry the list operation
+          Long timeBetweenSizeCheckInMillis =
+              config.getTimeBetweenSizeCheckInMillis(timeBetweenSizeCheck, timeBetweenSizeCheckUnit).orElse(null);
+          List<Result<String, SftpFileAttributes>> files =
+              fileSystem.list(config, directoryUri.getPath(), recursive, fileAttributePredicate, timeBetweenSizeCheckInMillis);
+          if (!files.isEmpty()) {
+            canDisconnect = processFiles(files, pollContext, fileSystem, timeBetweenSizeCheckInMillis);
+          }
+        } catch (Exception reconnectError) {
+          LOGGER.error(format("Failed to reconnect while polling directory '%s'. Will try again on the next poll.",
+                              directoryUri.getPath()),
+                       reconnectError.getMessage(), reconnectError);
+          extractConnectionException(reconnectError).ifPresent(pollContext::onConnectionException);
+        }
+      } else {
+        LOGGER.error(format("Found exception trying to poll directory '%s'. Will try again on the next poll. ",
+                            directoryUri.getPath()),
+                     e.getMessage(), e);
+        extractConnectionException(e).ifPresent(pollContext::onConnectionException);
+      }
     } finally {
       if (canDisconnect) {
         LOGGER.debug("Closing the connection since no file is in ACCEPTED state.");
         fileSystemProvider.disconnect(fileSystem);
       }
     }
+  }
+
+  private boolean isChannelBeingClosed(Exception e) {
+      return e.getCause() instanceof SshException && e.getCause().getMessage().contains("Channel is being closed");
   }
 
   @SuppressWarnings("java:S3655")

@@ -25,11 +25,9 @@ import static org.slf4j.LoggerFactory.getLogger;
 
 import org.apache.sshd.client.config.SshClientConfigFileReader;
 import org.apache.sshd.client.session.SessionFactory;
-import org.apache.sshd.common.CommonModuleProperties;
 import org.apache.sshd.common.PropertyResolverUtils;
 import org.apache.sshd.common.SshException;
 import org.apache.sshd.common.keyprovider.FileKeyPairProvider;
-import org.apache.sshd.common.session.SessionHeartbeatController;
 import org.mule.extension.sftp.api.WriteStrategy;
 import org.mule.extension.sftp.api.FileWriteMode;
 import org.mule.extension.sftp.api.SftpAuthenticationMethod;
@@ -104,6 +102,7 @@ public class SftpClient {
   private String identityFile;
   private String passphrase;
   private String knownHostsFile;
+  private String username;
 
   private boolean kexHeader;
 
@@ -116,7 +115,7 @@ public class SftpClient {
   private String cwd = "/";
   private static final Object LOCK = new Object();
   private String home;
-  private long heartBeatInterval = 30000;
+  private long heartBeatInterval = 10000; // 10 seconds heartbeat interval
 
   protected SchedulerService schedulerService;
 
@@ -151,8 +150,7 @@ public class SftpClient {
     }
 
     configureWithExternalSources(externalConfigProvider);
-    CommonModuleProperties.SESSION_HEARTBEAT_TYPE.set(client, SessionHeartbeatController.HeartbeatType.IGNORE);
-    CommonModuleProperties.SESSION_HEARTBEAT_INTERVAL.set(client, Duration.ofMillis(heartBeatInterval));
+    CoreModuleProperties.HEARTBEAT_INTERVAL.set(client, Duration.ofMillis(heartBeatInterval));
 
     if (!this.kexHeader) {
       SessionFactory factory = new NoStrictKexSessionFactory(client);
@@ -195,6 +193,35 @@ public class SftpClient {
     this.cwd = normalizedPath;
   }
 
+  private SftpFileAttributes reconnectAndRetry(URI uri, String path) throws IOException, GeneralSecurityException {
+    LOGGER.warn("SFTP client is closed. Attempting to reconnect...");
+    synchronized (LOCK) {
+      disconnect();
+      // Reinitialize client
+      if (nonNull(proxyConfig)) {
+        client = ClientBuilder.builder()
+            .factory(MuleSftpClient::new)
+            .randomFactory(PRNGAlgorithm.AUTOSELECT.getRandomFactory())
+            .build();
+      } else {
+        client = ClientBuilder.builder()
+            .randomFactory(PRNGAlgorithm.AUTOSELECT.getRandomFactory())
+            .build();
+      }
+      // Start client and configure
+      client.start();
+      if (nonNull(proxyConfig)) {
+        ((MuleSftpClient) client).setProxyConfig(proxyConfig);
+      }
+      // Set heartbeat configuration
+      CoreModuleProperties.HEARTBEAT_INTERVAL.set(client, Duration.ofMillis(heartBeatInterval));
+      // Reconnect and authenticate
+      login(username);
+      // Retry the original operation
+      return new SftpFileAttributes(uri, sftp.stat(path));
+    }
+  }
+
   /**
    * Gets the attributes for the file in the given {code path}
    *
@@ -214,6 +241,13 @@ public class SftpClient {
       }
       throw handleException("Could not obtain attributes for path " + path, e);
     } catch (IOException e) {
+      if (e.getMessage() != null) {
+        try {
+          return reconnectAndRetry(uri, path);
+        } catch (Exception reconnectError) {
+          throw handleException("Failed to reconnect while getting attributes for path " + path, reconnectError);
+        }
+      }
       throw handleException("Could not obtain attributes for path " + path, e);
     }
   }
@@ -225,6 +259,7 @@ public class SftpClient {
    * @param user the authentication user
    */
   public void login(String user) throws IOException, GeneralSecurityException {
+    this.username = user;
     configureSession(user);
 
     session.auth().verify(connectionTimeoutMillis);
