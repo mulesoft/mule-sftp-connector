@@ -243,7 +243,7 @@ public class SftpDirectorySource extends PollingSource<InputStream, SftpFileAttr
   }
 
   private boolean isChannelBeingClosed(Exception e) {
-      return e.getCause() instanceof SshException && e.getCause().getMessage().contains("Channel is being closed");
+    return e.getCause() instanceof SshException && e.getCause().getMessage().contains("Channel is being closed");
   }
 
   @SuppressWarnings("java:S3655")
