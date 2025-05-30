@@ -13,6 +13,7 @@ import org.mule.runtime.api.i18n.I18nMessage;
  *
  * @since 1.2.0
  */
+@SuppressWarnings("java:S110")
 public class FileBeingModifiedException extends FileReadException {
 
   /**
