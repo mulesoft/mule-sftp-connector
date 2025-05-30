@@ -6,6 +6,7 @@
  */
 package org.mule.extension.sftp.internal.lock;
 
+import org.mule.extension.sftp.internal.exception.PathConversionException;
 import org.mule.runtime.api.lock.LockFactory;
 
 import java.net.URI;
@@ -99,7 +100,7 @@ public class URLPathLock implements PathLock, UriLock {
     try {
       return Paths.get(url.toURI());
     } catch (URISyntaxException e) {
-      throw new RuntimeException(e);
+      throw new PathConversionException(e);
     }
   }
 
@@ -111,7 +112,7 @@ public class URLPathLock implements PathLock, UriLock {
     try {
       return url.toURI();
     } catch (URISyntaxException e) {
-      throw new RuntimeException(e);
+      throw new PathConversionException(e);
     }
   }
 

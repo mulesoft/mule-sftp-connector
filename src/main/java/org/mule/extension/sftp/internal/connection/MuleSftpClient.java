@@ -103,7 +103,7 @@ public class MuleSftpClient extends org.apache.sshd.client.SshClient {
           IoSession ioSession = future.getSession();
           try {
             MuleSftpClientSession session = createSession(ioSession,
-                                                          username, address, hostConfig);
+                                                          username, address);
             connectFuture.setSession(session);
           } catch (RuntimeException e) {
             connectFuture.setException(e);
@@ -145,8 +145,7 @@ public class MuleSftpClient extends org.apache.sshd.client.SshClient {
   }
 
   private MuleSftpClientSession createSession(IoSession ioSession,
-                                              String username, InetSocketAddress address,
-                                              HostConfigEntry hostConfig) {
+                                              String username, InetSocketAddress address) {
     AbstractSession rawSession = AbstractSession.getSession(ioSession);
     if (!(rawSession instanceof MuleSftpClientSession)) {
       throw new IllegalStateException("Wrong session type: " //$NON-NLS-1$
