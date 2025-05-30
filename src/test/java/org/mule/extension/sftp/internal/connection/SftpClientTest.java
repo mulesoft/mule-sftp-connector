@@ -86,7 +86,7 @@ public class SftpClientTest {
     // Assert that an exception is thrown and its message contains "client is closed"
     Exception thrown = assertThrows(Exception.class, () -> sftpClient.getAttributes(uri));
     assertTrue(thrown.getMessage().contains("client is closed") ||
-               (thrown.getCause() != null && thrown.getCause().getMessage().contains("client is closed")));
+        (thrown.getCause() != null && thrown.getCause().getMessage().contains("client is closed")));
   }
 
 }
