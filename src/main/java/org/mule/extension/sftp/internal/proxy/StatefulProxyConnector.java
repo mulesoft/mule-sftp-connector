@@ -40,6 +40,7 @@ public interface StatefulProxyConnector extends ClientProxyConnector {
    * @throws Exception
    *             if data cannot be read, or the connection attempt fails
    */
+  @SuppressWarnings("java:S112")
   void messageReceived(IoSession session, Readable buffer) throws Exception;
 
   /**
@@ -53,5 +54,6 @@ public interface StatefulProxyConnector extends ClientProxyConnector {
    * @throws Exception
    *             if the operation is run synchronously and throws an exception
    */
+  @SuppressWarnings("java:S112")
   void runWhenDone(Callable<Void> command) throws Exception;
 }
