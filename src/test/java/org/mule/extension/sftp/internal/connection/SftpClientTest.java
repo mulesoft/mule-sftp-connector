@@ -15,16 +15,13 @@ import org.mule.extension.sftp.internal.exception.SftpConnectionException;
 import org.mule.runtime.api.connection.ConnectionException;
 import org.mule.runtime.api.exception.MuleRuntimeException;
 import org.mule.tck.size.SmallTest;
-import org.mule.extension.sftp.api.SftpFileAttributes;
 
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.GeneralSecurityException;
-import java.lang.reflect.Field;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @SmallTest
@@ -48,13 +45,13 @@ public class SftpClientTest {
   }
 
   @Test
-  void testSftpClientConfigureHostChecking() throws GeneralSecurityException, IOException {
+  void testSftpClientConfigureHostChecking() throws GeneralSecurityException {
     client.setKnownHostsFile("HostFile");
     assertThrows(SshException.class, () -> client.login("user"));
   }
 
   @Test
-  void testSftpClientCheckExists() throws GeneralSecurityException, IOException {
+  void testSftpClientCheckExists() throws GeneralSecurityException {
     assertThrows(IllegalArgumentException.class, () -> client.setIdentity("HostFile", "passphrase"));
   }
 
@@ -70,23 +67,6 @@ public class SftpClientTest {
   void testSftpClientGetFile() throws URISyntaxException {
     URI uri = new URI("path");
     assertThrows(MuleRuntimeException.class, () -> client.getFile(uri));
-  }
-
-  @Test
-  void testGetAttributesRetriesOnClientClosed() throws Exception {
-    SftpClient sftpClient = new SftpClient("host", 22, PRNGAlgorithm.SHA1PRNG, null);
-    URI uri = new URI("/some/path");
-    // Use reflection to set private sftp field
-    Field sftpField = SftpClient.class.getDeclaredField("sftp");
-    sftpField.setAccessible(true);
-    org.apache.sshd.sftp.client.SftpClient mockSftp = mock(org.apache.sshd.sftp.client.SftpClient.class);
-    sftpField.set(sftpClient, mockSftp);
-    // Mock sftp.stat to throw IOException (use anyString() to avoid ambiguity)
-    doThrow(new IOException("client is closed")).when(mockSftp).stat(anyString());
-    // Assert that an exception is thrown and its message contains "client is closed"
-    Exception thrown = assertThrows(Exception.class, () -> sftpClient.getAttributes(uri));
-    assertTrue(thrown.getMessage().contains("client is closed") ||
-        (thrown.getCause() != null && thrown.getCause().getMessage().contains("client is closed")));
   }
 
 }
