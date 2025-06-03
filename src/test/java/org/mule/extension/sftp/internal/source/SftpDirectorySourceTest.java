@@ -100,4 +100,81 @@ class SftpDirectorySourceTest {
     verify(mockFileSystem, times(1)).disconnect();
     verify(mockFileSystem, times(2)).list(any(), anyString(), anyBoolean(), any(), any());
   }
+
+  @Test
+  void testPollHandlesReconnectionFailure() throws Exception {
+    SftpDirectorySource source = new SftpDirectorySource();
+    PollContext<InputStream, SftpFileAttributes> mockContext = mock(PollContext.class);
+    when(mockContext.isSourceStopping()).thenReturn(false);
+
+    // Mock fileSystemProvider and fileSystem
+    @SuppressWarnings("unchecked")
+    ConnectionProvider<SftpFileSystemConnection> mockProvider = mock(ConnectionProvider.class);
+    SftpFileSystemConnection mockFileSystem = mock(SftpFileSystemConnection.class);
+    when(mockProvider.connect()).thenReturn(mockFileSystem).thenThrow(new org.mule.runtime.api.connection.ConnectionException("Reconnection failed"));
+
+    // Inject the mock provider into the source
+    Field providerField = SftpDirectorySource.class.getDeclaredField("fileSystemProvider");
+    providerField.setAccessible(true);
+    providerField.set(source, mockProvider);
+
+    // Set up directoryUri and config
+    Field dirUriField = SftpDirectorySource.class.getDeclaredField("directoryUri");
+    dirUriField.setAccessible(true);
+    dirUriField.set(source, new java.net.URI("/some/dir"));
+
+    Field configField = SftpDirectorySource.class.getDeclaredField("config");
+    configField.setAccessible(true);
+    configField.set(source, mock(org.mule.extension.sftp.internal.extension.SftpConnector.class));
+
+    // Simulate channel closed exception
+    org.apache.sshd.common.SshException sshCause = new org.apache.sshd.common.SshException("Channel is being closed");
+    RuntimeException listException = new RuntimeException("wrapper", sshCause);
+    when(mockFileSystem.list(any(), anyString(), anyBoolean(), any(), any())).thenThrow(listException);
+
+    // Run poll
+    source.poll(mockContext);
+
+    // Verify disconnect was called and onConnectionException was triggered
+    verify(mockFileSystem, times(1)).disconnect();
+    verify(mockContext, times(1)).onConnectionException(any(org.mule.runtime.api.connection.ConnectionException.class));
+  }
+
+  @Test
+  void testPollIgnoresNonChannelClosedExceptions() throws Exception {
+    SftpDirectorySource source = new SftpDirectorySource();
+    PollContext<InputStream, SftpFileAttributes> mockContext = mock(PollContext.class);
+    when(mockContext.isSourceStopping()).thenReturn(false);
+
+    // Mock fileSystemProvider and fileSystem
+    @SuppressWarnings("unchecked")
+    ConnectionProvider<SftpFileSystemConnection> mockProvider = mock(ConnectionProvider.class);
+    SftpFileSystemConnection mockFileSystem = mock(SftpFileSystemConnection.class);
+    when(mockProvider.connect()).thenReturn(mockFileSystem);
+
+    // Inject the mock provider into the source
+    Field providerField = SftpDirectorySource.class.getDeclaredField("fileSystemProvider");
+    providerField.setAccessible(true);
+    providerField.set(source, mockProvider);
+
+    // Set up directoryUri and config
+    Field dirUriField = SftpDirectorySource.class.getDeclaredField("directoryUri");
+    dirUriField.setAccessible(true);
+    dirUriField.set(source, new java.net.URI("/some/dir"));
+
+    Field configField = SftpDirectorySource.class.getDeclaredField("config");
+    configField.setAccessible(true);
+    configField.set(source, mock(org.mule.extension.sftp.internal.extension.SftpConnector.class));
+
+    // Simulate a different exception (not channel closed)
+    RuntimeException otherException = new RuntimeException("Some other SFTP error");
+    when(mockFileSystem.list(any(), anyString(), anyBoolean(), any(), any())).thenThrow(otherException);
+
+    // Run poll - should throw the exception without attempting reconnection
+    assertThrows(RuntimeException.class, () -> source.poll(mockContext));
+
+    // Verify disconnect was NOT called (no reconnection attempt)
+    verify(mockFileSystem, never()).disconnect();
+    verify(mockContext, never()).onConnectionException(any());
+  }
 }
