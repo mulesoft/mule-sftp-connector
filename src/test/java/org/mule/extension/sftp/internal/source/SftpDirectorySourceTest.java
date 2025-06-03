@@ -111,7 +111,8 @@ class SftpDirectorySourceTest {
     @SuppressWarnings("unchecked")
     ConnectionProvider<SftpFileSystemConnection> mockProvider = mock(ConnectionProvider.class);
     SftpFileSystemConnection mockFileSystem = mock(SftpFileSystemConnection.class);
-    when(mockProvider.connect()).thenReturn(mockFileSystem).thenThrow(new org.mule.runtime.api.connection.ConnectionException("Reconnection failed"));
+    when(mockProvider.connect()).thenReturn(mockFileSystem)
+        .thenThrow(new org.mule.runtime.api.connection.ConnectionException("Reconnection failed"));
 
     // Inject the mock provider into the source
     Field providerField = SftpDirectorySource.class.getDeclaredField("fileSystemProvider");
