@@ -8,6 +8,9 @@
 package org.mule.extension.sftp.internal.auth;
 
 import java.io.Closeable;
+import java.io.IOException;
+
+import org.ietf.jgss.GSSException;
 
 /**
  * An {@code AuthenticationHandler} encapsulates a possibly multi-step
@@ -43,18 +46,18 @@ public interface AuthenticationHandler<ParameterType, TokenType>
    * Produces the initial authentication token that can be then retrieved via
    * {@link #getToken()}.
    *
-   * @throws Exception
+   * @throws GSSException
    *             if an error occurs
    */
-  void start() throws Exception;
+  void start() throws GSSException;
 
   /**
    * Produces the next authentication token, if any.
    *
-   * @throws Exception
-   *             if an error occurs
+   * @throws IOException if an error occurs
+   * @throws GSSException if an error occurs
    */
-  void process() throws Exception;
+  void process() throws IOException, GSSException;
 
   /**
    * Sets the parameters for the next token generation via {@link #start()} or
@@ -69,10 +72,10 @@ public interface AuthenticationHandler<ParameterType, TokenType>
    * Retrieves the last token generated.
    *
    * @return the token, or {@code null} if there is none
-   * @throws Exception
+   * @throws IOException
    *             if an error occurs
    */
-  TokenType getToken() throws Exception;
+  TokenType getToken() throws IOException;
 
   /**
    * Tells whether is authentication mechanism is done (successfully or

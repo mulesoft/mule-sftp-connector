@@ -17,8 +17,6 @@ public class LazyInputStreamProxy extends InputStream {
   private final LazyStreamSupplier streamSupplier;
   private final AtomicReference<InputStream> delegateRef = new AtomicReference<>();
 
-
-
   public LazyInputStreamProxy(LazyStreamSupplier streamSupplier) {
     this.streamSupplier = streamSupplier;
   }

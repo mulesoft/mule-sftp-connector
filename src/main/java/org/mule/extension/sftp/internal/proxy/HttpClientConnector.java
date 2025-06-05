@@ -33,6 +33,7 @@ import org.apache.sshd.common.util.buffer.Buffer;
 import org.apache.sshd.common.util.buffer.ByteArrayBuffer;
 
 import org.ietf.jgss.GSSContext;
+import org.ietf.jgss.GSSException;
 
 /**
  * Simple HTTP proxy connector using Basic Authentication.
@@ -108,7 +109,7 @@ public class HttpClientConnector extends AbstractClientProxyConnector {
 
   @Override
   public void sendClientProxyMetadata(ClientSession sshSession)
-      throws Exception {
+      throws IOException, GSSException {
     init(sshSession);
     IoSession session = sshSession.getIoSession();
     session.addCloseFutureListener(f -> close());
@@ -131,7 +132,11 @@ public class HttpClientConnector extends AbstractClientProxyConnector {
     }
   }
 
+<<<<<<< HEAD
   private void send(StringBuilder msg, IoSession session) throws ProxyConnectionException {
+=======
+  private void send(StringBuilder msg, IoSession session) throws IOException {
+>>>>>>> c640ac0 (fixes sonarr issues)
     byte[] data = eol(msg).toString().getBytes(US_ASCII);
     Buffer buffer = new ByteArrayBuffer(data.length, false);
     buffer.putRawBytes(data);
@@ -244,7 +249,7 @@ public class HttpClientConnector extends AbstractClientProxyConnector {
   private HttpAuthenticationHandler selectProtocol(
                                                    List<AuthenticationChallenge> challenges,
                                                    HttpAuthenticationHandler current)
-      throws Exception {
+      throws IOException, GSSException {
     if (current != null && !current.isDone()) {
       AuthenticationChallenge challenge = getByName(challenges,
                                                     current.getName());
@@ -318,7 +323,7 @@ public class HttpClientConnector extends AbstractClientProxyConnector {
     }
 
     @Override
-    public String getToken() throws Exception {
+    public String getToken() throws IOException {
       if (user.indexOf(':') >= 0) {
         throw new IOException(format(
                                      "HTTP Proxy connection to {0} failed with code {1}: {2}", proxy, user));
@@ -354,19 +359,18 @@ public class HttpClientConnector extends AbstractClientProxyConnector {
     }
 
     @Override
-    public String getToken() throws Exception {
+    public String getToken() throws IOException {
       return getName() + ' ' + Base64.encodeBytes(token);
     }
 
     @Override
-    protected GSSContext createContext() throws Exception {
+    protected GSSContext createContext() {
       return GssApiMechanisms.createContext(GssApiMechanisms.SPNEGO,
                                             GssApiMechanisms.getCanonicalName(proxyAddress));
     }
 
     @Override
-    protected byte[] extractToken(AuthenticationChallenge input)
-        throws Exception {
+    protected byte[] extractToken(AuthenticationChallenge input) {
       String received = input.getToken();
       if (received == null) {
         return new byte[0];

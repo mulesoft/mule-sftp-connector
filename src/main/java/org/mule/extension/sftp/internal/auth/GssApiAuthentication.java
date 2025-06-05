@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 
 import org.ietf.jgss.GSSContext;
+import org.ietf.jgss.GSSException;
 
 /**
  * An abstract implementation of a GSS-API multi-round authentication.
@@ -49,7 +50,7 @@ public abstract class GssApiAuthentication<ParameterType, TokenType>
   }
 
   @Override
-  public final void start() throws Exception {
+  public final void start() throws GSSException {
     try {
       context = createContext();
       context.requestMutualAuth(true);
@@ -64,7 +65,7 @@ public abstract class GssApiAuthentication<ParameterType, TokenType>
   }
 
   @Override
-  public final void process() throws Exception {
+  public final void process() throws IOException, GSSException {
     if (context == null) {
       throw new IOException(format("Cannot authenticate to proxy %s", proxy));
     }
@@ -78,7 +79,7 @@ public abstract class GssApiAuthentication<ParameterType, TokenType>
     }
   }
 
-  private void checkDone() throws Exception {
+  private void checkDone() throws GSSException {
     done = context.isEstablished();
     if (done) {
       context.dispose();
@@ -90,10 +91,8 @@ public abstract class GssApiAuthentication<ParameterType, TokenType>
    * Creates the {@link org.ietf.jgss.GSSContext} to use.
    *
    * @return a fresh {@link org.ietf.jgss.GSSContext} to use
-   * @throws Exception
-   *             if the context cannot be created
    */
-  protected abstract GSSContext createContext() throws Exception;
+  protected abstract GSSContext createContext();
 
   /**
    * Extracts the token from the last set parameters.
@@ -101,9 +100,9 @@ public abstract class GssApiAuthentication<ParameterType, TokenType>
    * @param input
    *            to extract the token from
    * @return the extracted token, or {@code null} if none
-   * @throws Exception
+   * @throws IOException
    *             if an error occurs
    */
   protected abstract byte[] extractToken(ParameterType input)
-      throws Exception;
+      throws IOException;
 }
