@@ -19,7 +19,7 @@ import org.junit.Test;
 
 /**
  * Path matcher local file system tests
- * 
+ *
  * @since 1.4.0
  */
 public class PathMatcherLocalFileSystemPredicateTest {
@@ -120,7 +120,7 @@ public class PathMatcherLocalFileSystemPredicateTest {
   }
 
   @Test
-  public void jdkPathMatcherTests() {
+  public void jdkPathMatcherTests1() {
     assertMatch("foo.html", "foo.html");
     assertNotMatch("foo.html", "foo.htm");
     assertNotMatch("foo.html", "bar.html");
@@ -155,6 +155,11 @@ public class PathMatcherLocalFileSystemPredicateTest {
     assertMatch("foo.html", "[!a-e]oo.html");
     assertMatch("foo-bar", "foo[-a-z]bar"); // match dash
     assertMatch("foo.html", "foo[!-]html"); // match !dash
+  }
+
+  @Test
+  public void jdkPathMatcherTests2() {
+    failures = 0;
 
     // groups of subpattern with bracket expressions
     assertMatch("foo.html", "[f]oo.{[h]tml,class}");
@@ -182,6 +187,15 @@ public class PathMatcherLocalFileSystemPredicateTest {
 
     assertMatch("/tmp/foo", "/tmp/*");
     assertMatch("/tmp/foo/bar", "/tmp/**");
+
+    if (failures > 0)
+      throw new RuntimeException(failures +
+          " sub-test(s) failed - see log for details");
+  }
+
+  @Test
+  public void jdkPathMatcherTests3() {
+    failures = 0;
 
     // some special characters not allowed on Windows
     assertMatch("myfile?", "myfile\\?");
