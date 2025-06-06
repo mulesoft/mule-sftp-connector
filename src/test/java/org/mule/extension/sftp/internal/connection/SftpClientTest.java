@@ -22,7 +22,6 @@ import java.net.URISyntaxException;
 import java.security.GeneralSecurityException;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @SmallTest
@@ -46,13 +45,13 @@ public class SftpClientTest {
   }
 
   @Test
-  void testSftpClientConfigureHostChecking() throws GeneralSecurityException, IOException {
+  void testSftpClientConfigureHostChecking() throws GeneralSecurityException {
     client.setKnownHostsFile("HostFile");
     assertThrows(SshException.class, () -> client.login("user"));
   }
 
   @Test
-  void testSftpClientCheckExists() throws GeneralSecurityException, IOException {
+  void testSftpClientCheckExists() throws GeneralSecurityException {
     assertThrows(IllegalArgumentException.class, () -> client.setIdentity("HostFile", "passphrase"));
   }
 
