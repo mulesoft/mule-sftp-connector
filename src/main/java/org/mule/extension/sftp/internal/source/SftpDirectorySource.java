@@ -209,7 +209,7 @@ public class SftpDirectorySource extends PollingSource<InputStream, SftpFileAttr
     } catch (Exception e) {
       if (isChannelBeingClosed(e)) {
         try {
-          fileSystem = handleChannelClosedReconnection(pollContext, fileSystem);
+          fileSystem = cleanUpAndReconnectFilesystem(pollContext, fileSystem);
           // If reconnection succeeds and files are processed, canDisconnect may change
           Long timeBetweenSizeCheckInMillis =
               config.getTimeBetweenSizeCheckInMillis(timeBetweenSizeCheck, timeBetweenSizeCheckUnit).orElse(null);
@@ -438,7 +438,7 @@ public class SftpDirectorySource extends PollingSource<InputStream, SftpFileAttr
     }
   }
 
-  private SftpFileSystemConnection handleChannelClosedReconnection(
+  private SftpFileSystemConnection cleanUpAndReconnectFilesystem(
                                                                    PollContext<InputStream, SftpFileAttributes> pollContext,
                                                                    SftpFileSystemConnection fileSystem)
       throws Exception {
