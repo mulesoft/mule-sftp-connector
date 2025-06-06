@@ -439,8 +439,9 @@ public class SftpDirectorySource extends PollingSource<InputStream, SftpFileAttr
   }
 
   private SftpFileSystemConnection handleChannelClosedReconnection(
-      PollContext<InputStream, SftpFileAttributes> pollContext, 
-      SftpFileSystemConnection fileSystem) throws Exception {
+                                                                   PollContext<InputStream, SftpFileAttributes> pollContext,
+                                                                   SftpFileSystemConnection fileSystem)
+      throws Exception {
     LOGGER.warn("SFTP channel is closed. Attempting to reconnect and retry...");
     // Disconnect and cleanup
     fileSystem.disconnect();
