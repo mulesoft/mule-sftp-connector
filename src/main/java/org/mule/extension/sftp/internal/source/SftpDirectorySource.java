@@ -208,13 +208,9 @@ public class SftpDirectorySource extends PollingSource<InputStream, SftpFileAttr
       LOGGER.debug("The File with attributes {} was polled but not exist anymore", attributes);
     } catch (Exception e) {
       if (isChannelBeingClosed(e)) {
-        LOGGER.warn("SFTP channel is closed. Attempting to reconnect and retry...");
         try {
-          // Disconnect and cleanup
-          fileSystem.disconnect();
-          // Get a new connection
-          fileSystem = openConnection(pollContext);
-          // Retry the list operation
+          fileSystem = handleChannelClosedReconnection(pollContext, fileSystem);
+          // If reconnection succeeds and files are processed, canDisconnect may change
           Long timeBetweenSizeCheckInMillis =
               config.getTimeBetweenSizeCheckInMillis(timeBetweenSizeCheck, timeBetweenSizeCheckUnit).orElse(null);
           List<Result<String, SftpFileAttributes>> files =
@@ -440,5 +436,15 @@ public class SftpDirectorySource extends PollingSource<InputStream, SftpFileAttr
       FREQUENCY_OF_OPEN_CONNECTION.put(fileSystem, FREQUENCY_OF_OPEN_CONNECTION.getOrDefault(fileSystem, 0) + 1);
       OPEN_CONNECTIONS.put(filepath, fileSystem);
     }
+  }
+
+  private SftpFileSystemConnection handleChannelClosedReconnection(
+      PollContext<InputStream, SftpFileAttributes> pollContext, 
+      SftpFileSystemConnection fileSystem) throws Exception {
+    LOGGER.warn("SFTP channel is closed. Attempting to reconnect and retry...");
+    // Disconnect and cleanup
+    fileSystem.disconnect();
+    // Get a new connection and return it
+    return openConnection(pollContext);
   }
 }
