@@ -105,6 +105,7 @@ public class SftpClient {
   private String username;
 
   private boolean kexHeader;
+  private PRNGAlgorithm prngAlgorithm;
 
   private String preferredAuthenticationMethods;
   private long connectionTimeoutMillis = Long.MAX_VALUE;
@@ -134,6 +135,7 @@ public class SftpClient {
     this.host = host;
     this.port = port;
     this.kexHeader = kexHeader;
+    this.prngAlgorithm = prngAlgorithm;
     this.schedulerService = schedulerService;
     this.proxyConfig = sftpProxyConfig;
 
@@ -201,11 +203,11 @@ public class SftpClient {
       if (nonNull(proxyConfig)) {
         client = ClientBuilder.builder()
             .factory(MuleSftpClient::new)
-            .randomFactory(PRNGAlgorithm.AUTOSELECT.getRandomFactory())
+            .randomFactory(prngAlgorithm.getRandomFactory())
             .build();
       } else {
         client = ClientBuilder.builder()
-            .randomFactory(PRNGAlgorithm.AUTOSELECT.getRandomFactory())
+            .randomFactory(prngAlgorithm.getRandomFactory())
             .build();
       }
       // Start client and configure
