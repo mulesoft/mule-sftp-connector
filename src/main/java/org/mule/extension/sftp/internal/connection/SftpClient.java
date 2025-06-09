@@ -115,7 +115,7 @@ public class SftpClient {
   private String cwd = "/";
   private static final Object LOCK = new Object();
   private String home;
-  private long heartBeatInterval = 10000; // 10 seconds heartbeat interval
+  private long heartBeatInterval = 30000; // 30 seconds heartbeat interval
 
   protected SchedulerService schedulerService;
 
