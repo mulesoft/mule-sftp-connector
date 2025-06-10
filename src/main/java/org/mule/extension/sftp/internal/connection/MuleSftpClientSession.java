@@ -20,7 +20,6 @@ import java.util.List;
 
 public class MuleSftpClientSession extends ClientSessionImpl {
 
-  private static final int DEFAULT_MAX_IDENTIFICATION_SIZE = 64 * 1024;
   private StatefulProxyConnector proxyHandler;
 
   public MuleSftpClientSession(ClientFactoryManager client, IoSession ioSession) throws Exception {
