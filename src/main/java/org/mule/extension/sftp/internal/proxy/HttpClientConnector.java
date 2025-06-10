@@ -15,6 +15,7 @@ import org.mule.extension.sftp.internal.auth.AuthenticationHandler;
 import org.mule.extension.sftp.internal.auth.BasicAuthentication;
 import org.mule.extension.sftp.internal.auth.GssApiAuthentication;
 import org.mule.extension.sftp.internal.auth.GssApiMechanisms;
+import org.mule.extension.sftp.internal.exception.ProxyConnectionException;
 import org.mule.runtime.core.api.util.Base64;
 
 import java.io.IOException;
@@ -124,17 +125,21 @@ public class HttpClientConnector extends AbstractClientProxyConnector {
     ongoing = true;
     try {
       send(msg, session);
-    } catch (Exception e) {
+    } catch (ProxyConnectionException e) {
       ongoing = false;
       throw e;
     }
   }
 
-  private void send(StringBuilder msg, IoSession session) throws Exception {
+  private void send(StringBuilder msg, IoSession session) throws ProxyConnectionException {
     byte[] data = eol(msg).toString().getBytes(US_ASCII);
     Buffer buffer = new ByteArrayBuffer(data.length, false);
     buffer.putRawBytes(data);
-    session.writeBuffer(buffer).verify(getTimeout());
+    try {
+      session.writeBuffer(buffer).verify(getTimeout());
+    } catch (Exception e) {
+      throw new ProxyConnectionException("Failed to send data through proxy", e);
+    }
   }
 
   private StringBuilder connect() {
