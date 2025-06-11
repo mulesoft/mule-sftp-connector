@@ -87,9 +87,9 @@ public class SftpClientTest {
     SchedulerService mockSchedulerService = mock(SchedulerService.class);
     SftpClient testClient = new SftpClient("test-host", 22, PRNGAlgorithm.AUTOSELECT, mockSchedulerService);
 
-    // Mock the SFTP client to throw IOException
+    // Mock the SFTP client to throw IOException with NULL message (critical for line 253)
     org.apache.sshd.sftp.client.SftpClient mockSftpClient = mock(org.apache.sshd.sftp.client.SftpClient.class);
-    IOException ioException = new IOException("Network connection lost");
+    IOException ioException = new IOException((String) null); // NULL message to bypass line 246 condition
     when(mockSftpClient.stat(anyString())).thenThrow(ioException);
     when(mockSftpClient.isOpen()).thenReturn(true); // Ensure isOpen() returns true
 
