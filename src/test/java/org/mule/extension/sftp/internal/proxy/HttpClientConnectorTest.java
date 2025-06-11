@@ -8,15 +8,13 @@ package org.mule.extension.sftp.internal.proxy;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mule.extension.sftp.internal.connection.MuleSftpClientSession;
 import org.mule.extension.sftp.internal.exception.ProxyConnectionException;
 import org.mule.tck.size.SmallTest;
 
 import java.io.IOException;
-import java.lang.reflect.Method;
 import java.net.InetSocketAddress;
-import java.nio.charset.StandardCharsets;
 
-import org.apache.sshd.common.future.SshFutureListener;
 import org.apache.sshd.common.io.IoSession;
 import org.apache.sshd.common.io.IoWriteFuture;
 import org.apache.sshd.common.util.buffer.Buffer;
@@ -26,202 +24,134 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.*;
 
-import java.lang.reflect.InvocationTargetException;
-
 @SmallTest
 public class HttpClientConnectorTest {
 
   private HttpClientConnector connector;
-  private IoSession mockSession;
+  private MuleSftpClientSession mockClientSession;
+  private IoSession mockIoSession;
   private IoWriteFuture mockWriteFuture;
   private InetSocketAddress proxyAddress;
   private InetSocketAddress remoteAddress;
 
   @BeforeEach
-  void setUp() {
+  void setUp() throws IOException {
     proxyAddress = new InetSocketAddress("proxy.example.com", 8080);
     remoteAddress = new InetSocketAddress("target.example.com", 22);
     connector = new HttpClientConnector(proxyAddress, remoteAddress);
 
-    mockSession = mock(IoSession.class);
+    mockClientSession = mock(MuleSftpClientSession.class);
+    mockIoSession = mock(IoSession.class);
     mockWriteFuture = mock(IoWriteFuture.class);
+
+    // Set up the mock chain: ClientSession -> IoSession -> WriteBuffer -> WriteFuture
+    when(mockClientSession.getIoSession()).thenReturn(mockIoSession);
+    when(mockIoSession.writeBuffer(any(Buffer.class))).thenReturn(mockWriteFuture);
   }
 
   @Test
   void testSendMethodCatchBlockWithIOException() throws Exception {
-    // Given: Mock the session to throw IOException when writeBuffer().verify() is called
+    // Given: Mock the writeBuffer().verify() to throw IOException
     IOException originalException = new IOException("Network connection failed");
-    when(mockSession.writeBuffer(any(Buffer.class))).thenReturn(mockWriteFuture);
     when(mockWriteFuture.verify(anyLong())).thenThrow(originalException);
 
-    // Create a test message
-    StringBuilder testMessage = new StringBuilder("CONNECT target.example.com:22 HTTP/1.1\r\n");
+    // When & Then: Call sendClientProxyMetadata which internally calls send method
+    ProxyConnectionException exception = assertThrows(ProxyConnectionException.class, () -> {
+      connector.sendClientProxyMetadata(mockClientSession);
+    });
 
-    // When & Then: Call the private send method and verify ProxyConnectionException is thrown
-    try {
-      invokeSendMethod(testMessage, mockSession);
-      fail("Expected ProxyConnectionException to be thrown");
-    } catch (InvocationTargetException e) {
-      assertTrue(e.getCause() instanceof ProxyConnectionException);
-      ProxyConnectionException proxyException = (ProxyConnectionException) e.getCause();
-      assertEquals("Failed to send data through proxy", proxyException.getMessage());
-      assertEquals(originalException, proxyException.getCause());
-    }
+    assertEquals("Failed to send data through proxy", exception.getMessage());
+    assertEquals(originalException, exception.getCause());
   }
 
   @Test
   void testSendMethodCatchBlockWithRuntimeException() throws Exception {
-    // Given: Mock the session to throw RuntimeException when writeBuffer().verify() is called
+    // Given: Mock the writeBuffer().verify() to throw RuntimeException
     RuntimeException originalException = new RuntimeException("Unexpected error during write operation");
-    when(mockSession.writeBuffer(any(Buffer.class))).thenReturn(mockWriteFuture);
     when(mockWriteFuture.verify(anyLong())).thenThrow(originalException);
 
-    StringBuilder testMessage = new StringBuilder("CONNECT target.example.com:22 HTTP/1.1\r\n");
+    // When & Then: Call sendClientProxyMetadata which internally calls send method
+    ProxyConnectionException exception = assertThrows(ProxyConnectionException.class, () -> {
+      connector.sendClientProxyMetadata(mockClientSession);
+    });
 
-    // When & Then: Call the private send method and verify ProxyConnectionException is thrown
-    try {
-      invokeSendMethod(testMessage, mockSession);
-      fail("Expected ProxyConnectionException to be thrown");
-    } catch (InvocationTargetException e) {
-      assertTrue(e.getCause() instanceof ProxyConnectionException);
-      ProxyConnectionException proxyException = (ProxyConnectionException) e.getCause();
-      assertEquals("Failed to send data through proxy", proxyException.getMessage());
-      assertEquals(originalException, proxyException.getCause());
-    }
+    assertEquals("Failed to send data through proxy", exception.getMessage());
+    assertEquals(originalException, exception.getCause());
   }
 
   @Test
   void testSendMethodCatchBlockWithTimeoutRuntimeException() throws Exception {
-    // Given: Mock the session to throw a runtime exception simulating timeout
+    // Given: Mock the writeBuffer().verify() to throw a timeout exception
     RuntimeException timeoutException = new RuntimeException("Connection timeout");
-    when(mockSession.writeBuffer(any(Buffer.class))).thenReturn(mockWriteFuture);
     when(mockWriteFuture.verify(anyLong())).thenThrow(timeoutException);
 
-    StringBuilder testMessage = new StringBuilder("CONNECT target.example.com:22 HTTP/1.1\r\n");
+    // When & Then: Call sendClientProxyMetadata which internally calls send method
+    ProxyConnectionException exception = assertThrows(ProxyConnectionException.class, () -> {
+      connector.sendClientProxyMetadata(mockClientSession);
+    });
 
-    // When & Then: Call the private send method and verify ProxyConnectionException is thrown
-    try {
-      invokeSendMethod(testMessage, mockSession);
-      fail("Expected ProxyConnectionException to be thrown");
-    } catch (InvocationTargetException e) {
-      assertTrue(e.getCause() instanceof ProxyConnectionException);
-      ProxyConnectionException proxyException = (ProxyConnectionException) e.getCause();
-      assertEquals("Failed to send data through proxy", proxyException.getMessage());
-      assertEquals(timeoutException, proxyException.getCause());
-    }
+    assertEquals("Failed to send data through proxy", exception.getMessage());
+    assertEquals(timeoutException, exception.getCause());
   }
 
   @Test
   void testSendMethodCatchBlockWithNullPointerException() throws Exception {
-    // Given: Mock the session to throw NullPointerException (a common runtime exception)
+    // Given: Mock the writeBuffer().verify() to throw NullPointerException
     NullPointerException nullPointerException = new NullPointerException("Null session state");
-    when(mockSession.writeBuffer(any(Buffer.class))).thenReturn(mockWriteFuture);
     when(mockWriteFuture.verify(anyLong())).thenThrow(nullPointerException);
 
-    StringBuilder testMessage = new StringBuilder("CONNECT target.example.com:22 HTTP/1.1\r\n");
+    // When & Then: Call sendClientProxyMetadata which internally calls send method
+    ProxyConnectionException exception = assertThrows(ProxyConnectionException.class, () -> {
+      connector.sendClientProxyMetadata(mockClientSession);
+    });
 
-    // When & Then: Call the private send method and verify ProxyConnectionException is thrown
-    try {
-      invokeSendMethod(testMessage, mockSession);
-      fail("Expected ProxyConnectionException to be thrown");
-    } catch (InvocationTargetException e) {
-      assertTrue(e.getCause() instanceof ProxyConnectionException);
-      ProxyConnectionException proxyException = (ProxyConnectionException) e.getCause();
-      assertEquals("Failed to send data through proxy", proxyException.getMessage());
-      assertEquals(nullPointerException, proxyException.getCause());
-    }
+    assertEquals("Failed to send data through proxy", exception.getMessage());
+    assertEquals(nullPointerException, exception.getCause());
   }
 
   @Test
   void testSendMethodSuccessfulPath() throws Exception {
     // Given: Mock successful writeBuffer and verify operations
-    when(mockSession.writeBuffer(any(Buffer.class))).thenReturn(mockWriteFuture);
     when(mockWriteFuture.verify(anyLong())).thenReturn(mockWriteFuture); // Successful operation
 
-    StringBuilder testMessage = new StringBuilder("CONNECT target.example.com:22 HTTP/1.1\r\n");
-
-    // When & Then: Call the private send method and verify no exception is thrown
+    // When & Then: Call sendClientProxyMetadata and verify no exception is thrown
     assertDoesNotThrow(() -> {
-      invokeSendMethod(testMessage, mockSession);
+      connector.sendClientProxyMetadata(mockClientSession);
     });
 
     // Verify the interactions
-    verify(mockSession).writeBuffer(any(Buffer.class));
+    verify(mockIoSession).writeBuffer(any(Buffer.class));
     verify(mockWriteFuture).verify(anyLong());
   }
 
   @Test
-  void testSendMethodWithEmptyMessage() throws Exception {
-    // Given: Mock the session to throw IOException for empty message
-    IOException originalException = new IOException("Cannot send empty data");
-    when(mockSession.writeBuffer(any(Buffer.class))).thenReturn(mockWriteFuture);
-    when(mockWriteFuture.verify(anyLong())).thenThrow(originalException);
+  void testSendMethodCatchBlockWithBufferException() throws Exception {
+    // Given: Mock the writeBuffer() itself to throw an exception
+    RuntimeException bufferException = new RuntimeException("Buffer write failed");
+    when(mockIoSession.writeBuffer(any(Buffer.class))).thenThrow(bufferException);
 
-    StringBuilder emptyMessage = new StringBuilder("");
-
-    // When & Then: Call the private send method with empty message
-    try {
-      invokeSendMethod(emptyMessage, mockSession);
-      fail("Expected ProxyConnectionException to be thrown");
-    } catch (InvocationTargetException e) {
-      assertTrue(e.getCause() instanceof ProxyConnectionException);
-      ProxyConnectionException proxyException = (ProxyConnectionException) e.getCause();
-      assertEquals("Failed to send data through proxy", proxyException.getMessage());
-      assertEquals(originalException, proxyException.getCause());
-    }
-  }
-
-  @Test
-  void testSendMethodVerifiesCorrectBuffer() throws Exception {
-    // Given: Mock successful operation to verify buffer content
-    when(mockSession.writeBuffer(any(Buffer.class))).thenReturn(mockWriteFuture);
-    when(mockWriteFuture.verify(anyLong())).thenReturn(mockWriteFuture);
-
-    String testContent = "CONNECT target.example.com:22 HTTP/1.1";
-    StringBuilder testMessage = new StringBuilder(testContent);
-
-    // When: Call the private send method
-    assertDoesNotThrow(() -> {
-      invokeSendMethod(testMessage, mockSession);
+    // When & Then: Call sendClientProxyMetadata which internally calls send method
+    ProxyConnectionException exception = assertThrows(ProxyConnectionException.class, () -> {
+      connector.sendClientProxyMetadata(mockClientSession);
     });
 
-    // Then: Verify that writeBuffer was called with a buffer containing the expected content
-    verify(mockSession).writeBuffer(argThat(buffer -> {
-      // The buffer should contain the message content plus \r\n (from eol method)
-      String expectedContent = testContent + "\r\n";
-      byte[] expectedBytes = expectedContent.getBytes(StandardCharsets.US_ASCII);
-
-      // Basic validation that buffer was called (exact content validation would require more buffer manipulation)
-      return buffer != null && buffer.available() == expectedBytes.length;
-    }));
+    assertEquals("Failed to send data through proxy", exception.getMessage());
+    assertEquals(bufferException, exception.getCause());
   }
 
   @Test
-  void testSendMethodCatchBlockWithBufferException() throws Exception {
-    // Given: Mock the session.writeBuffer() itself to throw an exception
-    RuntimeException bufferException = new RuntimeException("Buffer write failed");
-    when(mockSession.writeBuffer(any(Buffer.class))).thenThrow(bufferException);
+  void testSendMethodWithProxyUserAndPassword() throws Exception {
+    // Given: Create connector with credentials and mock to throw exception
+    HttpClientConnector connectorWithAuth = new HttpClientConnector(proxyAddress, remoteAddress, "user", "password");
+    IOException originalException = new IOException("Authentication failed");
+    when(mockWriteFuture.verify(anyLong())).thenThrow(originalException);
 
-    StringBuilder testMessage = new StringBuilder("CONNECT target.example.com:22 HTTP/1.1\r\n");
+    // When & Then: Call sendClientProxyMetadata which will try to authenticate and call send
+    ProxyConnectionException exception = assertThrows(ProxyConnectionException.class, () -> {
+      connectorWithAuth.sendClientProxyMetadata(mockClientSession);
+    });
 
-    // When & Then: Call the private send method and verify ProxyConnectionException is thrown
-    try {
-      invokeSendMethod(testMessage, mockSession);
-      fail("Expected ProxyConnectionException to be thrown");
-    } catch (InvocationTargetException e) {
-      assertTrue(e.getCause() instanceof ProxyConnectionException);
-      ProxyConnectionException proxyException = (ProxyConnectionException) e.getCause();
-      assertEquals("Failed to send data through proxy", proxyException.getMessage());
-      assertEquals(bufferException, proxyException.getCause());
-    }
-  }
-
-  /**
-   * Helper method to invoke the private send method using reflection
-   */
-  private void invokeSendMethod(StringBuilder message, IoSession session) throws Exception {
-    Method sendMethod = HttpClientConnector.class.getDeclaredMethod("send", StringBuilder.class, IoSession.class);
-    sendMethod.setAccessible(true);
-    sendMethod.invoke(connector, message, session);
+    assertEquals("Failed to send data through proxy", exception.getMessage());
+    assertEquals(originalException, exception.getCause());
   }
 }
