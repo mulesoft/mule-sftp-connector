@@ -13,12 +13,22 @@ import org.mule.extension.sftp.internal.stream.LazyStreamSupplier;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 public class StreamProxyUtilTest {
+
+  @Test(expected = InvocationTargetException.class)
+  public void testStreamProxyUtilShouldNotBeInstantiated() throws NoSuchMethodException, SecurityException,
+      InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+    Constructor<StreamProxyUtil> constructorMethod = StreamProxyUtil.class.getDeclaredConstructor();
+    constructorMethod.setAccessible(true);
+    constructorMethod.newInstance();
+  }
 
   @Test
   public void testGetInputStreamFromStreamFactory() {

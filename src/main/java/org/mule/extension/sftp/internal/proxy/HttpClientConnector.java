@@ -109,7 +109,7 @@ public class HttpClientConnector extends AbstractClientProxyConnector {
 
   @Override
   public void sendClientProxyMetadata(ClientSession sshSession)
-      throws IOException, GSSException {
+      throws ProxyConnectionException, IOException, GSSException {
     init(sshSession);
     IoSession session = sshSession.getIoSession();
     session.addCloseFutureListener(f -> close());
@@ -132,11 +132,7 @@ public class HttpClientConnector extends AbstractClientProxyConnector {
     }
   }
 
-<<<<<<< HEAD
   private void send(StringBuilder msg, IoSession session) throws ProxyConnectionException {
-=======
-  private void send(StringBuilder msg, IoSession session) throws IOException {
->>>>>>> c640ac0 (fixes sonarr issues)
     byte[] data = eol(msg).toString().getBytes(US_ASCII);
     Buffer buffer = new ByteArrayBuffer(data.length, false);
     buffer.putRawBytes(data);

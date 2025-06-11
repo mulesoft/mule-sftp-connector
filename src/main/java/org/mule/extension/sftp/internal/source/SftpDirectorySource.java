@@ -186,7 +186,7 @@ public class SftpDirectorySource extends PollingSource<InputStream, SftpFileAttr
     }
     SftpFileSystemConnection fileSystem;
     try {
-      fileSystem = openConnection(pollContext);
+      fileSystem = openConnection();
     } catch (Exception e) {
       LOGGER.error(format("Could not obtain connection while trying to poll directory '%s'. %s", directoryUri.getPath(),
                           e.getMessage()),
@@ -314,21 +314,10 @@ public class SftpDirectorySource extends PollingSource<InputStream, SftpFileAttr
     fileAttributePredicate = predicateBuilder != null ? predicateBuilder.build() : new NullFilePayloadPredicate<>();
   }
 
-  private SftpFileSystemConnection openConnection(PollContext<InputStream, SftpFileAttributes> pollContext)
+  private SftpFileSystemConnection openConnection()
       throws ConnectionException {
-
     SftpFileSystemConnection fileSystem = fileSystemProvider.connect();
-    try {
-      fileSystem.changeToBaseDir();
-    } catch (Exception e) {
-      LOGGER.debug("Exception while trying to open connection");
-      if (extractConnectionException(e).isPresent()) {
-        extractConnectionException(e).ifPresent(pollContext::onConnectionException);
-      } else {
-        fileSystemProvider.disconnect(fileSystem);
-      }
-      throw e;
-    }
+    fileSystem.changeToBaseDir();
     return fileSystem;
   }
 
@@ -433,11 +422,11 @@ public class SftpDirectorySource extends PollingSource<InputStream, SftpFileAttr
   private SftpFileSystemConnection cleanUpAndReconnectFilesystem(
                                                                  PollContext<InputStream, SftpFileAttributes> pollContext,
                                                                  SftpFileSystemConnection fileSystem)
-      throws Exception {
+      throws ConnectionException {
     LOGGER.warn("SFTP channel is closed. Attempting to reconnect and retry...");
     // Disconnect and cleanup
     fileSystem.disconnect();
     // Get a new connection and return it
-    return openConnection(pollContext);
+    return openConnection();
   }
 }
