@@ -90,7 +90,7 @@ public class SftpClientTest {
     // Mock the SFTP client to throw IOException
     org.apache.sshd.sftp.client.SftpClient mockSftpClient = mock(org.apache.sshd.sftp.client.SftpClient.class);
     IOException ioException = new IOException("Network connection lost");
-    when(mockSftpClient.lstat(anyString())).thenThrow(ioException);
+    when(mockSftpClient.stat(anyString())).thenThrow(ioException);
     when(mockSftpClient.isOpen()).thenReturn(true); // Ensure isOpen() returns true
 
     // Inject the mock SFTP client using reflection
@@ -159,13 +159,15 @@ public class SftpClientTest {
     when(mockFuture.get(anyLong(), any())).thenThrow(new InterruptedException("Thread was interrupted"));
 
     // When & Then: Call getHome to trigger executePWDCommandWithTimeout and verify lines 524-525 are covered
-    IOException exception = assertThrows(IOException.class, () -> {
+    RuntimeException exception = assertThrows(RuntimeException.class, () -> {
       testClient.getHome();
     });
 
-    // Verify the exception message and that thread interrupt flag is preserved (line 524-525)
-    assertEquals("PWD command execution was interrupted", exception.getMessage());
-    assertTrue(exception.getCause() instanceof InterruptedException);
+    // Verify the exception wraps IOException with InterruptedException (lines 524-525)
+    assertTrue(exception.getCause() instanceof IOException);
+    IOException ioException = (IOException) exception.getCause();
+    assertEquals("PWD command execution was interrupted", ioException.getMessage());
+    assertTrue(ioException.getCause() instanceof InterruptedException);
     assertTrue(Thread.interrupted()); // Verify that Thread.currentThread().interrupt() was called
   }
 
