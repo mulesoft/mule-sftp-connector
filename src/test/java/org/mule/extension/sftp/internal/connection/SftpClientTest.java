@@ -14,14 +14,26 @@ import org.mule.extension.sftp.api.random.alg.PRNGAlgorithm;
 import org.mule.extension.sftp.internal.exception.SftpConnectionException;
 import org.mule.runtime.api.connection.ConnectionException;
 import org.mule.runtime.api.exception.MuleRuntimeException;
+import org.mule.runtime.api.scheduler.SchedulerService;
+import org.mule.runtime.api.scheduler.Scheduler;
+import org.mule.runtime.api.scheduler.SchedulerConfig;
 import org.mule.tck.size.SmallTest;
 
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.GeneralSecurityException;
+import java.util.concurrent.Callable;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeoutException;
+
+import org.apache.sshd.client.session.ClientSession;
+import org.apache.sshd.sftp.common.SftpException;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 @SmallTest
@@ -69,4 +81,143 @@ public class SftpClientTest {
     assertThrows(MuleRuntimeException.class, () -> client.getFile(uri));
   }
 
+  @Test
+  void testGetAttributes_IOException_Line253() throws Exception {
+    // Given: Create a client with mocked dependencies
+    SchedulerService mockSchedulerService = mock(SchedulerService.class);
+    SftpClient testClient = new SftpClient("test-host", 22, PRNGAlgorithm.AUTOSELECT, mockSchedulerService);
+
+    // Mock the SFTP client to throw IOException
+    org.apache.sshd.sftp.client.SftpClient mockSftpClient = mock(org.apache.sshd.sftp.client.SftpClient.class);
+    IOException ioException = new IOException("Network connection lost");
+    when(mockSftpClient.lstat(anyString())).thenThrow(ioException);
+
+    // Inject the mock SFTP client using reflection
+    try {
+      java.lang.reflect.Field sftpField = SftpClient.class.getDeclaredField("sftp");
+      sftpField.setAccessible(true);
+      sftpField.set(testClient, mockSftpClient);
+    } catch (Exception e) {
+      fail("Failed to inject mock SFTP client: " + e.getMessage());
+    }
+
+    // When & Then: Call getAttributes and verify line 253 is covered
+    URI testUri = new URI("sftp://test-host/test/path/file.txt");
+    MuleRuntimeException exception = assertThrows(MuleRuntimeException.class, () -> {
+      testClient.getAttributes(testUri);
+    });
+
+    // Verify the exception message format matches line 253
+    assertTrue(exception.getMessage().contains("Could not obtain attributes for path /test/path/file.txt"));
+    assertEquals(ioException, exception.getCause());
+  }
+
+  @Test
+  void testList_IOException_Line434() throws Exception {
+    // Given: Create a client with mocked dependencies
+    SchedulerService mockSchedulerService = mock(SchedulerService.class);
+    SftpClient testClient = new SftpClient("test-host", 22, PRNGAlgorithm.AUTOSELECT, mockSchedulerService);
+
+    // Mock the SFTP client to throw IOException
+    org.apache.sshd.sftp.client.SftpClient mockSftpClient = mock(org.apache.sshd.sftp.client.SftpClient.class);
+    IOException ioException = new IOException("Failed to read directory entries");
+    when(mockSftpClient.readEntries(anyString())).thenThrow(ioException);
+
+    // Inject the mock SFTP client using reflection
+    try {
+      java.lang.reflect.Field sftpField = SftpClient.class.getDeclaredField("sftp");
+      sftpField.setAccessible(true);
+      sftpField.set(testClient, mockSftpClient);
+    } catch (Exception e) {
+      fail("Failed to inject mock SFTP client: " + e.getMessage());
+    }
+
+    // When & Then: Call list and verify line 434 is covered
+    String testPath = "/test/directory";
+    MuleRuntimeException exception = assertThrows(MuleRuntimeException.class, () -> {
+      testClient.list(testPath);
+    });
+
+    // Verify the exception message format matches line 434
+    assertTrue(exception.getMessage().contains("Found exception trying to list path /test/directory"));
+    assertEquals(ioException, exception.getCause());
+  }
+
+  @Test
+  void testExecutePWDCommandWithTimeout_InterruptedException_Lines524_525() throws Exception {
+    // Given: Create a client with mocked SchedulerService that throws InterruptedException
+    SchedulerService mockSchedulerService = mock(SchedulerService.class);
+    SftpClient testClient = new SftpClient("test-host", 22, PRNGAlgorithm.AUTOSELECT, mockSchedulerService);
+
+    Scheduler mockScheduler = mock(Scheduler.class);
+    Future<String> mockFuture = mock(Future.class);
+
+    when(mockSchedulerService.cpuLightScheduler(any(SchedulerConfig.class))).thenReturn(mockScheduler);
+    when(mockScheduler.submit(any(Callable.class))).thenReturn(mockFuture);
+    when(mockFuture.get(anyLong(), any())).thenThrow(new InterruptedException("Thread was interrupted"));
+
+    // When & Then: Call getHome to trigger executePWDCommandWithTimeout and verify lines 524-525 are covered
+    IOException exception = assertThrows(IOException.class, () -> {
+      testClient.getHome();
+    });
+
+    // Verify the exception message and that thread interrupt flag is preserved (line 524-525)
+    assertEquals("PWD command execution was interrupted", exception.getMessage());
+    assertTrue(exception.getCause() instanceof InterruptedException);
+    assertTrue(Thread.interrupted()); // Verify that Thread.currentThread().interrupt() was called
+  }
+
+  @Test
+  void testExecutePWDCommandWithTimeout_TimeoutException_Line532() throws Exception {
+    // Given: Create a client with mocked SchedulerService that throws TimeoutException
+    SchedulerService mockSchedulerService = mock(SchedulerService.class);
+    SftpClient testClient = new SftpClient("test-host", 22, PRNGAlgorithm.AUTOSELECT, mockSchedulerService);
+
+    Scheduler mockScheduler = mock(Scheduler.class);
+    Future<String> mockFuture = mock(Future.class);
+
+    when(mockSchedulerService.cpuLightScheduler(any(SchedulerConfig.class))).thenReturn(mockScheduler);
+    when(mockScheduler.submit(any(Callable.class))).thenReturn(mockFuture);
+    when(mockFuture.get(anyLong(), any())).thenThrow(new TimeoutException("Command execution timed out"));
+
+    // When & Then: Call getHome to trigger executePWDCommandWithTimeout and verify line 532 is covered
+    RuntimeException exception = assertThrows(RuntimeException.class, () -> {
+      testClient.getHome();
+    });
+
+    // Verify that IllegalPathException is thrown (line 532)
+    assertTrue(exception.getMessage().contains("Unable to resolve the working directory from server"));
+    verify(mockFuture).cancel(true); // Verify that future.cancel(true) was called
+  }
+
+  @Test
+  void testDeleteDirectory_IOException_Line593() throws Exception {
+    // Given: Create a client with mocked dependencies
+    SchedulerService mockSchedulerService = mock(SchedulerService.class);
+    SftpClient testClient = new SftpClient("test-host", 22, PRNGAlgorithm.AUTOSELECT, mockSchedulerService);
+
+    // Mock the SFTP client to throw IOException
+    org.apache.sshd.sftp.client.SftpClient mockSftpClient = mock(org.apache.sshd.sftp.client.SftpClient.class);
+    IOException ioException = new IOException("Failed to remove directory");
+    doThrow(ioException).when(mockSftpClient).rmdir(anyString());
+
+    // Inject the mock SFTP client using reflection
+    try {
+      java.lang.reflect.Field sftpField = SftpClient.class.getDeclaredField("sftp");
+      sftpField.setAccessible(true);
+      sftpField.set(testClient, mockSftpClient);
+    } catch (Exception e) {
+      fail("Failed to inject mock SFTP client: " + e.getMessage());
+    }
+
+    // When & Then: Call deleteDirectory and verify line 593 is covered
+    String testPath = "/test/directory";
+    MuleRuntimeException exception = assertThrows(MuleRuntimeException.class, () -> {
+      testClient.deleteDirectory(testPath);
+    });
+
+    // Verify the exception message format matches line 593
+    assertTrue(exception.getMessage().contains("Could not delete directory /test/directory"));
+    assertEquals(ioException, exception.getCause());
+  }
 }
