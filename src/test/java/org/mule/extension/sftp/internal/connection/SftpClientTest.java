@@ -91,6 +91,7 @@ public class SftpClientTest {
     org.apache.sshd.sftp.client.SftpClient mockSftpClient = mock(org.apache.sshd.sftp.client.SftpClient.class);
     IOException ioException = new IOException("Network connection lost");
     when(mockSftpClient.lstat(anyString())).thenThrow(ioException);
+    when(mockSftpClient.isOpen()).thenReturn(true); // Ensure isOpen() returns true
 
     // Inject the mock SFTP client using reflection
     try {
@@ -122,6 +123,7 @@ public class SftpClientTest {
     org.apache.sshd.sftp.client.SftpClient mockSftpClient = mock(org.apache.sshd.sftp.client.SftpClient.class);
     IOException ioException = new IOException("Failed to read directory entries");
     when(mockSftpClient.readEntries(anyString())).thenThrow(ioException);
+    when(mockSftpClient.isOpen()).thenReturn(true); // Ensure isOpen() returns true
 
     // Inject the mock SFTP client using reflection
     try {
@@ -200,6 +202,7 @@ public class SftpClientTest {
     org.apache.sshd.sftp.client.SftpClient mockSftpClient = mock(org.apache.sshd.sftp.client.SftpClient.class);
     IOException ioException = new IOException("Failed to remove directory");
     doThrow(ioException).when(mockSftpClient).rmdir(anyString());
+    when(mockSftpClient.isOpen()).thenReturn(true); // Critical: Ensure isOpen() returns true
 
     // Inject the mock SFTP client using reflection
     try {
