@@ -18,6 +18,7 @@ import java.net.URI;
  *
  * @since 1.3.0
  */
+@SuppressWarnings("rawtypes")
 public interface ExternalFileSystem extends FileSystem {
 
   /**

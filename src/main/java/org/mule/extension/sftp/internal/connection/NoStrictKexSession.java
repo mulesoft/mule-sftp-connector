@@ -12,6 +12,7 @@ import org.apache.sshd.common.io.IoSession;
 import org.apache.sshd.common.kex.KexProposalOption;
 import java.util.Map;
 
+@SuppressWarnings("java:S110")
 class NoStrictKexSession extends ClientSessionImpl {
 
   NoStrictKexSession(ClientFactoryManager client, IoSession ioSession) throws Exception {
