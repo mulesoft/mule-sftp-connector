@@ -54,7 +54,7 @@ public abstract class BasicAuthentication<ParameterType, TokenType>
    *            initial password to try, may be {@code null}
    */
   protected BasicAuthentication(InetSocketAddress proxy, String initialUser,
-                             char[] initialPassword) {
+                                char[] initialPassword) {
     super(proxy);
     this.user = initialUser;
     this.password = convert(initialPassword);
