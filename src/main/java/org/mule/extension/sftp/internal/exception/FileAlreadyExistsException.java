@@ -17,6 +17,7 @@ import org.mule.runtime.extension.api.exception.ModuleException;
  *
  * @since 1.0
  */
+@SuppressWarnings("java:S110")
 public final class FileAlreadyExistsException extends ModuleException {
 
   /**

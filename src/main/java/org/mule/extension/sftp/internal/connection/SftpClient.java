@@ -241,7 +241,7 @@ public class SftpClient {
       if (e.getStatus() == SftpConstants.SSH_FX_NO_SUCH_FILE) {
         return null;
       }
-      throw handleException("Could not obtain attributes for path " + path, e);
+      throw handleException(format("Could not obtain attributes for path %s", path), e);
     } catch (IOException e) {
       if (e.getMessage() != null) {
         try {
@@ -250,7 +250,7 @@ public class SftpClient {
           throw handleException("Failed to reconnect while getting attributes for path " + path, reconnectError);
         }
       }
-      throw handleException("Could not obtain attributes for path " + path, e);
+      throw handleException(format("Could not obtain attributes for path %s", path), e);
     }
   }
 
@@ -292,7 +292,7 @@ public class SftpClient {
     sftp = scf.createSftpClient(session);
   }
 
-  private void configureSession(String user) throws IOException, GeneralSecurityException {
+  private void configureSession(String user) throws IOException {
     configureHostChecking();
     if (this.preferredAuthenticationMethods != null && !this.preferredAuthenticationMethods.isEmpty()) {
       CoreModuleProperties.PREFERRED_AUTHS.set(client, this.preferredAuthenticationMethods.toLowerCase());
@@ -308,9 +308,7 @@ public class SftpClient {
           .verify(connectionTimeoutMillis)
           .getSession();
     } catch (SshException e) {
-      LOGGER.error("Cannot create SSH Session: " + e.getMessage());
       client.stop();
-      LOGGER.info("SSH Client stopped: " + e.getMessage());
       throw e;
     }
 
@@ -372,7 +370,7 @@ public class SftpClient {
         LOGGER.trace("Deleted file {}", path);
       }
     } catch (IOException e) {
-      throw handleException("Could not delete file " + path, e);
+      throw handleException(format("Could not delete file %s", path), e);
     }
   }
 
@@ -433,7 +431,7 @@ public class SftpClient {
         LOGGER.trace("Listed {} entries from path {}", entries.size(), path);
       }
     } catch (IOException e) {
-      throw handleException("Found exception trying to list path " + path, e);
+      throw handleException(format("Found exception trying to list path %s", path), e);
     }
 
     if (isEmpty(entries)) {
@@ -454,7 +452,7 @@ public class SftpClient {
     try {
       return sftp.read(normalizeRemotePath(path));
     } catch (IOException e) {
-      throw handleException("Exception was found trying to retrieve the contents of file " + path, e);
+      throw handleException(format("Exception was found trying to retrieve the contents of file %s", path), e);
     }
   }
 
@@ -483,7 +481,7 @@ public class SftpClient {
     try {
       attributes = getAttributes(uri);
     } catch (Exception e) {
-      throw handleException("Found exception trying to obtain path " + uri.getPath(), e);
+      throw handleException(format("Found exception trying to obtain path %s", uri.getPath()), e);
     }
 
     if (LOGGER.isTraceEnabled()) {
@@ -523,14 +521,15 @@ public class SftpClient {
       future = getHomeScheduler.submit(() -> session.executeRemoteCommand(PWD_COMMAND));
       return future.get(PWD_COMMAND_EXECUTION_TIMEOUT, PWD_COMMAND_EXECUTION_TIMEOUT_UNIT).trim();
     } catch (InterruptedException e) {
-      throw new MuleRuntimeException(e);
+      Thread.currentThread().interrupt();
+      throw new IOException("PWD command execution was interrupted", e);
     } catch (TimeoutException e) {
       future.cancel(true);
       LOGGER.error("Execution of 'pwd' command timed out");
       throw new IllegalPathException("Unable to resolve the working directory from server. Please configure a valid working directory or use absolute paths on your operation.",
                                      e);
     } catch (Exception ex) {
-      throw new MuleRuntimeException(ex);
+      throw new IOException("PWD command execution failed", ex);
     }
   }
 
@@ -576,7 +575,7 @@ public class SftpClient {
       }
       sftp.mkdir(normalizeRemotePath(directoryName));
     } catch (IOException e) {
-      throw handleException("Could not create the directory " + directoryName, e);
+      throw handleException(format("Could not create the directory %s", directoryName), e);
     }
   }
 
@@ -591,7 +590,7 @@ public class SftpClient {
     try {
       sftp.rmdir(normalizeRemotePath(path));
     } catch (IOException e) {
-      throw handleException("Could not delete directory " + path, e);
+      throw handleException(format("Could not delete directory %s", path), e);
     }
   }
 
