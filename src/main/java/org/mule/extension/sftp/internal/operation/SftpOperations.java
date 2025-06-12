@@ -53,6 +53,7 @@ import java.util.concurrent.TimeUnit;
  *
  * @since 1.0
  */
+@SuppressWarnings({"rawtypes","java:S107"})
 public final class SftpOperations extends BaseFileSystemOperations {
 
   /**

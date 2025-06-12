@@ -37,7 +37,7 @@ public abstract class AbstractFileInputStreamSupplier implements Supplier<InputS
 
   private static final AtomicBoolean alreadyLoggedWarning = new AtomicBoolean();
   private static final String WAIT_WARNING_MESSAGE =
-      "With the purpouse of performing a size check on the file %s, this thread will sleep. The connector has no control of" +
+      "With the purpose of performing a size check on the file {}, this thread will sleep. The connector has no control of" +
           " which type of thread the sleep will take place on, this can lead to running out of thread if the time for " +
           "'timeBetweenSizeCheck' is big or a lot of files are being read concurrently. This warning will only be shown once.";
 
@@ -83,10 +83,11 @@ public abstract class AbstractFileInputStreamSupplier implements Supplier<InputS
           LOGGER.debug(format(STARTING_WAIT_MESSAGE, attributes.getPath()));
         }
         if (alreadyLoggedWarning.compareAndSet(false, true)) {
-          LOGGER.warn(format(WAIT_WARNING_MESSAGE, attributes.getPath()));
+          LOGGER.warn(WAIT_WARNING_MESSAGE, attributes.getPath());
         }
         sleep(timeBetweenSizeCheck);
       } catch (InterruptedException e) {
+        Thread.currentThread().interrupt();
         throw new MuleRuntimeException(createStaticMessage("Execution was interrupted while waiting to recheck file sizes"),
                                        e);
       }
