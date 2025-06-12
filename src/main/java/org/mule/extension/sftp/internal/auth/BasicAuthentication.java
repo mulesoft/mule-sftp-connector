@@ -32,6 +32,7 @@ import java.util.concurrent.CancellationException;
  * @param <TokenType>
  *            defining the token type for the authentication
  */
+@SuppressWarnings("java:S5738")
 public abstract class BasicAuthentication<ParameterType, TokenType>
     extends AbstractAuthenticationHandler<ParameterType, TokenType> {
 
@@ -52,7 +53,7 @@ public abstract class BasicAuthentication<ParameterType, TokenType>
    * @param initialPassword
    *            initial password to try, may be {@code null}
    */
-  public BasicAuthentication(InetSocketAddress proxy, String initialUser,
+  protected BasicAuthentication(InetSocketAddress proxy, String initialUser,
                              char[] initialPassword) {
     super(proxy);
     this.user = initialUser;
