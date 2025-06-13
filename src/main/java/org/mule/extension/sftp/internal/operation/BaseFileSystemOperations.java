@@ -41,6 +41,7 @@ import org.apache.tika.Tika;
  *
  * @since 1.0
  */
+@SuppressWarnings("rawtypes")
 public abstract class BaseFileSystemOperations {
 
   /**
@@ -239,7 +240,6 @@ public abstract class BaseFileSystemOperations {
    * @param fileSystem    a reference to the host {@link FileSystem}
    * @param directoryPath the new directory's name
    */
-
   protected void doCreateDirectory(@Connection FileSystem fileSystem, String directoryPath) {
     validatePath(directoryPath, "directory path");
     fileSystem.changeToBaseDir();
@@ -253,6 +253,6 @@ public abstract class BaseFileSystemOperations {
   }
 
   private Predicate<FileAttributes> getPredicate(FileMatcher builder) {
-    return builder != null ? builder.build() : new NullFilePayloadPredicate();
+    return builder != null ? builder.build() : new NullFilePayloadPredicate<FileAttributes>();
   }
 }

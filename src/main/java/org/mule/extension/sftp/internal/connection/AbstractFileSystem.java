@@ -43,6 +43,7 @@ import org.apache.tika.Tika;
  *
  * @since 1.0
  */
+@SuppressWarnings("rawtypes")
 public abstract class AbstractFileSystem<A extends org.mule.extension.sftp.api.FileAttributes> implements FileSystem<A> {
 
   private final Tika tika = new Tika();

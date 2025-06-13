@@ -19,6 +19,7 @@ import org.mule.extension.sftp.internal.config.FileConnectorConfig;
 import org.mule.extension.sftp.internal.connection.FileSystem;
 import org.mule.runtime.api.exception.MuleRuntimeException;
 
+import java.io.Serializable;
 import java.util.concurrent.locks.Lock;
 import java.util.function.Predicate;
 
@@ -31,7 +32,7 @@ import org.slf4j.Logger;
  * @param <I> generic type for a class that identifies a file or directory.
  * @since 1.3.0
  */
-public abstract class AbstractFileCommand<F extends FileSystem, I> {
+public abstract class AbstractFileCommand<F extends FileSystem, I extends Serializable> {
 
   private static final Logger LOGGER = getLogger(AbstractFileCommand.class);
 

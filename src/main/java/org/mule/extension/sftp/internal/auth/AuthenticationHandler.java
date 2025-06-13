@@ -35,6 +35,7 @@ import java.io.Closeable;
  * @param <TokenType>
  *            defining the token type for {@link #getToken()}
  */
+@SuppressWarnings("java:S112")
 public interface AuthenticationHandler<ParameterType, TokenType>
     extends Closeable {
 
