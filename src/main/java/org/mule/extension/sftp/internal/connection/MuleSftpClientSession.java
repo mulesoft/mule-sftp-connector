@@ -17,7 +17,7 @@ import org.apache.sshd.common.util.Readable;
 
 import java.util.List;
 
-
+@SuppressWarnings("java:S110")
 public class MuleSftpClientSession extends ClientSessionImpl {
 
   private StatefulProxyConnector proxyHandler;
@@ -44,7 +44,7 @@ public class MuleSftpClientSession extends ClientSessionImpl {
       });
       // This is called only from the ClientSessionImpl
       // constructor, where the return value is ignored.
-      return null;
+      return new byte[0];
     }
     return super.sendKexInit();
   }

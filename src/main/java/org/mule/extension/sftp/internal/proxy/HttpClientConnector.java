@@ -289,6 +289,7 @@ public class HttpClientConnector extends AbstractClientProxyConnector {
   /**
    * @see <a href="https://tools.ietf.org/html/rfc7617">RFC 7617</a>
    */
+  @SuppressWarnings("java:S112")
   private class HttpBasicAuthentication
       extends BasicAuthentication<AuthenticationChallenge, String>
       implements HttpAuthenticationHandler {

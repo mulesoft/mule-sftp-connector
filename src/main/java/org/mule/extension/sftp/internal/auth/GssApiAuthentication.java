@@ -21,6 +21,7 @@ import org.ietf.jgss.GSSContext;
  * @param <TokenType>
  *            defining the token type for the authentication
  */
+@SuppressWarnings("java:S112")
 public abstract class GssApiAuthentication<ParameterType, TokenType>
     extends AbstractAuthenticationHandler<ParameterType, TokenType> {
 
@@ -36,7 +37,7 @@ public abstract class GssApiAuthentication<ParameterType, TokenType>
    * @param proxy
    *            the {@link java.net.InetSocketAddress} of the proxy to connect to
    */
-  public GssApiAuthentication(InetSocketAddress proxy) {
+  protected GssApiAuthentication(InetSocketAddress proxy) {
     super(proxy);
   }
 

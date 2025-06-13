@@ -35,6 +35,7 @@ import org.ietf.jgss.GSSContext;
  *
  * @see <a href="https://tools.ietf.org/html/rfc1928">RFC 1928</a>
  */
+@SuppressWarnings("java:S112")
 public class Socks5ClientConnector extends AbstractClientProxyConnector {
 
   // private static final byte SOCKS_VERSION_4 = 4;

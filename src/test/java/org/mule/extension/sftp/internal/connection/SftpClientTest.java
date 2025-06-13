@@ -12,6 +12,7 @@ import org.junit.jupiter.api.Test;
 import org.mule.extension.sftp.api.SftpFileAttributes;
 import org.mule.extension.sftp.api.SftpProxyConfig;
 import org.mule.extension.sftp.api.random.alg.PRNGAlgorithm;
+import org.mule.extension.sftp.internal.exception.IllegalPathException;
 import org.mule.extension.sftp.internal.exception.SftpConnectionException;
 import org.mule.runtime.api.connection.ConnectionException;
 import org.mule.runtime.api.exception.MuleRuntimeException;
@@ -152,7 +153,7 @@ public class SftpClientTest {
     when(mockFuture.get(anyLong(), any())).thenThrow(new InterruptedException("Thread was interrupted"));
 
     // When & Then: Call getHome to trigger executePWDCommandWithTimeout and verify lines 524-525 are covered
-    RuntimeException exception = assertThrows(RuntimeException.class, () -> {
+    IllegalPathException exception = assertThrows(IllegalPathException.class, () -> {
       testClient.getHome();
     });
 

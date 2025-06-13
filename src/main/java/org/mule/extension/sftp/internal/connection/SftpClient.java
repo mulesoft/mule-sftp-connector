@@ -504,7 +504,7 @@ public class SftpClient {
       }
       return home;
     } catch (IOException e) {
-      throw new RuntimeException(e);
+      throw new IllegalPathException("Unable to resolve the home directory from server", e);
     }
   }
 

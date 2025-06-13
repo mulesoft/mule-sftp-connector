@@ -37,7 +37,7 @@ public abstract class AbstractAuthenticationHandler<ParameterType, TokenType>
    * @param proxy
    *            the {@link java.net.InetSocketAddress} of the proxy to connect to
    */
-  public AbstractAuthenticationHandler(InetSocketAddress proxy) {
+  protected AbstractAuthenticationHandler(InetSocketAddress proxy) {
     this.proxy = proxy;
   }
 

@@ -20,6 +20,7 @@ import java.nio.file.Path;
  *
  * @since 1.3.0
  */
+@SuppressWarnings("rawtypes")
 public abstract class AbstractExternalFileSystem extends AbstractFileSystem implements ExternalFileSystem {
 
   protected AbstractExternalFileSystem(String baseUri) {
