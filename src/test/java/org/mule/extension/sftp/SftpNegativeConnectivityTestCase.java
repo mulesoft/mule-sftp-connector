@@ -67,33 +67,32 @@ public class SftpNegativeConnectivityTestCase extends CommonSftpConnectorTestCas
   }
 
   @Test
-  @Ignore
+  @Ignore("Look at W-12176353 for more details")
   public void configInvalidCredentials() {
     utils.assertFailedConnection(name + "ConfigInvalidCredentials", IS_CONNECTION_EXCEPTION, is(errorType(INVALID_CREDENTIALS)));
   }
 
   @Test
-  @Ignore
+  @Ignore("Look at W-12176353 for more details")
   public void configConnectionTimeout() {
     utils.assertFailedConnection(name + "ConfigConnectionTimeout", IS_CONNECTION_EXCEPTION, is(errorType(CONNECTION_TIMEOUT)));
   }
 
   @Test
-  @Ignore
+  @Ignore("Look at W-12176353 for more details")
   public void connectionRefused() {
     utils.assertFailedConnection(name + "ConfigConnectionRefused", IS_CONNECTION_EXCEPTION, is(errorType(CANNOT_REACH)));
   }
 
   @Test
-  @Ignore
+  @Ignore("Look at W-12176353 for more details")
   public void configMissingCredentials() {
     utils.assertFailedConnection(name + "ConfigMissingCredentials", IS_CONNECTION_EXCEPTION, is(errorType(INVALID_CREDENTIALS)));
   }
 
   @Test
-  @Ignore
+  @Ignore("Look at W-12176353 for more details")
   public void configUnknownHost() {
     utils.assertFailedConnection(name + "ConfigUnknownHost", IS_CONNECTION_EXCEPTION, is(errorType(UNKNOWN_HOST)));
   }
-
 }

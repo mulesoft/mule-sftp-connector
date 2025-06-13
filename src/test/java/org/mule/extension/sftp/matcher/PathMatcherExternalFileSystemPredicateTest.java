@@ -20,7 +20,7 @@ import org.junit.Test;
 
 /**
  * Path marcher external file system tests
- * 
+ *
  * @since 1.4.0
  */
 public class PathMatcherExternalFileSystemPredicateTest {
@@ -128,7 +128,7 @@ public class PathMatcherExternalFileSystemPredicateTest {
   }
 
   @Test
-  public void jdkPathMatcherTests() {
+  public void jdkPathMatcherTests1() {
     assertMatch("foo.html", "foo.html");
     assertNotMatch("foo.html", "foo.htm");
     assertNotMatch("foo.html", "bar.html");
@@ -148,6 +148,11 @@ public class PathMatcherExternalFileSystemPredicateTest {
     assertMatch("foo.html", "???.html");
     assertMatch("foo.html", "???.htm?");
     assertNotMatch("foo.html", "foo.???");
+  }
+
+  @Test
+  public void jdkPathMatcherTests2() {
+    failures = 0;
 
     // group of subpatterns
     assertMatch("foo.html", "foo{.html,.class}");
@@ -181,6 +186,15 @@ public class PathMatcherExternalFileSystemPredicateTest {
     assertBadPattern("foo.html", "*{class,java"); // missing }
     assertBadPattern("foo.html", "*.{class,{.java}}"); // nested group
     assertBadPattern("foo.html", "*.html\\"); // nothing to escape
+
+    if (failures > 0)
+      throw new RuntimeException(failures +
+          " sub-test(s) failed - see log for details");
+  }
+
+  @Test
+  public void jdkPathMatcherTests3() {
+    failures = 0;
 
     assertMatch("C:\\foo", "C:\\\\f*");
     // assertMatch("C:\\FOO", "c:\\\\f*");

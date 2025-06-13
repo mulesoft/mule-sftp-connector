@@ -293,6 +293,8 @@ public class SftpTestHarness extends AbstractSftpTestHarness {
     void configure(T sftpClient);
   }
 
+  // java:S2925 => Thread.sleep is a crucial part of the test and cannot be removed
+  @SuppressWarnings({"java:S2925"})
   protected void writeByteByByteAsync(String path, String content, long delayBetweenCharacters) throws Exception {
     OutputStream os = sftpClient.getOutputStream(path, CREATE_NEW);
 

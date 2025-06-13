@@ -49,7 +49,7 @@ public abstract class AbstractPostActionGroup {
     }
   }
 
-  public void apply(AbstractFileSystem fileSystem, FileAttributes fileAttributes, FileConnectorConfig config) {
+  public void apply(AbstractFileSystem<FileAttributes> fileSystem, FileAttributes fileAttributes, FileConnectorConfig config) {
     logTraceValidation();
 
     boolean movedOrRenamed = false;

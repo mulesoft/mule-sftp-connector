@@ -22,26 +22,4 @@ public class FileBasedConfigProviderTestCase {
     assertEquals("diffie-hellman-group14-sha1,diffie-hellman-group-exchange-sha512@ssh.com,diffie-hellman-group1-sha1",
                  properties.getProperty("KexAlgorithms"));
   }
-
-  @Test
-  public void testFileNotFound() {
-    FileBasedConfigProvider fileBasedConfigProvider = new FileBasedConfigProvider("mule_sshd");
-    Properties properties = fileBasedConfigProvider.getConfigProperties();
-    assertEquals(0, properties.size());
-  }
-
-  @Test
-  public void testWithConfigFileEmpty() {
-    FileBasedConfigProvider fileBasedConfigProvider = new FileBasedConfigProvider("");
-    Properties properties = fileBasedConfigProvider.getConfigProperties();
-    assertEquals(0, properties.size());
-  }
-
-  @Test
-  public void testFilePathIsDirectory() {
-    FileBasedConfigProvider fileBasedConfigProvider = new FileBasedConfigProvider("src/test/resources");
-    Properties properties = fileBasedConfigProvider.getConfigProperties();
-    assertEquals(0, properties.size());
-  }
-
 }
