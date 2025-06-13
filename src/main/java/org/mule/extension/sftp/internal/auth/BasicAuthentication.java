@@ -9,6 +9,7 @@ package org.mule.extension.sftp.internal.auth;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
+import java.io.IOException;
 import java.net.Authenticator;
 import java.net.Authenticator.RequestorType;
 import java.net.InetSocketAddress;
@@ -19,7 +20,6 @@ import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.Arrays;
 import java.util.concurrent.CancellationException;
-
 
 /**
  * An abstract implementation of a username-password authentication. It can be
@@ -92,7 +92,7 @@ public abstract class BasicAuthentication<ParameterType, TokenType>
   }
 
   @Override
-  public final void start() throws Exception {
+  public final void start() {
     if ((user != null && !user.isEmpty())
         || (password != null && password.length > 0)) {
       return;
@@ -101,7 +101,7 @@ public abstract class BasicAuthentication<ParameterType, TokenType>
   }
 
   @Override
-  public void process() throws Exception {
+  public void process() throws IOException {
     askCredentials();
   }
 

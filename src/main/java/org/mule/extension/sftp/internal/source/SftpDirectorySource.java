@@ -186,7 +186,7 @@ public class SftpDirectorySource extends PollingSource<InputStream, SftpFileAttr
     }
     SftpFileSystemConnection fileSystem;
     try {
-      fileSystem = openConnection(pollContext);
+      fileSystem = openConnection();
     } catch (Exception e) {
       LOGGER.error(format("Could not obtain connection while trying to poll directory '%s'. %s", directoryUri.getPath(),
                           e.getMessage()),
@@ -314,20 +314,10 @@ public class SftpDirectorySource extends PollingSource<InputStream, SftpFileAttr
     fileAttributePredicate = predicateBuilder != null ? predicateBuilder.build() : new NullFilePayloadPredicate<>();
   }
 
-  private SftpFileSystemConnection openConnection(PollContext pollContext) throws Exception {
-
+  private SftpFileSystemConnection openConnection()
+      throws ConnectionException {
     SftpFileSystemConnection fileSystem = fileSystemProvider.connect();
-    try {
-      fileSystem.changeToBaseDir();
-    } catch (Exception e) {
-      LOGGER.debug("Exception while trying to open connection. Cause: {} . Message: {}", e.getCause(), e.getMessage());
-      if (extractConnectionException(e).isPresent()) {
-        extractConnectionException(e).ifPresent(pollContext::onConnectionException);
-      } else {
-        fileSystemProvider.disconnect(fileSystem);
-      }
-      throw e;
-    }
+    fileSystem.changeToBaseDir();
     return fileSystem;
   }
 
@@ -341,8 +331,6 @@ public class SftpDirectorySource extends PollingSource<InputStream, SftpFileAttr
     }
     PollItemStatus status = pollContext.accept(item -> {
       final SourceCallbackContext ctx = item.getSourceCallbackContext();
-      Result result = null;
-
       try {
         ctx.addVariable(ATTRIBUTES_CONTEXT_VAR, attributes);
         item.setResult(file).setId(attributes.getPath());
@@ -350,16 +338,10 @@ public class SftpDirectorySource extends PollingSource<InputStream, SftpFileAttr
         if (watermarkEnabled) {
           item.setWatermark(attributes.getTimestamp());
         }
-      } catch (Throwable t) {
-        LOGGER.error(format("Found file '%s' but found exception trying to dispatch it for processing. %s",
-                            fullPath, t.getMessage()),
-                     t);
-
-        if (result != null) {
-          onRejectedItem(result, ctx);
-        }
-
-        throw new MuleRuntimeException(t);
+      } catch (Exception e) {
+        I18nMessage message =
+            createStaticMessage(format("Found file '%s' but found exception trying to dispatch it for processing", fullPath));
+        throw new MuleRuntimeException(message, e);
       }
     });
 
@@ -411,7 +393,6 @@ public class SftpDirectorySource extends PollingSource<InputStream, SftpFileAttr
       I18nMessage message = createStaticMessage(
                                                 format("Could not resolve path to directory '%s'. %s",
                                                        directory, e.getMessage()));
-      LOGGER.error(message.getMessage(), e);
       throw new MuleRuntimeException(message, e);
     }
   }
@@ -441,11 +422,11 @@ public class SftpDirectorySource extends PollingSource<InputStream, SftpFileAttr
   private SftpFileSystemConnection cleanUpAndReconnectFilesystem(
                                                                  PollContext<InputStream, SftpFileAttributes> pollContext,
                                                                  SftpFileSystemConnection fileSystem)
-      throws Exception {
+      throws ConnectionException {
     LOGGER.warn("SFTP channel is closed. Attempting to reconnect and retry...");
     // Disconnect and cleanup
     fileSystem.disconnect();
     // Get a new connection and return it
-    return openConnection(pollContext);
+    return openConnection();
   }
 }
