@@ -27,6 +27,7 @@ import org.apache.sshd.common.io.IoSession;
 import org.apache.sshd.common.keyprovider.KeyIdentityProvider;
 import org.apache.sshd.common.session.helpers.AbstractSession;
 
+@SuppressWarnings("java:S110")
 public class MuleSftpClient extends org.apache.sshd.client.SshClient {
 
   public SftpProxyConfig getProxyConfig() {
@@ -60,7 +61,7 @@ public class MuleSftpClient extends org.apache.sshd.client.SshClient {
 
     ConnectFuture connectFuture = new DefaultConnectFuture(username + "@" + targetAddress, null);
     SshFutureListener<IoConnectFuture> listener =
-        createConnectCompletionListener(connectFuture, username, originalAddress, hostConfig);
+        createConnectCompletionListener(connectFuture, username, originalAddress);
     if (proxyConfig != null) {
       targetAddress = configureProxy(hostConfig);
     }
@@ -77,8 +78,7 @@ public class MuleSftpClient extends org.apache.sshd.client.SshClient {
 
 
   protected SshFutureListener<IoConnectFuture> createConnectCompletionListener(ConnectFuture connectFuture, String username,
-                                                                               InetSocketAddress address,
-                                                                               HostConfigEntry hostConfig) {
+                                                                               InetSocketAddress address) {
     return new SshFutureListener<IoConnectFuture>() {
 
       @Override
@@ -103,7 +103,7 @@ public class MuleSftpClient extends org.apache.sshd.client.SshClient {
           IoSession ioSession = future.getSession();
           try {
             MuleSftpClientSession session = createSession(ioSession,
-                                                          username, address, hostConfig);
+                                                          username, address);
             connectFuture.setSession(session);
           } catch (RuntimeException e) {
             connectFuture.setException(e);
@@ -145,8 +145,7 @@ public class MuleSftpClient extends org.apache.sshd.client.SshClient {
   }
 
   private MuleSftpClientSession createSession(IoSession ioSession,
-                                              String username, InetSocketAddress address,
-                                              HostConfigEntry hostConfig) {
+                                              String username, InetSocketAddress address) {
     AbstractSession rawSession = AbstractSession.getSession(ioSession);
     if (!(rawSession instanceof MuleSftpClientSession)) {
       throw new IllegalStateException("Wrong session type: " //$NON-NLS-1$

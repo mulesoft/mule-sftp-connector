@@ -15,6 +15,7 @@ import org.mule.extension.sftp.internal.auth.AuthenticationHandler;
 import org.mule.extension.sftp.internal.auth.BasicAuthentication;
 import org.mule.extension.sftp.internal.auth.GssApiAuthentication;
 import org.mule.extension.sftp.internal.auth.GssApiMechanisms;
+import org.mule.extension.sftp.internal.exception.ProxyConnectionException;
 import org.mule.runtime.core.api.util.Base64;
 
 import java.io.IOException;
@@ -32,6 +33,7 @@ import org.apache.sshd.common.util.buffer.Buffer;
 import org.apache.sshd.common.util.buffer.ByteArrayBuffer;
 
 import org.ietf.jgss.GSSContext;
+import org.ietf.jgss.GSSException;
 
 /**
  * Simple HTTP proxy connector using Basic Authentication.
@@ -53,6 +55,9 @@ public class HttpClientConnector extends AbstractClientProxyConnector {
   private HttpAuthenticationHandler authenticator;
 
   private boolean ongoing;
+
+  private static final String UNEXPECTED_PROXY_RESPONSE_MSG = "Unexpected HTTP proxy response from {0}: {1}";
+
 
   /**
    * Creates a new {@link HttpClientConnector}. The connector supports
@@ -104,7 +109,7 @@ public class HttpClientConnector extends AbstractClientProxyConnector {
 
   @Override
   public void sendClientProxyMetadata(ClientSession sshSession)
-      throws Exception {
+      throws ProxyConnectionException, IOException, GSSException {
     init(sshSession);
     IoSession session = sshSession.getIoSession();
     session.addCloseFutureListener(f -> close());
@@ -121,17 +126,21 @@ public class HttpClientConnector extends AbstractClientProxyConnector {
     ongoing = true;
     try {
       send(msg, session);
-    } catch (Exception e) {
+    } catch (ProxyConnectionException e) {
       ongoing = false;
       throw e;
     }
   }
 
-  private void send(StringBuilder msg, IoSession session) throws Exception {
+  private void send(StringBuilder msg, IoSession session) throws ProxyConnectionException {
     byte[] data = eol(msg).toString().getBytes(US_ASCII);
     Buffer buffer = new ByteArrayBuffer(data.length, false);
     buffer.putRawBytes(data);
-    session.writeBuffer(buffer).verify(getTimeout());
+    try {
+      session.writeBuffer(buffer).verify(getTimeout());
+    } catch (Exception e) {
+      throw new ProxyConnectionException("Failed to send data through proxy", e);
+    }
   }
 
   private StringBuilder connect() {
@@ -182,14 +191,14 @@ public class HttpClientConnector extends AbstractClientProxyConnector {
       throws Exception {
     if (reply.isEmpty() || reply.get(0).isEmpty()) {
       throw new IOException(
-                            format("Unexpected HTTP proxy response from {0}: {1}",
+                            format(UNEXPECTED_PROXY_RESPONSE_MSG,
                                    proxyAddress, "<empty>")); //$NON-NLS-1$
     }
     try {
       StatusLine status = HttpParser.parseStatusLine(reply.get(0));
       if (!ongoing) {
         throw new IOException(format(
-                                     "Unexpected HTTP proxy response from {0}: {1}", proxyAddress,
+                                     UNEXPECTED_PROXY_RESPONSE_MSG, proxyAddress,
                                      Integer.toString(status.getResultCode()),
                                      status.getReason()));
       }
@@ -227,7 +236,7 @@ public class HttpClientConnector extends AbstractClientProxyConnector {
       }
     } catch (HttpParser.ParseException e) {
       throw new IOException(
-                            format("Unexpected HTTP proxy response from {0}: {1}",
+                            format(UNEXPECTED_PROXY_RESPONSE_MSG,
                                    proxyAddress, reply.get(0)),
                             e);
     }
@@ -236,7 +245,7 @@ public class HttpClientConnector extends AbstractClientProxyConnector {
   private HttpAuthenticationHandler selectProtocol(
                                                    List<AuthenticationChallenge> challenges,
                                                    HttpAuthenticationHandler current)
-      throws Exception {
+      throws IOException, GSSException {
     if (current != null && !current.isDone()) {
       AuthenticationChallenge challenge = getByName(challenges,
                                                     current.getName());
@@ -281,6 +290,7 @@ public class HttpClientConnector extends AbstractClientProxyConnector {
   /**
    * @see <a href="https://tools.ietf.org/html/rfc7617">RFC 7617</a>
    */
+  @SuppressWarnings("java:S112")
   private class HttpBasicAuthentication
       extends BasicAuthentication<AuthenticationChallenge, String>
       implements HttpAuthenticationHandler {
@@ -309,7 +319,7 @@ public class HttpClientConnector extends AbstractClientProxyConnector {
     }
 
     @Override
-    public String getToken() throws Exception {
+    public String getToken() throws IOException {
       if (user.indexOf(':') >= 0) {
         throw new IOException(format(
                                      "HTTP Proxy connection to {0} failed with code {1}: {2}", proxy, user));
@@ -345,19 +355,18 @@ public class HttpClientConnector extends AbstractClientProxyConnector {
     }
 
     @Override
-    public String getToken() throws Exception {
+    public String getToken() throws IOException {
       return getName() + ' ' + Base64.encodeBytes(token);
     }
 
     @Override
-    protected GSSContext createContext() throws Exception {
+    protected GSSContext createContext() {
       return GssApiMechanisms.createContext(GssApiMechanisms.SPNEGO,
                                             GssApiMechanisms.getCanonicalName(proxyAddress));
     }
 
     @Override
-    protected byte[] extractToken(AuthenticationChallenge input)
-        throws Exception {
+    protected byte[] extractToken(AuthenticationChallenge input) {
       String received = input.getToken();
       if (received == null) {
         return new byte[0];

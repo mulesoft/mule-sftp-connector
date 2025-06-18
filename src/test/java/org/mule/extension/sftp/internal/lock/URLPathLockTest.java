@@ -9,6 +9,7 @@ package org.mule.extension.sftp.internal.lock;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.mule.extension.sftp.internal.connection.AbstractExternalFileSystem;
+import org.mule.extension.sftp.internal.exception.PathConversionException;
 import org.mule.runtime.api.lock.LockFactory;
 import org.mule.tck.size.SmallTest;
 
@@ -54,7 +55,7 @@ public class URLPathLockTest {
     URL wrongUrl = new URL("file:");
 
     URLPathLock lock = new URLPathLock(wrongUrl, lockFactoryMock);
-    assertThrows(RuntimeException.class, () -> lock.getPath());
+    assertThrows(PathConversionException.class, () -> lock.getPath());
   }
 
   @Test
@@ -62,7 +63,7 @@ public class URLPathLockTest {
     URL wrongUrl = new URL("file:");
 
     URLPathLock lock = new URLPathLock(wrongUrl, lockFactoryMock);
-    assertThrows(RuntimeException.class, () -> lock.getUri());
+    assertThrows(PathConversionException.class, () -> lock.getUri());
   }
 
 

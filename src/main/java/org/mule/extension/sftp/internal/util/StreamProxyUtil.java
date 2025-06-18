@@ -22,6 +22,9 @@ import static org.mule.runtime.api.i18n.I18nMessageFactory.createStaticMessage;
  */
 public class StreamProxyUtil {
 
+  private StreamProxyUtil() {
+    throw new IllegalStateException("Utility class");
+  }
 
   public static InputStream getInputStreamFromStreamFactory(LazyStreamSupplier streamFactory) {
 

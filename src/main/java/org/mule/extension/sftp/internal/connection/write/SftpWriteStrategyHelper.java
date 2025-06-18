@@ -17,6 +17,13 @@ import org.mule.extension.sftp.api.WriteStrategy;
 public class SftpWriteStrategyHelper {
 
   /**
+   * Private constructor to hide the implicit public one.
+   */
+  private SftpWriteStrategyHelper() {
+    // Utility class - not meant to be instantiated
+  }
+
+  /**
    * Gets the strategy for the write method
    *
    * @param muleSftpClient              the SftpClient Instance for writing to the file

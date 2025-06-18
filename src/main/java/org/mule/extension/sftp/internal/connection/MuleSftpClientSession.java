@@ -17,10 +17,9 @@ import org.apache.sshd.common.util.Readable;
 
 import java.util.List;
 
-
+@SuppressWarnings("java:S110")
 public class MuleSftpClientSession extends ClientSessionImpl {
 
-  private static final int DEFAULT_MAX_IDENTIFICATION_SIZE = 64 * 1024;
   private StatefulProxyConnector proxyHandler;
 
   public MuleSftpClientSession(ClientFactoryManager client, IoSession ioSession) throws Exception {
@@ -45,7 +44,7 @@ public class MuleSftpClientSession extends ClientSessionImpl {
       });
       // This is called only from the ClientSessionImpl
       // constructor, where the return value is ignored.
-      return null;
+      return new byte[0];
     }
     return super.sendKexInit();
   }

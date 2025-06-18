@@ -74,4 +74,44 @@ public class UriUtilsTestCase {
     assertEquals("^[[^/]&&[\\^.]]$", toRegexPattern(globPatternWithCaretAndBracket));
   }
 
+  @Test
+  void testGroupAlternation() {
+    assertEquals("^(?:(?:a)|(?:b))$", toRegexPattern("{a,b}"));
+  }
+
+  @Test
+  void testNestedGroupsThrows() {
+    assertThrows(PatternSyntaxException.class, () -> toRegexPattern("{a,{b,c}}"));
+  }
+
+  @Test
+  void testSingleAsterisk() {
+    assertEquals("^[^/]*$", toRegexPattern("*"));
+  }
+
+  @Test
+  void testDoubleAsterisk() {
+    assertEquals("^.*$", toRegexPattern("**"));
+  }
+
+  @Test
+  void testEscapedMetaCharacters() {
+    assertEquals("^\\*\\?\\[\\]\\{}$", toRegexPattern("\\*\\?\\[\\]\\{\\}"));
+  }
+
+  @Test
+  void testInvalidEscapeThrows() {
+    assertThrows(PatternSyntaxException.class, () -> toRegexPattern("abc\\"));
+  }
+
+  @Test
+  void testRegexMetaCharactersEscaped() {
+    assertEquals("^\\.\\^\\$\\+(?:(?:[[^/]&&[]]\\|\\(\\)))$", toRegexPattern(".^$+{[]|()}"));
+  }
+
+  @Test
+  void testEmptyPattern() {
+    assertEquals("^$", toRegexPattern(""));
+  }
+
 }

@@ -166,89 +166,115 @@ public final class HttpParser {
     int length = header.length();
     boolean first = true;
     for (int start = from; start <= length; first = false) {
-      // Now we have either a single token, which may end in zero or more
-      // equal signs, or a comma-separated list of key=value pairs (with
-      // optional legacy whitespace around the equals sign), where the
-      // value can be either a token or a quoted string.
       start = skipWhiteSpace(header, start);
       int end = HttpSupport.scanToken(header, start);
       if (end == start) {
-        // Nothing found. Either at end or on a comma.
-        if (start < header.length() && header.charAt(start) == ',') {
-          return start + 1;
-        }
-        return start;
+        return handleEmptyToken(header, start);
       }
+
       int next = skipWhiteSpace(header, end);
-      // Comma, or equals sign, or end of string
-      if (next >= length || header.charAt(next) != '=') {
-        if (first) {
-          // It must be a token
-          challenge.setToken(header.substring(start, end));
-          if (next < length && header.charAt(next) == ',') {
-            next++;
-          }
-          return next;
-        }
-        // This token must be the name of the next authentication
-        // scheme.
-        return start;
+      if (shouldReturnTokenOnly(header, length, next)) {
+        return handleTokenOnly(challenge, header, start, end, next, first);
       }
+
       int nextStart = skipWhiteSpace(header, next + 1);
       if (nextStart >= length) {
-        if (next == end) {
-          // '=' immediately after the key, no value: key must be the
-          // token, and the equals sign is part of the token
-          challenge.setToken(header.substring(start, end + 1));
-        } else {
-          // Key without value...
-          challenge.addArgument(header.substring(start, end), null);
-        }
-        return nextStart;
+        return handleKeyWithoutValue(challenge, header, start, end, next);
       }
-      if (nextStart == end + 1 && header.charAt(nextStart) == '=') {
-        // More than one equals sign: must be the single token.
-        end = nextStart + 1;
-        while (end < length && header.charAt(end) == '=') {
-          end++;
-        }
-        challenge.setToken(header.substring(start, end));
-        end = skipWhiteSpace(header, end);
-        if (end < length && header.charAt(end) == ',') {
-          end++;
-        }
-        return end;
+
+      if (isEqualsFollowingToken(nextStart, end, header)) {
+        return handleTokenWithMultipleEquals(challenge, header, start, end, nextStart, length);
       }
+
       if (header.charAt(nextStart) == ',') {
-        if (next == end) {
-          // '=' immediately after the key, no value: key must be the
-          // token, and the equals sign is part of the token
-          challenge.setToken(header.substring(start, end + 1));
-          return nextStart + 1;
-        }
-        // Key without value...
-        challenge.addArgument(header.substring(start, end), null);
-        start = nextStart + 1;
+        return handleKeyFollowedByComma(challenge, header, start, end, next, nextStart);
       } else {
-        if (header.charAt(nextStart) == '"') {
-          int[] nextEnd = {nextStart + 1};
-          String value = scanQuotedString(header, nextStart + 1,
-                                          nextEnd);
-          challenge.addArgument(header.substring(start, end), value);
-          start = nextEnd[0];
-        } else {
-          int nextEnd = HttpSupport.scanToken(header, nextStart);
-          challenge.addArgument(header.substring(start, end),
-                                header.substring(nextStart, nextEnd));
-          start = nextEnd;
-        }
-        start = skipWhiteSpace(header, start);
-        if (start < length && header.charAt(start) == ',') {
-          start++;
-        }
+        start = handleKeyValuePair(challenge, header, start, end, nextStart);
+      }
+
+      start = skipWhiteSpace(header, start);
+      if (start < length && header.charAt(start) == ',') {
+        start++;
       }
     }
     return length;
+  }
+
+  private static boolean isEqualsFollowingToken(int nextStart, int end, String header) {
+    return nextStart == end + 1 && header.charAt(nextStart) == '=';
+  }
+
+  private static int handleEmptyToken(String header, int start) {
+    if (start < header.length() && header.charAt(start) == ',') {
+      return start + 1;
+    }
+    return start;
+  }
+
+  private static boolean shouldReturnTokenOnly(String header, int length, int next) {
+    return next >= length || header.charAt(next) != '=';
+  }
+
+  private static int handleTokenOnly(AuthenticationChallenge challenge, String header,
+                                     int start, int end, int next, boolean first) {
+    if (first) {
+      challenge.setToken(header.substring(start, end));
+      if (next < header.length() && header.charAt(next) == ',') {
+        next++;
+      }
+      return next;
+    }
+    return start;
+  }
+
+  private static int handleKeyWithoutValue(AuthenticationChallenge challenge, String header,
+                                           int start, int end, int next) {
+    if (next == end) {
+      challenge.setToken(header.substring(start, end + 1));
+    } else {
+      challenge.addArgument(header.substring(start, end), null);
+    }
+    return skipWhiteSpace(header, next + 1);
+  }
+
+  private static int handleTokenWithMultipleEquals(AuthenticationChallenge challenge,
+                                                   String header, int start, int end,
+                                                   int nextStart, int length) {
+    end = nextStart + 1;
+    while (end < length && header.charAt(end) == '=') {
+      end++;
+    }
+    challenge.setToken(header.substring(start, end));
+    end = skipWhiteSpace(header, end);
+    if (end < length && header.charAt(end) == ',') {
+      end++;
+    }
+    return end;
+  }
+
+  private static int handleKeyFollowedByComma(AuthenticationChallenge challenge,
+                                              String header, int start, int end,
+                                              int next, int nextStart) {
+    if (next == end) {
+      challenge.setToken(header.substring(start, end + 1));
+      return nextStart + 1;
+    }
+    challenge.addArgument(header.substring(start, end), null);
+    return nextStart + 1;
+  }
+
+  private static int handleKeyValuePair(AuthenticationChallenge challenge, String header,
+                                        int start, int end, int nextStart) {
+    if (header.charAt(nextStart) == '"') {
+      int[] nextEnd = {nextStart + 1};
+      String value = scanQuotedString(header, nextStart + 1, nextEnd);
+      challenge.addArgument(header.substring(start, end), value);
+      return nextEnd[0];
+    } else {
+      int nextEnd = HttpSupport.scanToken(header, nextStart);
+      challenge.addArgument(header.substring(start, end), header.substring(nextStart, nextEnd));
+      return nextEnd;
+    }
   }
 
   private static int skipWhiteSpace(String header, int i) {

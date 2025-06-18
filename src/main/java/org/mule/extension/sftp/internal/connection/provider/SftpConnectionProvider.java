@@ -159,29 +159,7 @@ public class SftpConnectionProvider extends FileSystemProvider<SftpFileSystemCon
       client.login(connectionSettings.getUsername());
     } catch (final SshException e) {
       client.disconnect();
-      if (e.getDisconnectCode() == SSH2_DISCONNECT_NO_MORE_AUTH_METHODS_AVAILABLE) {
-        throw new SftpConnectionException(getErrorMessage(connectionSettings, e.getMessage()), e, FileError.INVALID_CREDENTIALS);
-      } else if (e.getDisconnectCode() == 0) {
-        if (e.getMessage().contains("timeout")) {
-          throw new SftpConnectionException(getErrorMessage(connectionSettings, e.getMessage()), e, FileError.CONNECTION_TIMEOUT);
-        } else if (e.getMessage().contains("Connection refused") || e.getMessage().contains("refused the network connection")) {
-          throw new SftpConnectionException(getErrorMessage(connectionSettings, e.getMessage()), e, FileError.CANNOT_REACH);
-        } else if (e.getMessage().contains("UnresolvedAddressException")) {
-          throw new SftpConnectionException(getErrorMessage(connectionSettings, e.getMessage()), e, FileError.UNKNOWN_HOST);
-        } else if (e.getMessage().contains("Connection reset by peer") || e.getMessage().contains("Connection reset")) {
-          throw new SftpConnectionException(getErrorMessage(connectionSettings, e.getMessage()), e, FileError.CONNECTIVITY);
-        } else {
-          LOGGER.error(e.getMessage());
-          throw new SftpConnectionException(getErrorMessage(connectionSettings, e.getMessage()), e, FileError.UNKNOWN);
-        }
-      } else if (e.getDisconnectCode() == SSH2_DISCONNECT_KEY_EXCHANGE_FAILED) {
-        throw new SftpConnectionException(getErrorMessage(connectionSettings, e.getMessage()), e, FileError.KEY_EXCHANGE_FAILED);
-      } else if (e.getDisconnectCode() == 9) {
-        throw new SftpConnectionException(getErrorMessage(connectionSettings, e.getMessage()), e, FileError.CANNOT_REACH);
-      } else {
-        LOGGER.error(e.getMessage());
-      }
-      throw new SftpConnectionException(getErrorMessage(connectionSettings, e.getMessage()), e, FileError.DISCONNECTED);
+      throw handleSshClientException(e);
     } catch (final IllegalStateException e) {
       client.disconnect();
       throw new SftpConnectionException(getErrorMessage(connectionSettings, e.getMessage()), e, FileError.INVALID_CREDENTIALS);
@@ -191,6 +169,35 @@ public class SftpConnectionProvider extends FileSystemProvider<SftpFileSystemCon
     }
 
     return new SftpFileSystemConnection(client, getWorkingDir(), lockFactory);
+  }
+
+  private SftpConnectionException handleSshClientException(SshException e) {
+
+    String message = e.getMessage();
+    int code = e.getDisconnectCode();
+
+    if (code == SSH2_DISCONNECT_NO_MORE_AUTH_METHODS_AVAILABLE) {
+      return new SftpConnectionException(getErrorMessage(connectionSettings, message), e, FileError.INVALID_CREDENTIALS);
+    } else if (code == 0) {
+      if (message.contains("timeout")) {
+        return new SftpConnectionException(getErrorMessage(connectionSettings, message), e, FileError.CONNECTION_TIMEOUT);
+      } else if (message.contains("Connection refused") || message.contains("refused the network connection")) {
+        return new SftpConnectionException(getErrorMessage(connectionSettings, message), e, FileError.CANNOT_REACH);
+      } else if (message.contains("UnresolvedAddressException")) {
+        return new SftpConnectionException(getErrorMessage(connectionSettings, message), e, FileError.UNKNOWN_HOST);
+      } else if (message.contains("Connection reset by peer") || message.contains("Connection reset")) {
+        return new SftpConnectionException(getErrorMessage(connectionSettings, message), e, FileError.CONNECTIVITY);
+      } else {
+        LOGGER.error(message);
+        return new SftpConnectionException(getErrorMessage(connectionSettings, message), e, FileError.UNKNOWN);
+      }
+    } else if (code == SSH2_DISCONNECT_KEY_EXCHANGE_FAILED) {
+      return new SftpConnectionException(getErrorMessage(connectionSettings, message), e, FileError.KEY_EXCHANGE_FAILED);
+    } else if (code == 9) {
+      return new SftpConnectionException(getErrorMessage(connectionSettings, message), e, FileError.CANNOT_REACH);
+    }
+    LOGGER.error(message);
+    return new SftpConnectionException(getErrorMessage(connectionSettings, message), e, FileError.DISCONNECTED);
   }
 
   @Override

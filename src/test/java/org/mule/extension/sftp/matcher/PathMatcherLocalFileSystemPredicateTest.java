@@ -19,7 +19,7 @@ import org.junit.Test;
 
 /**
  * Path matcher local file system tests
- * 
+ *
  * @since 1.4.0
  */
 public class PathMatcherLocalFileSystemPredicateTest {
@@ -120,7 +120,7 @@ public class PathMatcherLocalFileSystemPredicateTest {
   }
 
   @Test
-  public void jdkPathMatcherTests() {
+  public void jdkPathMatcherTests1() {
     assertMatch("foo.html", "foo.html");
     assertNotMatch("foo.html", "foo.htm");
     assertNotMatch("foo.html", "bar.html");
@@ -145,6 +145,11 @@ public class PathMatcherLocalFileSystemPredicateTest {
     assertMatch("foo.html", "foo{.html,.class}");
     assertMatch("foo.html", "foo.{class,html}");
     assertNotMatch("foo.html", "foo{.htm,.class}");
+  }
+
+  @Test
+  public void jdkPathMatcherTests2() {
+    failures = 0;
 
     // bracket expressions
     assertMatch("foo.html", "[f]oo.html");
@@ -173,6 +178,15 @@ public class PathMatcherLocalFileSystemPredicateTest {
     assertBadPattern("foo.html", "*{class,java"); // missing }
     assertBadPattern("foo.html", "*.{class,{.java}}"); // nested group
     assertBadPattern("foo.html", "*.html\\"); // nothing to escape
+
+    if (failures > 0)
+      throw new RuntimeException(failures +
+          " sub-test(s) failed - see log for details");
+  }
+
+  @Test
+  public void jdkPathMatcherTests3() {
+    failures = 0;
 
     assertMatch("C:\\foo", "C:\\\\f*");
     // assertMatch("C:\\FOO", "c:\\\\f*");

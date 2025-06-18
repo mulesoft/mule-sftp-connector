@@ -29,28 +29,27 @@ import org.apache.sshd.common.util.buffer.BufferUtils;
 import org.apache.sshd.common.util.buffer.ByteArrayBuffer;
 
 import org.ietf.jgss.GSSContext;
+import org.ietf.jgss.GSSException;
 
 /**
  * A {@link AbstractClientProxyConnector} to connect through a SOCKS5 proxy.
  *
  * @see <a href="https://tools.ietf.org/html/rfc1928">RFC 1928</a>
  */
+@SuppressWarnings("java:S112")
 public class Socks5ClientConnector extends AbstractClientProxyConnector {
 
-  // private static final byte SOCKS_VERSION_4 = 4;
   private static final byte SOCKS_VERSION_5 = 5;
 
   private static final byte SOCKS_CMD_CONNECT = 1;
-  // private static final byte SOCKS5_CMD_BIND = 2;
-  // private static final byte SOCKS5_CMD_UDP_ASSOCIATE = 3;
 
   // Address types
 
-  private static final byte SOCKS_ADDRESS_IPv4 = 1;
+  private static final byte SOCKS_ADDRESS_IPV4 = 1;
 
   private static final byte SOCKS_ADDRESS_FQDN = 3;
 
-  private static final byte SOCKS_ADDRESS_IPv6 = 4;
+  private static final byte SOCKS_ADDRESS_IPV6 = 4;
 
   // Reply codes
 
@@ -254,7 +253,7 @@ public class Socks5ClientConnector extends AbstractClientProxyConnector {
     return result;
   }
 
-  private void sendConnectInfo(IoSession session) throws Exception {
+  private void sendConnectInfo(IoSession session) throws IOException {
     GssApiMechanisms.closeContextSilently(context);
 
     byte[] rawAddress = getRawAddress(remoteAddress);
@@ -278,7 +277,7 @@ public class Socks5ClientConnector extends AbstractClientProxyConnector {
       length = remoteName.length + 1;
     } else {
       length = rawAddress.length;
-      type = length == 4 ? SOCKS_ADDRESS_IPv4 : SOCKS_ADDRESS_IPv6;
+      type = length == 4 ? SOCKS_ADDRESS_IPV4 : SOCKS_ADDRESS_IPV6;
     }
     Buffer buffer = new ByteArrayBuffer(4 + length + 2, false);
     buffer.putByte(SOCKS_VERSION_5);
@@ -322,7 +321,7 @@ public class Socks5ClientConnector extends AbstractClientProxyConnector {
     }
   }
 
-  private void startAuth(IoSession session) throws Exception {
+  private void startAuth(IoSession session) throws IOException, GSSException {
     Buffer buffer = null;
     try {
       authenticator.setParams(null);
@@ -429,7 +428,7 @@ public class Socks5ClientConnector extends AbstractClientProxyConnector {
     }
   }
 
-  private void versionCheck(byte version) throws Exception {
+  private void versionCheck(byte version) throws IOException {
     if (version != SOCKS_VERSION_5) {
       throw new IOException(
                             format("Expected SOCKS version 5, got {0}",
@@ -483,7 +482,7 @@ public class Socks5ClientConnector extends AbstractClientProxyConnector {
     }
 
     @Override
-    public void process() throws Exception {
+    public void process() throws IOException {
       // Retries impossible. RFC 1929 specifies that the server MUST
       // close the connection if authentication is unsuccessful.
       done = true;
@@ -550,12 +549,12 @@ public class Socks5ClientConnector extends AbstractClientProxyConnector {
     }
 
     @Override
-    protected GSSContext createContext() throws Exception {
+    protected GSSContext createContext() {
       return context;
     }
 
     @Override
-    public Buffer getToken() throws Exception {
+    public Buffer getToken() {
       if (token == null) {
         return null;
       }
@@ -569,9 +568,9 @@ public class Socks5ClientConnector extends AbstractClientProxyConnector {
     }
 
     @Override
-    protected byte[] extractToken(Buffer input) throws Exception {
+    protected byte[] extractToken(Buffer input) throws IOException {
       if (context == null) {
-        return null;
+        return new byte[0];
       }
       int version = input.getUByte();
       if (version != SOCKS5_GSSAPI_VERSION) {
@@ -584,7 +583,7 @@ public class Socks5ClientConnector extends AbstractClientProxyConnector {
         throw new IOException(format("Cannot authenticate with GSS-API to SOCKS5 proxy {0}", remoteAddress));
       } else if (msgType != SOCKS5_GSSAPI_TOKEN) {
         throw new IOException(format(
-                                     "",
+                                     "Connection failed to {0} with message type 0x{1}",
                                      remoteAddress, Integer.toHexString(msgType & 0xFF)));
       }
       if (input.available() >= 2) {
