@@ -40,7 +40,7 @@
 
         <muleTestsComponentPlugin>${mule.version}</muleTestsComponentPlugin>
         <muleTestsRunnerVersion>4.1.5</muleTestsRunnerVersion>
-        <muleSdkApiVersion>0.7.0</muleSdkApiVersion>
+        <muleSdkApiVersion>0.7.5</muleSdkApiVersion>
         <muleSdkCompatibilityApiVersion>0.5.0</muleSdkCompatibilityApiVersion>
 
         <!-- Remove when a new parent version with MTF is available -->
