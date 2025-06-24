@@ -121,6 +121,7 @@ public abstract class FileMatcher<T extends FileMatcher, A extends FileAttribute
    */
   public Predicate<A> build() {
     Predicate<A> predicate = payload -> true;
+    predicate = addConditions(predicate);
     if (filenamePattern != null) {
       org.mule.extension.sftp.api.matcher.PathMatcherPredicate pathMatcher =
           new org.mule.extension.sftp.api.matcher.PathMatcherPredicate(filenamePattern, predicateType, caseSensitive);
@@ -155,7 +156,7 @@ public abstract class FileMatcher<T extends FileMatcher, A extends FileAttribute
       predicate = predicate.and(attributes -> attributes.getSize() <= maxSize);
     }
 
-    return addConditions(predicate);
+    return predicate;
   }
 
   /**
