@@ -31,6 +31,6 @@ public class SftpConcurrentClientFactory extends DefaultSftpClientFactory {
                                                       ClientSession session, SftpVersionSelector selector,
                                                       SftpErrorDataHandler errorDataHandler)
       throws IOException {
-    return new SftpConcurrentClient(session, selector, errorDataHandler);
+    return new SftpConcurrentClient(session, selector, errorDataHandler); 
   }
 }
